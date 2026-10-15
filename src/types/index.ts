@@ -1,0 +1,159 @@
+export const UserRole = {
+  CUSTOMER: 'customer',
+  MODERATOR: 'moderator',
+  ADMIN: 'admin',
+  SUPER_ADMIN: 'super_admin',
+} as const;
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
+
+export const Gender = {
+  MALE: 'male',
+  FEMALE: 'female',
+} as const;
+export type Gender = (typeof Gender)[keyof typeof Gender];
+
+export const MaritalStatus = {
+  NEVER_MARRIED: 'never_married',
+  DIVORCED: 'divorced',
+  WIDOWED: 'widowed',
+  SEPARATED: 'separated',
+} as const;
+export type MaritalStatus = (typeof MaritalStatus)[keyof typeof MaritalStatus];
+
+export const AccountStatus = {
+  PENDING: 'pending',
+  ACTIVE: 'active',
+  SUSPENDED: 'suspended',
+  DEACTIVATED: 'deactivated',
+  BANNED: 'banned',
+} as const;
+export type AccountStatus = (typeof AccountStatus)[keyof typeof AccountStatus];
+
+export const EducationLevel = {
+  SSC: 'ssc',
+  HSC: 'hsc',
+  DIPLOMA: 'diploma',
+  BACHELORS: 'bachelors',
+  MASTERS: 'masters',
+  PHD: 'phd',
+  ISLAMIC_EDUCATION: 'islamic_education',
+  OTHER: 'other',
+} as const;
+export type EducationLevel = (typeof EducationLevel)[keyof typeof EducationLevel];
+
+export const InterestStatus = {
+  PENDING: 'pending',
+  ACCEPTED: 'accepted',
+  DECLINED: 'declined',
+  WITHDRAWN: 'withdrawn',
+} as const;
+export type InterestStatus = (typeof InterestStatus)[keyof typeof InterestStatus];
+
+export const ProfileVisibility = {
+  PUBLIC: 'public',
+  REGISTERED_ONLY: 'registered_only',
+  PRIVATE: 'private',
+} as const;
+export type ProfileVisibility = (typeof ProfileVisibility)[keyof typeof ProfileVisibility];
+
+export interface User {
+  id: string;
+  _id?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: UserRole;
+  accountStatus: AccountStatus;
+  isEmailVerified?: boolean;
+  isPhoneVerified?: boolean;
+  createdAt?: string;
+}
+
+export interface ProfilePhoto {
+  url: string;
+  key?: string;
+  isProfilePhoto: boolean;
+  uploadedAt?: string;
+}
+
+export interface Profile {
+  _id: string;
+  user: string | User;
+  displayName: string;
+  dateOfBirth: string;
+  gender: Gender;
+  upazila: string;
+  education?: EducationLevel;
+  educationDetail?: string;
+  occupation?: string;
+  maritalStatus: MaritalStatus;
+  height?: { feet: number; inches: number };
+  weight?: number;
+  skinTone?: string;
+  familyInfo?: {
+    fatherOccupation?: string;
+    motherOccupation?: string;
+    siblings?: number;
+    familyType?: string;
+    financialStatus?: string;
+  };
+  religiousInfo?: {
+    religion: string;
+    religiousness?: string;
+    praysFiveTimes?: boolean;
+    wearsHijab?: boolean;
+  };
+  lifestyle?: {
+    smoking: boolean;
+    diet?: string;
+  };
+  bio?: string;
+  photos?: ProfilePhoto[];
+  preferences?: {
+    minAge?: number;
+    maxAge?: number;
+    preferredUpazilas?: string[];
+    preferredEducation?: EducationLevel[];
+    preferredMaritalStatus?: MaritalStatus[];
+  };
+  visibility: ProfileVisibility;
+  isComplete: boolean;
+  completionPercentage: number;
+  isApproved: boolean;
+  age?: number;
+  createdAt?: string;
+}
+
+export interface Interest {
+  _id: string;
+  sender: User | string;
+  receiver: User | string;
+  status: InterestStatus;
+  message?: string;
+  respondedAt?: string;
+  createdAt: string;
+}
+
+export interface Notification {
+  _id: string;
+  recipient: string;
+  type: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  readAt?: string;
+  createdAt: string;
+}
+
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  message: string;
+  data?: T;
+  meta?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  errors?: Array<{ field?: string; message: string }>;
+}
