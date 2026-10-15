@@ -112,3 +112,10 @@ client/src/
 Production builds use .env.production: https://madhubondhon-server-742j.onrender.com/api/v1. Local npm run dev continues to use the local API proxy. A hosting environment VITE_API_URL overrides the file; set it to this same API URL if configured. Rebuild after changing it.
 
 The Render API must allow the actual frontend origin in CORS_ORIGIN. For the current local UI: http://127.0.0.1:5174,http://localhost:5174. Add the hosted frontend origin when one is deployed. Do not add /api/v1 or a trailing slash to an origin. Render Environment changes must be saved and deployed. No local demo accounts or data are copied to the hosted database.
+
+## Live frontend
+
+Frontend: https://madhubondhon-client.vercel.app
+Backend: https://madhubondhon-server-742j.onrender.com
+
+Render CORS_ORIGIN must include https://madhubondhon-client.vercel.app (plus any local origins needed). Set VITE_API_URL=https://madhubondhon-server-742j.onrender.com/api/v1 in Vercel if an environment override exists, then redeploy. The included vercel.json serves index.html for client routes such as /search and /login on direct navigation.
