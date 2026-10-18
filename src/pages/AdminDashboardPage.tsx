@@ -212,9 +212,14 @@ export const AdminDashboardPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab("profiles")}
-          className="pb-3.5 text-sm font-bold text-rose-700"
+          className={`flex items-center gap-2 pb-3.5 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+            activeTab === "profiles"
+              ? "border-rose-600 text-rose-700"
+              : "border-transparent text-gray-500 hover:text-gray-800"
+          }`}
         >
-          বায়োডাটা অনুমোদন
+          <FileText className="w-4 h-4" />
+          <span>বায়োডাটা অনুমোদন</span>
         </button>
         <button
           type="button"
