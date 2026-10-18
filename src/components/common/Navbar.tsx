@@ -16,6 +16,9 @@ import {
   HelpCircle,
   ChevronDown,
   Phone,
+  Home,
+  BookOpen,
+  UserPlus,
 } from "lucide-react";
 import { notificationsApi } from "../../api/notifications.api";
 import { useAuth } from "../../context/useAuth";
@@ -70,60 +73,80 @@ export const Navbar: React.FC = () => {
   const unreadCount = notificationsData?.data?.unreadCount || 0;
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#191e28]/95 backdrop-blur-md border-b border-rose-100 dark:border-gray-800 shadow-xs">
+    <header className="sticky top-0 z-50 bg-[#120e17] border-b border-[#231726] text-gray-100 shadow-xs">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-2 sm:gap-4">
           {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-10 h-10 rounded-full bg-linear-to-tr from-rose-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-rose-200 dark:shadow-none group-hover:scale-105 transition-transform shrink-0">
+            <div className="w-10 h-10 rounded-full bg-linear-to-tr from-rose-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-rose-950/80 group-hover:scale-105 transition-transform shrink-0">
               <Heart className="w-5 h-5 fill-current" />
             </div>
             <div className="flex flex-col">
-              <span className="font-extrabold text-lg sm:text-xl tracking-tight bg-linear-to-r from-rose-700 via-rose-600 to-pink-600 bg-clip-text text-transparent whitespace-nowrap">
+              <span className="font-extrabold text-lg sm:text-xl tracking-tight text-rose-500 whitespace-nowrap">
                 মধুবন্ধন
               </span>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium -mt-1 tracking-wider uppercase whitespace-nowrap">
+              <span className="text-[9px] text-gray-400 font-semibold -mt-1 tracking-wider uppercase whitespace-nowrap">
                 Tangail Matrimony
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+          <nav className="hidden lg:flex items-center gap-2 xl:gap-4 h-16">
             <Link
-              to="/search"
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap shrink-0 ${
-                isActive("/search")
-                  ? "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 font-bold"
-                  : "text-gray-700 dark:text-gray-250 hover:bg-rose-50/70 hover:text-rose-600 dark:hover:bg-gray-800/60 dark:hover:text-rose-300"
+              to="/"
+              className={`flex items-center gap-1.5 px-3 h-full text-sm font-semibold transition-all whitespace-nowrap shrink-0 relative ${
+                isActive("/")
+                  ? "text-rose-500 font-bold border-b-2 border-rose-500"
+                  : "text-gray-300 hover:text-rose-400"
               }`}
             >
-              <Search className="w-4 h-4 shrink-0 text-rose-500" />
+              <Home className="w-4 h-4 shrink-0 text-rose-500" />
+              <span>হোম</span>
+            </Link>
+
+            <Link
+              to="/search"
+              className={`flex items-center gap-1.5 px-3 h-full text-sm font-semibold transition-all whitespace-nowrap shrink-0 relative ${
+                isActive("/search")
+                  ? "text-rose-500 font-bold border-b-2 border-rose-500"
+                  : "text-gray-300 hover:text-rose-400"
+              }`}
+            >
+              <Search className="w-4 h-4 shrink-0" />
               <span>বায়োডাটা খুঁজুন</span>
             </Link>
 
             <Link
               to="/faq"
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap shrink-0 ${
+              className={`flex items-center gap-1.5 px-3 h-full text-sm font-semibold transition-all whitespace-nowrap shrink-0 relative ${
                 isActive("/faq")
-                  ? "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 font-bold"
-                  : "text-gray-700 dark:text-gray-250 hover:bg-rose-50/70 hover:text-rose-600 dark:hover:bg-gray-800/60 dark:hover:text-rose-300"
+                  ? "text-rose-500 font-bold border-b-2 border-rose-500"
+                  : "text-gray-300 hover:text-rose-400"
               }`}
             >
-              <HelpCircle className="w-4 h-4 shrink-0 text-rose-500" />
+              <HelpCircle className="w-4 h-4 shrink-0" />
               <span>সহায়িকা ও FAQ</span>
+            </Link>
+
+            <Link
+              to="/faq"
+              className="flex items-center gap-1.5 px-3 h-full text-sm font-semibold text-gray-300 hover:text-rose-400 transition-all whitespace-nowrap shrink-0"
+            >
+              <BookOpen className="w-4 h-4 shrink-0" />
+              <span>ব্লগ</span>
             </Link>
 
             {isAuthenticated && (
               <Link
                 to="/shortlist"
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap shrink-0 ${
+                className={`flex items-center gap-1.5 px-3 h-full text-sm font-semibold transition-all whitespace-nowrap shrink-0 relative ${
                   isActive("/shortlist")
-                    ? "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 font-bold"
-                    : "text-gray-700 dark:text-gray-250 hover:bg-rose-50/70 hover:text-rose-600 dark:hover:bg-gray-800/60 dark:hover:text-rose-300"
+                    ? "text-rose-500 font-bold border-b-2 border-rose-500"
+                    : "text-gray-300 hover:text-rose-400"
                 }`}
               >
-                <Bookmark className="w-4 h-4 shrink-0 text-rose-500" />
+                <Bookmark className="w-4 h-4 shrink-0" />
                 <span>পছন্দের তালিকা</span>
               </Link>
             )}
@@ -321,21 +344,28 @@ export const Navbar: React.FC = () => {
                 </div>
               </>
             ) : (
-              <div className="flex items-center gap-2 whitespace-nowrap">
+              <div className="flex items-center gap-2.5 whitespace-nowrap">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-semibold text-rose-700 dark:text-rose-300 hover:text-rose-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors whitespace-nowrap"
+                  className="px-4 py-2 text-xs font-semibold text-gray-200 hover:text-white border border-[#382b40] hover:border-gray-500 bg-[#1e1724]/70 hover:bg-[#281d30] rounded-xl transition-all whitespace-nowrap"
                 >
                   লগইন
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 text-sm font-semibold text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 rounded-xl shadow-xs shadow-rose-200 dark:shadow-none transition-all hover:shadow-md whitespace-nowrap"
+                  className="px-4 py-2 text-xs font-bold text-white bg-linear-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 rounded-xl shadow-lg shadow-rose-950/70 flex items-center gap-1.5 transition-all hover:scale-[1.02] whitespace-nowrap"
                 >
-                  নিবন্ধন করুন (ফ্রি)
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>নিবন্ধন করুন (ফ্রি)</span>
                 </Link>
               </div>
             )}
+
+            {/* Language dropdown */}
+            <div className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-gray-300 hover:text-white cursor-pointer select-none">
+              <span>বাংলা</span>
+              <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+            </div>
           </div>
 
           {/* Mobile & Tablet controls */}
