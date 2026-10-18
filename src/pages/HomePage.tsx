@@ -1,187 +1,73 @@
+import PublicStatistics from '../components/profile/PublicStatistics';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Heart, Search, ShieldCheck, MapPin, Users, Sparkles, ArrowRight } from 'lucide-react';
-import { TANGAIL_UPAZILAS, UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../constants/locations';
+import { ArrowDown, ArrowRight, Check, Heart, MapPin, Search, ShieldCheck, Sparkles, UserRoundPlus, FileCheck2, MessagesSquare, Handshake } from 'lucide-react';
+import { TANGAIL_UPAZILAS, UPAZILA_DISPLAY_NAMES } from '../constants/locations';
+import './HomePage.css';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedGender, setSelectedGender] = useState<string>('female');
-  const [selectedUpazila, setSelectedUpazila] = useState<string>('');
-
-  const handleQuickSearch = (e: React.FormEvent) => {
+  const [gender, setGender] = useState('female');
+  const [upazila, setUpazila] = useState('');
+  const [maritalStatus, setMaritalStatus] = useState('');
+  const search = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (selectedGender) params.append('gender', selectedGender);
-    if (selectedUpazila) params.append('upazila', selectedUpazila);
-    navigate(`/search?${params.toString()}`);
+    const params = new URLSearchParams({ gender });
+    if (upazila) params.set('upazila', upazila);
+    if (maritalStatus) params.set('maritalStatus', maritalStatus);
+    navigate('/search?' + params.toString());
   };
-
-
   return (
-    <div className="space-y-16 pb-16">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-linear-to-b from-rose-50 via-pink-50/40 to-white py-16 lg:py-24 border-b border-rose-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto space-y-5">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-100/80 text-rose-700 text-xs font-semibold shadow-xs">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>টাঙ্গাইলবাসীর একনিষ্ঠ ও বিশ্বস্ত পাত্র-পাত্রী সন্ধান</span>
+    <div className="mb-home">
+      <section className="mb-hero">
+        <div className="mb-shell mb-hero-grid">
+          <div className="mb-hero-copy">
+            <span className="mb-eyebrow"><span className="mb-status-dot" /> টাঙ্গাইলের মানুষের জন্য, আন্তরিক এক উদ্যোগ</span>
+            <h1>একই শিকড়ের টানে,<br />শুরু হোক <span>নতুন গল্প।</span></h1>
+            <p className="mb-intro">পরিচিত সংস্কৃতি, কাছের মানুষ আর মিল থাকা মূল্যবোধ। টাঙ্গাইলের মধ্যেই খুঁজে নিন আপনার উপযুক্ত জীবনসঙ্গী।</p>
+            <div className="mb-hero-links">
+              <Link to="/register" className="mb-primary">বিনামূল্যে বায়োডাটা তৈরি করুন <ArrowRight size={17} /></Link>
+              <a href="#how-it-works" className="mb-text-link">যেভাবে কাজ করে <ArrowDown size={16} /></a>
             </div>
-
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-tight">
-              টাঙ্গাইলের মানুষের জন্য টাঙ্গাইলেই{' '}
-              <span className="bg-linear-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
-                খাঁটি জীবনসঙ্গী
-              </span>
-            </h1>
-
-            <p className="text-base sm:text-lg text-gray-650 max-w-2xl mx-auto leading-relaxed">
-              মধুবন্ধন আপনাকে সাহায্য করবে আপনার নিজ সংস্কৃতি, মূল্যবোধ ও টাঙ্গাইল জেলার উপযুক্ত ও
-              ভেরিফাইড পরিবারের সাথে শুভ পরিণয়ে আবদ্ধ হতে।
-            </p>
+            <div className="mb-small-proof"><ShieldCheck size={18} /><span>আপনার অনুমতি ছাড়া যোগাযোগের তথ্য প্রকাশ করা হয় না</span></div>
+            <div className="mb-flower" aria-hidden="true">
+              <svg viewBox="0 0 180 180" fill="none"><circle cx="90" cy="90" r="68" /><ellipse cx="90" cy="90" rx="28" ry="68" /><ellipse cx="90" cy="90" rx="28" ry="68" transform="rotate(60 90 90)" /><ellipse cx="90" cy="90" rx="28" ry="68" transform="rotate(120 90 90)" /><circle cx="90" cy="90" r="11" /></svg>
+            </div>
           </div>
-
-          {/* Quick Search Widget */}
-          <div className="mt-10 max-w-3xl mx-auto bg-white p-5 sm:p-7 rounded-3xl shadow-xl shadow-rose-200/50 border border-rose-100">
-            <form onSubmit={handleQuickSearch} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-750 mb-1.5">আমি খুঁজছি</label>
-                <select
-                  value={selectedGender}
-                  onChange={(e) => setSelectedGender(e.target.value)}
-                  className="w-full text-sm font-medium border border-gray-200 rounded-xl p-3 bg-gray-50 focus:bg-white focus:outline-hidden focus:border-rose-500 transition-colors"
-                >
-                  <option value="female">পাত্রীর বায়োডাটা</option>
-                  <option value="male">পাত্রের বায়োডাটা</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-750 mb-1.5">উপজেলা নির্বাচন</label>
-                <select
-                  value={selectedUpazila}
-                  onChange={(e) => setSelectedUpazila(e.target.value)}
-                  className="w-full text-sm font-medium border border-gray-200 rounded-xl p-3 bg-gray-50 focus:bg-white focus:outline-hidden focus:border-rose-500 transition-colors"
-                >
-                  <option value="">টাঙ্গাইলের সকল উপজেলা</option>
-                  {TANGAIL_UPAZILAS.map((upazila) => (
-                    <option key={upazila} value={upazila}>
-                      {UPAZILA_DISPLAY_NAMES[upazila]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-end">
-                <button
-                  type="submit"
-                  className="w-full py-3 px-5 text-sm font-bold text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 rounded-xl shadow-md shadow-rose-200 hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Search className="w-4 h-4" />
-                  <span>বায়োডাটা খুঁজুন</span>
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Quick Features banner */}
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="flex items-center gap-3.5 p-4 bg-white/70 backdrop-blur-xs rounded-2xl border border-rose-100/60 shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
-                <MapPin className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900">শুধুমাত্র টাঙ্গাইল জেলা</h4>
-                <p className="text-xs text-gray-550">১২টি উপজেলার স্থানীয় পাত্র-পাত্রী</p>
-              </div>
+          <div className="mb-search-wrap">
+            <div className="mb-search-topline"><Heart size={16} /> একটি সুন্দর পরিচয়ের প্রথম ধাপ</div>
+            <div className="mb-search-card">
+              <div className="mb-card-heading"><div><span className="mb-kicker">আপনার পছন্দ, আপনার অনুসন্ধান</span><h2>কেমন জীবনসঙ্গী খুঁজছেন?</h2></div><div className="mb-search-icon"><Search size={23} /></div></div>
+              <form onSubmit={search} className="mb-search-form">
+                <fieldset><legend>আমি খুঁজছি</legend><div className="mb-gender-options">{[['female', 'পাত্রীর বায়োডাটা'], ['male', 'পাত্রের বায়োডাটা']].map(([value, label]) => <label key={value} className={gender === value ? 'is-selected' : ''}><input type="radio" name="gender" value={value} checked={gender === value} onChange={() => setGender(value)} /><span>{label}</span>{gender === value && <Check size={15} />}</label>)}</div></fieldset>
+                <div><label className="mb-field-label" htmlFor="home-upazila">কোন উপজেলায় খুঁজতে চান?</label><div className="mb-select-wrap"><MapPin size={18} /><select id="home-upazila" value={upazila} onChange={e => setUpazila(e.target.value)}><option value="">টাঙ্গাইলের সকল উপজেলা</option>{TANGAIL_UPAZILAS.map(up => <option key={up} value={up}>{UPAZILA_DISPLAY_NAMES[up]}</option>)}</select></div></div>
+                <div><label className="mb-field-label" htmlFor="home-marital-status">বৈবাহিক অবস্থা</label><div className="mb-select-wrap"><Heart size={18} aria-hidden="true" /><select id="home-marital-status" value={maritalStatus} onChange={e => setMaritalStatus(e.target.value)}><option value="">সকল অবস্থা</option><option value="never_married">অবিবাহিত</option><option value="divorced">বিবাহবিচ্ছেদ হয়েছে</option><option value="widowed">বিধবা / বিপত্নীক</option><option value="separated">পৃথক বসবাস</option></select></div></div>
+                <button className="mb-search-button" type="submit"><Search size={18} /> বায়োডাটা খুঁজুন <ArrowRight size={18} /></button>
+              </form>
+              <p className="mb-search-note">আপনার পছন্দের সঙ্গে মিলে যাওয়া বায়োডাটা পরের পেজে দেখুন</p>
             </div>
-
-            <div className="flex items-center gap-3.5 p-4 bg-white/70 backdrop-blur-xs rounded-2xl border border-rose-100/60 shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center text-pink-600 shrink-0">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900">গোপনীয়তা ও নিরাপত্তা</h4>
-                <p className="text-xs text-gray-550">অনুমতি ছাড়া যোগাযোগের তথ্য অপ্রকাশ্য</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3.5 p-4 bg-white/70 backdrop-blur-xs rounded-2xl border border-rose-100/60 shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 shrink-0">
-                <Users className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900">১৮+ প্রাপ্তবয়স্ক যাচাই</h4>
-                <p className="text-xs text-gray-550">আইনি ও ধর্মীয় অনুশাসনের শতভাগ মান্যতা</p>
-              </div>
-            </div>
+            <div className="mb-search-bottom"><span><Check size={14} /> শুধু টাঙ্গাইলের ১২ উপজেলা</span><span><Check size={14} /> ১৮ বছর বা তার বেশি</span></div>
           </div>
         </div>
       </section>
 
-      {/* Upazila Explorer Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-xl mx-auto mb-10">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
-            টাঙ্গাইলের উপজেলাভিত্তিক পাত্র-পাত্রী
-          </h2>
-          <p className="text-sm text-gray-600 mt-2">
-            আপনার পছন্দের নির্দিষ্ট উপজেলা থেকে পাত্র অথবা পাত্রীর সন্ধান শুরু করুন
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {TANGAIL_UPAZILAS.map((upazila) => (
-            <Link
-              key={upazila}
-              to={`/search?upazila=${upazila}`}
-              className="p-3.5 bg-white hover:bg-rose-50 border border-gray-200 hover:border-rose-300 rounded-xl text-center group transition-all duration-200 shadow-2xs hover:shadow-sm"
-            >
-              <span className="block text-sm font-bold text-gray-800 group-hover:text-rose-600">
-                {UPAZILA_DISPLAY_NAMES[upazila as TangailUpazila]}
-              </span>
-              <span className="text-[11px] text-gray-400 group-hover:text-rose-500 flex items-center justify-center gap-1 mt-1">
-                <span>অনুসন্ধান</span>
-                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-              </span>
-            </Link>
-          ))}
-        </div>
+      <section className="mb-principles mb-shell" aria-label="আমাদের অঙ্গীকার">
+        {[{icon:MapPin,title:'কাছের মানুষ, পরিচিত পরিবেশ',description:'টাঙ্গাইলের ১২ উপজেলাকে ঘিরে জীবনসঙ্গীর সন্ধান।'}, {icon:ShieldCheck,title:'গোপনীয়তায় আপনার নিয়ন্ত্রণ',description:'অনুমতি অনুযায়ী অভিভাবকের সঙ্গে যোগাযোগ।'}, {icon:FileCheck2,title:'পর্যালোচনার পর প্রকাশ',description:'জমা দেওয়া বায়োডাটা যাচাই করেন মডারেটর।'}].map(({icon:Icon,title,description}) => <div className="mb-principle" key={title}><div className="mb-line-icon"><Icon size={24} strokeWidth={1.5} /></div><div><h3>{title}</h3><p>{description}</p></div></div>)}
       </section>
 
-      {/* Call to action section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-linear-to-r from-rose-600 via-rose-500 to-pink-600 rounded-3xl p-8 sm:p-14 text-white text-center shadow-xl shadow-rose-200">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <Heart className="w-12 h-12 mx-auto text-rose-200 fill-current animate-pulse" />
-            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-              আপনার বায়োডাটাও যুক্ত করুন মধুবন্ধনে
-            </h2>
-            <p className="text-sm sm:text-base text-rose-100 leading-relaxed">
-              সম্পূর্ণ বিনামূল্যে আপনার বা আপনার সন্তানের বায়োডাটা তৈরি করুন এবং টাঙ্গাইল জেলার
-              মনমতো জীবনসঙ্গী খুঁজে নিন।
-            </p>
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link
-                to="/register"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white text-rose-700 font-bold text-sm shadow-md hover:bg-rose-50 transition-colors"
-              >
-                বায়োডাটা তৈরি করুন (ফ্রি)
-              </Link>
-              <Link
-                to="/search"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-rose-700/60 hover:bg-rose-700 text-white font-bold text-sm border border-rose-400 transition-colors"
-              >
-                বায়োডাটা অনুসন্ধান করুন
-              </Link>
-            </div>
-          </div>
-        </div>
+      <PublicStatistics />
+
+      <section className="mb-section mb-shell" id="how-it-works">
+        <div className="mb-section-heading"><div><span className="mb-kicker">সহজ চারটি ধাপ</span><h2>পরিচয় থেকে পরিণয়ের পথে</h2></div><p>নিজের তথ্য দিয়ে শুরু করুন। সময় নিয়ে জানুন, পরিবারের সঙ্গে আলোচনা করে সিদ্ধান্ত নিন।</p></div>
+        <div className="mb-steps">{[{icon:UserRoundPlus,n:'০১',title:'নিজের বায়োডাটা তৈরি',body:'অ্যাকাউন্ট খুলে নিজের পরিচয়, পরিবার ও প্রত্যাশার তথ্য পূরণ করুন।'}, {icon:Search,n:'০২',title:'পছন্দ মিলিয়ে অনুসন্ধান',body:'উপজেলা, বয়স, শিক্ষা ও পেশার ফিল্টারে উপযুক্ত বায়োডাটা খুঁজুন।'}, {icon:MessagesSquare,n:'০৩',title:'পরিবারের সঙ্গে যোগাযোগ',body:'আগ্রহ প্রকাশ করুন। অনুমতি পেলে অভিভাবকের সঙ্গে কথা এগিয়ে নিন।'}, {icon:Handshake,n:'০৪',title:'বিবাহের সুন্দর পরিণয়',body:'তথ্য যাচাই ও পারিবারিক আলোচনার পর উভয় পক্ষের সম্মতিতে বিবাহের সিদ্ধান্ত নিন।'}].map(({icon:Icon,n,title,body}) => <article className="mb-step" key={n}><div className="mb-step-top"><Icon size={25} strokeWidth={1.5} /><span>{n}</span></div><h3>{title}</h3><p>{body}</p></article>)}</div>
       </section>
 
+      <section className="mb-local-section">
+        <div className="mb-shell"><div className="mb-section-heading"><div><span className="mb-kicker">নিজের এলাকার মানুষ</span><h2>এক জেলা, বারোটি পরিচিত ঠিকানা</h2></div><p>আপনার পছন্দের উপজেলা বেছে নিন। সেই এলাকার বায়োডাটা দেখুন অনুসন্ধান পেজে।</p></div><div className="mb-locations">{TANGAIL_UPAZILAS.map((up, i) => <Link key={up} to={'/search?upazila=' + up}><span className="mb-location-number">{(i + 1).toLocaleString('bn-BD', {minimumIntegerDigits:2})}</span><span>{UPAZILA_DISPLAY_NAMES[up]}</span><ArrowRight size={17} /></Link>)}</div></div>
+      </section>
 
+      <section className="mb-section mb-shell"><div className="mb-invitation"><div className="mb-invitation-art" aria-hidden="true"><Heart size={62} strokeWidth={1} /><Sparkles size={23} /></div><div><span className="mb-kicker">আপনার গল্পের অপেক্ষায়</span><h2>সুন্দর শুরুর প্রথম পদক্ষেপ নিন।</h2><p>আপনার বায়োডাটা তৈরি করুন। টাঙ্গাইলের মানুষের সঙ্গে পরিচয়ের নতুন দরজা খুলুন।</p></div><Link to="/register" className="mb-primary">বায়োডাটা তৈরি করুন <ArrowRight size={18} /></Link></div></section>
     </div>
   );
 };
-
 export default HomePage;

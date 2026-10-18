@@ -1,3 +1,4 @@
+import ThemeToggle from './ThemeToggle';
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import {
@@ -9,6 +10,8 @@ import {
   X,
   Shield,
   LogOut,
+  Bookmark,
+  Coins,
 } from "lucide-react";
 import { useAuth } from "../../context/useAuth";
 import { UserRole } from "../../types";
@@ -52,6 +55,7 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden xl:flex items-center gap-1.5">
+            <ThemeToggle />
             <Link
               to="/search"
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -65,12 +69,31 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {isAuthenticated && (
-              <Link to="/contacts" className="px-3 py-2 text-sm text-rose-700">
+              <Link
+                to="/contacts"
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive("/contacts")
+                    ? "bg-rose-50 text-rose-700 font-semibold"
+                    : "text-gray-750 hover:bg-rose-50/50 hover:text-rose-600"
+                }`}
+              >
                 যোগাযোগ
               </Link>
             )}
             {isAuthenticated ? (
               <>
+                <Link
+                  to="/shortlist"
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive("/shortlist")
+                      ? "bg-rose-50 text-rose-700 font-semibold"
+                      : "text-gray-750 hover:bg-rose-50/50 hover:text-rose-600"
+                  }`}
+                >
+                  <Bookmark className="w-4 h-4" />
+                  <span>পছন্দের তালিকা</span>
+                </Link>
+
                 <Link
                   to="/interests"
                   className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -81,6 +104,19 @@ export const Navbar: React.FC = () => {
                 >
                   <Heart className="w-4 h-4" />
                   <span>আগ্রহ তালিকা</span>
+                </Link>
+
+                <Link
+                  to="/packages"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-2xs ${
+                    isActive("/packages")
+                      ? "bg-amber-500 text-white shadow-amber-200 shadow-sm"
+                      : "bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100"
+                  }`}
+                  title="যোগাযোগ ক্রেডিট দেখুন বা রিচার্জ করুন"
+                >
+                  <Coins className="w-3.5 h-3.5 text-amber-600 fill-amber-400" />
+                  <span>{user?.contactCredits ?? 0} ক্রেডিট</span>
                 </Link>
 
                 <Link
@@ -151,6 +187,7 @@ export const Navbar: React.FC = () => {
 
           {/* Mobile menu button */}
           <div className="flex xl:hidden items-center gap-2">
+            <ThemeToggle />
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -190,6 +227,29 @@ export const Navbar: React.FC = () => {
           )}
           {isAuthenticated ? (
             <>
+              <Link
+                to="/packages"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold bg-amber-50 text-amber-950 border border-amber-200"
+              >
+                <div className="flex items-center gap-2">
+                  <Coins className="w-4 h-4 text-amber-600 fill-amber-400" />
+                  <span>কন্টাক্ট ক্রেডিট</span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-xs">
+                  {user?.contactCredits ?? 0} টি বাকি
+                </span>
+              </Link>
+
+              <Link
+                to="/shortlist"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-800 hover:bg-rose-50 hover:text-rose-600"
+              >
+                <Bookmark className="w-5 h-5 text-gray-500" />
+                <span>পছন্দের তালিকা</span>
+              </Link>
+
               <Link
                 to="/interests"
                 onClick={() => setMobileMenuOpen(false)}

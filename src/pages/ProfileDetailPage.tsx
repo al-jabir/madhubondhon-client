@@ -1,7 +1,7 @@
 import BiodataInfoTables from '../components/profile/BiodataInfoTables';
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Heart,
   MapPin,
@@ -11,12 +11,16 @@ import {
   CheckCircle2,
   Sparkles,
   ArrowLeft,
+  Printer,
+  Bookmark,
+  EyeOff,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getDemoProfile } from '../data/demoProfiles';
 import { profilesApi } from '../api/profiles.api';
 import { workflowApi, errorMessage } from '../api/workflow.api';
 import { blocksApi } from '../api/blocks.api';
+import { shortlistApi } from '../api/shortlist.api';
 import { Gender } from '../types';
 import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../constants/locations';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -27,12 +31,14 @@ import { useAuth } from '../context/useAuth';
 export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { isAuthenticated, user: currentUser } = useAuth();
 
   const [isInterestOpen, setIsInterestOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isBlocking, setIsBlocking] = useState(false);
   const [contactBusy, setContactBusy] = useState(false);
+  const [isShortlistBusy, setIsShortlistBusy] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['public-profile', demo, userId, currentUser?.id || currentUser?._id || 'guest'],
@@ -41,6 +47,45 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   });
 
   const profile = data?.data?.profile;
+
+  // Check shortlist status
+  const { data: shortlistCheck } = useQuery({
+    queryKey: ['shortlist-check', profile?._id],
+    queryFn: () => shortlistApi.checkIsShortlisted(profile!._id),
+    enabled: !!profile?._id && isAuthenticated && !demo,
+  });
+
+  const isShortlisted = Boolean(shortlistCheck?.data?.isShortlisted);
+
+  const handleToggleShortlist = async () => {
+    if (!profile) return;
+    if (!isAuthenticated) {
+      toast.info('বায়োডাটা শর্টলিস্ট করতে প্রথমে লগইন করুন।');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      setIsShortlistBusy(true);
+      if (isShortlisted) {
+        await shortlistApi.removeFromShortlist(profile._id);
+        toast.info('বায়োডাটাটি শর্টলিস্ট থেকে সরানো হয়েছে।');
+      } else {
+        await shortlistApi.addToShortlist(profile._id);
+        toast.success('বায়োডাটাটি পছন্দের তালিকায় সংরক্ষিত হয়েছে!');
+      }
+      queryClient.invalidateQueries({ queryKey: ['shortlist-check', profile._id] });
+      queryClient.invalidateQueries({ queryKey: ['my-shortlist'] });
+    } catch {
+      toast.error('শর্টলিস্ট আপডেট ব্যর্থ হয়েছে।');
+    } finally {
+      setIsShortlistBusy(false);
+    }
+  };
+
+  const handlePrintBiodata = () => {
+    window.print();
+  };
 
   const handleBlockUser = async () => {
     if (!userId) return;
@@ -97,16 +142,41 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   const upazilaBangla =
     UPAZILA_DISPLAY_NAMES[profile.upazila as TangailUpazila] || profile.upazila;
 
+  const targetUserId =
+    typeof profile.user === 'string' ? profile.user : profile.user?._id || profile.user?.id || profile._id;
+
   const isOwnProfile =
     currentUser &&
-    (currentUser.id === userId ||
+    (currentUser.id === targetUserId ||
       (typeof profile.user === 'object' && profile.user?._id === currentUser.id));
 
+  const primaryPhoto = profile.photos?.find((p) => p.isProfilePhoto) || profile.photos?.[0];
+  const isBlurred = Boolean(primaryPhoto?.blurPhoto || profile.photoPrivacy === 'on_interest_accepted');
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      {demo && <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"><strong>নমুনা বায়োডাটা</strong> — এই প্রোফাইলটি কাল্পনিক, শুধু উদাহরণ দেখানোর জন্য। <Link to="/demo" className="font-bold underline">সব নমুনা দেখুন</Link></div>}
-      {/* Back button */}
-      <div>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 print:p-0 print:m-0 print:max-w-full">
+      {demo && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 print:hidden">
+          <strong>নমুনা বায়োডাটা</strong> — এই প্রোফাইলটি কাল্পনিক, শুধু উদাহরণ দেখানোর জন্য।{' '}
+          <Link to="/demo" className="font-bold underline">
+            সব নমুনা দেখুন
+          </Link>
+        </div>
+      )}
+
+      {/* Print-Only Header */}
+      <div className="hidden print:block border-b-2 border-rose-600 pb-4 mb-6 text-center">
+        <h1 className="text-2xl font-black text-rose-700">মধুবন্ধন — Tangail Matrimony</h1>
+        <p className="text-xs text-gray-600">টাঙ্গাইল জেলার পাত্র-পাত্রীর সম্পূর্ণ পারিবারিক বায়োডাটা</p>
+        {profile.biodataId && (
+          <span className="inline-block mt-1 font-mono font-bold text-sm bg-gray-100 px-3 py-0.5 rounded-full border">
+            বায়োডাটা নং: {profile.biodataId}
+          </span>
+        )}
+      </div>
+
+      {/* Navigation & Utilities Bar */}
+      <div className="flex items-center justify-between print:hidden">
         <button
           type="button"
           onClick={() => navigate(-1)}
@@ -115,19 +185,70 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
           <ArrowLeft className="w-4 h-4" />
           <span>পূর্ববর্তী পৃষ্ঠায় ফিরুন</span>
         </button>
+
+        <div className="flex items-center gap-2">
+          {!isOwnProfile && !demo && (
+            <button
+              type="button"
+              onClick={handleToggleShortlist}
+              disabled={isShortlistBusy}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                isShortlisted
+                  ? 'bg-rose-50 text-rose-700 border-rose-300'
+                  : 'bg-white text-gray-700 border-gray-250 hover:bg-gray-50'
+              }`}
+            >
+              <Bookmark className={`w-3.5 h-3.5 ${isShortlisted ? 'fill-rose-600 text-rose-600' : ''}`} />
+              <span>{isShortlisted ? 'শর্টলিস্ট করা আছে' : 'শর্টলিস্টে রাখুন'}</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handlePrintBiodata}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-gray-50 text-gray-700 border border-gray-250 shadow-2xs transition-colors cursor-pointer"
+            title="বায়োডাটা প্রিন্ট বা PDF হিসেবে সংরক্ষণ করুন"
+          >
+            <Printer className="w-3.5 h-3.5 text-rose-600" />
+            <span>প্রিন্ট / PDF ডাউনলোড</span>
+          </button>
+        </div>
       </div>
 
       {/* Hero Header Card */}
-      <div className="bg-white rounded-3xl border border-rose-100 shadow-md p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-start gap-6">
-        <div className="w-28 h-28 rounded-full bg-linear-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center text-4xl font-extrabold shadow-lg shadow-rose-200 shrink-0">
-          {profile.displayName?.charAt(0) || (isMale ? 'পা' : 'পা')}
+      <div className="bg-white rounded-3xl border border-rose-100 shadow-md p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 print:border-none print:shadow-none print:p-0">
+        <div className="relative w-28 h-28 rounded-full overflow-hidden shadow-lg border-3 border-rose-200 shrink-0 bg-rose-100 flex items-center justify-center">
+          {primaryPhoto?.url ? (
+            <>
+              <img
+                src={primaryPhoto.url}
+                alt={profile.displayName}
+                className={`w-full h-full object-cover ${isBlurred ? 'filter blur-md scale-110' : ''}`}
+              />
+              {isBlurred && (
+                <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-white p-1">
+                  <EyeOff className="w-6 h-6 text-white drop-shadow-md" />
+                  <span className="text-[10px] font-bold">পর্দাশীল বায়োডাটা</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <span className="text-4xl font-extrabold text-rose-600">
+              {profile.displayName?.charAt(0) || (isMale ? 'পা' : 'পা')}
+            </span>
+          )}
         </div>
 
         <div className="flex-1 text-center md:text-left space-y-2">
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
             <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
               {profile.displayName}
             </h1>
+            {profile.biodataId && (
+              <span className="text-xs font-black tracking-wider px-3 py-1 rounded-full bg-slate-900 text-amber-300 border border-amber-400/30">
+                {profile.biodataId}
+              </span>
+            )}
             {profile.isApproved && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -139,7 +260,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-xs sm:text-sm text-gray-600 font-medium">
             <span className="flex items-center gap-1 text-rose-600 font-bold">
               <Sparkles className="w-4 h-4" />
-              {isMale ? 'পাত্র' : 'পাত্রী'} • {profile.age ? `${profile.age} বছর` : ''}
+              {isMale ? 'পাত্র (বর)' : 'পাত্রী (কনে)'} • {profile.age ? `${profile.age} বছর` : ''}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">
@@ -148,11 +269,16 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
             </span>
           </div>
 
+          {profile.bio && (
+            <p className="text-sm text-gray-650 pt-2 italic max-w-2xl leading-relaxed">
+              "{profile.bio}"
+            </p>
+          )}
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons (Hidden on Print) */}
         {!demo && !isOwnProfile && (
-          <div className="flex flex-row md:flex-col gap-2 shrink-0 w-full md:w-auto">
+          <div className="flex flex-row md:flex-col gap-2 shrink-0 w-full md:w-auto print:hidden">
             <button
               type="button"
               onClick={() => {
@@ -165,7 +291,29 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
               <span>আগ্রহ পাঠান</span>
             </button>
 
-            {isAuthenticated && <button type="button" disabled={contactBusy} className="text-xs text-rose-700 p-2 border rounded-xl disabled:opacity-40" onClick={async()=>{if(!userId)return;setContactBusy(true);try{await workflowApi.requestContact(userId);toast.success('যোগাযোগের অনুরোধ পাঠানো হয়েছে');navigate('/contacts');}catch(error){toast.error(errorMessage(error));}finally{setContactBusy(false);}}}>অভিভাবকের যোগাযোগের অনুমতি চান</button>}
+            {isAuthenticated && (
+              <button
+                type="button"
+                disabled={contactBusy}
+                className="text-xs text-rose-700 font-semibold p-2.5 border border-rose-200 bg-rose-50/50 hover:bg-rose-100/60 rounded-xl transition-colors disabled:opacity-40 cursor-pointer"
+                onClick={async () => {
+                  if (!userId) return;
+                  setContactBusy(true);
+                  try {
+                    await workflowApi.requestContact(userId);
+                    toast.success('যোগাযোগের অনুরোধ পাঠানো হয়েছে');
+                    navigate('/contacts');
+                  } catch (error) {
+                    toast.error(errorMessage(error));
+                  } finally {
+                    setContactBusy(false);
+                  }
+                }}
+              >
+                অভিভাবকের যোগাযোগের অনুমতি চান
+              </button>
+            )}
+
             {isAuthenticated && (
               <div className="flex items-center justify-center gap-1">
                 <button
@@ -196,7 +344,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
       <BiodataInfoTables profile={profile} />
 
       {/* Safety Notice Banner */}
-      <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl flex items-start gap-3 text-xs text-amber-850 leading-relaxed">
+      <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl flex items-start gap-3 text-xs text-amber-850 leading-relaxed print:mt-6">
         <Shield className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
         <div>
           <strong className="block font-bold">সতর্কতামূলক পরামর্শ:</strong>
@@ -215,7 +363,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
       <ReportModal
         isOpen={isReportOpen}
         onClose={() => setIsReportOpen(false)}
-        targetUserId={userId || ''}
+        targetUserId={targetUserId || ''}
         targetName={profile.displayName}
       />
     </div>

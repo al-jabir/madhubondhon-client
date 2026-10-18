@@ -6,3 +6,18 @@
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   }
 }
+
+.theme-toggle{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid #e6dce0;border-radius:9px;color:#76505d;background:#fff;font-size:12px;flex-shrink:0}.theme-toggle:focus-within{outline:2px solid #ad6a81;outline-offset:2px}
+:root[data-theme="dark"]{color-scheme:dark;--color-gray-50:#1b202b;--color-gray-100:#262c38;--color-gray-150:#2c3240;--color-gray-200:#363e4d;--color-gray-250:#414958;--color-gray-300:#687183;--color-gray-400:#9ca5b5;--color-gray-500:#a5afbf;--color-gray-550:#b2baca;--color-gray-600:#b9c2d1;--color-gray-650:#c1c9d8;--color-gray-700:#c9d1df;--color-gray-750:#d2d9e5;--color-gray-800:#e0e5ef;--color-gray-850:#e6eaf2;--color-gray-900:#f2f4f8;--color-slate-50:#11151d;--color-slate-800:#dce2ed;--color-slate-900:#f0f3f8;--color-rose-50:#2c1d29;--color-rose-100:#412635;--color-rose-200:#684051;--color-pink-50:#2c202c;--color-pink-100:#432c3b;--color-pink-200:#654258;--color-amber-50:#30291d;--color-amber-100:#493c25;--color-amber-200:#695331;--color-emerald-50:#192f2b;--color-emerald-100:#24483d;--color-emerald-200:#356653}
+:root[data-theme="dark"] body{background:#11151d;color:#e0e5ef}
+:root[data-theme="dark"] :is(.bg-white,[class*="bg-white/"]){background-color:#191e28}
+:root[data-theme="dark"] [class*="text-rose-7"],:root[data-theme="dark"] [class*="text-rose-8"]{color:#f3acbf}
+:root[data-theme="dark"] [class*="text-emerald-7"]{color:#8bd5b4}
+:root[data-theme="dark"] [class*="text-amber-7"],:root[data-theme="dark"] [class*="text-amber-8"]{color:#e4c18a}
+:root[data-theme="dark"] [class*="text-pink-7"]{color:#efb1d6}
+:root[data-theme="dark"] [class*="shadow-"]{--tw-shadow-color:transparent}
+:root[data-theme="dark"] .theme-toggle{background:#222733;color:#e3c5cf;border-color:#414555}
+:root[data-theme="dark"] input,:root[data-theme="dark"] textarea,:root[data-theme="dark"] select{color-scheme:dark}
+:root[data-theme="dark"] [data-sonner-toast]{background:#222733;color:#edf0f6;border-color:#414555}
+
+.theme-icon-button{width:38px;height:38px;padding:0;justify-content:center;border-radius:50%;cursor:pointer;transition:background-color .15s,color .15s}.theme-icon-button:hover{background:#f8edf1}.theme-icon-button:focus-visible{outline:2px solid #ad6a81;outline-offset:3px}:root[data-theme="dark"] .theme-icon-button:hover{background:#352c3b}

@@ -1,30 +1,113 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router';
-import { MapPin, Briefcase, GraduationCap, Heart, CheckCircle2 } from 'lucide-react';
+import { MapPin, Briefcase, GraduationCap, Heart, CheckCircle2, Bookmark, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
 import { Profile, Gender } from '../../types';
 import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../../constants/locations';
+import { shortlistApi } from '../../api/shortlist.api';
+import { useAuth } from '../../context/useAuth';
 
 interface ProfileCardProps {
   profile: Profile;
   detailsBasePath?: string;
   onSendInterest?: (profile: Profile) => void;
+  isInitiallyShortlisted?: boolean;
 }
 
-export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onSendInterest, detailsBasePath = '/profiles' }) => {
+export const ProfileCard: React.FC<ProfileCardProps> = ({
+  profile,
+  onSendInterest,
+  detailsBasePath = '/profiles',
+  isInitiallyShortlisted = false,
+}) => {
+  const { isAuthenticated } = useAuth();
+  const [isShortlisted, setIsShortlisted] = useState(isInitiallyShortlisted);
+  const [isBookmarking, setIsBookmarking] = useState(false);
+
   const upazilaBangla =
     UPAZILA_DISPLAY_NAMES[profile.upazila as TangailUpazila] || profile.upazila;
 
   const isMale = profile.gender === Gender.MALE;
-  const targetUserId =
-    typeof profile.user === 'string' ? profile.user : profile.user?._id || profile.user?.id;
+  const targetId = profile.biodataId || (typeof profile.user === 'string' ? profile.user : profile.user?._id || profile.user?.id || profile._id);
+
+  const primaryPhoto = profile.photos?.find((p) => p.isProfilePhoto) || profile.photos?.[0];
+  const isBlurred = Boolean(primaryPhoto?.blurPhoto || profile.photoPrivacy === 'on_interest_accepted');
+
+  const handleToggleShortlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      toast.info('বায়োডাটা শর্টলিস্ট করতে প্রথমে লগইন করুন।');
+      return;
+    }
+
+    try {
+      setIsBookmarking(true);
+      if (isShortlisted) {
+        await shortlistApi.removeFromShortlist(profile._id);
+        setIsShortlisted(false);
+        toast.info('শর্টলিস্ট থেকে সরানো হয়েছে।');
+      } else {
+        await shortlistApi.addToShortlist(profile._id);
+        setIsShortlisted(true);
+        toast.success('পছন্দের তালিকায় যোগ করা হয়েছে!');
+      }
+    } catch {
+      toast.error('শর্টলিস্ট আপডেট করা যায়নি।');
+    } finally {
+      setIsBookmarking(false);
+    }
+  };
 
   return (
-    <div className="bg-white rounded-2xl border border-rose-100/80 shadow-xs hover:shadow-lg hover:border-rose-300 transition-all duration-300 overflow-hidden flex flex-col justify-between group">
+    <div className="bg-white rounded-2xl border border-rose-100/90 shadow-xs hover:shadow-lg hover:border-rose-300 transition-all duration-300 overflow-hidden flex flex-col justify-between group relative">
+      {/* Top Badges & Shortlist Button */}
+      <div className="absolute top-3 inset-x-3 z-10 flex items-center justify-between pointer-events-none">
+        {profile.biodataId ? (
+          <span className="pointer-events-auto text-[11px] font-black tracking-wider px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur-md text-amber-300 border border-amber-400/30 shadow-xs">
+            {profile.biodataId}
+          </span>
+        ) : <span />}
+
+        <button
+          type="button"
+          onClick={handleToggleShortlist}
+          disabled={isBookmarking}
+          title={isShortlisted ? 'শর্টলিস্ট থেকে সরান' : 'শর্টলিস্টে রাখুন'}
+          className={`pointer-events-auto p-2 rounded-full backdrop-blur-md border shadow-sm transition-all cursor-pointer ${
+            isShortlisted
+              ? 'bg-rose-600 text-white border-rose-500 hover:bg-rose-700'
+              : 'bg-white/90 text-gray-600 hover:text-rose-600 border-gray-250 hover:bg-white'
+          }`}
+        >
+          <Bookmark className={`w-3.5 h-3.5 ${isShortlisted ? 'fill-current' : ''}`} />
+        </button>
+      </div>
+
       <div>
         {/* Header Ribbon / Photo Avatar Placeholder */}
-        <div className="relative bg-linear-to-r from-rose-50 to-pink-50 p-6 flex flex-col items-center text-center border-b border-rose-100/50">
-          <div className="w-20 h-20 rounded-full bg-white shadow-md border-2 border-rose-300 flex items-center justify-center text-2xl font-bold text-rose-600 mb-3 group-hover:scale-105 transition-transform">
-            {profile.displayName ? profile.displayName.charAt(0) : (isMale ? 'পা' : 'পা')}
+        <div className="relative bg-linear-to-r from-rose-50 via-pink-50/50 to-rose-50 pt-10 pb-6 px-6 flex flex-col items-center text-center border-b border-rose-100/60">
+          <div className="relative w-22 h-22 rounded-full overflow-hidden shadow-md border-3 border-white mb-3 group-hover:scale-105 transition-transform bg-rose-100 flex items-center justify-center">
+            {primaryPhoto?.url ? (
+              <>
+                <img
+                  src={primaryPhoto.url}
+                  alt={profile.displayName}
+                  className={`w-full h-full object-cover transition-all ${isBlurred ? 'filter blur-md scale-110' : ''}`}
+                />
+                {isBlurred && (
+                  <div className="absolute inset-0 bg-black/25 flex flex-col items-center justify-center text-white p-1">
+                    <EyeOff className="w-5 h-5 text-white/90 drop-shadow-md" />
+                    <span className="text-[9px] font-bold tracking-tight">পর্দাশীল</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <span className="text-2xl font-black text-rose-600">
+                {profile.displayName ? profile.displayName.charAt(0) : (isMale ? 'পা' : 'পা')}
+              </span>
+            )}
           </div>
           
           <h3 className="font-bold text-lg text-gray-900 flex items-center gap-1.5">
@@ -75,7 +158,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onSendInteres
       {/* Action Footer */}
       <div className="p-4 bg-gray-50/70 border-t border-rose-100/60 flex items-center gap-2">
         <Link
-          to={`${detailsBasePath}/${targetUserId}`}
+          to={`${detailsBasePath}/${targetId}`}
           className="flex-1 py-2 px-3 text-center text-xs font-semibold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors"
         >
           সম্পূর্ণ বায়োডাটা

@@ -19,6 +19,7 @@ import { profilesApi } from '../api/profiles.api';
 import { authApi } from '../api/auth.api';
 import { useAuth } from '../context/useAuth';
 import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../constants/locations';
+import PhotoManager from '../components/profile/PhotoManager';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 export const MyProfilePage: React.FC = () => <><BiodataDashboard /><PublishedProfileContent /></>;
@@ -151,6 +152,11 @@ const PublishedProfileContent: React.FC = () => {
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
               <h1 className="text-2xl font-black text-gray-900">{profile.displayName}</h1>
+              {profile.biodataId && (
+                <span className="text-xs font-black tracking-wider px-2.5 py-0.5 rounded-full bg-slate-900 text-amber-300 shadow-2xs">
+                  {profile.biodataId}
+                </span>
+              )}
               {profile.isApproved ? (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -217,6 +223,12 @@ const PublishedProfileContent: React.FC = () => {
           ততই বৃদ্ধি পাবে।
         </p>
       </div>
+
+      {/* Photo Management & Purdah Settings */}
+      <PhotoManager
+        photos={profile.photos || []}
+        currentPrivacy={profile.photoPrivacy || 'public'}
+      />
 
       {/* Account Settings & Security */}
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-rose-100/90 shadow-2xs space-y-6">

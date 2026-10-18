@@ -27,6 +27,7 @@ function ageOnToday(date: string) {
 
 export const demoProfiles: Profile[] = examples.map(([name, gender, upazila, dob, education, occupation, detail], index) => ({
   _id: 'demo-profile-' + (index + 1), user: 'demo-user-' + (index + 1),
+  biodataId: (gender === 'male' ? 'MB-M' : 'MB-F') + (100 + index + 1),
   displayName: name, gender: gender as Gender, upazila, dateOfBirth: dob,
   age: ageOnToday(dob), education: education as EducationLevel, educationDetail: detail, occupation,
   maritalStatus: index === 9 ? MaritalStatus.DIVORCED : MaritalStatus.NEVER_MARRIED,
@@ -41,6 +42,8 @@ export const demoProfiles: Profile[] = examples.map(([name, gender, upazila, dob
 
 export function searchDemoProfiles(params: SearchProfilesParams = {}): ApiResponse<{ profiles: Profile[] }> {
   const matches = demoProfiles.filter(p =>
+    (!params.biodataId || (p.biodataId || '').toLocaleLowerCase().includes(params.biodataId.toLocaleLowerCase().trim())) &&
+    (!params.query || (p.displayName + ' ' + (p.occupation || '') + ' ' + (p.biodataId || '')).toLocaleLowerCase().includes(params.query.toLocaleLowerCase().trim())) &&
     (!params.occupation || (p.occupation || '').toLocaleLowerCase().includes(params.occupation.toLocaleLowerCase())) &&
     (!params.gender || p.gender === params.gender) &&
     (!params.upazila || p.upazila === params.upazila) &&

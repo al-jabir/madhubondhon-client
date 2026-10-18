@@ -1,5 +1,5 @@
 import apiClient from './client';
-import { ApiResponse, Profile, Gender, MaritalStatus, EducationLevel, ProfileVisibility } from '../types';
+import { ApiResponse, Profile, Gender, MaritalStatus, EducationLevel, ProfileVisibility, ProfilePhoto } from '../types';
 
 export interface CreateProfileData {
   displayName: string;
@@ -53,6 +53,8 @@ export interface SearchProfilesParams {
   education?: EducationLevel;
   maritalStatus?: MaritalStatus;
   religion?: string;
+  biodataId?: string;
+  query?: string;
   page?: number;
   limit?: number;
 }
@@ -87,6 +89,37 @@ export const profilesApi = {
     const res = await apiClient.get<ApiResponse<{ profiles: Profile[] }>>('/search/profiles', {
       params,
     });
+    return res.data;
+  },
+
+  async uploadPhoto(file: File, isProfilePhoto = false, blurPhoto = false) {
+    const formData = new FormData();
+    formData.append('photo', file);
+    formData.append('isProfilePhoto', String(isProfilePhoto));
+    formData.append('blurPhoto', String(blurPhoto));
+
+    const res = await apiClient.post<ApiResponse<{ photos: ProfilePhoto[] }>>(
+      '/profiles/me/photos',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+    return res.data;
+  },
+
+  async deletePhoto(photoKey: string) {
+    const res = await apiClient.delete<ApiResponse<{ photos: ProfilePhoto[] }>>(
+      `/profiles/me/photos/${photoKey}`
+    );
+    return res.data;
+  },
+
+  async updatePhotoPrivacy(photoPrivacy: string, blurAllPhotos = false) {
+    const res = await apiClient.put<ApiResponse<{ photoPrivacy: string; photos: ProfilePhoto[] }>>(
+      '/profiles/me/photos/privacy',
+      { photoPrivacy, blurAllPhotos }
+    );
     return res.data;
   },
 

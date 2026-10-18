@@ -22,6 +22,8 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const { isAuthenticated, user } = useAuth();
 
   // Local filter states initialized from URL params
+  const [biodataId, setBiodataId] = useState<string>(searchParams.get('biodataId') || '');
+  const [query, setQuery] = useState<string>(searchParams.get('query') || '');
   const [gender, setGender] = useState<string>(searchParams.get('gender') || '');
   const [upazila, setUpazila] = useState<string>(searchParams.get('upazila') || '');
   const [minAge, setMinAge] = useState<string>(searchParams.get('minAge') || '18');
@@ -34,12 +36,13 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   // Selected profile for sending interest modal
   const [selectedProfileForInterest, setSelectedProfileForInterest] = useState<Profile | null>(null);
 
-
   // Query API
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['search-profiles', demo, user?.id || user?._id || 'guest', gender, upazila, minAge, maxAge, maritalStatus, education, occupation, page],
+    queryKey: ['search-profiles', demo, user?.id || user?._id || 'guest', biodataId, query, gender, upazila, minAge, maxAge, maritalStatus, education, occupation, page],
     queryFn: () =>
       (demo ? searchDemoProfiles : profilesApi.searchProfiles)({
+        biodataId: biodataId.trim() || undefined,
+        query: query.trim() || undefined,
         gender: (gender as Gender) || undefined,
         upazila: upazila || undefined,
         minAge: minAge ? Number(minAge) : undefined,
@@ -55,6 +58,8 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const handleApplyFilter = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const params = new URLSearchParams();
+    if (biodataId.trim()) params.set('biodataId', biodataId.trim().toUpperCase());
+    if (query.trim()) params.set('query', query.trim());
     if (gender) params.set('gender', gender);
     if (upazila) params.set('upazila', upazila);
     if (minAge) params.set('minAge', minAge);
@@ -68,6 +73,8 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   };
 
   const handleResetFilters = () => {
+    setBiodataId('');
+    setQuery('');
     setGender('');
     setUpazila('');
     setMinAge('18');
@@ -105,6 +112,43 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
         )}
       </div>
 
+      {/* Quick Search Bar */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-rose-150 shadow-xs">
+        <form onSubmit={handleApplyFilter} className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative flex-1 w-full">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="কীওয়ার্ড (নাম, পেশা বা শিক্ষা দিয়ে খুঁজুন)..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full text-xs sm:text-sm pl-10 pr-4 py-2.5 rounded-xl border border-gray-250 focus:outline-hidden focus:ring-2 focus:ring-rose-500 bg-gray-50/50 focus:bg-white"
+            />
+          </div>
+
+          <div className="w-full sm:w-64 relative">
+            <span className="text-[10px] font-black uppercase tracking-wider text-rose-600 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              কোড
+            </span>
+            <input
+              type="text"
+              placeholder="বায়োডাটা কোড (যেমন: MB-M101)"
+              value={biodataId}
+              onChange={(e) => setBiodataId(e.target.value.toUpperCase())}
+              className="w-full text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-gray-250 uppercase font-mono focus:outline-hidden focus:ring-2 focus:ring-rose-500 bg-gray-50/50 focus:bg-white"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full sm:w-auto px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+          >
+            <Search className="w-4 h-4" />
+            <span>খুঁজুন</span>
+          </button>
+        </form>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Filters Sidebar */}
         <aside className="lg:col-span-1">
@@ -125,6 +169,18 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                 <RotateCcw className="w-3 h-3" />
                 রিসেট
               </button>
+            </div>
+
+            {/* Biodata ID Filter */}
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1.5">বায়োডাটা কোড</label>
+              <input
+                type="text"
+                placeholder="যেমন: MB-M101"
+                value={biodataId}
+                onChange={(e) => setBiodataId(e.target.value.toUpperCase())}
+                className="w-full text-xs font-mono uppercase border border-gray-200 rounded-xl p-2.5 bg-gray-50/70 focus:bg-white focus:outline-hidden focus:border-rose-500"
+              />
             </div>
 
             {/* Gender */}

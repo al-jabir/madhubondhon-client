@@ -66,6 +66,7 @@ export interface User {
   accountStatus: AccountStatus;
   isEmailVerified?: boolean;
   isPhoneVerified?: boolean;
+  contactCredits?: number;
   createdAt?: string;
 }
 
@@ -73,11 +74,13 @@ export interface ProfilePhoto {
   url: string;
   key?: string;
   isProfilePhoto: boolean;
+  blurPhoto?: boolean;
   uploadedAt?: string;
 }
 
 export interface Profile {
   _id: string;
+  biodataId?: string;
   user: string | User;
   displayName: string;
   dateOfBirth: string;
@@ -109,6 +112,7 @@ export interface Profile {
   };
   bio?: string;
   photos?: ProfilePhoto[];
+  photoPrivacy?: 'public' | 'registered_only' | 'on_interest_accepted' | 'hidden';
   preferences?: {
     minAge?: number;
     maxAge?: number;
@@ -122,6 +126,49 @@ export interface Profile {
   isApproved: boolean;
   age?: number;
   createdAt?: string;
+}
+
+export interface ShortlistItem {
+  _id: string;
+  biodataId?: string;
+  displayName: string;
+  gender: Gender;
+  upazila: string;
+  education?: EducationLevel;
+  educationDetail?: string;
+  occupation?: string;
+  maritalStatus: MaritalStatus;
+  dateOfBirth: string;
+  age?: number;
+  height?: { feet: number; inches: number };
+  photos?: ProfilePhoto[];
+  shortlistedAt: string;
+  shortlistNote?: string;
+}
+
+export interface CreditPackage {
+  id: string;
+  title: string;
+  credits: number;
+  priceBDT: number;
+  popular?: boolean;
+  savings?: string;
+}
+
+export interface CreditTransaction {
+  _id: string;
+  user?: string | User;
+  type: 'purchase' | 'spend' | 'bonus';
+  credits: number;
+  amountBDT: number;
+  paymentMethod: string;
+  senderPhone?: string;
+  trxId?: string;
+  packageTitle?: string;
+  status: 'pending' | 'completed' | 'rejected';
+  reviewNote?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Interest {

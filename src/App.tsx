@@ -22,6 +22,8 @@ import NotificationsPage from './pages/NotificationsPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import PasswordRecoveryPage from './pages/PasswordRecoveryPage';
 import ContactsPage from './pages/ContactsPage';
+import ShortlistPage from './pages/ShortlistPage';
+import PackagesPage from './pages/PackagesPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -74,6 +76,22 @@ export const App: React.FC = () => {
                   element={
                     <ProtectedRoute>
                       <InterestsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/shortlist"
+                  element={
+                    <ProtectedRoute>
+                      <ShortlistPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/packages"
+                  element={
+                    <ProtectedRoute>
+                      <PackagesPage />
                     </ProtectedRoute>
                   }
                 />

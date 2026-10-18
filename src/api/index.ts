@@ -7,3 +7,6 @@ export * from './blocks.api';
 export * from './reports.api';
 export * from './admin.api';
 export * from './locations.api';
+export * from './shortlist.api';
+export * from './payments.api';
+

@@ -1,4 +1,6 @@
+import MarriageStatisticsSettings from '../components/profile/MarriageStatisticsSettings';
 import ReviewQueue from "../components/profile/ReviewQueue";
+import AdminPaymentsQueue from "../components/admin/AdminPaymentsQueue";
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -10,6 +12,7 @@ import {
   Search,
   CheckCircle,
   History,
+  Coins,
 } from "lucide-react";
 import { toast } from "sonner";
 import { adminApi } from "../api/admin.api";
@@ -23,7 +26,7 @@ export const AdminDashboardPage: React.FC = () => {
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<
-    "users" | "reports" | "audit" | "profiles"
+    "users" | "reports" | "audit" | "profiles" | "payments"
   >(currentUser?.role === UserRole.MODERATOR ? "profiles" : "users");
   const [userSearch, setUserSearch] = useState("");
   const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>("");
@@ -202,6 +205,8 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
       )}
 
+      {isSuperAdminOrAdmin && <MarriageStatisticsSettings />}
+
       {/* Tab Navigation */}
       <div className="flex flex-wrap border-b border-gray-200 gap-6">
         <button
@@ -252,9 +257,25 @@ export const AdminDashboardPage: React.FC = () => {
             <span>সিকিউরিটি অডিট লগ</span>
           </button>
         )}
+
+        {isSuperAdminOrAdmin && (
+          <button
+            type="button"
+            onClick={() => setActiveTab("payments")}
+            className={`flex items-center gap-2 pb-3.5 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+              activeTab === "payments"
+                ? "border-rose-600 text-rose-700"
+                : "border-transparent text-gray-500 hover:text-gray-800"
+            }`}
+          >
+            <Coins className="w-4 h-4 text-amber-500 fill-amber-400" />
+            <span>পেমেন্ট ও ক্রেডিট</span>
+          </button>
+        )}
       </div>
 
       {activeTab === "profiles" && <ReviewQueue />}
+      {activeTab === "payments" && <AdminPaymentsQueue />}
 
       {/* Tab 1: User Management */}
       {activeTab === "users" && (
