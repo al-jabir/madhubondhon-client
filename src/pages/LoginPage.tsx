@@ -53,29 +53,29 @@ export const LoginPage: React.FC = () => {
       <div className="max-w-md w-full space-y-6">
         {/* Brand header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex w-12 h-12 rounded-2xl bg-linear-to-tr from-rose-600 to-pink-500 items-center justify-center text-white shadow-lg shadow-rose-200 mb-1">
+          <div className="inline-flex w-12 h-12 rounded-2xl bg-linear-to-tr from-rose-600 to-pink-500 items-center justify-center text-white shadow-lg shadow-rose-200 dark:shadow-none mb-1">
             <Heart className="w-6 h-6 fill-current" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-gray-100">
             মধুবন্ধনে স্বাগতম
           </h2>
-          <p className="text-xs sm:text-sm text-gray-550">
+          <p className="text-xs sm:text-sm text-gray-550 dark:text-gray-400">
             আপনার অ্যাকাউন্টে লগইন করে পাত্র-পাত্রীর বায়োডাটা অনুসন্ধান অব্যাহত
             রাখুন
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xl shadow-rose-100 border border-rose-100/80">
+        <div className="bg-white dark:bg-[#191e28] p-6 sm:p-8 rounded-3xl shadow-xl shadow-rose-100 dark:shadow-none border border-rose-100/80 dark:border-gray-800">
           {errorMessage && (
-            <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-semibold text-rose-700">
+            <div className="mb-5 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-xs font-semibold text-rose-700 dark:text-rose-300">
               {errorMessage}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-gray-750 mb-1.5">
+              <label className="block text-xs font-bold text-gray-750 dark:text-gray-300 mb-1.5">
                 ইমেইল ঠিকানা
               </label>
               <div className="relative">
@@ -86,13 +86,13 @@ export const LoginPage: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@mail.com"
                   required
-                  className="w-full text-sm border border-gray-250 rounded-xl pl-10 pr-4 py-2.5 bg-gray-50/50 focus:bg-white focus:outline-hidden focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all placeholder:text-gray-400"
+                  className="w-full text-sm border border-gray-250 dark:border-gray-700 rounded-xl pl-10 pr-4 py-2.5 bg-gray-50/50 dark:bg-[#1a202c] text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-[#202736] focus:outline-hidden focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all placeholder:text-gray-400"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-750 mb-1.5">
+              <label className="block text-xs font-bold text-gray-750 dark:text-gray-300 mb-1.5">
                 পাসওয়ার্ড
               </label>
               <div className="relative">
@@ -103,12 +103,12 @@ export const LoginPage: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="আপনার গোপন পাসওয়ার্ড"
                   required
-                  className="w-full text-sm border border-gray-250 rounded-xl pl-10 pr-10 py-2.5 bg-gray-50/50 focus:bg-white focus:outline-hidden focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all placeholder:text-gray-400"
+                  className="w-full text-sm border border-gray-250 dark:border-gray-700 rounded-xl pl-10 pr-10 py-2.5 bg-gray-50/50 dark:bg-[#1a202c] text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-[#202736] focus:outline-hidden focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all placeholder:text-gray-400"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -122,7 +122,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-2 py-3 px-4 text-sm font-bold text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 rounded-xl shadow-md shadow-rose-200 transition-all cursor-pointer disabled:opacity-50"
+              className="w-full mt-2 py-3 px-4 text-sm font-bold text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 rounded-xl shadow-md shadow-rose-200 dark:shadow-none transition-all cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? "লগইন হচ্ছে..." : "লগইন করুন"}
             </button>
@@ -130,7 +130,7 @@ export const LoginPage: React.FC = () => {
 
           <Link
             to="/forgot-password"
-            className="block mt-4 text-sm text-rose-700"
+            className="block mt-4 text-sm font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700"
           >
             পাসওয়ার্ড ভুলে গেছেন?
           </Link>

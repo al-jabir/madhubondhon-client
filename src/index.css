@@ -21,3 +21,49 @@
 :root[data-theme="dark"] [data-sonner-toast]{background:#222733;color:#edf0f6;border-color:#414555}
 
 .theme-icon-button{width:38px;height:38px;padding:0;justify-content:center;border-radius:50%;cursor:pointer;transition:background-color .15s,color .15s}.theme-icon-button:hover{background:#f8edf1}.theme-icon-button:focus-visible{outline:2px solid #ad6a81;outline-offset:3px}:root[data-theme="dark"] .theme-icon-button:hover{background:#352c3b}
+
+/* Native Calendar Picker Indicator & Date Inputs */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.65;
+  padding: 4px;
+  border-radius: 6px;
+  transition: opacity 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background-color: rgba(244, 63, 94, 0.12);
+}
+:root[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+}
+
+/* Universal Input Transitions & Dark Mode Enhancements */
+input, textarea, select {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+:root[data-theme="dark"] :is(input, textarea, select) {
+  background-color: #1a202c;
+  color: #f1f5f9;
+  border-color: #374151;
+}
+
+:root[data-theme="dark"] :is(input, textarea, select):focus,
+:root[data-theme="dark"] :is(.focus\:bg-white:focus, [class*="focus:bg-white"]:focus) {
+  background-color: #202736 !important;
+  color: #ffffff !important;
+  border-color: #f43f5e !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.25) !important;
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: #8b95a5 !important;
+}
+
+:root[data-theme="dark"] select option {
+  background-color: #1a202c;
+  color: #f1f5f9;
+}

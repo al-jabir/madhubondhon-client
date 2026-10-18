@@ -15,8 +15,11 @@ import {
   UPAZILA_DISPLAY_NAMES,
 } from "../constants/locations";
 import LoadingSpinner from "../components/common/LoadingSpinner";
+import DatePicker from "../components/common/DatePicker";
+
 const inputClass =
-  "w-full rounded-xl border border-gray-200 p-3 bg-white text-sm";
+  "w-full rounded-xl border border-gray-250 dark:border-gray-700 p-3 bg-white dark:bg-[#1a202c] text-gray-900 dark:text-gray-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-gray-400";
+
 function Field({
   label,
   children,
@@ -25,7 +28,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block space-y-2 text-sm font-semibold text-gray-700">
+    <label className="block space-y-2 text-sm font-semibold text-gray-750 dark:text-gray-300">
       <span>{label}</span>
       {children}
     </label>
@@ -183,14 +186,15 @@ function Wizard({ application }: { application: Application }) {
                   <option value="female">পাত্রী</option>
                 </select>
               </Field>
-              <Field label="জন্ম তারিখ (১৮+)">
-                <input
-                  type="date"
-                  className={inputClass}
+              <div className="space-y-1">
+                <DatePicker
+                  label="জন্ম তারিখ (১৮+)"
+                  required
                   value={data.dateOfBirth?.slice(0, 10) || ""}
-                  onChange={(e) => update("dateOfBirth", e.target.value)}
+                  onChange={(val) => update("dateOfBirth", val)}
+                  placeholder="জন্ম তারিখ নির্বাচন করুন"
                 />
-              </Field>
+              </div>
               <Field label="স্থায়ী উপজেলা">
                 <select
                   className={inputClass}
