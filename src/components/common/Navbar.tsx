@@ -1,6 +1,7 @@
 import ThemeToggle from './ThemeToggle';
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   Heart,
   Search,
@@ -12,7 +13,9 @@ import {
   LogOut,
   Bookmark,
   Coins,
+  HelpCircle,
 } from "lucide-react";
+import { notificationsApi } from "../../api/notifications.api";
 import { useAuth } from "../../context/useAuth";
 import { UserRole } from "../../types";
 
@@ -33,6 +36,14 @@ export const Navbar: React.FC = () => {
     user?.role === UserRole.ADMIN ||
     user?.role === UserRole.SUPER_ADMIN ||
     user?.role === UserRole.MODERATOR;
+
+  const { data: notificationsData } = useQuery({
+    queryKey: ['my-notifications-count'],
+    queryFn: () => notificationsApi.getNotifications({ page: 1, limit: 1 }),
+    enabled: isAuthenticated,
+    refetchInterval: 1000 * 60,
+  });
+  const unreadCount = notificationsData?.data?.unreadCount || 0;
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-rose-100 shadow-xs">
@@ -66,6 +77,18 @@ export const Navbar: React.FC = () => {
             >
               <Search className="w-4 h-4" />
               <span>বায়োডাটা খুঁজুন</span>
+            </Link>
+
+            <Link
+              to="/faq"
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isActive("/faq")
+                  ? "bg-rose-50 text-rose-700 font-semibold"
+                  : "text-gray-750 hover:bg-rose-50/50 hover:text-rose-600"
+              }`}
+            >
+              <HelpCircle className="w-4 h-4 text-rose-500" />
+              <span>সহায়িকা ও FAQ</span>
             </Link>
 
             {isAuthenticated && (
@@ -127,7 +150,14 @@ export const Navbar: React.FC = () => {
                       : "text-gray-750 hover:bg-rose-50/50 hover:text-rose-600"
                   }`}
                 >
-                  <Bell className="w-4 h-4" />
+                  <div className="relative">
+                    <Bell className="w-4 h-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center shadow-xs">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </div>
                   <span>বিজ্ঞপ্তি</span>
                 </Link>
 
@@ -216,6 +246,15 @@ export const Navbar: React.FC = () => {
             <span>বায়োডাটা খুঁজুন</span>
           </Link>
 
+          <Link
+            to="/faq"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-800 hover:bg-rose-50 hover:text-rose-600"
+          >
+            <HelpCircle className="w-5 h-5 text-gray-500" />
+            <span>সহায়িকা ও জিজ্ঞাসা (FAQ)</span>
+          </Link>
+
           {isAuthenticated && (
             <Link
               to="/contacts"
@@ -262,10 +301,17 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/notifications"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-800 hover:bg-rose-50 hover:text-rose-600"
+                className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-gray-800 hover:bg-rose-50 hover:text-rose-600"
               >
-                <Bell className="w-5 h-5 text-gray-500" />
-                <span>বিজ্ঞপ্তি</span>
+                <div className="flex items-center gap-2.5">
+                  <Bell className="w-5 h-5 text-gray-500" />
+                  <span>বিজ্ঞপ্তি</span>
+                </div>
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-bold">
+                    {unreadCount} নতুন
+                  </span>
+                )}
               </Link>
 
               {isAdminOrMod && (

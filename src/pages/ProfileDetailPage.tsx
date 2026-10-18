@@ -14,6 +14,8 @@ import {
   Printer,
   Bookmark,
   EyeOff,
+  MessageCircle,
+  Copy,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getDemoProfile } from '../data/demoProfiles';
@@ -21,6 +23,7 @@ import { profilesApi } from '../api/profiles.api';
 import { workflowApi, errorMessage } from '../api/workflow.api';
 import { blocksApi } from '../api/blocks.api';
 import { shortlistApi } from '../api/shortlist.api';
+import { calculateCompatibility } from '../utils/compatibility';
 import { Gender } from '../types';
 import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../constants/locations';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -85,6 +88,36 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
 
   const handlePrintBiodata = () => {
     window.print();
+  };
+
+  // Fetch logged-in user's own profile to compute compatibility
+  const { data: ownProfileData } = useQuery({
+    queryKey: ['my-profile'],
+    queryFn: () => profilesApi.getOwnProfile(),
+    enabled: !!isAuthenticated && !demo,
+  });
+
+  const myProfile = ownProfileData?.data?.profile;
+  const compatibility = calculateCompatibility(myProfile, profile);
+
+  const handleWhatsAppShare = () => {
+    if (!profile) return;
+    const currentUrl = window.location.href;
+    const bioId = profile.biodataId ? ` (বায়োডাটা কোড: ${profile.biodataId})` : '';
+    const text = `আসসালামু আলাইকুম। মধুবন্ধন টাঙ্গাইল মেট্রিমনিতে একটি উপযুক্ত বায়োডাটা${bioId}:\n\n` +
+      `• পরিচিতি: ${profile.displayName}\n` +
+      `• বয়স: ${profile.age ? `${profile.age} বছর` : 'প্রাপ্তবয়স্ক'}\n` +
+      `• এলাকা: ${upazilaBangla}, টাঙ্গাইল\n` +
+      (profile.occupation ? `• পেশা: ${profile.occupation}\n` : '') +
+      (profile.education ? `• শিক্ষা: ${profile.education.toUpperCase()}\n` : '') +
+      `\nসম্পূর্ণ বায়োডাটা দেখতে লিংকে ক্লিক করুন:\n${currentUrl}`;
+
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success('বায়োডাটার লিংক কপি করা হয়েছে!');
   };
 
   const handleBlockUser = async () => {
@@ -186,7 +219,27 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
           <span>পূর্ববর্তী পৃষ্ঠায় ফিরুন</span>
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleWhatsAppShare}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs transition-colors cursor-pointer"
+            title="পারিবারিক আলোচনার জন্য হোয়াটসঅ্যাপে শেয়ার করুন"
+          >
+            <MessageCircle className="w-3.5 h-3.5 text-emerald-600 fill-emerald-500" />
+            <span>হোয়াটসঅ্যাপে শেয়ার</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-gray-50 text-gray-700 border border-gray-250 shadow-2xs transition-colors cursor-pointer"
+            title="বায়োডাটার লিংক কপি করুন"
+          >
+            <Copy className="w-3.5 h-3.5 text-gray-500" />
+            <span>লিংক কপি</span>
+          </button>
+
           {!isOwnProfile && !demo && (
             <button
               type="button"
@@ -210,7 +263,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
             title="বায়োডাটা প্রিন্ট বা PDF হিসেবে সংরক্ষণ করুন"
           >
             <Printer className="w-3.5 h-3.5 text-rose-600" />
-            <span>প্রিন্ট / PDF ডাউনলোড</span>
+            <span>প্রিন্ট / PDF</span>
           </button>
         </div>
       </div>
@@ -253,6 +306,15 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 ভেরিফাইড বায়োডাটা
+              </span>
+            )}
+            {compatibility && (
+              <span
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-linear-to-r from-amber-50 to-rose-50 text-rose-700 border border-rose-200 shadow-2xs"
+                title={compatibility.reasons.join(' • ')}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
+                <span>{compatibility.score}% মিল ({compatibility.label})</span>
               </span>
             )}
           </div>

@@ -24,6 +24,8 @@ import PasswordRecoveryPage from './pages/PasswordRecoveryPage';
 import ContactsPage from './pages/ContactsPage';
 import ShortlistPage from './pages/ShortlistPage';
 import PackagesPage from './pages/PackagesPage';
+import FAQPage from './pages/FAQPage';
+import WhatsAppSupportWidget from './components/common/WhatsAppSupportWidget';
 import NotFoundPage from './pages/NotFoundPage';
 
 const queryClient = new QueryClient({
@@ -51,6 +53,7 @@ export const App: React.FC = () => {
                 <Route path="/contacts" element={<ProtectedRoute><ContactsPage /></ProtectedRoute>} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/faq" element={<FAQPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/profiles/:userId" element={<ProfileDetailPage />} />
 
@@ -124,6 +127,7 @@ export const App: React.FC = () => {
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </main>
+            <WhatsAppSupportWidget />
             <Footer />
             <Toaster position="top-right" richColors />
           </div>

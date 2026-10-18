@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router';
 import { MapPin, Briefcase, GraduationCap, Heart, CheckCircle2, Bookmark, EyeOff } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Profile, Gender } from '../../types';
 import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../../constants/locations';
 import { shortlistApi } from '../../api/shortlist.api';
+import { profilesApi } from '../../api/profiles.api';
+import { calculateCompatibility } from '../../utils/compatibility';
 import { useAuth } from '../../context/useAuth';
 
 interface ProfileCardProps {
@@ -29,6 +32,16 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
 
   const isMale = profile.gender === Gender.MALE;
   const targetId = profile.biodataId || (typeof profile.user === 'string' ? profile.user : profile.user?._id || profile.user?.id || profile._id);
+
+  const { data: ownProfileData } = useQuery({
+    queryKey: ['my-profile'],
+    queryFn: () => profilesApi.getOwnProfile(),
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const myProfile = ownProfileData?.data?.profile;
+  const compatibility = calculateCompatibility(myProfile, profile);
 
   const primaryPhoto = profile.photos?.find((p) => p.isProfilePhoto) || profile.photos?.[0];
   const isBlurred = Boolean(primaryPhoto?.blurPhoto || profile.photoPrivacy === 'on_interest_accepted');
@@ -124,6 +137,15 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             <span>•</span>
             <span>{profile.age ? `${profile.age} বছর` : 'প্রাপ্তবয়স্ক'}</span>
           </div>
+
+          {compatibility && (
+            <div
+              className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-amber-900 bg-amber-100/90 border border-amber-200 px-2.5 py-0.5 rounded-full shadow-2xs"
+              title={compatibility.reasons.join(' • ')}
+            >
+              <span>✨ {compatibility.score}% মিল</span>
+            </div>
+          )}
         </div>
 
         {/* Profile Details */}

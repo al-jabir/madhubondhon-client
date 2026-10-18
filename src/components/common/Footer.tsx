@@ -75,6 +75,16 @@ export const Footer: React.FC = () => {
                   পাত্রের বায়োডাটা
                 </Link>
               </li>
+              <li>
+                <Link to="/faq" className="footer-link transition-colors">
+                  সাধারণ জিজ্ঞাসা (FAQ)
+                </Link>
+              </li>
+              <li>
+                <Link to="/packages" className="footer-link transition-colors">
+                  ক্রেডিট প্যাকেজ ও মূল্য
+                </Link>
+              </li>
             </ul>
           </div>
 
