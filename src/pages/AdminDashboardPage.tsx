@@ -208,7 +208,7 @@ export const AdminDashboardPage: React.FC = () => {
       {isSuperAdminOrAdmin && <MarriageStatisticsSettings />}
 
       {/* Tab Navigation */}
-      <div className="flex flex-wrap border-b border-gray-200 gap-6">
+      <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-800 gap-4 sm:gap-6 pb-0.5 no-scrollbar">
         <button
           type="button"
           onClick={() => setActiveTab("profiles")}

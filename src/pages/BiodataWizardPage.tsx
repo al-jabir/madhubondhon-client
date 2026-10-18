@@ -564,35 +564,37 @@ function Wizard({ application }: { application: Application }) {
             </>
           )}
         </fieldset>
-        <div className="flex flex-wrap gap-3 justify-between">
+        <div className="flex flex-col-reverse sm:flex-row gap-3 justify-between pt-4">
           <button
             type="button"
             disabled={saving || step === 0}
             onClick={() => setStep((v) => v - 1)}
-            className="px-4 py-3 border rounded-xl disabled:opacity-40"
+            className="w-full sm:w-auto px-5 py-3 border border-gray-250 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-300 font-semibold disabled:opacity-40 cursor-pointer"
           >
-            আগের ধাপ
+            ← আগের ধাপ
           </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-4 py-3 border border-rose-300 rounded-xl text-rose-700 disabled:opacity-40"
-          >
-            {saving ? "সংরক্ষণ হচ্ছে..." : "খসড়া সংরক্ষণ"}
-          </button>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={async () => {
-              if (await save()) {
-                if (step < 3) setStep((v) => v + 1);
-                else navigate("/my-profile");
-              }
-            }}
-            className="px-4 py-3 rounded-xl bg-rose-600 text-white disabled:opacity-40"
-          >
-            {step < 3 ? "সংরক্ষণ করে পরের ধাপ" : "যাচাই ও জমা দিতে যান"}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full sm:w-auto px-5 py-3 border border-rose-300 dark:border-rose-900 rounded-xl text-rose-700 dark:text-rose-300 font-semibold hover:bg-rose-50 dark:hover:bg-rose-950/40 disabled:opacity-40 cursor-pointer"
+            >
+              {saving ? "সংরক্ষণ হচ্ছে..." : "খসড়া সংরক্ষণ"}
+            </button>
+            <button
+              type="button"
+              disabled={saving}
+              onClick={async () => {
+                if (await save()) {
+                  if (step < 3) setStep((v) => v + 1);
+                  else navigate("/my-profile");
+                }
+              }}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold shadow-sm shadow-rose-200 dark:shadow-none disabled:opacity-40 cursor-pointer"
+            >
+              {step < 3 ? "সংরক্ষণ করে পরের ধাপ →" : "যাচাই ও জমা দিতে যান →"}
+            </button>
+          </div>
         </div>
       </form>
     </div>

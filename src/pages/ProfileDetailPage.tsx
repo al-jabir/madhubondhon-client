@@ -209,7 +209,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
       </div>
 
       {/* Navigation & Utilities Bar */}
-      <div className="flex items-center justify-between print:hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
         <button
           type="button"
           onClick={() => navigate(-1)}

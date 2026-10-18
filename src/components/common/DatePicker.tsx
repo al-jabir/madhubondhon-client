@@ -303,7 +303,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
         {/* Dropdown Calendar Popover */}
         {isOpen && (
-          <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-80 rounded-2xl bg-white dark:bg-[#1a202c] border border-rose-100 dark:border-gray-700 shadow-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+          <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-[calc(100vw-2.5rem)] max-w-[340px] sm:w-80 rounded-2xl bg-white dark:bg-[#1a202c] border border-rose-100 dark:border-gray-700 shadow-2xl p-3.5 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
             {/* Header: Month & Year Controls */}
             <div className="flex items-center justify-between gap-2 mb-3">
               <button

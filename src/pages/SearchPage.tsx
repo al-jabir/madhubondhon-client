@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Filter, RotateCcw, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, RotateCcw, AlertCircle, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { TANGAIL_UPAZILAS, UPAZILA_DISPLAY_NAMES } from '../constants/locations';
 import { searchDemoProfiles } from '../data/demoProfiles';
 import { profilesApi } from '../api/profiles.api';
@@ -32,6 +32,18 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const [education, setEducation] = useState<string>(searchParams.get('education') || '');
   const [occupation, setOccupation] = useState(searchParams.get('occupation') || '');
   const [page, setPage] = useState<number>(Number(searchParams.get('page')) || 1);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  const activeFilterCount = [
+    biodataId,
+    gender,
+    upazila,
+    maritalStatus,
+    education,
+    occupation,
+    minAge !== '18' ? minAge : '',
+    maxAge !== '60' ? maxAge : '',
+  ].filter(Boolean).length;
 
   // Selected profile for sending interest modal
   const [selectedProfileForInterest, setSelectedProfileForInterest] = useState<Profile | null>(null);
@@ -57,6 +69,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
   const handleApplyFilter = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    setMobileFiltersOpen(false);
     const params = new URLSearchParams();
     if (biodataId.trim()) params.set('biodataId', biodataId.trim().toUpperCase());
     if (query.trim()) params.set('query', query.trim());
@@ -84,13 +97,14 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
     setOccupation('');
     setPage(1);
     setSearchParams(new URLSearchParams());
+    setMobileFiltersOpen(false);
   };
 
   const profiles = data?.data?.profiles || [];
   const meta = data?.meta || { total: profiles.length, totalPages: 1, page: 1, limit: 9 };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 sm:space-y-8">
       {demo && <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"><strong>নমুনা বায়োডাটা</strong> — নিচের ১২টি প্রোফাইল কাল্পনিক। ফিল্টার ও বিস্তারিত পেজ ঘুরে দেখতে পারেন।</div>}
       {!demo && import.meta.env.DEV && import.meta.env.VITE_LOCAL_DEV === 'true' && <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">নিজের local database থেকে ফলাফল দেখানো হচ্ছে। Development-এর জন্য যোগ করা ১২টি sample বায়োডাটা কাল্পনিক।</div>}
       {/* Search Header */}
@@ -149,9 +163,35 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
         </form>
       </div>
 
+      {/* Mobile Filters Toggle Button */}
+      <div className="lg:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-rose-200 text-sm font-bold text-gray-800 shadow-2xs cursor-pointer hover:border-rose-400"
+        >
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-rose-600" />
+            <span>ফিল্টারসমূহ</span>
+            {activeFilterCount > 0 ? (
+              <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[11px] font-bold">
+                {activeFilterCount} টি সক্রিয়
+              </span>
+            ) : (
+              <span className="text-xs text-gray-400 font-normal">(উপজেলা, বয়স, পেশা...)</span>
+            )}
+          </div>
+          <ChevronDown
+            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+              mobileFiltersOpen ? 'rotate-180 text-rose-600' : ''
+            }`}
+          />
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Filters Sidebar */}
-        <aside className="lg:col-span-1">
+        <aside className={`lg:col-span-1 ${mobileFiltersOpen ? 'block' : 'hidden lg:block'}`}>
           <form
             onSubmit={handleApplyFilter}
             className="bg-white p-5 rounded-2xl border border-rose-100/90 shadow-xs space-y-5 sticky top-20"
