@@ -23,7 +23,7 @@ export const HomePage: React.FC = () => {
         <div className="mb-shell mb-hero-grid">
           <div className="mb-hero-copy">
             <span className="mb-eyebrow"><span className="mb-status-dot" /> টাঙ্গাইলের মানুষের জন্য, আন্তরিক এক উদ্যোগ</span>
-            <h1>একই শিকড়ের টানে,<br />শুরু হোক <span>নতুন গল্প।</span></h1>
+            <h1>একই শিকড়ের টানে,<br className="hidden sm:inline" /> শুরু হোক <span>নতুন গল্প।</span></h1>
             <p className="mb-intro">পরিচিত সংস্কৃতি, কাছের মানুষ আর মিল থাকা মূল্যবোধ। টাঙ্গাইলের মধ্যেই খুঁজে নিন আপনার উপযুক্ত জীবনসঙ্গী।</p>
             <div className="mb-hero-links">
               <Link to="/register" className="mb-primary">বিনামূল্যে বায়োডাটা তৈরি করুন <ArrowRight size={17} /></Link>

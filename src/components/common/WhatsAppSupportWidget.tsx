@@ -24,10 +24,10 @@ export const WhatsAppSupportWidget: React.FC<WhatsAppSupportWidgetProps> = ({
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 print:hidden font-sans">
+    <div className="fixed bottom-4 right-3.5 sm:bottom-6 sm:right-6 z-50 print:hidden font-sans">
       {/* Floating Chat Modal Popover */}
       {isOpen && (
-        <div className="mb-3 w-80 sm:w-88 bg-white rounded-3xl shadow-2xl border border-emerald-100 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="mb-3 w-[calc(100vw-2rem)] max-w-sm sm:w-88 bg-white rounded-3xl shadow-2xl border border-emerald-100 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
           <div className="bg-linear-to-r from-emerald-600 to-teal-600 p-4 text-white flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -86,12 +86,13 @@ export const WhatsAppSupportWidget: React.FC<WhatsAppSupportWidgetProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex items-center gap-2.5 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-3 px-4 sm:px-5 rounded-full shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:scale-105 transition-all cursor-pointer border-2 border-white/40"
+        className="group flex items-center justify-center gap-2 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white p-2.5 sm:py-3 sm:px-5 rounded-full shadow-lg shadow-emerald-700/30 hover:shadow-xl hover:scale-105 transition-all cursor-pointer border-2 border-white/50"
         title="টাঙ্গাইল হেল্পলাইনে সরাসরি কথা বলুন"
+        aria-label="হোয়াটসঅ্যাপ হেল্পলাইন"
       >
-        <div className="relative">
-          <MessageCircle className="w-6 h-6 fill-current" />
-          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-amber-400 rounded-full border-2 border-emerald-600" />
+        <div className="relative flex items-center justify-center">
+          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 fill-current" />
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-amber-400 rounded-full border-2 border-emerald-600" />
         </div>
         <span className="hidden sm:inline font-bold text-xs tracking-wide">
           হেল্পলাইন
