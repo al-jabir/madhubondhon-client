@@ -192,12 +192,6 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     onChange('');
   };
 
-  // Quick preset age selection
-  const handleQuickAgeJump = (targetAge: number) => {
-    const targetYear = today.getFullYear() - targetAge;
-    setViewYear(targetYear);
-  };
-
   // List of selectable years
   const yearsList = useMemo(() => {
     const years: number[] = [];
@@ -335,14 +329,11 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                   onChange={(e) => setViewYear(parseInt(e.target.value, 10))}
                   className="text-xs font-bold text-ink-2 bg-elev border border-line rounded-lg px-2 py-1 focus:ring-1 focus:ring-brand cursor-pointer"
                 >
-                  {yearsList.map((y) => {
-                    const approxAge = today.getFullYear() - y;
-                    return (
-                      <option key={y} value={y}>
-                        {toBanglaNumber(y)} ({toBanglaNumber(approxAge)} বছর)
-                      </option>
-                    );
-                  })}
+                  {yearsList.map((y) => (
+                    <option key={y} value={y}>
+                      {toBanglaNumber(y)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -354,33 +345,6 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
-            </div>
-
-            {/* Quick Age Jump Presets */}
-            <div className="mb-3 pt-2 border-t border-line">
-              <span className="block text-[10px] font-semibold text-ink-3 mb-1.5 uppercase tracking-wider">
-                বয়স অনুযায়ী দ্রুত খুঁজুন:
-              </span>
-              <div className="flex flex-wrap gap-1">
-                {[20, 22, 25, 28, 30, 35].map((presetAge) => {
-                  const targetYear = today.getFullYear() - presetAge;
-                  const isActive = viewYear === targetYear;
-                  return (
-                    <button
-                      key={presetAge}
-                      type="button"
-                      onClick={() => handleQuickAgeJump(presetAge)}
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-md transition-all cursor-pointer ${
-                        isActive
-                          ? 'bg-brand text-white shadow-2xs font-bold'
-                          : 'bg-elev text-ink-2 hover:bg-brand-soft hover:text-brand'
-                      }`}
-                    >
-                      {toBanglaNumber(presetAge)} বছর
-                    </button>
-                  );
-                })}
-              </div>
             </div>
 
             {/* Weekdays Row */}
