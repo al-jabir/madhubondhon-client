@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { User } from '../types';
+import { User, Gender } from '../types';
 import axios from 'axios';
 import { useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
@@ -61,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     name: string;
     email: string;
     phone?: string;
+    gender?: Gender;
     password: string;
     confirmPassword: string;
     dateOfBirth: string;

@@ -21,6 +21,13 @@ const labels: Record<string, string> = {
   not_practicing: 'অনুশীলন করেন না',
   joint: 'যৌথ পরিবার',
   nuclear: 'একক পরিবার',
+  joint_family: 'যৌথ পরিবারে পরিবারের সাথে',
+  separate_home: 'পৃথক বাসা / ফ্ল্যাট',
+  flexible: 'পরিস্থিতি ও পারস্পরিক আলোচনা সাপেক্ষে',
+  yes: 'হ্যাঁ',
+  no: 'না',
+  family_decision: 'স্বামী ও পরিবারের সিদ্ধান্ত অনুযায়ী',
+  if_shariah_compliant: 'শরীয়তসম্মত ও পর্দার অনুকূল পরিবেশ পেলে',
   upper: 'উচ্চবিত্ত',
   upper_middle: 'উচ্চ মধ্যবিত্ত',
   middle: 'মধ্যবিত্ত',
@@ -34,6 +41,13 @@ const text = (value?: string) => (value ? labels[value] || value : 'উল্ল
 const yesNo = (value?: boolean) => (value === undefined ? 'উল্লেখ করা হয়নি' : value ? 'হ্যাঁ' : 'না');
 const location = (value: string) => UPAZILA_DISPLAY_NAMES[value as TangailUpazila] || value;
 const number = (value: number) => value.toLocaleString('bn-BD');
+const formatMarital = (status?: string, gender?: string) => {
+  if (!status) return 'উল্লেখ করা হয়নি';
+  if (status === 'widowed') {
+    return gender === 'male' ? 'বিপত্নীক' : 'বিধবা';
+  }
+  return labels[status] || status;
+};
 type Row = readonly [string, string | number | undefined];
 function InfoTable({ title, rows }: { title: string; rows: Row[] }) {
   return (
@@ -78,9 +92,9 @@ export default function BiodataInfoTables({ profile: p }: { profile: Profile }) 
       <InfoTable
         title="সাধারণ ও ব্যক্তিগত তথ্য"
         rows={[
-          ['বায়োডাটার ধরন', p.gender === 'male' ? 'পাত্রের বায়োডাটা' : 'পাত্রীর বায়োডাটা'],
+          ['বায়োডাটার ধরন', p.gender === 'male' ? 'পাত্রের বায়োডাটা (বর)' : 'পাত্রীর বায়োডাটা (কনে)'],
           ['বয়স', p.age !== undefined ? number(p.age) + ' বছর' : undefined],
-          ['বৈবাহিক অবস্থা', text(p.maritalStatus)],
+          ['বৈবাহিক অবস্থা', formatMarital(p.maritalStatus, p.gender)],
           ['উপজেলা', location(p.upazila)],
           ['জেলা', 'টাঙ্গাইল'],
           [
@@ -97,6 +111,7 @@ export default function BiodataInfoTables({ profile: p }: { profile: Profile }) 
           ['শিক্ষাগত যোগ্যতা', text(p.education)],
           ['শিক্ষার বিস্তারিত', p.educationDetail],
           ['পেশা', p.occupation],
+          ...(p.lifestyle?.monthlyIncome ? [['মাসিক আয়', p.lifestyle.monthlyIncome] as Row] : []),
         ]}
       />
       <InfoTable
@@ -105,8 +120,33 @@ export default function BiodataInfoTables({ profile: p }: { profile: Profile }) 
           ['ধর্ম', text(p.religiousInfo?.religion)],
           ['ধর্মীয় অনুশীলন', text(p.religiousInfo?.religiousness)],
           ['পাঁচ ওয়াক্ত নামাজ পড়েন', yesNo(p.religiousInfo?.praysFiveTimes)],
-          ...(p.gender === 'female' ? [['হিজাব পরিধান করেন', yesNo(p.religiousInfo?.wearsHijab)] as Row] : []),
-          ...(p.gender === 'male' ? [['ধূমপান করেন', yesNo(p.lifestyle?.smoking)] as Row] : []),
+          ['কুরআন তিলাওয়াত করতে পারেন', yesNo(p.religiousInfo?.canReciteQuran)],
+          ...(p.gender === 'male'
+            ? ([
+                ['সুন্নতি দাড়ি রয়েছে', yesNo(p.religiousInfo?.hasBeard)],
+                ['টাখনুর উপরে পোশাক পরিধান করেন', yesNo(p.religiousInfo?.clothesAboveAnkle)],
+                ['বিয়ের পর স্ত্রীকে পর্দায় রাখবেন', yesNo(p.lifestyle?.willKeepWifeInPurdah)],
+                ['বিয়ের পর থাকার ব্যবস্থা', text(p.lifestyle?.livingArrangement)],
+                ['ধূমপান করেন', yesNo(p.lifestyle?.smoking)],
+              ] as Row[])
+            : ([
+                ['হিজাব বা শালীন পোশাক পরিধান করেন', yesNo(p.religiousInfo?.wearsHijab)],
+                ['নিকাব সহকারে পূর্ণাঙ্গ পর্দা করেন', yesNo(p.religiousInfo?.wearsNiqab)],
+                ['মাহরাম বিধান মেনে চলেন', yesNo(p.religiousInfo?.maintainsMahram)],
+                ['রান্নাবান্না ও গৃহস্থালি কাজ পারেন', yesNo(p.lifestyle?.canCook)],
+                [
+                  'বিয়ের পর পড়াশোনা চালিয়ে যেতে চান',
+                  typeof p.lifestyle?.studyAfterMarriage === 'boolean'
+                    ? yesNo(p.lifestyle.studyAfterMarriage)
+                    : text(p.lifestyle?.studyAfterMarriage),
+                ],
+                [
+                  'বিয়ের পর চাকরি বা কাজ করতে চান',
+                  typeof p.lifestyle?.jobAfterMarriage === 'boolean'
+                    ? yesNo(p.lifestyle.jobAfterMarriage)
+                    : text(p.lifestyle?.jobAfterMarriage),
+                ],
+              ] as Row[])),
           ['খাদ্যাভ্যাস', p.lifestyle?.diet],
         ]}
       />
@@ -125,12 +165,17 @@ export default function BiodataInfoTables({ profile: p }: { profile: Profile }) 
       />
       <InfoTable title="নিজের সম্পর্কে" rows={[['পরিচিতি ও আগ্রহ', p.bio]]} />
       <InfoTable
-        title="প্রত্যাশিত জীবনসঙ্গী"
+        title={p.gender === 'male' ? 'প্রত্যাশিত জীবনসঙ্গিনী (পাত্রী)' : 'প্রত্যাশিত জীবনসঙ্গী (পাত্র)'}
         rows={[
           ['প্রত্যাশিত বয়স', ageRange],
           ['পছন্দের উপজেলা', preferences?.preferredUpazilas?.map(location).join(', ')],
           ['শিক্ষাগত যোগ্যতা', preferences?.preferredEducation?.map(text).join(', ')],
-          ['বৈবাহিক অবস্থা', preferences?.preferredMaritalStatus?.map(text).join(', ')],
+          [
+            'বৈবাহিক অবস্থা',
+            preferences?.preferredMaritalStatus
+              ?.map((s) => (s === 'widowed' ? (p.gender === 'male' ? 'বিধবা' : 'বিপত্নীক') : text(s)))
+              .join(', '),
+          ],
         ]}
       />
     </div>

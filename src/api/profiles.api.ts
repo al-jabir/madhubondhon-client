@@ -24,11 +24,22 @@ export interface CreateProfileData {
     religion: string;
     religiousness?: string;
     praysFiveTimes?: boolean;
+    canReciteQuran?: boolean;
     wearsHijab?: boolean;
+    wearsNiqab?: boolean;
+    maintainsMahram?: boolean;
+    hasBeard?: boolean;
+    clothesAboveAnkle?: boolean;
   };
   lifestyle?: {
     smoking: boolean;
     diet?: string;
+    monthlyIncome?: string;
+    willKeepWifeInPurdah?: boolean;
+    livingArrangement?: string;
+    studyAfterMarriage?: boolean | string;
+    jobAfterMarriage?: boolean | string;
+    canCook?: boolean;
   };
   bio?: string;
   visibility?: ProfileVisibility;

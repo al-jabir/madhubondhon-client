@@ -1,11 +1,12 @@
 import apiClient from './client';
-import { ApiResponse, User } from '../types';
+import { ApiResponse, User, Gender } from '../types';
 
 export const authApi = {
   async register(data: {
     name: string;
     email: string;
     phone?: string;
+    gender?: Gender;
     password: string;
     confirmPassword: string;
     dateOfBirth: string;

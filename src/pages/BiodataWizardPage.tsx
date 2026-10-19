@@ -170,27 +170,28 @@ function Wizard({ application }: { application: Application }) {
         >
           {step === 0 && (
             <>
-              <Field label="প্রদর্শনের নাম">
+              <Field label={data.gender === "female" ? "পাত্রীর নাম (বা ডাকনাম)" : data.gender === "male" ? "পাত্রের নাম (বা ডাকনাম)" : "প্রদর্শনের নাম"}>
                 <input
                   className={inputClass}
                   value={data.displayName || ""}
                   onChange={(e) => update("displayName", e.target.value)}
+                  placeholder={data.gender === "female" ? "যেমন: ফাতেমা আক্তার" : "যেমন: মোহাম্মদ আবদুল্লাহ"}
                 />
               </Field>
-              <Field label="পাত্র / পাত্রী">
+              <Field label="বায়োডাটার ধরন (পাত্র / পাত্রী)">
                 <select
                   className={inputClass}
                   value={data.gender || ""}
                   onChange={(e) => update("gender", e.target.value as Gender)}
                 >
                   <option value="">নির্বাচন করুন</option>
-                  <option value="male">পাত্র</option>
-                  <option value="female">পাত্রী</option>
+                  <option value="male">পাত্রের বায়োডাটা (বর)</option>
+                  <option value="female">পাত্রীর বায়োডাটা (কনে)</option>
                 </select>
               </Field>
               <div className="space-y-1">
                 <DatePicker
-                  label="জন্ম তারিখ (১৮+)"
+                  label={data.gender === "female" ? "পাত্রীর জন্ম তারিখ (১৮+)" : data.gender === "male" ? "পাত্রের জন্ম তারিখ (১৮+)" : "জন্ম তারিখ (১৮+)"}
                   required
                   value={data.dateOfBirth?.slice(0, 10) || ""}
                   onChange={(val) => update("dateOfBirth", val)}
@@ -222,7 +223,13 @@ function Wizard({ application }: { application: Application }) {
                   <option value="">নির্বাচন করুন</option>
                   <option value="never_married">অবিবাহিত</option>
                   <option value="divorced">ডিভোর্সড</option>
-                  <option value="widowed">বিধবা / বিপত্নীক</option>
+                  {data.gender === "male" ? (
+                    <option value="widowed">বিপত্নীক</option>
+                  ) : data.gender === "female" ? (
+                    <option value="widowed">বিধবা</option>
+                  ) : (
+                    <option value="widowed">বিধবা / বিপত্নীক</option>
+                  )}
                   <option value="separated">বিচ্ছিন্ন</option>
                 </select>
               </Field>
@@ -251,15 +258,33 @@ function Wizard({ application }: { application: Application }) {
                   className={inputClass}
                   value={data.educationDetail || ""}
                   onChange={(e) => update("educationDetail", e.target.value)}
+                  placeholder="যেমন: বিএসসি ইন সিএসই / কামিল / ডিগ্রি"
                 />
               </Field>
-              <Field label="পেশা">
+              <Field label={data.gender === "female" ? "পেশা (গৃহিণী / শিক্ষার্থী / কর্মরত)" : "পেশা"}>
                 <input
                   className={inputClass}
                   value={data.occupation || ""}
                   onChange={(e) => update("occupation", e.target.value)}
+                  placeholder={data.gender === "female" ? "যেমন: গৃহিণী / শিক্ষিকা / অধ্যয়নরত" : "যেমন: সফটওয়্যার ইঞ্জিনিয়ার / ব্যবসায়ী"}
                 />
               </Field>
+              {data.gender === "male" && (
+                <Field label="মাসিক আয় (ঐচ্ছিক)">
+                  <input
+                    className={inputClass}
+                    value={data.lifestyle?.monthlyIncome || ""}
+                    onChange={(e) =>
+                      update("lifestyle", {
+                        ...data.lifestyle,
+                        smoking: !!data.lifestyle?.smoking,
+                        monthlyIncome: e.target.value,
+                      })
+                    }
+                    placeholder="যেমন: ৩০,০০০ - ৫০,০০০ টাকা"
+                  />
+                </Field>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <Field label="উচ্চতা (ফুট)">
                   <input
@@ -327,13 +352,14 @@ function Wizard({ application }: { application: Application }) {
                   <option value="dark">কৃষ্ণবর্ণ</option>
                 </select>
               </Field>
-              <Field label="নিজের পরিচিতি">
+              <Field label={data.gender === "female" ? "পাত্রীর নিজের পরিচিতি" : data.gender === "male" ? "পাত্রের নিজের পরিচিতি" : "নিজের পরিচিতি"}>
                 <textarea
                   rows={5}
                   className={inputClass}
                   value={data.bio || ""}
                   onChange={(e) => update("bio", e.target.value)}
                   maxLength={1000}
+                  placeholder="নিজের সম্পর্কে সংক্ষেপে কিছু লিখুন (ব্যক্তিত্ব, পছন্দ-অপছন্দ, দ্বীনি দৃষ্টিভঙ্গি ইত্যাদি)"
                 />
               </Field>
             </>
@@ -398,53 +424,259 @@ function Wizard({ application }: { application: Application }) {
                   <option value="joint">যৌথ পরিবার</option>
                 </select>
               </Field>
-              <label className="flex gap-2 text-ink-2">
-                <input
-                  type="checkbox"
-                  checked={!!data.religiousInfo?.praysFiveTimes}
-                  onChange={(e) =>
-                    update("religiousInfo", {
-                      ...data.religiousInfo,
-                      religion: "islam",
-                      praysFiveTimes: e.target.checked,
-                    })
-                  }
-                />
-                পাঁচ ওয়াক্ত নামাজ পড়ি
-              </label>
-              <label className="flex gap-2 text-ink-2">
-                <input
-                  type="checkbox"
-                  checked={!!data.religiousInfo?.wearsHijab}
-                  onChange={(e) =>
-                    update("religiousInfo", {
-                      ...data.religiousInfo,
-                      religion: "islam",
-                      wearsHijab: e.target.checked,
-                    })
-                  }
-                />
-                হিজাব পরিধান করি
-              </label>
-              <label className="flex gap-2 text-ink-2">
-                <input
-                  type="checkbox"
-                  checked={!!data.lifestyle?.smoking}
-                  onChange={(e) =>
-                    update("lifestyle", {
-                      ...data.lifestyle,
-                      smoking: e.target.checked,
-                    })
-                  }
-                />
-                ধূমপান করি
-              </label>
+              <div className="pt-4 border-t border-line space-y-4">
+                <h3 className="text-base font-bold text-ink">
+                  {data.gender === "male"
+                    ? "ধর্মীয় তথ্য ও বিশেষ বিবরণ (পাত্রের জন্য)"
+                    : data.gender === "female"
+                    ? "ধর্মীয় তথ্য ও বিশেষ বিবরণ (পাত্রীর জন্য)"
+                    : "ধর্মীয় তথ্য ও জীবনযাপন"}
+                </h3>
+
+                {/* Common questions */}
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="rounded border-line text-brand focus:ring-brand/30"
+                      checked={!!data.religiousInfo?.praysFiveTimes}
+                      onChange={(e) =>
+                        update("religiousInfo", {
+                          ...data.religiousInfo,
+                          religion: "islam",
+                          praysFiveTimes: e.target.checked,
+                        })
+                      }
+                    />
+                    <span>প্রতিদিন পাঁচ ওয়াক্ত নামাজ জামায়াতে/নিয়মিত আদায় করি</span>
+                  </label>
+
+                  <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="rounded border-line text-brand focus:ring-brand/30"
+                      checked={!!data.religiousInfo?.canReciteQuran}
+                      onChange={(e) =>
+                        update("religiousInfo", {
+                          ...data.religiousInfo,
+                          religion: "islam",
+                          canReciteQuran: e.target.checked,
+                        })
+                      }
+                    />
+                    <span>শুদ্ধভাবে কুরআন মাজীদ তিলাওয়াত করতে পারি</span>
+                  </label>
+                </div>
+
+                {/* Male specific */}
+                {data.gender === "male" && (
+                  <div className="space-y-4 pt-2">
+                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="rounded border-line text-brand focus:ring-brand/30"
+                        checked={!!data.religiousInfo?.hasBeard}
+                        onChange={(e) =>
+                          update("religiousInfo", {
+                            ...data.religiousInfo,
+                            religion: "islam",
+                            hasBeard: e.target.checked,
+                          })
+                        }
+                      />
+                      <span>সুন্নতি দাড়ি রয়েছে</span>
+                    </label>
+
+                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="rounded border-line text-brand focus:ring-brand/30"
+                        checked={!!data.religiousInfo?.clothesAboveAnkle}
+                        onChange={(e) =>
+                          update("religiousInfo", {
+                            ...data.religiousInfo,
+                            religion: "islam",
+                            clothesAboveAnkle: e.target.checked,
+                          })
+                        }
+                      />
+                      <span>সর্বদা টাখনুর উপরে পোশাক পরিধান করি</span>
+                    </label>
+
+                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="rounded border-line text-brand focus:ring-brand/30"
+                        checked={!!data.lifestyle?.willKeepWifeInPurdah}
+                        onChange={(e) =>
+                          update("lifestyle", {
+                            ...data.lifestyle,
+                            smoking: !!data.lifestyle?.smoking,
+                            willKeepWifeInPurdah: e.target.checked,
+                          })
+                        }
+                      />
+                      <span>বিয়ের পর স্ত্রীকে পর্দা করার ব্যাপারে সহযোগিতা করব / পর্দায় রাখব</span>
+                    </label>
+
+                    <Field label="বিয়ের পর স্ত্রীকে নিয়ে কোথায় থাকবেন?">
+                      <select
+                        className={inputClass}
+                        value={data.lifestyle?.livingArrangement || ""}
+                        onChange={(e) =>
+                          update("lifestyle", {
+                            ...data.lifestyle,
+                            smoking: !!data.lifestyle?.smoking,
+                            livingArrangement: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">নির্বাচন করুন</option>
+                        <option value="joint_family">যৌথ পরিবারে পরিবারের সাথে</option>
+                        <option value="separate_home">পৃথক বাসা / ফ্ল্যাট</option>
+                        <option value="flexible">পরিস্থিতি ও পারস্পরিক আলোচনা সাপেক্ষে</option>
+                      </select>
+                    </Field>
+
+                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="rounded border-line text-brand focus:ring-brand/30"
+                        checked={!!data.lifestyle?.smoking}
+                        onChange={(e) =>
+                          update("lifestyle", {
+                            ...data.lifestyle,
+                            smoking: e.target.checked,
+                          })
+                        }
+                      />
+                      <span>ধূমপানের অভ্যাস রয়েছে</span>
+                    </label>
+                  </div>
+                )}
+
+                {/* Female specific */}
+                {data.gender === "female" && (
+                  <div className="space-y-4 pt-2">
+                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="rounded border-line text-brand focus:ring-brand/30"
+                        checked={!!data.religiousInfo?.wearsHijab}
+                        onChange={(e) =>
+                          update("religiousInfo", {
+                            ...data.religiousInfo,
+                            religion: "islam",
+                            wearsHijab: e.target.checked,
+                          })
+                        }
+                      />
+                      <span>ঘরের বাইরে সাধারণ হিজাব বা শালীন পোশাক পরিধান করি</span>
+                    </label>
+
+                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="rounded border-line text-brand focus:ring-brand/30"
+                        checked={!!data.religiousInfo?.wearsNiqab}
+                        onChange={(e) =>
+                          update("religiousInfo", {
+                            ...data.religiousInfo,
+                            religion: "islam",
+                            wearsNiqab: e.target.checked,
+                          })
+                        }
+                      />
+                      <span>নিয়মিত নিকাব বা বোরকা সহকারে পূর্ণাঙ্গ পর্দা করি</span>
+                    </label>
+
+                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="rounded border-line text-brand focus:ring-brand/30"
+                        checked={!!data.religiousInfo?.maintainsMahram}
+                        onChange={(e) =>
+                          update("religiousInfo", {
+                            ...data.religiousInfo,
+                            religion: "islam",
+                            maintainsMahram: e.target.checked,
+                          })
+                        }
+                      />
+                      <span>মাহরাম ও গায়রে-মাহরাম বিধান মেনে চলার চেষ্টা করি</span>
+                    </label>
+
+                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="rounded border-line text-brand focus:ring-brand/30"
+                        checked={!!data.lifestyle?.canCook}
+                        onChange={(e) =>
+                          update("lifestyle", {
+                            ...data.lifestyle,
+                            smoking: !!data.lifestyle?.smoking,
+                            canCook: e.target.checked,
+                          })
+                        }
+                      />
+                      <span>রান্নাবান্না ও গৃহস্থালি কাজকর্ম করতে পারি</span>
+                    </label>
+
+                    <Field label="বিয়ের পর পড়াশোনা চালিয়ে যেতে চান কি?">
+                      <select
+                        className={inputClass}
+                        value={String(data.lifestyle?.studyAfterMarriage ?? "")}
+                        onChange={(e) =>
+                          update("lifestyle", {
+                            ...data.lifestyle,
+                            smoking: !!data.lifestyle?.smoking,
+                            studyAfterMarriage: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">নির্বাচন করুন</option>
+                        <option value="yes">হ্যাঁ, চালিয়ে যেতে চাই</option>
+                        <option value="no">না, প্রয়োজন নেই</option>
+                        <option value="family_decision">স্বামী ও পরিবারের সিদ্ধান্ত অনুযায়ী</option>
+                      </select>
+                    </Field>
+
+                    <Field label="বিয়ের পর চাকরি বা কাজ করতে চান কি?">
+                      <select
+                        className={inputClass}
+                        value={String(data.lifestyle?.jobAfterMarriage ?? "")}
+                        onChange={(e) =>
+                          update("lifestyle", {
+                            ...data.lifestyle,
+                            smoking: !!data.lifestyle?.smoking,
+                            jobAfterMarriage: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">নির্বাচন করুন</option>
+                        <option value="no">না, গৃহিণী হিসেবে থাকতে চাই</option>
+                        <option value="if_shariah_compliant">শরীয়তসম্মত ও পর্দার অনুকূল পরিবেশ পেলে</option>
+                        <option value="yes">হ্যাঁ, চাকরি করতে চাই</option>
+                        <option value="family_decision">স্বামী ও পরিবারের সম্মতি সাপেক্ষে</option>
+                      </select>
+                    </Field>
+                  </div>
+                )}
+              </div>
             </>
           )}
           {step === 3 && (
             <>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="সঙ্গীর ন্যূনতম বয়স">
+                <Field
+                  label={
+                    data.gender === "male"
+                      ? "প্রত্যাশিত পাত্রীর ন্যূনতম বয়স"
+                      : data.gender === "female"
+                      ? "প্রত্যাশিত পাত্রের ন্যূনতম বয়স"
+                      : "সঙ্গীর ন্যূনতম বয়স"
+                  }
+                >
                   <input
                     type="number"
                     min="18"
@@ -524,10 +756,15 @@ function Wizard({ application }: { application: Application }) {
                   <option value="private">ব্যক্তিগত</option>
                 </select>
               </Field>
-              <h2 className="text-lg font-bold text-ink">অভিভাবকের যোগাযোগ</h2>
+              <h2 className="text-lg font-bold text-ink">
+                {data.gender === "female"
+                  ? "অভিভাবকের (ওয়ালী) যোগাযোগ"
+                  : "অভিভাবকের যোগাযোগ"}
+              </h2>
               <p className="text-sm text-ink-2">
-                এই তথ্য public biodata-তে দেখানো হবে না। অভিভাবকের সম্মতি
-                যাচাইয়ের পর যোগাযোগের অনুমতি দেওয়া যাবে।
+                {data.gender === "female"
+                  ? "পাত্রীর ক্ষেত্রে পিতা বা শরীয়াহসম্মত অভিভাবকের (ওয়ালী) তথ্য প্রদান করা আবশ্যক। এই তথ্য পাবলিক বায়োডাটাতে উন্মুক্ত থাকবে না।"
+                  : "এই তথ্য public biodata-তে দেখানো হবে না। অভিভাবকের সম্মতি যাচাইয়ের পর যোগাযোগের অনুমতি দেওয়া যাবে।"}
               </p>
               <Field label="অভিভাবকের নাম">
                 <input
@@ -540,7 +777,11 @@ function Wizard({ application }: { application: Application }) {
                 <input
                   className={inputClass}
                   value={guardian.relationship || ""}
-                  placeholder="পিতা / মাতা / ভাই"
+                  placeholder={
+                    data.gender === "female"
+                      ? "পিতা / ভাই / চাচা (ওয়ালী)"
+                      : "পিতা / মাতা / ভাই"
+                  }
                   onChange={(e) =>
                     updateGuardian("relationship", e.target.value)
                   }

@@ -87,8 +87,15 @@ function ReviewCard({ app }: { app: Application }) {
           <dt className="font-bold text-ink">{isBengali ? "ধর্মীয় তথ্য" : "Religious Information"}</dt>
           <dd>
             {d.religiousInfo?.religion} · {isBengali ? "পাঁচ ওয়াক্ত নামাজ: " : "5 Daily Prayers: "}
-            {d.religiousInfo?.praysFiveTimes ? (isBengali ? "হ্যাঁ" : "Yes") : (isBengali ? "উল্লেখ নেই" : "Not specified")} · {isBengali ? "হিজাব: " : "Hijab: "}
-            {d.religiousInfo?.wearsHijab ? (isBengali ? "হ্যাঁ" : "Yes") : (isBengali ? "উল্লেখ নেই" : "Not specified")}
+            {d.religiousInfo?.praysFiveTimes ? (isBengali ? "হ্যাঁ" : "Yes") : (isBengali ? "উল্লেখ নেই" : "Not specified")}
+            {d.gender === "female" && (
+              <> · {isBengali ? "হিজাব: " : "Hijab: "}
+              {d.religiousInfo?.wearsHijab ? (isBengali ? "হ্যাঁ" : "Yes") : (isBengali ? "উল্লেখ নেই" : "Not specified")}</>
+            )}
+            {d.gender === "male" && (
+              <> · {isBengali ? "দাড়ি: " : "Beard: "}
+              {d.religiousInfo?.hasBeard ? (isBengali ? "হ্যাঁ" : "Yes") : (isBengali ? "উল্লেখ নেই" : "Not specified")}</>
+            )}
           </dd>
         </div>
         <div>

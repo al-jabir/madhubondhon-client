@@ -15,12 +15,14 @@ import {
 import { toast } from 'sonner';
 import { getApiErrorMessage } from '../api/errors';
 import { useAuth } from '../context/useAuth';
+import { Gender } from '../types';
 import DatePicker, { calculateAge } from '../components/common/DatePicker';
 
 export const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  const [gender, setGender] = useState<Gender | ''>('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -47,6 +49,11 @@ export const RegisterPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
+
+    if (!gender) {
+      setErrorMessage('অনুগ্রহ করে পাত্র অথবা পাত্রী নির্বাচন করুন।');
+      return;
+    }
 
     if (!name.trim() || !email.trim() || !dateOfBirth || !password || !confirmPassword) {
       setErrorMessage('সবগুলো আবশ্যক তথ্য পূরণ করুন।');
@@ -75,6 +82,7 @@ export const RegisterPage: React.FC = () => {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         phone: phone.trim() || undefined,
+        gender,
         dateOfBirth,
         password,
         confirmPassword,
@@ -167,6 +175,38 @@ export const RegisterPage: React.FC = () => {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="mb-label">
+                  বায়োডাটার ধরন / কার জন্য নিবন্ধন করছেন? <span className="text-brand">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-3 mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setGender(Gender.MALE)}
+                    className={`flex flex-col sm:flex-row items-center justify-center gap-2 p-3 sm:p-3.5 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                      gender === Gender.MALE
+                        ? 'border-brand bg-brand/10 text-brand ring-2 ring-brand/25 shadow-xs'
+                        : 'border-line bg-elev hover:bg-card hover:border-brand/40 text-ink-2'
+                    }`}
+                  >
+                    <span className="text-xl">🤵‍♂️</span>
+                    <span>আমি পাত্র (বর)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGender(Gender.FEMALE)}
+                    className={`flex flex-col sm:flex-row items-center justify-center gap-2 p-3 sm:p-3.5 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                      gender === Gender.FEMALE
+                        ? 'border-brand bg-brand/10 text-brand ring-2 ring-brand/25 shadow-xs'
+                        : 'border-line bg-elev hover:bg-card hover:border-brand/40 text-ink-2'
+                    }`}
+                  >
+                    <span className="text-xl">🧕</span>
+                    <span>আমি পাত্রী (কনে)</span>
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="mb-label">
                   পূর্ণ নাম <span className="text-brand">*</span>

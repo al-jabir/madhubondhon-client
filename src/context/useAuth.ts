@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { User } from '../types';
+import { User, Gender } from '../types';
 
 interface AuthContextType {
   user: User | null;
@@ -10,6 +10,7 @@ interface AuthContextType {
     name: string;
     email: string;
     phone?: string;
+    gender?: Gender;
     password: string;
     confirmPassword: string;
     dateOfBirth: string;
