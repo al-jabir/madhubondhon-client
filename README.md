@@ -48,6 +48,7 @@ npm run build
 ### ১. লোকাল ডেভেলপমেন্ট অ্যাকাউন্টস (`npm run dev` মোড)
 | রোল (Role) | ইমেইল (Email) | পাসওয়ার্ড | বিবরণ |
 |---|---|---|---|
+| **Super Admin** | `admin@admin.com` | `Admin123!` | সম্পূর্ণ প্ল্যাটফর্ম নিয়ন্ত্রণ ও সুপার অ্যাডমিন ক্ষমতা |
 | **অ্যাডমিন (Admin)** | `admin@local.test` | `Password123!` | সম্পূর্ণ অ্যাডমিন ড্যাশবোর্ড ও অনুমোদন ক্ষমতা |
 | **মডারেটর (Moderator)** | `moderator@local.test` | `Password123!` | প্রোফাইল নিরীক্ষা, অনুমোদন ও সংশোধন রিকোয়েস্ট |
 | **পাত্র (Male User)** | `male@local.test` | `Password123!` | পাত্রের টেস্ট বায়োডাটা অ্যাকাউন্ট |
@@ -56,6 +57,7 @@ npm run build
 ### ২. সিডেড ডাটাবেজ অ্যাকাউন্টস (`npm run seed` / Production Seed)
 | রোল (Role) | ইমেইল (Email) | পাসওয়ার্ড | বিবরণ |
 |---|---|---|---|
+| **Super Admin** | `admin@admin.com` | `Admin123!` | সম্পূর্ণ প্ল্যাটফর্ম নিয়ন্ত্রণ, ইউজার ও রোল ম্যানেজমেন্ট |
 | **Super Admin** | `superadmin@madhubondhon.com` | `Password123!` | সকল পারমিশন ও রোল ম্যানেজমেন্ট |
 | **Admin** | `admin@madhubondhon.com` | `Password123!` | ইউজার নিয়ন্ত্রণ ও স্ট্যাটাস আপডেট |
 | **Moderator** | `moderator@madhubondhon.com` | `Password123!` | রিপোর্ট সমাধান ও প্রোফাইল অনুমোদন |
