@@ -85,8 +85,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   error,
 }) => {
   const today = useMemo(() => new Date(), []);
-  const maxYear = today.getFullYear() - minAge;
-  const minYear = today.getFullYear() - maxAge;
+  const maxYear = today.getFullYear();
+  const minYear = Math.min(1940, today.getFullYear() - maxAge);
 
   // Selected date components
   const selectedDate = useMemo(() => {
@@ -103,7 +103,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
   // Current view in calendar (month & year)
   const [viewYear, setViewYear] = useState<number>(() => {
-    return selectedDate ? selectedDate.getFullYear() : maxYear - 5; // e.g. 23 years ago
+    return selectedDate ? selectedDate.getFullYear() : maxYear - 23; // e.g. 23 years ago (~2003)
   });
 
   const [viewMonth, setViewMonth] = useState<number>(() => {
@@ -163,8 +163,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
   const handlePrevMonth = () => {
     if (viewMonth === 0) {
-      setViewMonth(11);
-      setViewYear((prev) => prev - 1);
+      if (viewYear > minYear) {
+        setViewMonth(11);
+        setViewYear((prev) => prev - 1);
+      }
     } else {
       setViewMonth((prev) => prev - 1);
     }
@@ -172,10 +174,14 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
   const handleNextMonth = () => {
     if (viewMonth === 11) {
-      setViewMonth(0);
-      setViewYear((prev) => prev + 1);
+      if (viewYear < maxYear) {
+        setViewMonth(0);
+        setViewYear((prev) => prev + 1);
+      }
     } else {
-      setViewMonth((prev) => prev + 1);
+      if (viewYear < maxYear || viewMonth < today.getMonth()) {
+        setViewMonth((prev) => prev + 1);
+      }
     }
   };
 
@@ -192,21 +198,19 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     onChange('');
   };
 
-  // List of selectable years
+  // List of selectable years (from start year to current year)
   const yearsList = useMemo(() => {
     const years: number[] = [];
-    for (let y = maxYear; y >= minYear; y--) {
+    for (let y = minYear; y <= maxYear; y++) {
       years.push(y);
     }
     return years;
-  }, [maxYear, minYear]);
+  }, [minYear, maxYear]);
 
-  // Check if a specific day is disabled (e.g. user would be under 18)
+  // Check if a specific day is disabled (cannot select future dates)
   const isDateDisabled = (day: number) => {
     const dateToCheck = new Date(viewYear, viewMonth, day);
-    const minBirthDate = new Date();
-    minBirthDate.setFullYear(today.getFullYear() - minAge);
-    return dateToCheck > minBirthDate;
+    return dateToCheck > today;
   };
 
   return (
