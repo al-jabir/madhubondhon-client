@@ -228,7 +228,7 @@ export const AdminAnnouncementsTab: React.FC = () => {
 
                 <div className="text-[10px] text-ink-3 pt-2">
                   {isBengali ? 'প্রকাশ: ' : 'Published: '}
-                  {new Date(ann.createdAt).toLocaleDateString(isBengali ? 'bn-BD' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' })}
+                  {new Date(ann.createdAt).toLocaleString(isBengali ? 'bn-BD' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' })}
                 </div>
               </div>
             ))}

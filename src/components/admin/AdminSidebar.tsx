@@ -151,7 +151,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       label: t('admin.tabs.audit'),
       icon: History,
       section: 'superadmin',
-      visible: isSuperAdminOrAdmin,
+      visible: true,
     },
   ];
 

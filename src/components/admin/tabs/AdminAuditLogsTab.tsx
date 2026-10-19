@@ -32,7 +32,13 @@ export const AdminAuditLogsTab: React.FC = () => {
   const [activeJsonModal, setActiveJsonModal] = useState<AuditLogItem | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const { data: logsData, isLoading } = useQuery({
+  const {
+    data: logsData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['admin-audit-logs', actionFilter, page],
     queryFn: () =>
       adminApi.getAuditLogs({
@@ -42,24 +48,71 @@ export const AdminAuditLogsTab: React.FC = () => {
       }),
   });
 
-  const rawAuditLogs = logsData?.data?.auditLogs || [];
+  const rawAuditLogs: AuditLogItem[] =
+    logsData?.data?.auditLogs ||
+    (logsData?.data as any)?.logs ||
+    (Array.isArray(logsData?.data) ? logsData.data : []) ||
+    [];
   const meta = logsData?.meta;
+
+  const formatDateTime = (dateStr?: string | Date) => {
+    if (!dateStr) return '—';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '—';
+      return d.toLocaleString(isBengali ? 'bn-BD' : 'en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      });
+    } catch {
+      return '—';
+    }
+  };
+
+  const formatDateOnly = (dateStr?: string | Date) => {
+    if (!dateStr) return '—';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '—';
+      return d.toLocaleDateString(isBengali ? 'bn-BD' : 'en-US', {
+        dateStyle: 'medium',
+      });
+    } catch {
+      return '—';
+    }
+  };
+
+  const formatTimeOnly = (dateStr?: string | Date) => {
+    if (!dateStr) return '—';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '—';
+      return d.toLocaleTimeString(isBengali ? 'bn-BD' : 'en-US', {
+        timeStyle: 'short',
+      });
+    } catch {
+      return '—';
+    }
+  };
 
   // Local search filter
   const auditLogs = rawAuditLogs.filter((log: AuditLogItem) => {
     if (!searchTerm.trim()) return true;
     const term = searchTerm.toLowerCase();
-    const actorName = typeof log.actor === 'object' ? log.actor?.name?.toLowerCase() : '';
-    const actorEmail = typeof log.actor === 'object' ? log.actor?.email?.toLowerCase() : '';
-    const action = log.action?.toLowerCase() || '';
-    const targetType = log.targetType?.toLowerCase() || '';
-    const targetId = log.targetId?.toLowerCase() || '';
-    const ip = log.ipAddress?.toLowerCase() || '';
+    const actor = log.actor;
+    const actorName =
+      actor && typeof actor === 'object' ? (actor.name || '').toLowerCase() : '';
+    const actorEmail =
+      actor && typeof actor === 'object' ? (actor.email || '').toLowerCase() : '';
+    const action = (log.action || '').toLowerCase();
+    const targetType = (log.targetType || '').toLowerCase();
+    const targetId = String(log.targetId || '').toLowerCase();
+    const ip = (log.ipAddress || '').toLowerCase();
     const detailsStr = JSON.stringify(log.details || {}).toLowerCase();
 
     return (
-      actorName?.includes(term) ||
-      actorEmail?.includes(term) ||
+      actorName.includes(term) ||
+      actorEmail.includes(term) ||
       action.includes(term) ||
       targetType.includes(term) ||
       targetId.includes(term) ||
@@ -74,8 +127,8 @@ export const AdminAuditLogsTab: React.FC = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const getActionBadge = (action: string) => {
-    const act = action.toLowerCase();
+  const getActionBadge = (action?: string) => {
+    const act = (action || '').toLowerCase();
 
     if (act.includes('delete') || act.includes('remove')) {
       return {
@@ -142,21 +195,21 @@ export const AdminAuditLogsTab: React.FC = () => {
     }
 
     return {
-      label: action,
+      label: action || 'Action',
       bg: 'bg-brand-soft text-brand-ink border-brand/25',
       icon: History,
     };
   };
 
   const renderDetailsSummary = (details?: Record<string, any>) => {
-    if (!details || Object.keys(details).length === 0) {
+    if (!details || typeof details !== 'object' || Object.keys(details).length === 0) {
       return <span className="text-ink-3 italic text-[11px]">{isBengali ? 'কোনো বিবরণ নেই' : 'No details'}</span>;
     }
 
     const reason = details.reason;
-    const name = details.name || details.displayName || details.userName;
-    const role = details.role;
-    const status = details.status || details.accountStatus;
+    const name = details.name || details.displayName || details.userName || details.targetName;
+    const role = details.role || details.newRole || details.userRole;
+    const status = details.status || details.accountStatus || details.newStatus;
 
     return (
       <div className="space-y-1.5 text-xs">
@@ -171,21 +224,21 @@ export const AdminAuditLogsTab: React.FC = () => {
           {name && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-elev border border-line text-[10px] font-semibold text-ink-2">
               <span className="text-ink-3">{isBengali ? 'নাম:' : 'Target:'}</span>
-              <strong className="text-ink font-bold">{name}</strong>
+              <strong className="text-ink font-bold">{String(name)}</strong>
             </span>
           )}
 
           {role && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-[10px] font-bold text-purple-600 dark:text-purple-400">
               <span className="opacity-75">{isBengali ? 'রোল:' : 'Role:'}</span>
-              <span className="uppercase">{role}</span>
+              <span className="uppercase">{String(role)}</span>
             </span>
           )}
 
           {status && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold text-amber-600 dark:text-amber-400">
               <span className="opacity-75">{isBengali ? 'স্ট্যাটাস:' : 'Status:'}</span>
-              <span className="uppercase">{status}</span>
+              <span className="uppercase">{String(status)}</span>
             </span>
           )}
         </div>
@@ -264,6 +317,23 @@ export const AdminAuditLogsTab: React.FC = () => {
           <div className="py-20 flex justify-center">
             <LoadingSpinner size="lg" label={isBengali ? 'অডিট লগ লোড হচ্ছে...' : 'Loading audit logs...'} />
           </div>
+        ) : isError ? (
+          <div className="py-16 text-center text-ink-3 space-y-3 px-4">
+            <AlertCircle className="w-10 h-10 mx-auto text-red-500" />
+            <p className="text-sm font-bold text-red-500">
+              {isBengali ? 'অডিট লগ লোড করতে সমস্যা হয়েছে।' : 'Failed to load audit logs.'}
+            </p>
+            <p className="text-xs text-ink-3 max-w-md mx-auto font-mono">
+              {(error as any)?.response?.data?.message || (error as any)?.message || ''}
+            </p>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-hover text-white text-xs font-bold cursor-pointer transition-colors shadow-sm"
+            >
+              {isBengali ? 'পুনরায় চেষ্টা করুন' : 'Retry'}
+            </button>
+          </div>
         ) : auditLogs.length === 0 ? (
           <div className="py-16 text-center text-ink-3 space-y-2">
             <History className="w-10 h-10 mx-auto text-ink-3/40" />
@@ -287,9 +357,12 @@ export const AdminAuditLogsTab: React.FC = () => {
                 <tbody className="divide-y divide-line">
                   {auditLogs.map((log: AuditLogItem) => {
                     const actor = log.actor;
-                    const actorName = typeof actor === 'object' ? actor?.name : (isBengali ? 'সিস্টেম' : 'System');
-                    const actorEmail = typeof actor === 'object' ? actor?.email : '';
-                    const actorRole = typeof actor === 'object' ? actor?.role : '';
+                    const actorName =
+                      (actor && typeof actor === 'object' ? actor.name : null) ||
+                      (typeof actor === 'string' ? actor : null) ||
+                      (isBengali ? 'সিস্টেম' : 'System');
+                    const actorEmail = actor && typeof actor === 'object' ? actor.email : '';
+                    const actorRole = actor && typeof actor === 'object' ? actor.role : '';
                     const actorInitial = actorName?.trim()?.charAt(0)?.toUpperCase() || 'A';
                     const badge = getActionBadge(log.action);
                     const ActionIcon = badge.icon;
@@ -335,7 +408,7 @@ export const AdminAuditLogsTab: React.FC = () => {
                               <span>{log.targetType}</span>
                               {log.targetId && (
                                 <span className="font-mono text-[10px] text-ink-3 bg-elev px-1.5 py-0.2 rounded border border-line truncate max-w-[130px]">
-                                  {log.targetId}
+                                  {String(log.targetId)}
                                 </span>
                               )}
                             </div>
@@ -353,16 +426,8 @@ export const AdminAuditLogsTab: React.FC = () => {
 
                         {/* Timestamp */}
                         <td className="py-3 px-4 text-ink-3 text-[11px] whitespace-nowrap">
-                          <div>
-                            {new Date(log.createdAt).toLocaleDateString(isBengali ? 'bn-BD' : 'en-US', {
-                              dateStyle: 'medium',
-                            })}
-                          </div>
-                          <div className="font-mono text-[10px]">
-                            {new Date(log.createdAt).toLocaleTimeString(isBengali ? 'bn-BD' : 'en-US', {
-                              timeStyle: 'short',
-                            })}
-                          </div>
+                          <div>{formatDateOnly(log.createdAt)}</div>
+                          <div className="font-mono text-[10px]">{formatTimeOnly(log.createdAt)}</div>
                         </td>
 
                         {/* Inspect Raw Button */}
@@ -388,8 +453,11 @@ export const AdminAuditLogsTab: React.FC = () => {
             <div className="block md:hidden divide-y divide-line">
               {auditLogs.map((log: AuditLogItem) => {
                 const actor = log.actor;
-                const actorName = typeof actor === 'object' ? actor?.name : (isBengali ? 'সিস্টেম' : 'System');
-                const actorRole = typeof actor === 'object' ? actor?.role : '';
+                const actorName =
+                  (actor && typeof actor === 'object' ? actor.name : null) ||
+                  (typeof actor === 'string' ? actor : null) ||
+                  (isBengali ? 'সিস্টেম' : 'System');
+                const actorRole = actor && typeof actor === 'object' ? actor.role : '';
                 const badge = getActionBadge(log.action);
                 const ActionIcon = badge.icon;
 
@@ -412,10 +480,7 @@ export const AdminAuditLogsTab: React.FC = () => {
                       </div>
 
                       <span className="text-[10px] text-ink-3 font-mono">
-                        {new Date(log.createdAt).toLocaleDateString(isBengali ? 'bn-BD' : 'en-US', {
-                          dateStyle: 'short',
-                          timeStyle: 'short',
-                        })}
+                        {formatDateTime(log.createdAt)}
                       </span>
                     </div>
 

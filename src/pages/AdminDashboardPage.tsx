@@ -108,7 +108,7 @@ export const AdminDashboardPage: React.FC = () => {
 
           {activeTab === 'settings' && isSuperAdmin && <AdminSettingsTab />}
 
-          {activeTab === 'audit' && isSuperAdminOrAdmin && <AdminAuditLogsTab />}
+          {activeTab === 'audit' && <AdminAuditLogsTab />}
         </main>
       </div>
 

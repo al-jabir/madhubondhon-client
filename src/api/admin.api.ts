@@ -238,6 +238,18 @@ export const adminApi = {
     const res = await apiClient.get<ApiResponse<{ logs: AuditLogItem[] }>>('/admin/audit-logs', {
       params,
     });
-    return { ...res.data, data: { auditLogs: res.data.data?.logs || [] } };
+    const logs =
+      res.data?.data?.logs ||
+      (res.data as any)?.logs ||
+      (Array.isArray(res.data?.data) ? res.data.data : []) ||
+      [];
+    return {
+      ...res.data,
+      data: {
+        auditLogs: logs,
+        logs,
+      },
+      meta: res.data?.meta,
+    };
   },
 };
