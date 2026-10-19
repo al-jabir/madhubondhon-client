@@ -199,20 +199,66 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
                   : isBengali
                   ? 'সিস্টেম অ্যাডমিন'
                   : 'System Admin';
+
+              const act = (log.action || '').toLowerCase();
+              let badgeColor = 'bg-brand-soft text-brand-ink border-brand/25';
+              let badgeLabel = log.action;
+
+              if (act.includes('delete') || act.includes('remove')) {
+                badgeColor = 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/25';
+                badgeLabel = isBengali ? 'মুছে ফেলা' : 'Deleted';
+              } else if (act.includes('status')) {
+                badgeColor = 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/25';
+                badgeLabel = isBengali ? 'স্ট্যাটাস' : 'Status';
+              } else if (act.includes('role')) {
+                badgeColor = 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/25';
+                badgeLabel = isBengali ? 'ভূমিকা' : 'Role';
+              } else if (act.includes('create') || act.includes('add')) {
+                badgeColor = 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/25';
+                badgeLabel = isBengali ? 'যুক্ত' : 'Created';
+              } else if (act.includes('hide')) {
+                badgeColor = 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/25';
+                badgeLabel = isBengali ? 'লুকানো' : 'Hidden';
+              } else if (act.includes('announcement')) {
+                badgeColor = 'bg-sky-500/15 text-sky-600 dark:text-sky-400 border-sky-500/25';
+                badgeLabel = isBengali ? 'ঘোষণা' : 'Announcement';
+              }
+
+              const details = (log.details || {}) as Record<string, any>;
+              const reason = details.reason;
+              const targetName =
+                details.name || details.userName || details.displayName || details.targetName || details.title;
+
               return (
-                <div key={log._id} className="py-2.5 flex items-center justify-between text-xs">
-                  <div className="space-y-0.5">
-                    <div className="font-bold text-ink">
-                      {actorName}{' '}
-                      <span className="font-mono text-brand font-normal">[{log.action}]</span>
+                <div key={log._id} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-ink">{actorName}</span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${badgeColor}`}>
+                        {badgeLabel}
+                      </span>
+                      {log.targetType && (
+                        <span className="text-[11px] font-medium text-ink-3">
+                          • {log.targetType}
+                        </span>
+                      )}
                     </div>
-                    {log.details && (
-                      <div className="text-ink-3 text-[11px] truncate max-w-md">
-                        {JSON.stringify(log.details)}
+                    {(targetName || reason) && (
+                      <div className="flex items-center gap-1.5 text-[11px] text-ink-3 flex-wrap">
+                        {targetName && (
+                          <span className="font-semibold text-ink-2 truncate max-w-[200px]">
+                            {targetName}
+                          </span>
+                        )}
+                        {reason && (
+                          <span className="italic truncate max-w-xs text-ink-3">
+                            💬 &ldquo;{reason}&rdquo;
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>
-                  <div className="text-[11px] text-ink-3 whitespace-nowrap">
+                  <div className="text-[11px] text-ink-3 sm:text-right shrink-0">
                     {new Date(log.createdAt).toLocaleString(isBengali ? 'bn-BD' : 'en-US', {
                       dateStyle: 'medium',
                       timeStyle: 'short',
