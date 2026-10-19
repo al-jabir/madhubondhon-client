@@ -93,7 +93,13 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="pt-8 border-t border-white/10 text-xs text-[#c8a9b6] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© {new Date().getFullYear()} মধুবন্ধন — Tangail Matrimony. সর্বস্বত্ব সংরক্ষিত।</p>
+          <p className="flex items-center flex-wrap gap-x-2">
+            <span>© {new Date().getFullYear()} মধুবন্ধন — Tangail Matrimony. সর্বস্বত্ব সংরক্ষিত।</span>
+            <span className="opacity-40">•</span>
+            <Link to="/admin/login" className="hover:text-white transition-colors opacity-60 hover:opacity-100 text-[11px]">
+              প্রশাসনিক পোর্টাল
+            </Link>
+          </p>
           <p className="flex items-center gap-1.5">
             টাঙ্গাইলের মানুষের জন্য ভালোবাসার সাথে নির্মিত
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-current" />

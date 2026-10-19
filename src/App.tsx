@@ -24,6 +24,7 @@ const EditProfilePage = lazy(() => import('./pages/EditProfilePage'));
 const InterestsPage = lazy(() => import('./pages/InterestsPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
+const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
 const PasswordRecoveryPage = lazy(() => import('./pages/PasswordRecoveryPage'));
 const ContactsPage = lazy(() => import('./pages/ContactsPage'));
 const ShortlistPage = lazy(() => import('./pages/ShortlistPage'));
@@ -128,6 +129,9 @@ const AppShell: React.FC = () => {
                 </ProtectedRoute>
               }
             />
+
+            {/* Dedicated Admin Login Route */}
+            <Route path="/admin/login" element={<AdminLoginPage />} />
 
             {/* Protected Admin & Moderator Routes (Admin-Only Dashboard) */}
             <Route
