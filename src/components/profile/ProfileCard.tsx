@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router';
-import { MapPin, Briefcase, GraduationCap, Heart, CheckCircle2, Bookmark, EyeOff } from 'lucide-react';
+import { MapPin, Briefcase, GraduationCap, Heart, CheckCircle2, Bookmark } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Profile, Gender } from '../../types';
@@ -9,6 +9,7 @@ import { shortlistApi } from '../../api/shortlist.api';
 import { profilesApi } from '../../api/profiles.api';
 import { calculateCompatibility } from '../../utils/compatibility';
 import { useAuth } from '../../context/useAuth';
+import GenderAvatar from '../common/GenderAvatar';
 
 interface ProfileCardProps {
   profile: Profile;
@@ -42,10 +43,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
 
   const myProfile = ownProfileData?.data?.profile;
   const compatibility = calculateCompatibility(myProfile, profile);
-
-  const primaryPhoto = profile.photos?.find((p) => p.isProfilePhoto) || profile.photos?.[0];
-  const isBlurred = Boolean(primaryPhoto?.blurPhoto || profile.photoPrivacy === 'on_interest_accepted');
-  const isHidden = profile.photoPrivacy === 'hidden';
 
   const handleToggleShortlist = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -100,31 +97,15 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
       </div>
 
       <div>
-        {/* Photo / avatar header */}
+        {/* Photo header — the platform never displays members' original photos;
+            every profile gets a gender-based illustrated avatar instead. */}
         <div className="relative bg-linear-to-b from-brand-soft/60 to-card pt-10 pb-6 px-6 flex flex-col items-center text-center border-b border-line">
-          <div className="relative w-24 h-24 rounded-full overflow-hidden shadow-md border-3 border-card mb-3 group-hover:scale-105 transition-transform bg-elev flex items-center justify-center">
-            {primaryPhoto?.url && !isHidden ? (
-              <>
-                <img
-                  src={primaryPhoto.url}
-                  alt={profile.displayName}
-                  className={`w-full h-full object-cover transition-all ${isBlurred ? 'filter blur-md scale-110' : ''}`}
-                />
-                {isBlurred && (
-                  <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-white p-1">
-                    <EyeOff className="w-5 h-5 text-white/90 drop-shadow-md" />
-                    <span className="text-[9px] font-bold tracking-tight">পর্দাশীল</span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-0.5 text-brand">
-                <UsersIcon />
-                <span className="text-2xl font-black">
-                  {profile.displayName ? profile.displayName.charAt(0) : 'পা'}
-                </span>
-              </div>
-            )}
+          <div className="relative w-24 h-24 rounded-full shadow-md border-3 border-card mb-3 group-hover:scale-105 transition-transform">
+            <GenderAvatar
+              gender={profile.gender}
+              size={96}
+              className="w-full h-full"
+            />
           </div>
 
           <h3 className="font-bold text-lg text-ink flex items-center gap-1.5 text-center">
@@ -203,14 +184,5 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     </div>
   );
 };
-
-function UsersIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="opacity-50">
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
-    </svg>
-  );
-}
 
 export default ProfileCard;

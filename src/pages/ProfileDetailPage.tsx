@@ -13,7 +13,6 @@ import {
   ArrowLeft,
   Printer,
   Bookmark,
-  EyeOff,
   MessageCircle,
   Copy,
 } from 'lucide-react';
@@ -27,6 +26,7 @@ import { calculateCompatibility } from '../utils/compatibility';
 import { Gender } from '../types';
 import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../constants/locations';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import GenderAvatar from '../components/common/GenderAvatar';
 import SendInterestModal from '../components/profile/SendInterestModal';
 import ReportModal from '../components/profile/ReportModal';
 import { useAuth } from '../context/useAuth';
@@ -180,9 +180,8 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
     (currentUser.id === targetUserId ||
       (typeof profile.user === 'object' && profile.user?._id === currentUser.id));
 
-  const primaryPhoto = profile.photos?.find((p) => p.isProfilePhoto) || profile.photos?.[0];
-  const isBlurred = Boolean(primaryPhoto?.blurPhoto || profile.photoPrivacy === 'on_interest_accepted');
-  const isHidden = profile.photoPrivacy === 'hidden';
+  // Members' original photos are never displayed publicly — the hero uses a
+  // gender-based illustrated avatar (see GenderAvatar).
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 print:p-0 print:m-0 print:max-w-full">
@@ -259,26 +258,12 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
 
         <div className="relative shrink-0 mx-auto md:mx-0">
           <div className="absolute -inset-1.5 rounded-full bg-linear-to-br from-brand/60 via-pink-500/40 to-transparent opacity-70" aria-hidden="true" />
-          <div className="relative w-32 h-32 rounded-full overflow-hidden shadow-lg border-3 border-card bg-elev flex items-center justify-center">
-            {primaryPhoto?.url && !isHidden ? (
-              <>
-                <img
-                  src={primaryPhoto.url}
-                  alt={profile.displayName}
-                  className={`w-full h-full object-cover ${isBlurred ? 'filter blur-md scale-110' : ''}`}
-                />
-                {isBlurred && (
-                  <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-white p-1">
-                    <EyeOff className="w-6 h-6 text-white drop-shadow-md" />
-                    <span className="text-[10px] font-bold">পর্দাশীল বায়োডাটা</span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <span className="text-4xl font-bold text-brand">
-                {profile.displayName?.charAt(0) || 'পা'}
-              </span>
-            )}
+          <div className="relative w-32 h-32 rounded-full shadow-lg border-3 border-card">
+            <GenderAvatar
+              gender={profile.gender}
+              size={128}
+              className="w-full h-full"
+            />
           </div>
         </div>
 
