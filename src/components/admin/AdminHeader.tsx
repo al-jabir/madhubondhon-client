@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import {
   ShieldAlert,
   ShieldCheck,
   UserCheck,
-  ExternalLink,
   LogOut,
   Sparkles,
   ChevronDown,
@@ -128,16 +127,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
         <LanguageToggle />
         <ThemeToggle />
 
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-line bg-elev hover:bg-brand-soft hover:text-brand-ink text-ink-2 transition-all cursor-pointer shadow-2xs"
-          title={isBengali ? 'মূল ওয়েবসাইট দেখুন' : 'View Main Site'}
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">{t('admin.mainSite')}</span>
-        </Link>
-
-        {/* User / Admin Profile Dropdown in place of Logout */}
+        {/* User / Admin Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             type="button"
@@ -195,15 +185,6 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
 
               {/* Action Links */}
               <div className="py-1.5 px-1.5 space-y-0.5 text-xs">
-                <Link
-                  to="/"
-                  onClick={() => setUserDropdownOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 font-semibold text-ink-2 hover:bg-brand-soft hover:text-brand rounded-lg transition-colors"
-                >
-                  <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-70" />
-                  <span>{t('admin.mainSite')}</span>
-                </Link>
-
                 <button
                   type="button"
                   onClick={handleLogout}

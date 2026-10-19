@@ -1,9 +1,10 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 
 import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/useAuth';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { UserRole } from './types';
 
@@ -54,7 +55,21 @@ const PageFallback = () => (
 
 const AppShell: React.FC = () => {
   const location = useLocation();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const isAdminRoute = location.pathname.startsWith('/admin');
+
+  const isAdminOrSuperAdmin =
+    user?.role === UserRole.ADMIN ||
+    user?.role === UserRole.SUPER_ADMIN ||
+    user?.role === UserRole.MODERATOR;
+
+  // Strict Site Isolation Rule:
+  // If a Super Admin or Admin is logged in, under NO circumstances should the public site be shown to them.
+  // Any attempt to view public/customer routes immediately redirects them to /admin.
+  // The public customer website is strictly reserved for users other than super admin and admin (i.e. regular customers and unauthenticated visitors).
+  if (!isLoading && isAuthenticated && isAdminOrSuperAdmin && !isAdminRoute) {
+    return <Navigate to="/admin" replace />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-base text-ink font-sans antialiased selection:bg-brand selection:text-white">
