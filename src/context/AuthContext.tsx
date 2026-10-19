@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, [refreshUser]);
 
-  const login = async (data: { email: string; password: string }) => {
+  const login = async (data: { email: string; password: string }): Promise<User> => {
     const res = await authApi.login(data);
     if (res.data?.accessToken && res.data.refreshToken && res.data.user) {
       localStorage.setItem('accessToken', res.data.accessToken);
@@ -51,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       queryClient.clear();
       setUser(res.data.user);
+      return res.data.user;
     } else {
       throw new Error('সার্ভার থেকে সঠিক সেশন পাওয়া যায়নি।');
     }
@@ -63,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string;
     confirmPassword: string;
     dateOfBirth: string;
-  }) => {
+  }): Promise<User> => {
     const res = await authApi.register(data);
     if (res.data?.accessToken && res.data.refreshToken && res.data.user) {
       localStorage.setItem('accessToken', res.data.accessToken);
@@ -72,6 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       queryClient.clear();
       setUser(res.data.user);
+      return res.data.user;
     } else {
       throw new Error('সার্ভার থেকে সঠিক সেশন পাওয়া যায়নি।');
     }

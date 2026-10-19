@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { Heart, Lock, Mail, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "../api/errors";
 import { useAuth } from "../context/useAuth";
+import { UserRole } from "../types";
 
 export const LoginPage: React.FC = () => {
-  const { login } = useAuth();
+  const { user, isAuthenticated, isLoading, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -20,6 +21,22 @@ export const LoginPage: React.FC = () => {
     (location.state as { from?: { pathname: string } })?.from?.pathname ||
     "/my-profile";
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      const isAdminRole =
+        user.role === UserRole.ADMIN ||
+        user.role === UserRole.SUPER_ADMIN ||
+        user.role === UserRole.MODERATOR;
+
+      if (isAdminRole && (from === "/my-profile" || from === "/")) {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
+    }
+  }, [user, isAuthenticated, isLoading, navigate, from]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
@@ -30,9 +47,19 @@ export const LoginPage: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      await login({ email: email.trim(), password });
+      const loggedInUser = await login({ email: email.trim(), password });
       toast.success("সফলভাবে লগইন হয়েছে!");
-      navigate(from, { replace: true });
+
+      const isAdminRole =
+        loggedInUser?.role === UserRole.ADMIN ||
+        loggedInUser?.role === UserRole.SUPER_ADMIN ||
+        loggedInUser?.role === UserRole.MODERATOR;
+
+      if (isAdminRole && (from === "/my-profile" || from === "/")) {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     } catch (err: unknown) {
       const msg = getApiErrorMessage(err, "লগইন করা যায়নি।");
       setErrorMessage(msg);

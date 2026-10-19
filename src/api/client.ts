@@ -1,6 +1,6 @@
 import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
-export const apiClient = axios.create({ baseURL: API_BASE_URL, timeout: 45000, headers: { 'Content-Type': 'application/json' } });
+export const apiClient = axios.create({ baseURL: API_BASE_URL, timeout: 60000, headers: { 'Content-Type': 'application/json' } });
 apiClient.interceptors.request.use(config => {
   const token = localStorage.getItem('accessToken');
   if (token) config.headers.Authorization = 'Bearer ' + token;
@@ -13,7 +13,7 @@ function clearSession() {
 async function refreshSession() {
   const refreshToken = localStorage.getItem('refreshToken');
   if (!refreshToken) throw new Error('No refresh token');
-  const response = await axios.post(API_BASE_URL + '/auth/refresh', { refreshToken }, { timeout: 45000 });
+  const response = await axios.post(API_BASE_URL + '/auth/refresh', { refreshToken }, { timeout: 60000 });
   const { accessToken, refreshToken: nextRefreshToken } = response.data.data || {};
   if (!accessToken || !nextRefreshToken) throw new Error('Invalid token response');
   localStorage.setItem('accessToken', accessToken); localStorage.setItem('refreshToken', nextRefreshToken);
