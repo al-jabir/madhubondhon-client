@@ -157,12 +157,6 @@
 }
 
 /* ═══════════════════ ThemeToggle (unchanged contracts) ═══════════════════ */
-.theme-toggle{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid var(--mb-line-strong);border-radius:9px;color:var(--mb-ink-2);background:var(--mb-card);font-size:12px;flex-shrink:0}
-.theme-toggle:focus-within{outline:2px solid var(--mb-brand);outline-offset:2px}
-.theme-icon-button{width:38px;height:38px;padding:0;justify-content:center;border-radius:50%;cursor:pointer;transition:background-color .15s,color .15s}
-.theme-icon-button:hover{background:var(--mb-brand-soft)}
-.theme-icon-button:focus-visible{outline:2px solid var(--mb-brand);outline-offset:3px}
-
 /* Native date input indicator */
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer; opacity: .65; padding: 4px; border-radius: 6px;

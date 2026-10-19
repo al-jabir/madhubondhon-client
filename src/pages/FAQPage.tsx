@@ -25,7 +25,7 @@ const faqs: FAQItem[] = [
     category: 'মৌলিক',
     question: 'মধুবন্ধন (Tangail Matrimony) প্ল্যাটফর্মটি কীভাবে কাজ করে?',
     answer:
-      'মধুবন্ধন হলো টাঙ্গাইল জেলা ও প্রবাসে থাকা টাঙ্গাইলবাসীর জন্য একটি নির্ভরযোগ্য এবং ইসলামিক মূল্যবোধসম্পন্ন পাত্র-পাত্রী খোঁজার মাধ্যম। এখানে যেকোনো প্রাপ্তবয়স্ক (১৮+) পাত্র-পাত্রী বা তাদের অভিভাবক বিনামূল্যে বায়োডাটা তৈরি করতে পারেন। মডারেটরদের দ্বারা যাচাই ও অনুমোদনের পর তা প্ল্যাটফর্মে প্রকাশিত হয়। পছন্দ হলে একে অপরকে আগ্রহ (Interest) পাঠাতে পারেন এবং অভিভাবকের সম্মতিক্রমে পারিবারিক যোগাযোগের ব্যবস্থা করা হয়।',
+      'মধুবন্ধন হলো টাঙ্গাইল জেলা ও প্রবাসে থাকা টাঙ্গাইলবাসীর জন্য একটি নির্ভরযোগ্য এবং ইসলামিক মূল্যবোধসম্পন্ন পাত্র-পাত্রী খোঁজার মাধ্যম। এখানে যেকোনো প্রাপ্তবয়স্ক (১৮+) পাত্র-পাত্রী বা তাদের অভিভাবক বিনামূল্যে বায়োডাটা তৈরি করতে পারে। মডারেটরদের দ্বারা যাচাই ও অনুমোদনের পর তা প্ল্যাটফর্মে প্রকাশিত হয়। পছন্দ হলে একে অপরকে আগ্রহ (Interest) পাঠাতে পারেন এবং অভিভাবকের সম্মতিক্রমে পারিবারিক যোগাযোগের ব্যবস্থা করা হয়।',
   },
   {
     id: 'guardian-consent',
@@ -39,7 +39,7 @@ const faqs: FAQItem[] = [
     category: 'প্রাইভেসি ও ছবি',
     question: 'পর্দাশীল বায়োডাটা (ব্লার মোড) এবং ছবির গোপনীয়তা কীভাবে কাজ করে?',
     answer:
-      'আমরা মা-বোনদের পর্দার সর্বোচ্চ সম্মান করি। ছবি আপলোড করার সময় "পর্দাশীল ছবি (ব্লার রাখুন)" নির্বাচন করলে আপনার ছবিটি জনসাধারণের কাছে ঝাপসা থাকবে। এছাড়া আপনি সেটিংস থেকে নির্ধারণ করতে পারবেন আপনার ছবি শুধুমাত্র নিবন্ধিত সদস্য বা যাদের প্রস্তাব আপনি গ্রহণ করবেন তারাই কেবল দেখতে পারবেন। চাইলে যেকোনো সময় ছবি গোপন (Hidden) রাখতে পারবেন।',
+      'আমরা মা-বোনদের পর্দার সর্বোচ্চ সম্মান করি। ছবি আপলোড করার সময় "পর্দাশীল ছবি (ব্লার রাখুন)" নির্বাচন করলে আপনার ছবিটি জনসাধারণের কাছে ঝাপসা থাকবে। এছাড়া আপনি সেটিংস থেকে নির্ধারণ করতে পারবে আপনার ছবি শুধুমাত্র নিবন্ধিত সদস্য বা যাদের প্রস্তাব আপনি গ্রহণ করবেন তারাই কেবল দেখতে পারবেন। চাইলে যেকোনো সময় ছবি গোপন (Hidden) রাখতে পারবেন।',
   },
   {
     id: 'biodata-id',
@@ -97,14 +97,14 @@ export const FAQPage: React.FC = () => {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       {/* Header */}
       <div className="text-center space-y-3 max-w-2xl mx-auto">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-xs font-bold border border-rose-200">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-soft text-brand rounded-full text-xs font-bold border border-brand/25">
           <HelpCircle className="w-3.5 h-3.5" />
           <span>সহায়তা ও দিকনির্দেশনা</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight">
           সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)
         </h1>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-ink-2">
           মধুবন্ধন টাঙ্গাইল মেট্রিমনি প্ল্যাটফর্মের ব্যবহারবিধি, শরিয়াহ নীতিমালা ও সেবা সংক্রান্ত যাবতীয়
           উত্তর
         </p>
@@ -112,13 +112,13 @@ export const FAQPage: React.FC = () => {
         {/* Search bar */}
         <div className="pt-2">
           <div className="relative max-w-md mx-auto">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="প্রশ্ন বা কীওয়ার্ড লিখে খুঁজুন..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm rounded-xl border border-gray-300 focus:outline-hidden focus:ring-2 focus:ring-rose-500 bg-white"
+              className="mb-input w-full !text-sm pl-10 pr-4 py-2.5"
             />
           </div>
         </div>
@@ -126,33 +126,33 @@ export const FAQPage: React.FC = () => {
 
       {/* Trust Highlights Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-rose-100 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+        <div className="bg-card mb-card p-5 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-brand-soft text-brand flex items-center justify-center shrink-0">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-gray-900">শতভাগ গোপনীয়তা</h4>
-            <p className="text-[11px] text-gray-500">অনুমতি ছাড়া কোনো ফোন নম্বর শেয়ার হয় না</p>
+            <h4 className="text-xs font-bold text-ink">শতভাগ গোপনীয়তা</h4>
+            <p className="text-[11px] text-ink-3">অনুমতি ছাড়া কোনো ফোন নম্বর শেয়ার হয় না</p>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-rose-100 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+        <div className="bg-card mb-card p-5 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gold-soft text-gold flex items-center justify-center shrink-0">
             <Users className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-gray-900">অভিভাবকের তত্ত্বাবধান</h4>
-            <p className="text-[11px] text-gray-500">পারিবারিক সম্মতির মাধ্যমে যোগাযোগ</p>
+            <h4 className="text-xs font-bold text-ink">অভিভাবকের তত্ত্বাবধান</h4>
+            <p className="text-[11px] text-ink-3">পারিবারিক সম্মতির মাধ্যমে যোগাযোগ</p>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-rose-100 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+        <div className="bg-card mb-card p-5 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <Lock className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-gray-900">পর্দাশীল ব্লার সুবিধা</h4>
-            <p className="text-[11px] text-gray-500">মা-বোনদের ছবির জন্য পূর্ণ শালীনতা</p>
+            <h4 className="text-xs font-bold text-ink">পর্দাশীল ব্লার সুবিধা</h4>
+            <p className="text-[11px] text-ink-3">মা-বোনদের ছবির জন্য পূর্ণ শালীনতা</p>
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@ export const FAQPage: React.FC = () => {
       {/* Accordion FAQ List */}
       <div className="space-y-3">
         {filteredFaqs.length === 0 ? (
-          <div className="bg-white p-8 rounded-2xl text-center text-xs text-gray-500 border border-gray-200">
+          <div className="bg-card mb-card p-8 text-center text-xs text-ink-3">
             আপনার অনুসন্ধানের সাথে মিলে এমন কোনো প্রশ্নোত্তর পাওয়া যায়নি।
           </div>
         ) : (
@@ -170,25 +170,25 @@ export const FAQPage: React.FC = () => {
             return (
               <div
                 key={faq.id}
-                className="bg-white rounded-2xl border border-gray-200/90 shadow-2xs overflow-hidden transition-colors"
+                className="bg-card mb-card overflow-hidden transition-colors"
               >
                 <button
                   type="button"
                   onClick={() => toggleOpen(faq.id)}
-                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-rose-50/30 transition-colors"
+                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-brand-soft/40 transition-colors"
                 >
                   <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-rose-600 tracking-wider uppercase">
+                    <span className="text-[10px] font-bold text-brand tracking-wider uppercase">
                       {faq.category}
                     </span>
-                    <h3 className="text-sm sm:text-base font-bold text-gray-900">
+                    <h3 className="text-sm sm:text-base font-bold text-ink">
                       {faq.question}
                     </h3>
                   </div>
 
                   <div
-                    className={`w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 bg-rose-50 text-rose-600' : ''
+                    className={`w-7 h-7 rounded-full bg-elev flex items-center justify-center text-ink-3 shrink-0 transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 bg-brand-soft text-brand' : ''
                     }`}
                   >
                     <ChevronDown className="w-4 h-4" />
@@ -196,7 +196,7 @@ export const FAQPage: React.FC = () => {
                 </button>
 
                 {isOpen && (
-                  <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-gray-650 leading-relaxed border-t border-gray-100 bg-slate-50/50">
+                  <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-ink-2 leading-relaxed border-t border-line bg-elev/50">
                     <p>{faq.answer}</p>
                   </div>
                 )}
@@ -207,7 +207,7 @@ export const FAQPage: React.FC = () => {
       </div>
 
       {/* Still need help callout */}
-      <div className="bg-linear-to-r from-rose-600 to-pink-600 rounded-3xl p-6 sm:p-8 text-white text-center space-y-4 shadow-lg shadow-rose-200">
+      <div className="bg-linear-to-r from-brand to-pink-500 rounded-3xl p-6 sm:p-8 text-white text-center space-y-4 shadow-lg shadow-brand/20">
         <h3 className="text-xl sm:text-2xl font-bold">অন্য কোনো জিজ্ঞাসা বা সমস্যা আছে?</h3>
         <p className="text-xs sm:text-sm text-rose-100 max-w-lg mx-auto">
           আমাদের টাঙ্গাইল হেল্পলাইন টিম আপনার সেবায় নিয়োজিত। যে কোনো তথ্যের জন্য সরাসরি কথা বলতে পারেন।
@@ -215,7 +215,7 @@ export const FAQPage: React.FC = () => {
         <div className="pt-1 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/packages"
-            className="px-5 py-2.5 bg-white text-rose-700 text-xs font-bold rounded-xl shadow-xs hover:bg-rose-50 transition-colors"
+            className="px-5 py-2.5 bg-card text-brand text-xs font-bold rounded-xl shadow-xs hover:bg-elev transition-colors"
           >
             প্যাকেজ ও মূল্যতালিকা দেখুন
           </Link>

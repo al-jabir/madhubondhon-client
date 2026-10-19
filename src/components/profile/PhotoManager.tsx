@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Camera, 
-  Trash2, 
-  Eye, 
-  EyeOff, 
-  Shield, 
-  Upload, 
-  Check, 
+import {
+  Camera,
+  Trash2,
+  Eye,
+  EyeOff,
+  Shield,
+  Upload,
+  Check,
   Image as ImageIcon,
   Sparkles,
   Lock
@@ -113,28 +113,28 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-rose-100 shadow-2xs p-6 sm:p-8 space-y-8">
+    <div className="mb-card rounded-3xl p-6 sm:p-8 space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
         <div>
-          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <Camera className="w-5 h-5 text-rose-600" />
+          <h3 className="text-lg font-bold text-ink flex items-center gap-2">
+            <Camera className="w-5 h-5 text-brand" />
             <span>ছবি ও পর্দাশীলতা ব্যবস্থাপনা</span>
           </h3>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-ink-3 mt-1">
             বায়োডাটার ছবি আপলোড করুন এবং কে কে আপনার ছবি দেখতে পারবে তা নির্ধারণ করুন
           </p>
         </div>
 
         {/* Privacy Selector Dropdown */}
         <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-gray-400 shrink-0" />
-          <label className="text-xs text-gray-600 font-semibold shrink-0">ছবির দৃশ্যমানতা:</label>
+          <Shield className="w-4 h-4 text-ink-3 shrink-0" />
+          <label className="text-xs text-ink-2 font-semibold shrink-0">ছবির দৃশ্যমানতা:</label>
           <select
             value={privacy}
             onChange={(e) => handlePrivacyChange(e.target.value)}
             disabled={privacyMutation.isPending}
-            className="text-xs font-semibold py-1.5 px-3 rounded-xl border border-gray-300 bg-gray-50 hover:bg-white focus:outline-hidden focus:ring-2 focus:ring-rose-500 cursor-pointer"
+            className="mb-input !text-xs font-semibold py-1.5 cursor-pointer"
           >
             <option value="public">সবার জন্য উন্মুক্ত (Public)</option>
             <option value="registered_only">শুধুমাত্র নিবন্ধিত সদস্য (Registered Only)</option>
@@ -146,14 +146,14 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
 
       {/* Gallery of Uploaded Photos */}
       <div className="space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-ink-3 flex items-center gap-1.5">
           <ImageIcon className="w-4 h-4" />
           <span>সংরক্ষিত ছবিসমূহ ({photos.length})</span>
         </h4>
 
         {photos.length === 0 ? (
-          <div className="py-8 text-center bg-gray-50/60 rounded-2xl border border-dashed border-gray-200 p-4">
-            <p className="text-xs text-gray-500">এখনও কোনো ছবি যোগ করা হয়নি। নিচে থেকে ছবি আপলোড করুন।</p>
+          <div className="py-8 text-center bg-elev rounded-2xl border border-dashed border-line p-4">
+            <p className="text-xs text-ink-3">এখনও কোনো ছবি যোগ করা হয়নি। নিচে থেকে ছবি আপলোড করুন।</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -166,7 +166,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
               return (
                 <div
                   key={photoKey}
-                  className="group relative rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 aspect-3/4 flex flex-col justify-between shadow-2xs"
+                  className="group relative rounded-2xl overflow-hidden border border-line bg-elev aspect-3/4 flex flex-col justify-between shadow-2xs"
                 >
                   <img
                     src={imageUrl}
@@ -179,12 +179,12 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
                   {/* Overlays */}
                   <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
                     {p.isProfilePhoto && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-600 text-white shadow-xs">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand text-white shadow-xs">
                         প্রধান ছবি
                       </span>
                     )}
                     {p.blurPhoto && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/80 text-amber-300 backdrop-blur-xs flex items-center gap-1">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gold-soft text-gold border border-gold/25 backdrop-blur-xs flex items-center gap-1">
                         <Lock className="w-2.5 h-2.5" />
                         পর্দাশীল
                       </span>
@@ -197,7 +197,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
                       type="button"
                       onClick={() => deleteMutation.mutate(photoKey)}
                       disabled={deleteMutation.isPending}
-                      className="p-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-lg transition-transform hover:scale-110 cursor-pointer"
+                      className="p-2.5 bg-brand hover:bg-brand/85 text-white rounded-xl shadow-lg transition-transform hover:scale-110 cursor-pointer"
                       title="ছবি মুছুন"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -211,21 +211,21 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
       </div>
 
       {/* Upload New Photo Form */}
-      <form onSubmit={handleUpload} className="bg-rose-50/40 rounded-2xl border border-rose-100 p-5 space-y-4">
-        <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-          <Upload className="w-4 h-4 text-rose-600" />
+      <form onSubmit={handleUpload} className="rounded-2xl bg-elev border border-line p-5 space-y-4">
+        <h4 className="text-sm font-bold text-ink flex items-center gap-2">
+          <Upload className="w-4 h-4 text-brand" />
           <span>নতুন ছবি আপলোড করুন</span>
         </h4>
 
         <div className="flex flex-col sm:flex-row items-center gap-5">
           {/* File Picker */}
           <div className="w-full sm:flex-1">
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-rose-200 hover:border-rose-400 bg-white rounded-xl p-4 cursor-pointer transition-colors text-center">
-              <Camera className="w-6 h-6 text-rose-500 mb-1" />
-              <span className="text-xs font-bold text-rose-700">
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-brand/40 hover:border-brand bg-card rounded-xl p-4 cursor-pointer transition-colors text-center">
+              <Camera className="w-6 h-6 text-brand mb-1" />
+              <span className="text-xs font-bold text-brand">
                 {selectedFile ? selectedFile.name : 'ছবি বেছে নিন (গ্যালারি বা ফাইল)'}
               </span>
-              <span className="text-[11px] text-gray-400 mt-0.5">JPG, PNG, WEBP (সর্বোচ্চ ৫ MB)</span>
+              <span className="text-[11px] text-ink-3 mt-0.5">JPG, PNG, WEBP (সর্বোচ্চ ৫ MB)</span>
               <input
                 type="file"
                 accept="image/*"
@@ -237,7 +237,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
 
           {/* Preview Box */}
           {previewUrl && (
-            <div className="w-24 h-28 rounded-xl overflow-hidden border-2 border-rose-300 relative shrink-0">
+            <div className="w-24 h-28 rounded-xl overflow-hidden border-2 border-brand/50 relative shrink-0">
               <img
                 src={previewUrl}
                 alt="প্রিভিউ"
@@ -249,34 +249,34 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
 
         {/* Options */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-          <label className="flex items-start gap-2.5 bg-white p-3 rounded-xl border border-rose-150 cursor-pointer text-xs">
+          <label className="flex items-start gap-2.5 bg-card p-3 rounded-xl border border-line cursor-pointer text-xs">
             <input
               type="checkbox"
               checked={blurPhoto}
               onChange={(e) => setBlurPhoto(e.target.checked)}
-              className="mt-0.5 rounded text-rose-600 focus:ring-rose-500"
+              className="mt-0.5 rounded text-brand focus:ring-brand"
             />
             <div>
-              <span className="font-bold text-gray-800 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span className="font-bold text-ink flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-gold" />
                 পর্দাশীল ছবি (ব্লার রাখুন)
               </span>
-              <span className="text-[11px] text-gray-500 block mt-0.5">
+              <span className="text-[11px] text-ink-3 block mt-0.5">
                 ছবিটি ঝাপসা থাকবে; পাত্র-পাত্রী বা অভিভাবক সরাসরি অনুরোধ গ্রহণ করলেই শুধু স্পষ্ট দেখা যাবে।
               </span>
             </div>
           </label>
 
-          <label className="flex items-start gap-2.5 bg-white p-3 rounded-xl border border-rose-150 cursor-pointer text-xs">
+          <label className="flex items-start gap-2.5 bg-card p-3 rounded-xl border border-line cursor-pointer text-xs">
             <input
               type="checkbox"
               checked={isProfilePhoto}
               onChange={(e) => setIsProfilePhoto(e.target.checked)}
-              className="mt-0.5 rounded text-rose-600 focus:ring-rose-500"
+              className="mt-0.5 rounded text-brand focus:ring-brand"
             />
             <div>
-              <span className="font-bold text-gray-800">প্রধান প্রোফাইল ছবি করুন</span>
-              <span className="text-[11px] text-gray-500 block mt-0.5">
+              <span className="font-bold text-ink">প্রধান প্রোফাইল ছবি করুন</span>
+              <span className="text-[11px] text-ink-3 block mt-0.5">
                 বায়োডাটা কার্ড ও তালিকায় এই ছবিটি সর্বপ্রথম প্রদর্শিত হবে।
               </span>
             </div>
@@ -288,7 +288,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
           <button
             type="submit"
             disabled={!selectedFile || uploadMutation.isPending}
-            className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 shadow-sm disabled:opacity-50 transition-all flex items-center gap-1.5 cursor-pointer"
+            className="mb-btn-primary px-5 py-2.5 !text-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
           >
             {uploadMutation.isPending ? (
               <LoadingSpinner size="sm" />

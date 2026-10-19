@@ -28,43 +28,43 @@ function ReviewCard({ app }: { app: Application }) {
     app.reviewedBy &&
     app.reviewedBy !== (user?.id || user?._id);
   return (
-    <article className="bg-white p-6 border rounded-2xl space-y-4">
-      <h2 className="text-xl font-bold">
+    <article className="mb-card p-6 space-y-4">
+      <h2 className="text-xl font-bold text-ink">
         {d.displayName} — {statusLabels[app.status]}
       </h2>
-      <p className="text-sm">
+      <p className="text-sm text-ink-2">
         অভিভাবকের সম্মতি: {app.guardianConsentedAt ? "যাচাইকৃত" : "অসম্পূর্ণ"}
       </p>
-      <dl className="grid sm:grid-cols-2 gap-4 text-sm">
+      <dl className="grid sm:grid-cols-2 gap-4 text-sm text-ink-2">
         <div>
-          <dt className="font-bold">মৌলিক তথ্য</dt>
+          <dt className="font-bold text-ink">মৌলিক তথ্য</dt>
           <dd>
             {d.gender} · {d.dateOfBirth?.slice(0, 10)} · {d.upazila} ·{" "}
             {d.maritalStatus}
           </dd>
         </div>
         <div>
-          <dt className="font-bold">শিক্ষা ও পেশা</dt>
+          <dt className="font-bold text-ink">শিক্ষা ও পেশা</dt>
           <dd>
             {d.education} · {d.educationDetail} · {d.occupation}
           </dd>
         </div>
         <div>
-          <dt className="font-bold">উচ্চতা ও জীবনযাপন</dt>
+          <dt className="font-bold text-ink">উচ্চতা ও জীবনযাপন</dt>
           <dd>
             {d.height?.feet} ফুট {d.height?.inches} ইঞ্চি · ধূমপান:{" "}
             {d.lifestyle?.smoking ? "হ্যাঁ" : "না"}
           </dd>
         </div>
         <div>
-          <dt className="font-bold">পরিবার</dt>
+          <dt className="font-bold text-ink">পরিবার</dt>
           <dd>
             {d.familyInfo?.fatherOccupation} / {d.familyInfo?.motherOccupation}{" "}
             · ভাইবোন: {d.familyInfo?.siblings ?? "উল্লেখ নেই"}
           </dd>
         </div>
         <div>
-          <dt className="font-bold">ধর্মীয় তথ্য</dt>
+          <dt className="font-bold text-ink">ধর্মীয় তথ্য</dt>
           <dd>
             {d.religiousInfo?.religion} · পাঁচ ওয়াক্ত নামাজ:{" "}
             {d.religiousInfo?.praysFiveTimes ? "হ্যাঁ" : "উল্লেখ নেই"} · হিজাব:{" "}
@@ -72,39 +72,39 @@ function ReviewCard({ app }: { app: Application }) {
           </dd>
         </div>
         <div>
-          <dt className="font-bold">প্রত্যাশা</dt>
+          <dt className="font-bold text-ink">প্রত্যাশা</dt>
           <dd>
             {d.preferences?.minAge} – {d.preferences?.maxAge} ·{" "}
             {d.preferences?.preferredUpazilas?.join(", ")}
           </dd>
         </div>
         <div>
-          <dt className="font-bold">অভিভাবক (গোপনীয়)</dt>
+          <dt className="font-bold text-ink">অভিভাবক (গোপনীয়)</dt>
           <dd>
             {app.guardian?.name} ({app.guardian?.relationship}) ·{" "}
             {app.guardian?.phone}
           </dd>
         </div>
       </dl>
-      <p className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-xl">
+      <p className="whitespace-pre-wrap text-sm text-ink-2 bg-elev p-4 rounded-xl border border-line">
         {d.bio || "পরিচিতি উল্লেখ নেই"}
       </p>
       {app.status === "submitted" ? (
         <button
           disabled={mutation.isPending}
           onClick={() => mutation.mutate("under_review")}
-          className="bg-rose-600 text-white px-4 py-2 rounded-xl"
+          className="mb-btn-primary !px-4 !py-2"
         >
           পর্যালোচনা শুরু করুন
         </button>
       ) : otherReviewer ? (
-        <p>অন্য একজন মডারেটর পর্যালোচনা করছেন।</p>
+        <p className="text-sm text-ink-2">অন্য একজন মডারেটর পর্যালোচনা করছেন।</p>
       ) : (
         <>
-          <label className="block text-sm">
+          <label className="mb-label block text-sm">
             পর্যালোচনার মন্তব্য (সংশোধন/প্রত্যাখ্যানে আবশ্যক)
             <textarea
-              className="w-full p-3 border rounded-xl"
+              className="mb-input w-full !border-line rounded-xl p-3"
               rows={3}
               maxLength={1000}
               value={note}
@@ -115,21 +115,21 @@ function ReviewCard({ app }: { app: Application }) {
             <button
               disabled={mutation.isPending}
               onClick={() => mutation.mutate("approved")}
-              className="bg-emerald-600 text-white px-4 py-2 rounded-xl disabled:opacity-40"
+              className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl disabled:opacity-40"
             >
               অনুমোদন
             </button>
             <button
               disabled={mutation.isPending || note.trim().length < 10}
               onClick={() => mutation.mutate("changes_requested")}
-              className="bg-amber-100 px-4 py-2 rounded-xl disabled:opacity-40"
+              className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold bg-gold-soft text-gold border border-gold/25 rounded-xl disabled:opacity-40"
             >
               সংশোধন চাই
             </button>
             <button
               disabled={mutation.isPending || note.trim().length < 10}
               onClick={() => mutation.mutate("rejected")}
-              className="bg-rose-100 text-rose-700 px-4 py-2 rounded-xl disabled:opacity-40"
+              className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold bg-brand-soft text-brand border border-brand/25 rounded-xl disabled:opacity-40"
             >
               প্রত্যাখ্যান
             </button>
@@ -148,28 +148,33 @@ export default function ReviewQueue() {
   return (
     <section className="space-y-4">
       {isLoading ? (
-        <p>পর্যালোচনার তালিকা লোড হচ্ছে...</p>
+        <p className="text-sm text-ink-3">পর্যালোচনার তালিকা লোড হচ্ছে...</p>
       ) : isError ? (
-        <p>
+        <p className="text-sm text-ink-3">
           লোড করা যায়নি।{" "}
           <button onClick={() => refetch()}>আবার চেষ্টা করুন</button>
         </p>
       ) : (
         <>
           {!data?.data?.applications.length && (
-            <p>পর্যালোচনার অপেক্ষায় কোনো বায়োডাটা নেই।</p>
+            <p className="text-sm text-ink-3">পর্যালোচনার অপেক্ষায় কোনো বায়োডাটা নেই।</p>
           )}
           {data?.data?.applications.map((app) => (
             <ReviewCard key={app._id} app={app} />
           ))}
           <div className="flex gap-4">
-            <button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+              className="mb-btn-secondary disabled:opacity-40"
+            >
               আগের পৃষ্ঠা
             </button>
-            <span>{page}</span>
+            <span className="text-sm font-bold text-ink-2">{page}</span>
             <button
               disabled={page >= (data?.meta?.totalPages || 1)}
               onClick={() => setPage((p) => p + 1)}
+              className="mb-btn-secondary disabled:opacity-40"
             >
               পরের পৃষ্ঠা
             </button>

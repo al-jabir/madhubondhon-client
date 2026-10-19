@@ -219,13 +219,13 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     <div className={`space-y-1.5 ${className}`} ref={containerRef}>
       {label && (
         <div className="flex items-center justify-between">
-          <label className="block text-xs font-bold text-gray-750 dark:text-gray-300">
-            {label} {required && <span className="text-rose-600">*</span>}
+          <label className="block text-xs font-bold text-ink-2">
+            {label} {required && <span className="text-brand">*</span>}
           </label>
           {value && isAgeValid && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 text-[11px] font-bold border border-rose-200 dark:border-rose-900/60 animate-in fade-in">
-              <Sparkles className="w-3 h-3 text-rose-500 shrink-0" />
-              <span>বয়স: {toBanglaNumber(currentAge)} বছর</span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-soft text-brand-ink text-[11px] font-bold border border-brand/30 animate-in fade-in">
+              <Sparkles className="w-3 h-3 text-brand shrink-0" />
+              <span>বয়স: {toBanglaNumber(currentAge)} বছর</span>
             </span>
           )}
         </div>
@@ -245,23 +245,23 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           }}
           className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-sm transition-all cursor-pointer select-none ${
             disabled
-              ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed border-gray-200 dark:border-gray-700'
+              ? 'bg-elev text-ink-3 cursor-not-allowed border-line'
               : isOpen
-              ? 'border-rose-500 ring-2 ring-rose-500/20 bg-white dark:bg-[#1f2533] shadow-xs'
-              : 'border-gray-250 dark:border-gray-700 bg-gray-50/50 dark:bg-[#1a202c] hover:bg-white dark:hover:bg-[#1f2533] hover:border-rose-400'
-          } ${error || (!isAgeValid && value) ? 'border-rose-500 ring-1 ring-rose-500/30' : ''}`}
+              ? 'border-brand ring-2 ring-brand/20 bg-card shadow-xs'
+              : 'border-line bg-elev hover:bg-card hover:border-brand/50'
+          } ${error || (!isAgeValid && value) ? 'border-brand ring-1 ring-brand/30' : ''}`}
         >
           <div className="flex items-center gap-2.5 truncate">
-            <CalendarIcon className="w-4 h-4 text-rose-500 dark:text-rose-400 shrink-0" />
+            <CalendarIcon className="w-4 h-4 text-brand shrink-0" />
             {value ? (
-              <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+              <span className="font-semibold text-ink truncate">
                 {formattedDisplay}
-                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 font-normal font-mono">
+                <span className="text-xs text-ink-3 ml-2 font-normal font-mono">
                   ({value})
                 </span>
               </span>
             ) : (
-              <span className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
+              <span className="text-ink-3 text-xs sm:text-sm">
                 {placeholder}
               </span>
             )}
@@ -272,15 +272,15 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               <button
                 type="button"
                 onClick={handleClear}
-                className="p-1 rounded-full text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                className="p-1 rounded-full text-ink-3 hover:text-brand hover:bg-brand-soft transition-colors cursor-pointer"
                 title="মুছে ফেলুন"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
             <ChevronDown
-              className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-                isOpen ? 'rotate-180 text-rose-600' : ''
+              className={`w-4 h-4 text-ink-3 transition-transform duration-200 ${
+                isOpen ? 'rotate-180 text-brand' : ''
               }`}
             />
           </div>
@@ -288,14 +288,14 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
         {/* Validation warning if under 18 */}
         {value && !isAgeValid && (
-          <div className="flex items-center gap-1 text-[11px] text-rose-600 dark:text-rose-400 mt-1 font-medium">
+          <div className="flex items-center gap-1 text-[11px] text-brand mt-1 font-medium">
             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-            <span>আইনগত ও প্ল্যাটফর্ম নিয়মানুযায়ী বয়স ন্যূনতম ১৮ বছর হতে হবে।</span>
+            <span>আইনগত ও প্ল্যাটফর্ম নিয়মানুযায়ী বয়স ন্যূনতম ১৮ বছর হতে হবে।</span>
           </div>
         )}
 
         {error && (
-          <div className="flex items-center gap-1 text-[11px] text-rose-600 dark:text-rose-400 mt-1 font-medium">
+          <div className="flex items-center gap-1 text-[11px] text-brand mt-1 font-medium">
             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -303,13 +303,13 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
         {/* Dropdown Calendar Popover */}
         {isOpen && (
-          <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-[calc(100vw-2.5rem)] max-w-[340px] sm:w-80 rounded-2xl bg-white dark:bg-[#1a202c] border border-rose-100 dark:border-gray-700 shadow-2xl p-3.5 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+          <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-[calc(100vw-2.5rem)] max-w-[340px] sm:w-80 rounded-2xl bg-card border border-line shadow-2xl p-3.5 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
             {/* Header: Month & Year Controls */}
             <div className="flex items-center justify-between gap-2 mb-3">
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="p-1.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-gray-800 hover:text-rose-600 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-ink-2 hover:bg-brand-soft hover:text-brand transition-colors cursor-pointer"
                 aria-label="আগের মাস"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -320,7 +320,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 <select
                   value={viewMonth}
                   onChange={(e) => setViewMonth(parseInt(e.target.value, 10))}
-                  className="text-xs font-bold text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 focus:ring-1 focus:ring-rose-500 cursor-pointer"
+                  className="text-xs font-bold text-ink-2 bg-elev border border-line rounded-lg px-2 py-1 focus:ring-1 focus:ring-brand cursor-pointer"
                 >
                   {BANGLA_MONTHS.map((m, idx) => (
                     <option key={m} value={idx}>
@@ -333,7 +333,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 <select
                   value={viewYear}
                   onChange={(e) => setViewYear(parseInt(e.target.value, 10))}
-                  className="text-xs font-bold text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 focus:ring-1 focus:ring-rose-500 cursor-pointer"
+                  className="text-xs font-bold text-ink-2 bg-elev border border-line rounded-lg px-2 py-1 focus:ring-1 focus:ring-brand cursor-pointer"
                 >
                   {yearsList.map((y) => {
                     const approxAge = today.getFullYear() - y;
@@ -349,7 +349,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="p-1.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-gray-800 hover:text-rose-600 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-ink-2 hover:bg-brand-soft hover:text-brand transition-colors cursor-pointer"
                 aria-label="পরের মাস"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -357,9 +357,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             </div>
 
             {/* Quick Age Jump Presets */}
-            <div className="mb-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-              <span className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 mb-1.5 uppercase tracking-wider">
-                বয়স অনুযায়ী দ্রুত খুঁজুন:
+            <div className="mb-3 pt-2 border-t border-line">
+              <span className="block text-[10px] font-semibold text-ink-3 mb-1.5 uppercase tracking-wider">
+                বয়স অনুযায়ী দ্রুত খুঁজুন:
               </span>
               <div className="flex flex-wrap gap-1">
                 {[20, 22, 25, 28, 30, 35].map((presetAge) => {
@@ -372,8 +372,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                       onClick={() => handleQuickAgeJump(presetAge)}
                       className={`text-[10px] font-semibold px-2 py-0.5 rounded-md transition-all cursor-pointer ${
                         isActive
-                          ? 'bg-rose-600 text-white shadow-2xs font-bold'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-gray-700 hover:text-rose-600'
+                          ? 'bg-brand text-white shadow-2xs font-bold'
+                          : 'bg-elev text-ink-2 hover:bg-brand-soft hover:text-brand'
                       }`}
                     >
                       {toBanglaNumber(presetAge)} বছর
@@ -389,7 +389,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 <div
                   key={wd}
                   className={`text-[10px] font-bold py-1 ${
-                    i === 6 ? 'text-rose-500' : 'text-gray-400 dark:text-gray-500'
+                    i === 6 ? 'text-brand' : 'text-ink-3'
                   }`}
                 >
                   {wd}
@@ -423,10 +423,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                     onClick={() => handleSelectDay(day)}
                     className={`h-8 w-8 mx-auto rounded-lg text-xs font-semibold flex items-center justify-center transition-all cursor-pointer ${
                       disabledDate
-                        ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed opacity-40'
+                        ? 'text-ink-3 cursor-not-allowed opacity-40'
                         : isSelected
-                        ? 'bg-linear-to-tr from-rose-600 to-pink-600 text-white font-bold shadow-md shadow-rose-200 dark:shadow-none scale-105'
-                        : 'text-gray-750 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-gray-800 hover:text-rose-600'
+                        ? 'bg-linear-to-tr from-brand to-pink-500 text-white font-bold shadow-md scale-105'
+                        : 'text-ink-2 hover:bg-brand-soft hover:text-brand'
                     }`}
                   >
                     {toBanglaNumber(day)}
@@ -436,8 +436,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             </div>
 
             {/* Footer with manual entry info and Close */}
-            <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-              <span className="text-[10px] text-gray-500 dark:text-gray-400">
+            <div className="mt-3 pt-2.5 border-t border-line flex items-center justify-between">
+              <span className="text-[10px] text-ink-3">
                 {selectedDate ? (
                   <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
                     <CheckCircle2 className="w-3 h-3" />
@@ -450,7 +450,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 px-2 py-1 rounded-md hover:bg-rose-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                className="text-xs font-bold text-brand hover:brightness-110 px-2 py-1 rounded-md hover:bg-brand-soft transition-colors cursor-pointer"
               >
                 সম্পন্ন
               </button>

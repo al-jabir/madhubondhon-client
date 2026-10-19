@@ -18,7 +18,7 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 import DatePicker from "../components/common/DatePicker";
 
 const inputClass =
-  "w-full rounded-xl border border-gray-250 dark:border-gray-700 p-3 bg-white dark:bg-[#1a202c] text-gray-900 dark:text-gray-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-gray-400";
+  "mb-input w-full text-sm";
 
 function Field({
   label,
@@ -28,7 +28,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block space-y-2 text-sm font-semibold text-gray-750 dark:text-gray-300">
+    <label className="block space-y-2 text-sm font-semibold text-ink-2">
       <span>{label}</span>
       {children}
     </label>
@@ -128,15 +128,15 @@ function Wizard({ application }: { application: Application }) {
   }
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 space-y-6">
-      <Link to="/my-profile" className="text-sm text-rose-700">
+      <Link to="/my-profile" className="text-sm text-brand hover:underline">
         ← আমার বায়োডাটা
       </Link>
-      <h1 className="text-2xl font-bold">ধাপে ধাপে বায়োডাটা তৈরি করুন</h1>
-      <p className="text-sm text-gray-600">
+      <h1 className="text-2xl font-bold text-ink">ধাপে ধাপে বায়োডাটা তৈরি করুন</h1>
+      <p className="text-sm text-ink-2">
         যতটুকু পূরণ হয়েছে খসড়া হিসেবে সংরক্ষণ করুন। সম্পাদনা করলে প্রকাশিত
         বায়োডাটা পুনরায় অনুমোদনের অপেক্ষায় যাবে।
       </p>
-      <div className="rounded-xl bg-rose-50 p-4 text-sm">
+      <div className="rounded-2xl bg-brand-soft border border-brand/20 p-4 text-sm text-brand-ink">
         অবস্থা: {statusLabels[application.status]}
         {application.reviewNote && (
           <p className="mt-2">মডারেটরের মন্তব্য: {application.reviewNote}</p>
@@ -147,8 +147,10 @@ function Wizard({ application }: { application: Application }) {
           <li
             key={name}
             className={
-              "p-3 rounded-xl text-sm " +
-              (step === i ? "bg-rose-600 text-white" : "bg-white border")
+              "p-3 rounded-xl text-sm font-semibold " +
+              (step === i
+                ? "bg-brand text-white"
+                : "bg-elev border border-line text-ink-2")
             }
           >
             {i + 1}. {name}
@@ -164,7 +166,7 @@ function Wizard({ application }: { application: Application }) {
       >
         <fieldset
           disabled={saving}
-          className="bg-white p-6 rounded-2xl border space-y-5"
+          className="mb-card p-6 space-y-5 text-ink"
         >
           {step === 0 && (
             <>
@@ -396,7 +398,7 @@ function Wizard({ application }: { application: Application }) {
                   <option value="joint">যৌথ পরিবার</option>
                 </select>
               </Field>
-              <label className="flex gap-2">
+              <label className="flex gap-2 text-ink-2">
                 <input
                   type="checkbox"
                   checked={!!data.religiousInfo?.praysFiveTimes}
@@ -410,7 +412,7 @@ function Wizard({ application }: { application: Application }) {
                 />
                 পাঁচ ওয়াক্ত নামাজ পড়ি
               </label>
-              <label className="flex gap-2">
+              <label className="flex gap-2 text-ink-2">
                 <input
                   type="checkbox"
                   checked={!!data.religiousInfo?.wearsHijab}
@@ -424,7 +426,7 @@ function Wizard({ application }: { application: Application }) {
                 />
                 হিজাব পরিধান করি
               </label>
-              <label className="flex gap-2">
+              <label className="flex gap-2 text-ink-2">
                 <input
                   type="checkbox"
                   checked={!!data.lifestyle?.smoking}
@@ -480,10 +482,10 @@ function Wizard({ application }: { application: Application }) {
                 </Field>
               </div>
               <div>
-                <h3 className="font-semibold mb-3">পছন্দের উপজেলাসমূহ</h3>
+                <h3 className="font-semibold mb-3 text-ink">পছন্দের উপজেলাসমূহ</h3>
                 <div className="flex flex-wrap gap-3">
                   {TANGAIL_UPAZILAS.map((up) => (
-                    <label key={up} className="flex items-center gap-2 text-sm">
+                    <label key={up} className="flex items-center gap-2 text-sm text-ink-2">
                       <input
                         type="checkbox"
                         checked={
@@ -522,8 +524,8 @@ function Wizard({ application }: { application: Application }) {
                   <option value="private">ব্যক্তিগত</option>
                 </select>
               </Field>
-              <h2 className="text-lg font-bold">অভিভাবকের যোগাযোগ</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-lg font-bold text-ink">অভিভাবকের যোগাযোগ</h2>
+              <p className="text-sm text-ink-2">
                 এই তথ্য public biodata-তে দেখানো হবে না। অভিভাবকের সম্মতি
                 যাচাইয়ের পর যোগাযোগের অনুমতি দেওয়া যাবে।
               </p>
@@ -569,7 +571,7 @@ function Wizard({ application }: { application: Application }) {
             type="button"
             disabled={saving || step === 0}
             onClick={() => setStep((v) => v - 1)}
-            className="w-full sm:w-auto px-5 py-3 border border-gray-250 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-300 font-semibold disabled:opacity-40 cursor-pointer"
+            className="mb-btn-secondary w-full sm:w-auto !px-5 !py-3 disabled:opacity-40 cursor-pointer"
           >
             ← আগের ধাপ
           </button>
@@ -577,7 +579,7 @@ function Wizard({ application }: { application: Application }) {
             <button
               type="submit"
               disabled={saving}
-              className="w-full sm:w-auto px-5 py-3 border border-rose-300 dark:border-rose-900 rounded-xl text-rose-700 dark:text-rose-300 font-semibold hover:bg-rose-50 dark:hover:bg-rose-950/40 disabled:opacity-40 cursor-pointer"
+              className="mb-btn-secondary w-full sm:w-auto !px-5 !py-3 disabled:opacity-40 cursor-pointer"
             >
               {saving ? "সংরক্ষণ হচ্ছে..." : "খসড়া সংরক্ষণ"}
             </button>
@@ -590,7 +592,7 @@ function Wizard({ application }: { application: Application }) {
                   else navigate("/my-profile");
                 }
               }}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold shadow-sm shadow-rose-200 dark:shadow-none disabled:opacity-40 cursor-pointer"
+              className="mb-btn-primary w-full sm:w-auto !px-6 !py-3 disabled:opacity-40 cursor-pointer"
             >
               {step < 3 ? "সংরক্ষণ করে পরের ধাপ →" : "যাচাই ও জমা দিতে যান →"}
             </button>

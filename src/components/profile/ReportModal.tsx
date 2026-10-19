@@ -31,7 +31,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
         reason,
         description: description.trim() || undefined,
       });
-      toast.success('অভিযোগ সফলভাবে গ্রহণ করা হয়েছে। মডারেটর টিম পর্যালোচনা করবেন।');
+      toast.success('অভিযোগ সফলভাবে গ্রহণ করা হয়েছে। মডারেটর টিম পর্যালোচনা করবেন।');
       setDescription('');
       onClose();
     } catch (err: unknown) {
@@ -46,35 +46,35 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-rose-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between p-5 border-b border-amber-100 bg-amber-50/60">
-          <div className="flex items-center gap-2 text-amber-800 font-bold text-lg">
-            <AlertTriangle className="w-5 h-5 text-amber-600" />
+      <div className="bg-card border border-line rounded-[1.5rem] max-w-md w-full shadow-[var(--mb-shadow-pop)] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between p-5 border-b border-gold/25 bg-gold-soft">
+          <div className="flex items-center gap-2 text-gold font-bold text-lg">
+            <AlertTriangle className="w-5 h-5 text-gold" />
             <span>বায়োডাটা সম্পর্কে রিপোর্ট করুন</span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-lg"
+            className="text-ink-3 hover:text-ink-2 p-1 rounded-lg"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          <p className="text-sm text-gray-600">
-            আপনি <strong className="text-gray-900">{targetName}</strong> এর বিরুদ্ধে অভিযোগ দাখিল করছেন।
+          <p className="text-sm text-ink-2">
+            আপনি <strong className="text-ink">{targetName}</strong> এর বিরুদ্ধে অভিযোগ দাখিল করছেন।
             যথাযথ তথ্য প্রদান করুন যাতে অ্যাডমিন টিম সঠিক ব্যবস্থা নিতে পারে।
           </p>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-750 mb-1.5">
+            <label className="mb-label block text-xs font-semibold mb-1.5">
               অভিযোগের কারণ নির্বাচন করুন
             </label>
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full text-sm border border-gray-300 rounded-xl p-2.5 bg-white focus:outline-hidden focus:border-rose-500"
+              className="mb-input w-full text-sm rounded-xl p-2.5"
             >
               <option value="fake_profile">নকল বা মিথ্যা তথ্যের বায়োডাটা</option>
               <option value="inappropriate_behavior">অশোভন আচরণ বা অসংগত বার্তা</option>
@@ -85,7 +85,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-750 mb-1.5">
+            <label className="mb-label block text-xs font-semibold mb-1.5">
               বিস্তারিত বিবরণ (ঐচ্ছিক)
             </label>
             <textarea
@@ -93,7 +93,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="ঘটনাটির সংক্ষিপ্ত বিবরণ লিখুন..."
-              className="w-full text-sm border border-gray-300 rounded-xl p-3 focus:outline-hidden focus:border-rose-500"
+              className="mb-input w-full text-sm rounded-xl p-3"
               maxLength={500}
             />
           </div>
@@ -103,14 +103,14 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer"
+              className="mb-btn-secondary px-4 py-2 text-xs font-semibold cursor-pointer"
             >
               বাতিল
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-sm transition-all cursor-pointer disabled:opacity-50"
+              className="mb-btn-primary px-5 py-2 text-xs font-semibold cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? 'দাখিল হচ্ছে...' : 'রিপোর্ট জমা দিন'}
             </button>

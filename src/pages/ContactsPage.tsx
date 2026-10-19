@@ -38,27 +38,27 @@ export default function ContactsPage() {
   }
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
         <div>
-          <h1 className="text-2xl font-bold">যোগাযোগের অনুমতি</h1>
-          <p className="text-sm text-gray-600">
+          <h1 className="text-2xl font-bold text-ink">যোগাযোগের অনুমতি</h1>
+          <p className="text-sm text-ink-2">
             গৃহীত আগ্রহের পর যোগাযোগের অনুরোধ পাঠানো যায়। সংশ্লিষ্ট সদস্য অনুমতি
             দিলেই যাচাইকৃত অভিভাবকের যোগাযোগ দেখা যাবে।
           </p>
         </div>
 
         {/* Credit Balance Badge & Topup Button */}
-        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-2xl">
+        <div className="flex items-center gap-3 bg-gold-soft border border-gold/25 px-4 py-2.5 rounded-2xl">
           <div className="flex items-center gap-2">
-            <Coins className="w-5 h-5 text-amber-600 fill-amber-400" />
+            <Coins className="w-5 h-5 text-gold" />
             <div className="text-xs">
-              <span className="text-gray-600 block">অবশিষ্ট ক্রেডিট</span>
-              <span className="font-bold text-gray-900 text-sm">{user?.contactCredits ?? 0} টি</span>
+              <span className="text-ink-3 block">অবশিষ্ট ক্রেডিট</span>
+              <span className="font-bold text-ink text-sm">{user?.contactCredits ?? 0} টি</span>
             </div>
           </div>
           <Link
             to="/packages"
-            className="ml-2 px-3 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors shadow-2xs flex items-center gap-1 shrink-0"
+            className="ml-2 px-3 py-1.5 text-xs font-bold text-white bg-brand hover:bg-brand/90 rounded-xl transition-colors shadow-2xs flex items-center gap-1 shrink-0"
           >
             <span>রিচার্জ করুন</span>
             <ArrowRight className="w-3 h-3" />
@@ -66,7 +66,7 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      <Link to="/interests" className="text-rose-700 text-sm font-semibold">
+      <Link to="/interests" className="text-brand text-sm font-semibold">
         ← আগ্রহ তালিকা দেখুন
       </Link>
       {isLoading ? (
@@ -79,7 +79,7 @@ export default function ContactsPage() {
       ) : (
         <>
           {!data?.data?.grants.length && (
-            <p className="p-6 bg-white rounded-xl border">
+            <p className="p-6 bg-card mb-card rounded-xl text-ink-2">
               এখনও যোগাযোগের অনুরোধ নেই।
             </p>
           )}
@@ -88,14 +88,14 @@ export default function ContactsPage() {
             return (
               <article
                 key={grant._id}
-                className="bg-white p-5 border rounded-xl space-y-3"
+                className="bg-card mb-card p-5 space-y-3"
               >
-                <h2 className="font-bold">
+                <h2 className="font-bold text-ink">
                   {incoming
                     ? "অনুরোধ করেছেন: " + name(grant.requester)
                     : "অনুরোধ পাঠানো হয়েছে: " + name(grant.owner)}
                 </h2>
-                <p>
+                <p className="text-ink-2">
                   অবস্থা:{" "}
                   {
                     {
@@ -111,7 +111,7 @@ export default function ContactsPage() {
                     <>
                       <button
                         disabled={busy}
-                        className="text-emerald-700 font-semibold"
+                        className="text-emerald-600 dark:text-emerald-400 font-semibold"
                         onClick={() =>
                           act(() =>
                             workflowApi.respondContact(grant._id, "approved"),
@@ -122,7 +122,7 @@ export default function ContactsPage() {
                       </button>
                       <button
                         disabled={busy}
-                        className="text-rose-700"
+                        className="text-brand"
                         onClick={() =>
                           act(() =>
                             workflowApi.respondContact(grant._id, "rejected"),
@@ -136,7 +136,7 @@ export default function ContactsPage() {
                   {!incoming && grant.status === "approved" && (
                     <button
                       disabled={busy}
-                      className="text-rose-700 font-bold"
+                      className="text-brand font-bold"
                       onClick={() =>
                         act(async () => {
                           const res = await workflowApi.revealContact(
@@ -155,7 +155,7 @@ export default function ContactsPage() {
                   {["pending", "approved"].includes(grant.status) && (
                     <button
                       disabled={busy}
-                      className="text-gray-600"
+                      className="text-ink-3"
                       onClick={() =>
                         act(() =>
                           workflowApi.respondContact(grant._id, "revoked"),
@@ -167,14 +167,14 @@ export default function ContactsPage() {
                   )}
                 </div>
                 {revealed?.id === grant._id && grant.status === "approved" && (
-                  <div className="p-4 bg-emerald-50 rounded-xl space-y-1">
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 rounded-xl space-y-1 text-ink">
                     <p>
                       {revealed.guardian.name} ({revealed.guardian.relationship}
                       )
                     </p>
                     <a
                       href={"tel:" + revealed.guardian.phone}
-                      className="font-bold"
+                      className="font-bold text-emerald-600 dark:text-emerald-400"
                     >
                       {revealed.guardian.phone}
                     </a>
@@ -183,7 +183,7 @@ export default function ContactsPage() {
                     )}
                     <button
                       onClick={() => setRevealed(null)}
-                      className="block text-sm underline"
+                      className="block text-sm underline text-ink-2"
                     >
                       লুকান
                     </button>
@@ -195,6 +195,7 @@ export default function ContactsPage() {
           <div className="flex gap-4">
             <button
               disabled={page === 1}
+              className="mb-btn-secondary !px-3 !text-xs"
               onClick={() => {
                 setRevealed(null);
                 setPage((p) => p - 1);
@@ -202,9 +203,10 @@ export default function ContactsPage() {
             >
               আগের পৃষ্ঠা
             </button>
-            <span>{page}</span>
+            <span className="text-ink-2">{page}</span>
             <button
               disabled={page >= (data?.meta?.totalPages || 1)}
+              className="mb-btn-secondary !px-3 !text-xs"
               onClick={() => {
                 setRevealed(null);
                 setPage((p) => p + 1);

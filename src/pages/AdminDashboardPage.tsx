@@ -145,14 +145,14 @@ export const AdminDashboardPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header */}
-      <div className="border-b border-rose-100 pb-5">
+      <div className="border-b border-line pb-5">
         <div className="flex items-center gap-2.5">
-          <Shield className="w-8 h-8 text-rose-600" />
+          <Shield className="w-8 h-8 text-brand" />
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-ink">
               অ্যাডমিন ও মডারেশন কন্ট্রোল প্যানেল
             </h1>
-            <p className="text-xs sm:text-sm text-gray-550 mt-0.5">
+            <p className="text-xs sm:text-sm text-ink-3 mt-0.5">
               মধুবন্ধন টাঙ্গাইল মেট্রিমনি প্ল্যাটফর্মের সার্বিক নিয়ন্ত্রণ ও
               নিরাপত্তা পর্যবেক্ষণ
             </p>
@@ -163,42 +163,50 @@ export const AdminDashboardPage: React.FC = () => {
       {/* Metrics Row */}
       {stats && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-rose-100/90 shadow-2xs space-y-1">
-            <div className="flex items-center justify-between text-gray-500">
+          <div className="mb-card p-5 space-y-1">
+            <div className="flex items-center justify-between text-ink-3">
               <span className="text-xs font-bold">মোট ইউজার</span>
-              <Users className="w-4 h-4 text-rose-500" />
+              <div className="w-8 h-8 rounded-lg bg-brand-soft border border-brand/25 flex items-center justify-center">
+                <Users className="w-4 h-4 text-brand" />
+              </div>
             </div>
-            <div className="text-2xl font-black text-gray-900">
+            <div className="text-2xl font-black text-ink">
               {stats.totalUsers || 0}
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-rose-100/90 shadow-2xs space-y-1">
-            <div className="flex items-center justify-between text-gray-500">
+          <div className="mb-card p-5 space-y-1">
+            <div className="flex items-center justify-between text-ink-3">
               <span className="text-xs font-bold">মোট বায়োডাটা</span>
-              <FileText className="w-4 h-4 text-pink-500" />
+              <div className="w-8 h-8 rounded-lg bg-brand-soft border border-brand/25 flex items-center justify-center">
+                <FileText className="w-4 h-4 text-brand" />
+              </div>
             </div>
-            <div className="text-2xl font-black text-gray-900">
+            <div className="text-2xl font-black text-ink">
               {stats.totalProfiles || 0}
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-rose-100/90 shadow-2xs space-y-1">
-            <div className="flex items-center justify-between text-gray-500">
+          <div className="mb-card p-5 space-y-1">
+            <div className="flex items-center justify-between text-ink-3">
               <span className="text-xs font-bold">সক্রিয় অ্যাকাউন্ট</span>
-              <Activity className="w-4 h-4 text-emerald-500" />
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center">
+                <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              </div>
             </div>
-            <div className="text-2xl font-black text-gray-900">
+            <div className="text-2xl font-black text-ink">
               {stats.activeUsers || 0}
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-rose-100/90 shadow-2xs space-y-1">
-            <div className="flex items-center justify-between text-gray-500">
+          <div className="mb-card p-5 space-y-1">
+            <div className="flex items-center justify-between text-ink-3">
               <span className="text-xs font-bold">মুলতবি রিপোর্ট</span>
-              <AlertTriangle className="w-4 h-4 text-amber-500" />
+              <div className="w-8 h-8 rounded-lg bg-gold-soft border border-gold/25 flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-gold" />
+              </div>
             </div>
-            <div className="text-2xl font-black text-gray-900">
+            <div className="text-2xl font-black text-ink">
               {stats.pendingReports || 0}
             </div>
           </div>
@@ -208,14 +216,14 @@ export const AdminDashboardPage: React.FC = () => {
       {isSuperAdminOrAdmin && <MarriageStatisticsSettings />}
 
       {/* Tab Navigation */}
-      <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-800 gap-4 sm:gap-6 pb-0.5 no-scrollbar">
+      <div className="bg-elev rounded-full p-1 flex overflow-x-auto no-scrollbar">
         <button
           type="button"
           onClick={() => setActiveTab("profiles")}
-          className={`flex items-center gap-2 pb-3.5 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "profiles"
-              ? "border-rose-600 text-rose-700"
-              : "border-transparent text-gray-500 hover:text-gray-800"
+              ? "bg-card text-brand shadow-sm scale-100"
+              : "text-ink-2 hover:text-ink"
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -225,10 +233,10 @@ export const AdminDashboardPage: React.FC = () => {
           type="button"
           disabled={!isSuperAdminOrAdmin}
           onClick={() => setActiveTab("users")}
-          className={`flex items-center gap-2 pb-3.5 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer disabled:opacity-40 ${
+          className={`flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer disabled:opacity-40 whitespace-nowrap ${
             activeTab === "users"
-              ? "border-rose-600 text-rose-700"
-              : "border-transparent text-gray-500 hover:text-gray-800"
+              ? "bg-card text-brand shadow-sm scale-100"
+              : "text-ink-2 hover:text-ink"
           }`}
         >
           <Users className="w-4 h-4" />
@@ -238,10 +246,10 @@ export const AdminDashboardPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab("reports")}
-          className={`flex items-center gap-2 pb-3.5 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "reports"
-              ? "border-rose-600 text-rose-700"
-              : "border-transparent text-gray-500 hover:text-gray-800"
+              ? "bg-card text-brand shadow-sm scale-100"
+              : "text-ink-2 hover:text-ink"
           }`}
         >
           <AlertTriangle className="w-4 h-4" />
@@ -252,10 +260,10 @@ export const AdminDashboardPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab("audit")}
-            className={`flex items-center gap-2 pb-3.5 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer whitespace-nowrap ${
               activeTab === "audit"
-                ? "border-rose-600 text-rose-700"
-                : "border-transparent text-gray-500 hover:text-gray-800"
+                ? "bg-card text-brand shadow-sm scale-100"
+                : "text-ink-2 hover:text-ink"
             }`}
           >
             <History className="w-4 h-4" />
@@ -267,13 +275,13 @@ export const AdminDashboardPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab("payments")}
-            className={`flex items-center gap-2 pb-3.5 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer whitespace-nowrap ${
               activeTab === "payments"
-                ? "border-rose-600 text-rose-700"
-                : "border-transparent text-gray-500 hover:text-gray-800"
+                ? "bg-card text-brand shadow-sm scale-100"
+                : "text-ink-2 hover:text-ink"
             }`}
           >
-            <Coins className="w-4 h-4 text-amber-500 fill-amber-400" />
+            <Coins className="w-4 h-4 text-gold fill-gold/30" />
             <span>পেমেন্ট ও ক্রেডিট</span>
           </button>
         )}
@@ -286,22 +294,22 @@ export const AdminDashboardPage: React.FC = () => {
       {activeTab === "users" && (
         <div className="space-y-4">
           {/* Filters Bar */}
-          <div className="bg-white p-4 rounded-2xl border border-rose-100 flex flex-wrap items-center gap-3">
+          <div className="bg-card p-4 rounded-2xl border border-line flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="নাম বা ইমেইল দিয়ে খুঁজুন..."
                 value={userSearch}
                 onChange={(e) => setUserSearch(e.target.value)}
-                className="w-full text-xs border border-gray-200 rounded-xl pl-9 pr-3 py-2 bg-gray-50 focus:bg-white focus:outline-hidden"
+                className="mb-input w-full !text-xs !bg-elev !border-line !rounded-xl pl-9 pr-3 py-2"
               />
             </div>
 
             <select
               value={selectedRoleFilter}
               onChange={(e) => setSelectedRoleFilter(e.target.value)}
-              className="text-xs border border-gray-200 rounded-xl p-2 bg-gray-50"
+              className="mb-input !text-xs !bg-elev !border-line !rounded-xl py-2"
             >
               <option value="">সকল রোল</option>
               <option value="customer">কাস্টমার (Customer)</option>
@@ -313,7 +321,7 @@ export const AdminDashboardPage: React.FC = () => {
             <select
               value={selectedStatusFilter}
               onChange={(e) => setSelectedStatusFilter(e.target.value)}
-              className="text-xs border border-gray-200 rounded-xl p-2 bg-gray-50"
+              className="mb-input !text-xs !bg-elev !border-line !rounded-xl py-2"
             >
               <option value="">সকল স্ট্যাটাস</option>
               <option value="active">সক্রিয় (Active)</option>
@@ -329,9 +337,9 @@ export const AdminDashboardPage: React.FC = () => {
               <LoadingSpinner size="lg" label="ইউজার তালিকা লোড হচ্ছে..." />
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-2xs overflow-x-auto">
+            <div className="mb-card overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-gray-50 border-b border-gray-200 text-gray-650 font-bold uppercase tracking-wider">
+                <thead className="bg-elev border-b border-line text-ink-2 font-bold uppercase tracking-wider">
                   <tr>
                     <th className="py-3 px-4">ইউজার</th>
                     <th className="py-3 px-4">ইমেইল</th>
@@ -340,16 +348,16 @@ export const AdminDashboardPage: React.FC = () => {
                     <th className="py-3 px-4 text-right">পদক্ষেপ</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-150">
+                <tbody>
                   {usersList.map((u: User) => (
                     <tr
                       key={u.id || u._id}
-                      className="hover:bg-rose-50/30 transition-colors"
+                      className="border-t border-line hover:bg-elev/50 transition-colors"
                     >
-                      <td className="py-3 px-4 font-bold text-gray-900">
+                      <td className="py-3 px-4 font-bold text-ink">
                         {u.name}
                       </td>
-                      <td className="py-3 px-4 text-gray-600 font-mono">
+                      <td className="py-3 px-4 text-ink-2 font-mono">
                         {u.email}
                       </td>
                       <td className="py-3 px-4">
@@ -362,7 +370,7 @@ export const AdminDashboardPage: React.FC = () => {
                                 role: e.target.value as UserRole,
                               })
                             }
-                            className="text-xs font-semibold border border-gray-200 rounded-lg p-1 bg-white"
+                            className="mb-input !text-xs font-semibold !border-line !rounded-lg p-1 !bg-elev !text-ink"
                           >
                             <option value="customer">customer</option>
                             <option value="moderator">moderator</option>
@@ -370,7 +378,7 @@ export const AdminDashboardPage: React.FC = () => {
                             <option value="super_admin">super_admin</option>
                           </select>
                         ) : (
-                          <span className="font-semibold uppercase">
+                          <span className="font-semibold uppercase text-ink-2">
                             {u.role}
                           </span>
                         )}
@@ -384,7 +392,7 @@ export const AdminDashboardPage: React.FC = () => {
                               status: e.target.value as AccountStatus,
                             })
                           }
-                          className="text-xs font-semibold border border-gray-200 rounded-lg p-1 bg-white"
+                          className="mb-input !text-xs font-semibold !border-line !rounded-lg p-1 !bg-elev !text-ink"
                         >
                           <option value="active">Active</option>
                           <option value="pending">Pending</option>
@@ -393,7 +401,7 @@ export const AdminDashboardPage: React.FC = () => {
                         </select>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <span className="text-[11px] text-gray-400">
+                        <span className="text-[11px] text-ink-3">
                           {u.createdAt
                             ? new Date(u.createdAt).toLocaleDateString("bn-BD")
                             : "উল্লেখ নেই"}
@@ -416,12 +424,12 @@ export const AdminDashboardPage: React.FC = () => {
               <LoadingSpinner size="lg" label="রিপোর্ট তালিকা লোড হচ্ছে..." />
             </div>
           ) : reportsList.length === 0 ? (
-            <div className="py-16 text-center bg-white rounded-2xl border border-gray-200/80 p-8 space-y-2">
-              <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto" />
-              <h3 className="font-bold text-gray-800">
+            <div className="mb-card py-16 text-center p-8 space-y-2">
+              <CheckCircle className="w-12 h-12 text-emerald-600 dark:text-emerald-400 mx-auto" />
+              <h3 className="font-bold text-ink">
                 কোনো মুলতবি অভিযোগ নেই
               </h3>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-ink-3">
                 সকল অভিযোগ সফলভাবে নিষ্পত্তি করা হয়েছে।
               </p>
             </div>
@@ -430,25 +438,25 @@ export const AdminDashboardPage: React.FC = () => {
               {reportsList.map((rep: ReportItem) => (
                 <div
                   key={rep._id}
-                  className="bg-white p-5 rounded-2xl border border-amber-200 shadow-2xs space-y-3"
+                  className="mb-card p-5 space-y-3"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-3">
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-gold-soft text-gold border border-gold/25">
                         কারণ: {rep.reason}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-ink-3">
                         স্ট্যাটাস: {rep.status}
                       </span>
                     </div>
-                    <span className="text-[11px] text-gray-400">
+                    <span className="text-[11px] text-ink-3">
                       তারিখ:{" "}
                       {new Date(rep.createdAt).toLocaleDateString("bn-BD")}
                     </span>
                   </div>
 
                   {rep.description && (
-                    <p className="text-xs text-gray-700 leading-relaxed bg-gray-50 p-3 rounded-xl">
+                    <p className="text-xs text-ink-2 leading-relaxed bg-elev p-3 rounded-xl">
                       "{rep.description}"
                     </p>
                   )}
@@ -478,7 +486,7 @@ export const AdminDashboardPage: React.FC = () => {
                             "তদন্তে তথ্য মিথ্যা বা অমূলক প্রমাণিত হওয়ায় খারিজ করা হয়েছে",
                         })
                       }
-                      className="px-3.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg border border-gray-250 cursor-pointer"
+                      className="mb-btn-secondary !text-xs !px-3.5"
                     >
                       খারিজ (Dismiss)
                     </button>
@@ -498,13 +506,13 @@ export const AdminDashboardPage: React.FC = () => {
               <LoadingSpinner size="lg" label="অডিট লগ লোড হচ্ছে..." />
             </div>
           ) : auditLogs.length === 0 ? (
-            <div className="py-16 text-center bg-white rounded-2xl border border-gray-200 p-8 text-xs text-gray-500">
+            <div className="mb-card py-16 text-center text-xs text-ink-3">
               কোনো সাম্প্রতিক অডিট লগ পাওয়া যায়নি।
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-2xs overflow-x-auto">
+            <div className="mb-card overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-gray-50 border-b border-gray-200 text-gray-650 font-bold uppercase tracking-wider">
+                <thead className="bg-elev border-b border-line text-ink-2 font-bold uppercase tracking-wider">
                   <tr>
                     <th className="py-3 px-4">পদক্ষেপ (Action)</th>
                     <th className="py-3 px-4">লক্ষ্য (Target ID)</th>
@@ -512,19 +520,22 @@ export const AdminDashboardPage: React.FC = () => {
                     <th className="py-3 px-4 text-right">সময়</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-150">
+                <tbody>
                   {auditLogs.map((log) => (
-                    <tr key={log._id} className="hover:bg-gray-50">
-                      <td className="py-3 px-4 font-bold text-rose-700">
+                    <tr
+                      key={log._id}
+                      className="border-t border-line hover:bg-elev/50 transition-colors"
+                    >
+                      <td className="py-3 px-4 font-bold text-brand">
                         {log.action}
                       </td>
-                      <td className="py-3 px-4 font-mono text-gray-600">
+                      <td className="py-3 px-4 font-mono text-ink-2">
                         {log.targetId || "-"}
                       </td>
-                      <td className="py-3 px-4 font-mono text-gray-500">
+                      <td className="py-3 px-4 font-mono text-ink-3">
                         {log.ipAddress || "-"}
                       </td>
-                      <td className="py-3 px-4 text-right text-gray-400">
+                      <td className="py-3 px-4 text-right text-ink-3">
                         {new Date(log.createdAt).toLocaleString("bn-BD")}
                       </td>
                     </tr>
