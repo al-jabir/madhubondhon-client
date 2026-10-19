@@ -8,7 +8,26 @@ import {
   errorMessage,
 } from "../../api/workflow.api";
 import { useAuth } from "../../context/useAuth";
+import {
+  Mail,
+  Phone,
+  DoorOpen,
+  ClipboardCheck,
+  CheckCircle2,
+  CircleAlert,
+  Edit3,
+  RotateCw,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
+
 const input = "mb-input w-full";
+
+/* Bengali numerals for the "x/৩" counter */
+const bnDigits = (value: string | number) =>
+  String(value).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]);
+
+/* ─────────── Verification mini-card ─────────── */
 function VerificationCard({
   purpose,
   verified,
@@ -21,6 +40,7 @@ function VerificationCard({
   const [challenge, setChallenge] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+
   async function request() {
     setBusy(true);
     try {
@@ -34,6 +54,7 @@ function VerificationCard({
       setBusy(false);
     }
   }
+
   async function confirm() {
     setBusy(true);
     try {
@@ -48,61 +69,90 @@ function VerificationCard({
       setBusy(false);
     }
   }
+
+  const isEmail = purpose === "email";
+  const Icon = isEmail ? Mail : Phone;
+
   return (
-    <section className="rounded-2xl bg-elev border border-line p-4 space-y-3">
-      <h3 className="font-bold text-ink">
-        {purpose === "email" ? "ইমেইল" : "মোবাইল"} যাচাই {verified ? "✓" : ""}
-      </h3>
-      {purpose === "email" ? (
-        <p className="text-sm text-ink-2">{user?.email}</p>
+    <section className="rounded-2xl bg-elev border border-line p-4 sm:p-5 space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div
+            className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+              verified
+                ? "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400"
+                : "bg-brand-soft text-brand"
+            }`}
+          >
+            <Icon className="w-4 h-4" />
+          </div>
+          <h3 className="font-bold text-sm text-ink">
+            {isEmail ? "ইমেইল যাচাই" : "মোবাইল যাচাই"}
+          </h3>
+        </div>
+        {verified ? (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+            <CheckCircle2 className="w-3 h-3" />
+            সম্পন্ন
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-gold-soft text-gold border border-gold/25">
+            <CircleAlert className="w-3 h-3" />
+            বাকি আছে
+          </span>
+        )}
+      </div>
+
+      {isEmail ? (
+        <p className="text-sm text-ink-2 bg-card rounded-xl px-3 py-2 border border-line">{user?.email}</p>
       ) : (
-        <label className="block text-sm text-ink-2">
-          আপনার মোবাইল
-          <input
-            className={input}
-            type="tel"
-            value={phone}
-            disabled={verified || busy}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-        </label>
+        <input
+          className={input}
+          type="tel"
+          placeholder="আপনার মোবাইল নম্বর"
+          value={phone}
+          disabled={verified || busy}
+          onChange={(e) => setPhone(e.target.value)}
+        />
       )}
+
       {!verified && (
         <>
           <button
             disabled={busy}
             onClick={request}
-            className="text-brand font-semibold hover:underline disabled:opacity-40 cursor-pointer"
+            className="text-brand text-xs font-bold hover:underline disabled:opacity-40 cursor-pointer flex items-center gap-1.5"
           >
-            {challenge ? "আবার কোড নিন (১ মিনিট পর)" : "যাচাই কোড নিন"}
+            <RotateCw className={`w-3 h-3 ${busy ? "animate-spin" : ""}`} />
+            <span>{challenge ? "আবার কোড নিন (১ মিনিট পর)" : "যাচাই কোড নিন"}</span>
           </button>
           {challenge && (
-            <>
-              <label className="block text-sm text-ink-2">
-                ৬ সংখ্যার কোড
-                <input
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={6}
-                  className={input}
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                />
-              </label>
+            <div className="space-y-2.5">
+              <input
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                className={`${input} text-center tracking-[0.35em] font-mono font-bold`}
+                placeholder="৬ সংখ্যার কোড"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+              />
               <button
                 disabled={busy || code.length !== 6}
                 onClick={confirm}
-                className="mb-btn-primary px-4 py-2 text-sm"
+                className="mb-btn-primary px-4 py-2 text-xs w-full cursor-pointer disabled:opacity-50"
               >
                 যাচাই করুন
               </button>
-            </>
+            </div>
           )}
         </>
       )}
     </section>
   );
 }
+
+/* ─────────── Dashboard ─────────── */
 export default function BiodataDashboard() {
   const cache = useQueryClient();
   const { user } = useAuth();
@@ -115,6 +165,7 @@ export default function BiodataDashboard() {
   const [code, setCode] = useState("");
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
+
   async function action(fn: () => Promise<unknown>) {
     setBusy(true);
     try {
@@ -127,79 +178,168 @@ export default function BiodataDashboard() {
       setBusy(false);
     }
   }
+
+  const emailVerified = !!user?.isEmailVerified;
+  const phoneVerified = !!user?.isPhoneVerified;
+  const guardianConsented = !!app?.guardianConsentedAt;
+  const submissible = !!(app && ["draft", "changes_requested", "rejected"].includes(app.status));
+
+  const stepCount =
+    (emailVerified ? 1 : 0) + (phoneVerified ? 1 : 0) + (guardianConsented ? 1 : 0) + (app?.status === "approved" ? 1 : 0);
+
+  const statusTone: Record<string, { bg: string; text: string; border: string }> = {
+    approved: {
+      bg: "bg-emerald-100 dark:bg-emerald-900/60",
+      text: "text-emerald-600 dark:text-emerald-400",
+      border: "border-emerald-200 dark:border-emerald-800",
+    },
+    draft: { bg: "bg-gold-soft", text: "text-gold", border: "border-gold/25" },
+  };
+  const tone =
+    (app ? statusTone[app.status] : undefined) || {
+      bg: "bg-brand-soft",
+      text: "text-brand",
+      border: "border-brand/25",
+    };
+
   return (
-    <div className="max-w-5xl mx-auto px-4 pt-10 space-y-6">
-      <h1 className="text-2xl font-bold text-ink">বায়োডাটা ও যাচাই ড্যাশবোর্ড</h1>
-      <div className="grid md:grid-cols-2 gap-4 mb-card p-5 rounded-2xl">
-        <VerificationCard purpose="email" verified={!!user?.isEmailVerified} />
-        <VerificationCard purpose="phone" verified={!!user?.isPhoneVerified} />
+    <div className="space-y-6">
+      {/* ── Progress header ── */}
+      <div className="mb-card rounded-[2rem] p-6 sm:p-7">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-brand-soft text-brand flex items-center justify-center border border-brand/20">
+              <ClipboardCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-ink leading-tight">যাচাই ও জমা প্রক্রিয়া</h2>
+              <p className="text-xs text-ink-3 mt-0.5">
+                ইমেইল → মোবাইল → অভিভাবকের সম্মতি → পর্যালোচনায় জমা
+              </p>
+            </div>
+          </div>
+
+          {/* step counter */}
+          <div className="flex items-center gap-2 shrink-0">
+            {[false, false, false].map((_, idx) => {
+              const done = idx < stepCount;
+              return (
+                <span
+                  key={idx}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${
+                    done
+                      ? "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                      : "bg-elev text-ink-3 border border-line"
+                  }`}
+                >
+                  {done ? <CheckCircle2 className="w-4 h-4" /> : bnDigits(idx + 1)}
+                </span>
+              );
+            })}
+            <span className="text-[11px] font-bold text-ink-2 ml-1">{bnDigits(stepCount)}/৩ সম্পন্ন</span>
+          </div>
+        </div>
       </div>
+
+      {/* ── Verification cards ── */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <VerificationCard purpose="email" verified={emailVerified} />
+        <VerificationCard purpose="phone" verified={phoneVerified} />
+      </div>
+
+      {/* ── Application status ── */}
       {isLoading ? (
-        <p className="text-ink-2">বায়োডাটার অবস্থা লোড হচ্ছে...</p>
+        <div className="mb-card rounded-2xl p-8 text-center">
+          <p className="text-sm text-ink-2 animate-pulse">বায়োডাটার অবস্থা লোড হচ্ছে...</p>
+        </div>
       ) : isError ? (
-        <p className="text-ink-2">
-          তথ্য লোড করা যায়নি।{" "}
-          <button onClick={() => refetch()} className="text-brand font-semibold hover:underline cursor-pointer">আবার চেষ্টা করুন</button>
-        </p>
+        <div className="mb-card rounded-2xl p-8 text-center space-y-3">
+          <p className="text-sm text-ink-2">তথ্য লোড করা যায়নি।</p>
+          <button
+            onClick={() => refetch()}
+            className="mb-btn-secondary !text-xs py-2 px-4 rounded-xl cursor-pointer inline-flex items-center gap-1.5"
+          >
+            <RotateCw className="w-3.5 h-3.5" />
+            <span>আবার চেষ্টা করুন</span>
+          </button>
+        </div>
       ) : (
         app && (
-          <section className="mb-card p-6 rounded-2xl space-y-4">
-            <h2 className="font-bold text-xl text-ink">
-              অবস্থা: {statusLabels[app.status]}
-            </h2>
-            {app.reviewNote && (
-              <p className="bg-gold-soft text-gold border border-gold/25 p-4 rounded-xl">
-                মডারেটরের মন্তব্য: {app.reviewNote}
-              </p>
-            )}
-            <div className="flex gap-4">
-              <Link to="/edit-profile" className="text-brand font-semibold hover:underline">
-                খসড়া সম্পাদনা করুন
-              </Link>
-              <Link to="/contacts" className="text-brand font-semibold hover:underline">
-                যোগাযোগের অনুরোধ
-              </Link>
+          <section className="mb-card rounded-[2rem] p-6 sm:p-7 space-y-5">
+            {/* status row */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <h3 className="text-base font-black text-ink">বায়োডাটার অবস্থা</h3>
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${tone.bg} ${tone.text} border ${tone.border}`}>
+                  {statusLabels[app.status]}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/edit-profile"
+                  className="mb-btn-secondary !text-xs py-2 px-4 rounded-xl inline-flex items-center gap-1.5 bg-elev"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>খসড়া সম্পাদনা করুন</span>
+                </Link>
+                <Link
+                  to="/contacts"
+                  className="text-xs font-bold text-brand hover:text-brand/80 inline-flex items-center gap-1.5"
+                >
+                  <span>যোগাযোগের অনুরোধ</span>
+                </Link>
+              </div>
             </div>
-            <div className="border-t border-line pt-4 space-y-3">
-              <h3 className="font-bold text-ink">অভিভাবকের সম্মতি</h3>
-              {app.guardian?.phone ? (
-                <p className="text-sm text-ink-2">
-                  {app.guardian.name} ({app.guardian.relationship}) ·{" "}
-                  {app.guardian.phone}
+
+            {app.reviewNote && (
+              <div className="bg-gold-soft text-gold border border-gold/25 p-4 rounded-xl text-xs leading-relaxed flex gap-2">
+                <DoorOpen className="w-4 h-4 shrink-0 mt-0.5" />
+                <p>
+                  <strong>মডারেটরের মন্তব্য:</strong> {app.reviewNote}
                 </p>
+              </div>
+            )}
+
+            {/* Guardian consent */}
+            <div className="rounded-2xl bg-elev border border-line p-4 sm:p-5 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-card flex items-center justify-center border border-line">
+                  <Users className="w-4 h-4 text-brand" />
+                </div>
+                <h4 className="font-bold text-sm text-ink">অভিভাবকের সম্মতি</h4>
+                {guardianConsented && (
+                  <span className="ml-auto inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                    <ShieldCheck className="w-3 h-3" />
+                    যাচাই সম্পূর্ণ
+                  </span>
+                )}
+              </div>
+
+              {app.guardian?.phone ? (
+                <div className="bg-card rounded-xl px-3.5 py-2.5 border border-line text-sm text-ink-2 flex flex-wrap items-center gap-x-2">
+                  <strong className="text-ink">{app.guardian.name}</strong>
+                  <span className="text-ink-3">({app.guardian.relationship})</span>
+                  <span className="text-ink-3">•</span>
+                  <span className="font-mono">{app.guardian.phone}</span>
+                </div>
               ) : (
-                <p className="text-sm text-ink-2">
+                <p className="text-xs text-ink-2 leading-relaxed">
                   খসড়ায় অভিভাবকের নাম, সম্পর্ক ও মোবাইল সংরক্ষণ করুন।
                 </p>
               )}
-              {app.guardianConsentedAt ? (
-                <>
-                  <p className="text-emerald-600 dark:text-emerald-400">
-                    মোবাইল ও সম্মতি যাচাই সম্পূর্ণ ✓
-                  </p>
-                  <button
-                    disabled={busy}
-                    className="text-brand hover:underline cursor-pointer"
-                    onClick={() =>
-                      action(async () => {
-                        await workflowApi.revokeGuardian();
-                        setChallenge("");
-                        toast.success("সম্মতি প্রত্যাহার করা হয়েছে");
-                      })
-                    }
-                  >
-                    সম্মতি প্রত্যাহার করুন
-                  </button>
-                </>
+
+              {guardianConsented ? (
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+                  মোবাইল ও সম্মতি যাচাই সম্পূর্ণ ✓
+                </p>
               ) : (
-                <>
-                  <p className="text-sm text-ink-2">
-                    অভিভাবককে উদ্দেশ্য বুঝিয়ে সম্মতি নিন। কোডটি তাঁর মোবাইলে
-                    যাবে; তিনি সম্মত হলেই কোডটি দেবেন।
+                <div className="space-y-3">
+                  <p className="text-[11px] text-ink-2 leading-relaxed">
+                    অভিভাবককে উদ্দেশ্য বুঝিয়ে সম্মতি নিন। কোডটি তাঁর মোবাইলে যাবে; তিনি সম্মত হলেই কোডটি দেবেন।
                   </p>
                   <button
                     disabled={busy || !app.guardian?.phone}
-                    className="text-brand font-semibold hover:underline disabled:opacity-40 cursor-pointer"
+                    className="mb-btn-secondary !text-xs py-2 px-4 rounded-xl cursor-pointer disabled:opacity-40 inline-flex items-center gap-1.5 bg-card"
                     onClick={() =>
                       action(async () => {
                         const res = await workflowApi.requestGuardian();
@@ -208,39 +348,35 @@ export default function BiodataDashboard() {
                       })
                     }
                   >
-                    অভিভাবকের মোবাইলে কোড পাঠান
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>অভিভাবকের মোবাইলে কোড পাঠান</span>
                   </button>
+
                   {challenge && (
-                    <>
-                      <label className="block text-sm text-ink-2">
-                        অভিভাবকের সম্মতির কোড
-                        <input
-                          className={input}
-                          maxLength={6}
-                          inputMode="numeric"
-                          value={code}
-                          onChange={(e) => setCode(e.target.value)}
-                        />
-                      </label>
-                      <label className="flex gap-2 text-sm text-ink-2">
+                    <div className="space-y-2.5 pt-1">
+                      <input
+                        className={`${input} text-center tracking-[0.35em] font-mono font-bold`}
+                        maxLength={6}
+                        inputMode="numeric"
+                        placeholder="অভিভাবকের সম্মতির কোড"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                      />
+                      <label className="flex items-start gap-2 text-[11px] text-ink-2 leading-relaxed cursor-pointer select-none">
                         <input
                           type="checkbox"
+                          className="mt-0.5 accent-[color:var(--mb-brand)]"
                           checked={consent}
                           onChange={(e) => setConsent(e.target.checked)}
                         />
-                        অভিভাবক তথ্য সংরক্ষণ ও অনুমতি অনুযায়ী যোগাযোগ প্রকাশে
-                        সম্মতি দিয়েছেন
+                        অভিভাবক তথ্য সংরক্ষণ ও অনুমতি অনুযায়ী যোগাযোগ প্রকাশে সম্মতি দিয়েছেন
                       </label>
                       <button
                         disabled={busy || !consent || code.length !== 6}
-                        className="mb-btn-primary px-4 py-2 text-sm"
+                        className="mb-btn-primary px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
                         onClick={() =>
                           action(async () => {
-                            await workflowApi.confirmGuardian(
-                              challenge,
-                              code,
-                              consent,
-                            );
+                            await workflowApi.confirmGuardian(challenge, code, consent);
                             setChallenge("");
                             toast.success("সম্মতি যাচাই হয়েছে");
                           })
@@ -248,25 +384,24 @@ export default function BiodataDashboard() {
                       >
                         সম্মতি নিশ্চিত করুন
                       </button>
-                    </>
+                    </div>
                   )}
-                </>
+                </div>
               )}
             </div>
-            <div className="border-t border-line pt-4 space-y-2">
-              <p className="text-sm text-ink-2">
-                জমা দিতে ইমেইল, মোবাইল, অভিভাবকের সম্মতি ও বায়োডাটার আবশ্যক
-                তথ্য পূরণ করুন।
+
+            {/* submit area */}
+            <div className="rounded-2xl bg-brand-soft/60 dark:bg-brand-soft/40 border border-brand/15 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <p className="text-xs text-ink-2 leading-relaxed max-w-md">
+                জমা দিতে ইমেইল, মোবাইল, অভিভাবকের সম্মতি ও বায়োডাটার আবশ্যক তথ্য পূরণ করুন।
               </p>
               <button
                 disabled={
                   busy ||
-                  !user?.isEmailVerified ||
-                  !user?.isPhoneVerified ||
-                  !app.guardianConsentedAt ||
-                  !["draft", "changes_requested", "rejected"].includes(
-                    app.status,
-                  )
+                  !emailVerified ||
+                  !phoneVerified ||
+                  !guardianConsented ||
+                  !submissible
                 }
                 onClick={() =>
                   action(async () => {
@@ -274,7 +409,7 @@ export default function BiodataDashboard() {
                     toast.success("পর্যালোচনার জন্য জমা হয়েছে");
                   })
                 }
-                className="mb-btn-primary px-5 py-3 text-sm"
+                className="mb-btn-primary px-6 py-3 text-sm rounded-xl shrink-0 cursor-pointer disabled:opacity-50"
               >
                 পর্যালোচনার জন্য জমা দিন
               </button>
