@@ -400,7 +400,7 @@ export const HomePage: React.FC = () => {
           </svg>
 
           <div className="space-y-3 text-center md:text-left z-10">
-            <span className="inline-block text-xs font-bold text-white/90 tracking-wider bg-white/15 px-3 py-1 rounded-full border border-white/25 backdrop-blur-xs">
+            <span className="inline-block text-xs font-bold text-white/90 bg-white/15 px-3 py-1 rounded-full border border-white/25 backdrop-blur-xs">
               আপনার গল্পের অপেক্ষায়
             </span>
             <h2 className="text-2xl sm:text-3xl font-bold text-white">

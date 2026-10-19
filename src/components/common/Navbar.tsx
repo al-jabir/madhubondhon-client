@@ -13,12 +13,14 @@ import {
   LogOut,
   Bookmark,
   Coins,
+  Compass,
+  Info,
   HelpCircle,
   ChevronDown,
+  Sparkles,
   Phone,
   Home,
   Settings,
-  UserPlus,
 } from "lucide-react";
 import { notificationsApi } from "../../api/notifications.api";
 import { useAuth } from "../../context/useAuth";
@@ -76,7 +78,11 @@ export const Navbar: React.FC = () => {
   const menuLinks = [
     { to: "/", icon: Home, label: "হোম" },
     { to: "/search", icon: Search, label: "বায়োডাটা খুঁজুন" },
-    { to: "/faq", icon: HelpCircle, label: "সহায়িকা" },
+    { to: "/demo", icon: Sparkles, label: "নমুনা বায়োডাটা" },
+    { to: "/about", icon: Info, label: "আমাদের সম্পর্কে" },
+    { to: "/faq", icon: HelpCircle, label: "জিজ্ঞাসা" },
+    { to: "/guide", icon: Compass, label: "নির্দেশনা" },
+    { to: "/contact", icon: Phone, label: "যোগাযোগ" },
   ];
 
   return (
@@ -115,20 +121,6 @@ export const Navbar: React.FC = () => {
                 <span>{label}</span>
               </Link>
             ))}
-
-            {isAuthenticated && (
-              <Link
-                to="/shortlist"
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${
-                  isActive("/shortlist")
-                    ? "bg-brand-soft text-brand-ink"
-                    : "text-ink-2 hover:text-brand hover:bg-brand-soft/60"
-                }`}
-              >
-                <Bookmark className={`w-4 h-4 shrink-0 ${isActive("/shortlist") ? "text-brand" : ""}`} />
-                <span>পছন্দের তালিকা</span>
-              </Link>
-            )}
           </nav>
 
           {/* Desktop right side */}
@@ -288,14 +280,7 @@ export const Navbar: React.FC = () => {
                   to="/login"
                   className="px-4 py-2 text-sm font-semibold text-ink-2 hover:text-brand rounded-full border border-line hover:border-brand/50 hover:bg-brand-soft/50 transition-all"
                 >
-                  লগইন
-                </Link>
-                <Link
-                  to="/register"
-                  className="mb-btn-primary px-4 py-2 text-xs whitespace-nowrap"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span>নিবন্ধন করুন (ফ্রি)</span>
+                  লগইন করুন
                 </Link>
               </div>
             )}
@@ -426,20 +411,13 @@ export const Navbar: React.FC = () => {
           )}
 
           {!isAuthenticated && (
-            <div className="pt-3 border-t border-line space-y-2">
+            <div className="pt-3 border-t border-line">
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
                 className="block text-center w-full py-2.5 text-sm font-semibold text-brand bg-brand-soft rounded-xl"
               >
-                লগইন
-              </Link>
-              <Link
-                to="/register"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-center w-full py-2.5 text-sm font-semibold text-white bg-linear-to-r from-brand to-pink-600 rounded-xl"
-              >
-                নিবন্ধন করুন (ফ্রি)
+                লগইন করুন
               </Link>
             </div>
           )}

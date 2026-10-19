@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
               টাঙ্গাইল জেলা ও প্রবাসে বসবাসরত টাঙ্গাইলবাসীর জন্য একটি বিশ্বস্ত, নিরাপদ ও দ্বীনি পারিবারিক
               ম্যাট্রিমনি প্ল্যাটফর্ম। ১৮+ প্রাপ্তবয়স্কদের জন্য অনুমোদিত।
             </p>
-            <div className="inline-flex items-center gap-2 text-xs text-rose-300 font-medium px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+            <div className="inline-flex items-center gap-2 text-xs text-rose-300  px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span>১০০% ভেরিফাইড ও গোপনীয়তা সুরক্ষাপ্রাপ্ত</span>
             </div>

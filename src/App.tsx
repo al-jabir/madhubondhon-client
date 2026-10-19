@@ -25,6 +25,9 @@ import ContactsPage from './pages/ContactsPage';
 import ShortlistPage from './pages/ShortlistPage';
 import PackagesPage from './pages/PackagesPage';
 import FAQPage from './pages/FAQPage';
+import AboutPage from './pages/AboutPage';
+import GuidePage from './pages/GuidePage';
+import ContactPage from './pages/ContactPage';
 import WhatsAppSupportWidget from './components/common/WhatsAppSupportWidget';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -54,8 +57,10 @@ export const App: React.FC = () => {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/faq" element={<FAQPage />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/profiles/:userId" element={<ProfileDetailPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/guide" element={<GuidePage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/search" element={<SearchPage />} />                <Route path="/profiles/:userId" element={<ProfileDetailPage />} />
 
                 {/* Sample biodata demo routes (fictional profiles, no database needed) */}
                 <Route path="/demo" element={<SearchPage demo />} />

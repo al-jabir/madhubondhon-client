@@ -339,7 +339,7 @@ export const AdminDashboardPage: React.FC = () => {
           ) : (
             <div className="mb-card overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-elev border-b border-line text-ink-2 font-bold uppercase tracking-wider">
+                <thead className="bg-elev border-b border-line text-ink-2 font-bold">
                   <tr>
                     <th className="py-3 px-4">ইউজার</th>
                     <th className="py-3 px-4">ইমেইল</th>
@@ -512,7 +512,7 @@ export const AdminDashboardPage: React.FC = () => {
           ) : (
             <div className="mb-card overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-elev border-b border-line text-ink-2 font-bold uppercase tracking-wider">
+                <thead className="bg-elev border-b border-line text-ink-2 font-bold">
                   <tr>
                     <th className="py-3 px-4">পদক্ষেপ (Action)</th>
                     <th className="py-3 px-4">লক্ষ্য (Target ID)</th>

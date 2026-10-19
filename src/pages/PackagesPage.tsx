@@ -124,7 +124,7 @@ export const PackagesPage: React.FC = () => {
             <div className="w-12 h-12 rounded-full bg-gold text-white flex items-center justify-center mb-2 shadow-md">
               <Coins className="w-6 h-6 fill-current" />
             </div>
-            <span className="text-xs uppercase tracking-wider text-rose-100 font-medium">
+            <span className="text-xs text-rose-100 font-medium">
               আপনার অবশিষ্ট ক্রেডিট
             </span>
             <span className="text-3xl sm:text-4xl font-extrabold mt-1 text-white">
@@ -245,7 +245,7 @@ export const PackagesPage: React.FC = () => {
           <div className="border-b border-line pb-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className="text-xs font-bold text-brand uppercase tracking-wider">
+                <span className="text-xs font-bold text-brand">
                   ধাপ ২: পেমেন্ট সম্পন্ন করুন
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-ink mt-1">
@@ -416,7 +416,7 @@ export const PackagesPage: React.FC = () => {
           <div className="bg-card mb-card rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-elev border-b border-line text-ink-3 font-semibold uppercase">
+                <thead className="bg-elev border-b border-line text-ink-3 font-semibold">
                   <tr>
                     <th className="px-4 py-3">তারিখ</th>
                     <th className="px-4 py-3">প্যাকেজ</th>
