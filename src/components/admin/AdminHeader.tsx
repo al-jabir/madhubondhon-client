@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -7,6 +7,7 @@ import {
   ExternalLink,
   LogOut,
   Sparkles,
+  ChevronDown,
 } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -21,27 +22,63 @@ interface AdminHeaderProps {
 export const AdminHeader: React.FC<AdminHeaderProps> = () => {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    setUserDropdownOpen(false);
+    await logout();
+    navigate('/admin/login', { replace: true });
+  };
+
+  const getRoleLabel = (role?: UserRole) => {
+    switch (role) {
+      case UserRole.SUPER_ADMIN:
+        return t('admin.superAdmin');
+      case UserRole.ADMIN:
+        return t('admin.adminRole');
+      case UserRole.MODERATOR:
+        return t('admin.moderatorRole');
+      default:
+        return 'প্রশাসক';
+    }
+  };
 
   const getRoleBadge = (role?: UserRole) => {
     switch (role) {
       case UserRole.SUPER_ADMIN:
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30 shadow-xs">
-            <ShieldAlert className="w-3.5 h-3.5" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">
+            <ShieldAlert className="w-3 h-3" />
             {t('admin.superAdmin')}
           </span>
         );
       case UserRole.ADMIN:
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-brand-soft text-brand-ink border border-brand/30 shadow-xs">
-            <ShieldCheck className="w-3.5 h-3.5" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-brand-soft text-brand-ink border border-brand/30">
+            <ShieldCheck className="w-3 h-3" />
             {t('admin.adminRole')}
           </span>
         );
       case UserRole.MODERATOR:
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shadow-xs">
-            <UserCheck className="w-3.5 h-3.5" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+            <UserCheck className="w-3 h-3" />
             {t('admin.moderatorRole')}
           </span>
         );
@@ -50,10 +87,28 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
     }
   };
 
+  // Avatar gradient based on role
+  const getAvatarGradient = (role?: UserRole) => {
+    switch (role) {
+      case UserRole.SUPER_ADMIN:
+        return 'from-purple-600 to-indigo-600';
+      case UserRole.ADMIN:
+        return 'from-brand to-pink-500';
+      case UserRole.MODERATOR:
+        return 'from-amber-500 to-amber-600';
+      default:
+        return 'from-brand to-pink-500';
+    }
+  };
+
+  const displayName = user?.name || getRoleLabel(user?.role);
+  const avatarLetter = (user?.name || user?.email || 'A').trim().charAt(0).toUpperCase();
+
   return (
     <header className="sticky top-0 z-30 bg-card/90 backdrop-blur-md border-b border-line px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between transition-colors">
+      {/* Brand & Title */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-brand to-pink-500 flex items-center justify-center text-white shadow-md shadow-brand/20">
             <Sparkles className="w-4 h-4" />
           </div>
@@ -68,18 +123,8 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
         </div>
       </div>
 
+      {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3">
-        <div className="hidden md:flex items-center gap-2">
-          {getRoleBadge(user?.role)}
-        </div>
-
-        <div className="h-6 w-px bg-line hidden sm:block" />
-
-        <div className="flex items-center gap-2 text-right hidden sm:block">
-          <div className="text-xs font-bold text-ink leading-tight">{user?.name}</div>
-          <div className="text-[10px] text-ink-3 font-mono leading-tight">{user?.email}</div>
-        </div>
-
         <LanguageToggle />
         <ThemeToggle />
 
@@ -92,15 +137,85 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
           <span className="hidden md:inline">{t('admin.mainSite')}</span>
         </Link>
 
-        <button
-          type="button"
-          onClick={() => logout()}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-all cursor-pointer"
-          title={t('admin.logout')}
-        >
-          <LogOut className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">{t('admin.logout')}</span>
-        </button>
+        {/* User / Admin Profile Dropdown in place of Logout */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            type="button"
+            onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+            className={`flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-full border transition-all cursor-pointer select-none shrink-0 ${
+              userDropdownOpen
+                ? 'border-brand/50 bg-brand-soft'
+                : 'border-line bg-elev hover:border-strongline'
+            }`}
+            aria-expanded={userDropdownOpen}
+            aria-haspopup="true"
+          >
+            <span
+              className={`w-7 h-7 rounded-full bg-linear-to-br ${getAvatarGradient(
+                user?.role
+              )} text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs`}
+            >
+              {avatarLetter}
+            </span>
+            <div className="flex flex-col text-left max-w-[120px] sm:max-w-[160px] leading-tight">
+              <span className="text-xs font-bold text-ink truncate whitespace-nowrap">
+                {displayName}
+              </span>
+              <span className="text-[10px] text-ink-3 truncate whitespace-nowrap">
+                {getRoleLabel(user?.role)}
+              </span>
+            </div>
+            <ChevronDown
+              className={`w-3.5 h-3.5 text-ink-3 transition-transform duration-200 shrink-0 ${
+                userDropdownOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          {/* User Dropdown Menu */}
+          {userDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-card border border-line shadow-[var(--mb-shadow-pop)] py-2 z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+              {/* User Details Header */}
+              <div className="px-4 py-3 border-b border-line bg-elev/30">
+                <div className="flex items-center gap-2.5 mb-2">
+                  <span
+                    className={`w-9 h-9 rounded-full bg-linear-to-br ${getAvatarGradient(
+                      user?.role
+                    )} text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs`}
+                  >
+                    {avatarLetter}
+                  </span>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-bold text-ink truncate">{displayName}</p>
+                    <p className="text-[11px] text-ink-3 font-mono truncate">{user?.email}</p>
+                  </div>
+                </div>
+                <div>{getRoleBadge(user?.role)}</div>
+              </div>
+
+              {/* Action Links */}
+              <div className="py-1.5 px-1.5 space-y-0.5 text-xs">
+                <Link
+                  to="/"
+                  onClick={() => setUserDropdownOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 font-semibold text-ink-2 hover:bg-brand-soft hover:text-brand rounded-lg transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                  <span>{t('admin.mainSite')}</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer text-left"
+                >
+                  <LogOut className="w-3.5 h-3.5 shrink-0" />
+                  <span>{t('admin.logout')}</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
