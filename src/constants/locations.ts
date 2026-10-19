@@ -31,3 +31,27 @@ export const UPAZILA_DISPLAY_NAMES: Record<TangailUpazila, string> = {
   nagarpur: 'নাগরপুর',
   sakhipur: 'সখীপুর',
 };
+
+export const UPAZILA_EN_DISPLAY_NAMES: Record<TangailUpazila, string> = {
+  tangail_sadar: 'Tangail Sadar',
+  basail: 'Basail',
+  bhuapur: 'Bhuapur',
+  delduar: 'Delduar',
+  dhanbari: 'Dhanbari',
+  ghatail: 'Ghatail',
+  gopalpur: 'Gopalpur',
+  kalihati: 'Kalihati',
+  madhupur: 'Madhupur',
+  mirzapur: 'Mirzapur',
+  nagarpur: 'Nagarpur',
+  sakhipur: 'Sakhipur',
+};
+
+export const getUpazilaDisplayName = (key?: string, isBengali = true): string => {
+  if (!key) return '';
+  const up = key as TangailUpazila;
+  if (!isBengali && UPAZILA_EN_DISPLAY_NAMES[up]) {
+    return UPAZILA_EN_DISPLAY_NAMES[up];
+  }
+  return UPAZILA_DISPLAY_NAMES[up] || key;
+};

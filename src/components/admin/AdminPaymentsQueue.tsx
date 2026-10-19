@@ -10,16 +10,16 @@ import {
   Search,
   Filter,
   Phone,
-  User as UserIcon,
-  AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { paymentsApi } from '../../api/payments.api';
 import { CreditTransaction, User } from '../../types';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export const AdminPaymentsQueue: React.FC = () => {
   const queryClient = useQueryClient();
+  const { isBengali, formatNumber } = useLanguage();
   const [statusFilter, setStatusFilter] = useState<string>('pending');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
@@ -46,8 +46,8 @@ export const AdminPaymentsQueue: React.FC = () => {
     onSuccess: (_, variables) => {
       toast.success(
         variables.status === 'completed'
-          ? 'পেমেন্ট অনুমোদিত হয়েছে এবং ক্রেডিট যোগ করা হয়েছে!'
-          : 'পেমেন্ট রিকোয়েস্ট বাতিল করা হয়েছে।'
+          ? (isBengali ? 'পেমেন্ট অনুমোদিত হয়েছে এবং ক্রেডিট যোগ করা হয়েছে!' : 'Payment approved and credits credited!')
+          : (isBengali ? 'পেমেন্ট রিকোয়েস্ট বাতিল করা হয়েছে।' : 'Payment request has been rejected.')
       );
       queryClient.invalidateQueries({ queryKey: ['admin-transactions'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
@@ -55,7 +55,7 @@ export const AdminPaymentsQueue: React.FC = () => {
     onError: (err: unknown) => {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        'রিভিউ সংরক্ষণ করতে সমস্যা হয়েছে';
+        (isBengali ? 'রিভিউ সংরক্ষণ করতে সমস্যা হয়েছে' : 'Failed to save review');
       toast.error(msg);
     },
   });
@@ -63,20 +63,18 @@ export const AdminPaymentsQueue: React.FC = () => {
   const transactions: CreditTransaction[] = data?.data || [];
 
   const handleApprove = (trx: CreditTransaction) => {
-    if (
-      window.confirm(
-        `আপনি কি নিশ্চিত যে TrxID: ${trx.trxId} এর পেমেন্ট অনুমোদন করবেন? এর ফলে ব্যবহারকারী ${trx.credits} টি কন্টাক্ট ক্রেডিট পাবেন।`
-      )
-    ) {
+    const confirmMsg = isBengali
+      ? `আপনি কি নিশ্চিত যে TrxID: ${trx.trxId} এর পেমেন্ট অনুমোদন করবেন? এর ফলে ব্যবহারকারী ${formatNumber(trx.credits)} টি কন্টাক্ট ক্রেডিট পাবেন।`
+      : `Are you sure you want to approve the payment for TrxID: ${trx.trxId}? This will grant ${formatNumber(trx.credits)} contact credits to the user.`;
+    if (window.confirm(confirmMsg)) {
       reviewMutation.mutate({ id: trx._id, status: 'completed' });
     }
   };
 
   const handleReject = (trx: CreditTransaction) => {
-    const reason = window.prompt(
-      'বাতিলের কারণ লিখুন (ঐচ্ছিক):',
-      'প্রদত্ত TrxID অথবা টাকার পরিমাণ সঠিক নয়'
-    );
+    const reasonPrompt = isBengali ? 'বাতিলের কারণ লিখুন (ঐচ্ছিক):' : 'Enter rejection reason (optional):';
+    const defaultReason = isBengali ? 'প্রদত্ত TrxID অথবা টাকার পরিমাণ সঠিক নয়' : 'Invalid TrxID or mismatched amount';
+    const reason = window.prompt(reasonPrompt, defaultReason);
     if (reason !== null) {
       reviewMutation.mutate({
         id: trx._id,
@@ -96,10 +94,10 @@ export const AdminPaymentsQueue: React.FC = () => {
           </div>
           <div>
             <h3 className="text-base font-bold text-ink">
-              পেমেন্ট ও ক্রেডিট অনুমোদন কিউ
+              {isBengali ? 'পেমেন্ট ও ক্রেডিট অনুমোদন কিউ' : 'Payment & Credits Verification Queue'}
             </h3>
             <p className="text-xs text-ink-3">
-              ব্যবহারকারীদের প্রেরিত bKash ও Nagad পেমেন্ট ভেরিফাই করুন
+              {isBengali ? 'ব্যবহারকারীদের প্রেরিত bKash ও Nagad পেমেন্ট ভেরিফাই করুন' : 'Verify bKash and Nagad payment submissions from users'}
             </p>
           </div>
         </div>
@@ -109,7 +107,7 @@ export const AdminPaymentsQueue: React.FC = () => {
             <Search className="w-3.5 h-3.5 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="TrxID বা প্রেরক ফোন..."
+              placeholder={isBengali ? 'TrxID বা প্রেরক ফোন...' : 'TrxID or sender phone...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-input !text-xs !bg-elev !border-line !rounded-xl pl-8 pr-3 py-2"
@@ -123,10 +121,10 @@ export const AdminPaymentsQueue: React.FC = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="mb-input !text-xs !bg-elev !border-line !rounded-xl py-2 font-semibold cursor-pointer"
             >
-              <option value="pending">অপেক্ষমান (Pending)</option>
-              <option value="completed">অনুমোদিত (Completed)</option>
-              <option value="rejected">বাতিল (Rejected)</option>
-              <option value="all">সকল লেনদেন (All)</option>
+              <option value="pending">{isBengali ? 'অপেক্ষমান (Pending)' : 'Pending'}</option>
+              <option value="completed">{isBengali ? 'অনুমোদিত (Completed)' : 'Completed'}</option>
+              <option value="rejected">{isBengali ? 'বাতিল (Rejected)' : 'Rejected'}</option>
+              <option value="all">{isBengali ? 'সকল লেনদেন (All)' : 'All Transactions'}</option>
             </select>
           </div>
         </div>
@@ -135,13 +133,15 @@ export const AdminPaymentsQueue: React.FC = () => {
       {/* Transactions Table */}
       {isLoading ? (
         <div className="py-16 flex justify-center">
-          <LoadingSpinner size="md" label="পেমেন্ট রিকোয়েস্ট লোড হচ্ছে..." />
+          <LoadingSpinner size="md" label={isBengali ? 'পেমেন্ট রিকোয়েস্ট লোড হচ্ছে...' : 'Loading payment requests...'} />
         </div>
       ) : transactions.length === 0 ? (
         <div className="mb-card p-12 text-center space-y-2">
           <Coins className="w-8 h-8 text-ink-3 mx-auto" />
-          <p className="text-sm font-semibold text-ink-2">কোনো লেনদেন পাওয়া যায়নি</p>
-          <p className="text-xs text-ink-3">এই ফিল্টারে বর্তমানে কোনো পেমেন্ট রিকোয়েস্ট নেই।</p>
+          <p className="text-sm font-semibold text-ink-2">{isBengali ? 'কোনো লেনদেন পাওয়া যায়নি' : 'No transactions found'}</p>
+          <p className="text-xs text-ink-3">
+            {isBengali ? 'এই ফিল্টারে বর্তমানে কোনো পেমেন্ট রিকোয়েস্ট নেই।' : 'There are no payment requests matching this filter.'}
+          </p>
         </div>
       ) : (
         <div className="mb-card overflow-hidden">
@@ -149,14 +149,14 @@ export const AdminPaymentsQueue: React.FC = () => {
             <table className="w-full text-left text-xs">
               <thead className="bg-elev border-b border-line text-ink-2 font-bold uppercase tracking-wider">
                 <tr>
-                  <th className="px-4 py-3">তারিখ</th>
-                  <th className="px-4 py-3">ব্যবহারকারী</th>
-                  <th className="px-4 py-3">প্যাকেজ ও ক্রেডিট</th>
-                  <th className="px-4 py-3">টাকার পরিমাণ</th>
-                  <th className="px-4 py-3">মাধ্যম ও প্রেরক নম্বর</th>
-                  <th className="px-4 py-3">TrxID</th>
-                  <th className="px-4 py-3">স্ট্যাটাস</th>
-                  <th className="px-4 py-3 text-right">কার্যক্রম</th>
+                  <th className="px-4 py-3">{isBengali ? 'তারিখ' : 'Date'}</th>
+                  <th className="px-4 py-3">{isBengali ? 'ব্যবহারকারী' : 'User'}</th>
+                  <th className="px-4 py-3">{isBengali ? 'প্যাকেজ ও ক্রেডিট' : 'Package & Credits'}</th>
+                  <th className="px-4 py-3">{isBengali ? 'টাকার পরিমাণ' : 'Amount'}</th>
+                  <th className="px-4 py-3">{isBengali ? 'মাধ্যম ও প্রেরক নম্বর' : 'Method & Sender Phone'}</th>
+                  <th className="px-4 py-3">{isBengali ? 'TrxID' : 'TrxID'}</th>
+                  <th className="px-4 py-3">{isBengali ? 'স্ট্যাটাস' : 'Status'}</th>
+                  <th className="px-4 py-3 text-right">{isBengali ? 'কার্যক্রম' : 'Actions'}</th>
                 </tr>
               </thead>
               <tbody>
@@ -167,20 +167,22 @@ export const AdminPaymentsQueue: React.FC = () => {
                   return (
                     <tr key={trx._id} className="border-t border-line hover:bg-elev/50 transition-colors">
                       <td className="px-4 py-3 font-medium text-ink-2">
-                        {trx.createdAt ? new Date(trx.createdAt).toLocaleDateString('bn-BD') : '-'}
+                        {trx.createdAt ? new Date(trx.createdAt).toLocaleDateString(isBengali ? 'bn-BD' : 'en-US') : '-'}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-bold text-ink">{userObj?.name || 'ব্যবহারকারী'}</div>
+                        <div className="font-bold text-ink">{userObj?.name || (isBengali ? 'ব্যবহারকারী' : 'User')}</div>
                         <div className="text-[11px] text-ink-3">{userObj?.email || '-'}</div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="font-bold text-ink">{trx.credits} ক্রেডিট</span>
+                        <span className="font-bold text-ink">
+                          {formatNumber(trx.credits)} {isBengali ? 'ক্রেডিট' : 'Credits'}
+                        </span>
                         <span className="text-[11px] text-ink-3 block">
-                          {trx.packageTitle || 'প্যাকেজ'}
+                          {trx.packageTitle || (isBengali ? 'প্যাকেজ' : 'Package')}
                         </span>
                       </td>
                       <td className="px-4 py-3 font-bold text-brand text-sm">
-                        ৳{trx.amountBDT}
+                        ৳{formatNumber(trx.amountBDT)}
                       </td>
                       <td className="px-4 py-3">
                         <span className="font-semibold uppercase text-ink block">
@@ -200,19 +202,19 @@ export const AdminPaymentsQueue: React.FC = () => {
                         {trx.status === 'completed' && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                             <CheckCircle2 className="w-3 h-3" />
-                            অনুমোদিত
+                            {isBengali ? 'অনুমোদিত' : 'Approved'}
                           </span>
                         )}
                         {trx.status === 'pending' && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-gold-soft text-gold border border-gold/25">
                             <Clock className="w-3 h-3" />
-                            অপেক্ষমান
+                            {isBengali ? 'অপেক্ষমান' : 'Pending'}
                           </span>
                         )}
                         {trx.status === 'rejected' && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
                             <XCircle className="w-3 h-3" />
-                            বাতিল
+                            {isBengali ? 'বাতিল' : 'Rejected'}
                           </span>
                         )}
                       </td>
@@ -224,24 +226,26 @@ export const AdminPaymentsQueue: React.FC = () => {
                               onClick={() => handleApprove(trx)}
                               disabled={reviewMutation.isPending}
                               className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-40"
-                              title="অনুমোদন করুন"
+                              title={isBengali ? 'অনুমোদন করুন' : 'Approve'}
                             >
                               <Check className="w-3.5 h-3.5" />
-                              <span>অনুমোদন</span>
+                              <span>{isBengali ? 'অনুমোদন' : 'Approve'}</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => handleReject(trx)}
                               disabled={reviewMutation.isPending}
-                              className="mb-btn-secondary !px-2.5 !py-1.5 font-bold flex items-center gap-1 hover:!text-red-600 dark:hover:!text-red-400 border border-red-200 dark:border-red-800"
-                              title="বাতিল করুন"
+                              className="mb-btn-secondary !px-2.5 !py-1.5 font-bold flex items-center gap-1 hover:!text-red-600 dark:hover:!text-red-400 border border-red-200 dark:border-red-800 cursor-pointer"
+                              title={isBengali ? 'বাতিল করুন' : 'Reject'}
                             >
                               <X className="w-3.5 h-3.5" />
-                              <span>বাতিল</span>
+                              <span>{isBengali ? 'বাতিল' : 'Reject'}</span>
                             </button>
                           </div>
                         ) : (
-                          <span className="text-[11px] text-ink-3">পর্যালোচিত</span>
+                          <span className="text-[11px] text-ink-3">
+                            {isBengali ? 'পর্যালোচিত' : 'Reviewed'}
+                          </span>
                         )}
                       </td>
                     </tr>

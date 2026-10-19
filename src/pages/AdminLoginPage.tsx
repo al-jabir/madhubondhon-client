@@ -22,7 +22,7 @@ import LanguageToggle from "../components/common/LanguageToggle";
 
 export const AdminLoginPage: React.FC = () => {
   const { user, isAuthenticated, isLoading, login, logout } = useAuth();
-  const { t } = useLanguage();
+  const { t, isBengali } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -148,7 +148,15 @@ export const AdminLoginPage: React.FC = () => {
               <div className="mb-5 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-700 dark:text-amber-400 flex items-start gap-2.5">
                 <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
                 <div className="leading-relaxed">
-                  <strong>সদস্য লগইন সক্রিয়:</strong> আপনি বর্তমানে সাধারণ সদস্য হিসেবে লগইন আছেন ({user.email})। প্রশাসনিক ড্যাশবোর্ডে প্রবেশ করতে অনুগ্রহ করে অ্যাডমিন ক্রেডেনশিয়াল দিন।
+                  {isBengali ? (
+                    <>
+                      <strong>সদস্য লগইন সক্রিয়:</strong> আপনি বর্তমানে সাধারণ সদস্য হিসেবে লগইন আছেন ({user.email})। প্রশাসনিক ড্যাশবোর্ডে প্রবেশ করতে অনুগ্রহ করে অ্যাডমিন ক্রেডেনশিয়াল দিন।
+                    </>
+                  ) : (
+                    <>
+                      <strong>Member Login Active:</strong> You are currently signed in as a regular member ({user.email}). Please provide administrator credentials to enter the admin dashboard.
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -199,7 +207,7 @@ export const AdminLoginPage: React.FC = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink cursor-pointer p-0.5"
-                    aria-label={showPassword ? "পাসওয়ার্ড লুকান" : "পাসওয়ার্ড দেখুন"}
+                    aria-label={showPassword ? (isBengali ? "পাসওয়ার্ড লুকান" : "Hide password") : (isBengali ? "পাসওয়ার্ড দেখুন" : "Show password")}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>

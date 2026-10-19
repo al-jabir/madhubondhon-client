@@ -6,19 +6,17 @@ import {
   Edit2,
   Trash2,
   Pin,
-  CheckCircle2,
-  XCircle,
   X,
-  AlertCircle,
-  Eye,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
 import { AnnouncementItem } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 export const AdminAnnouncementsTab: React.FC = () => {
   const queryClient = useQueryClient();
+  const { isBengali } = useLanguage();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<AnnouncementItem | null>(null);
@@ -56,13 +54,17 @@ export const AdminAnnouncementsTab: React.FC = () => {
       }
     },
     onSuccess: () => {
-      toast.success(editingItem ? 'ঘোষণা সফলভাবে আপডেট হয়েছে।' : 'নতুন ঘোষণা সফলভাবে প্রকাশিত হয়েছে।');
+      toast.success(
+        editingItem
+          ? (isBengali ? 'ঘোষণা সফলভাবে আপডেট হয়েছে।' : 'Announcement updated successfully.')
+          : (isBengali ? 'নতুন ঘোষণা সফলভাবে প্রকাশিত হয়েছে।' : 'New announcement published successfully.')
+      );
       queryClient.invalidateQueries({ queryKey: ['admin-announcements'] });
       queryClient.invalidateQueries({ queryKey: ['public-announcements'] });
       closeModal();
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'সংরক্ষণ ব্যর্থ হয়েছে।');
+      toast.error(err.response?.data?.message || (isBengali ? 'সংরক্ষণ ব্যর্থ হয়েছে।' : 'Failed to save announcement.'));
     },
   });
 
@@ -70,12 +72,12 @@ export const AdminAnnouncementsTab: React.FC = () => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => adminApi.deleteAnnouncement(id),
     onSuccess: () => {
-      toast.success('ঘোষণাটি সফলভাবে মুছে ফেলা হয়েছে।');
+      toast.success(isBengali ? 'ঘোষণাটি সফলভাবে মুছে ফেলা হয়েছে।' : 'Announcement deleted successfully.');
       queryClient.invalidateQueries({ queryKey: ['admin-announcements'] });
       queryClient.invalidateQueries({ queryKey: ['public-announcements'] });
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'মুছে ফেলা যায়নি।');
+      toast.error(err.response?.data?.message || (isBengali ? 'মুছে ফেলা যায়নি।' : 'Could not delete announcement.'));
     },
   });
 
@@ -115,10 +117,12 @@ export const AdminAnnouncementsTab: React.FC = () => {
         <div>
           <h2 className="text-base sm:text-lg font-black text-ink flex items-center gap-2">
             <Megaphone className="w-5 h-5 text-brand" />
-            <span>নোটিশ ও ঘোষণা ব্যবস্থাপনা (Announcements & Alerts)</span>
+            <span>{isBengali ? 'নোটিশ ও ঘোষণা ব্যবস্থাপনা (Announcements & Alerts)' : 'Announcements & Alerts Management'}</span>
           </h2>
           <p className="text-xs text-ink-3">
-            ওয়েবসাইটের শীর্ষ ব্যানার ও সদস্যদের জন্য নোটিশবোর্ডে জরুরি বার্তা প্রকাশ করুন
+            {isBengali
+              ? 'ওয়েবসাইটের শীর্ষ ব্যানার ও সদস্যদের জন্য নোটিশবোর্ডে জরুরি বার্তা প্রকাশ করুন'
+              : 'Publish urgent alerts, banner messages, and member notices across the website'}
           </p>
         </div>
 
@@ -128,7 +132,7 @@ export const AdminAnnouncementsTab: React.FC = () => {
           className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-brand text-white hover:bg-brand-strong cursor-pointer shadow-md shadow-brand/20 transition-all"
         >
           <Plus className="w-4 h-4" />
-          <span>নতুন ঘোষণা তৈরি করুন</span>
+          <span>{isBengali ? 'নতুন ঘোষণা তৈরি করুন' : 'Create Announcement'}</span>
         </button>
       </div>
 
@@ -136,13 +140,13 @@ export const AdminAnnouncementsTab: React.FC = () => {
       <div className="space-y-4">
         {isLoading ? (
           <div className="py-20 flex justify-center">
-            <LoadingSpinner size="lg" label="ঘোষণা লোড হচ্ছে..." />
+            <LoadingSpinner size="lg" label={isBengali ? 'ঘোষণা লোড হচ্ছে...' : 'Loading announcements...'} />
           </div>
         ) : announcementsList.length === 0 ? (
           <div className="mb-card py-16 text-center text-ink-3 space-y-2">
             <Megaphone className="w-10 h-10 mx-auto text-ink-3/40" />
-            <p className="text-sm font-bold">বর্তমানে কোনো সক্রিয় ঘোষণা নেই</p>
-            <p className="text-xs">নতুন বার্তা প্রকাশ করতে উপরের বাটনে ক্লিক করুন।</p>
+            <p className="text-sm font-bold">{isBengali ? 'বর্তমানে কোনো সক্রিয় ঘোষণা নেই' : 'No announcements currently'}</p>
+            <p className="text-xs">{isBengali ? 'নতুন বার্তা প্রকাশ করতে উপরের বাটনে ক্লিক করুন।' : 'Click the button above to publish an announcement.'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
@@ -162,7 +166,7 @@ export const AdminAnnouncementsTab: React.FC = () => {
                     {ann.isPinned && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black bg-purple-500/15 text-purple-600 dark:text-purple-400">
                         <Pin className="w-3 h-3 fill-current" />
-                        পিন করা
+                        {isBengali ? 'পিন করা' : 'Pinned'}
                       </span>
                     )}
                     <span
@@ -177,7 +181,8 @@ export const AdminAnnouncementsTab: React.FC = () => {
                       {ann.priority}
                     </span>
                     <span className="text-[11px] text-ink-3 font-semibold">
-                      প্রাপক: <strong>{ann.targetAudience === 'all' ? 'সকল ভিজিটর' : ann.targetAudience}</strong>
+                      {isBengali ? 'প্রাপক: ' : 'Audience: '}
+                      <strong>{ann.targetAudience === 'all' ? (isBengali ? 'সকল ভিজিটর' : 'All Visitors') : ann.targetAudience}</strong>
                     </span>
                   </div>
 
@@ -189,14 +194,16 @@ export const AdminAnnouncementsTab: React.FC = () => {
                           : 'bg-elev text-ink-3'
                       }`}
                     >
-                      {ann.isActive ? 'প্রকাশিত (Active)' : 'খসড়া (Inactive)'}
+                      {ann.isActive
+                        ? (isBengali ? 'প্রকাশিত (Active)' : 'Active')
+                        : (isBengali ? 'খসড়া (Inactive)' : 'Inactive')}
                     </span>
 
                     <button
                       type="button"
                       onClick={() => openEditModal(ann)}
                       className="p-1.5 rounded-lg border border-line bg-elev hover:bg-brand-soft hover:text-brand-ink text-ink-2 cursor-pointer transition-colors"
-                      title="সম্পাদনা"
+                      title={isBengali ? 'সম্পাদনা' : 'Edit'}
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
@@ -204,12 +211,15 @@ export const AdminAnnouncementsTab: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        if (window.confirm('আপনি কি নিশ্চিতভাবে এই ঘোষণাটি মুছে ফেলতে চান?')) {
+                        const confirmMsg = isBengali
+                          ? 'আপনি কি নিশ্চিতভাবে এই ঘোষণাটি মুছে ফেলতে চান?'
+                          : 'Are you sure you want to delete this announcement?';
+                        if (window.confirm(confirmMsg)) {
                           deleteMutation.mutate(ann._id);
                         }
                       }}
                       className="p-1.5 rounded-lg border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 cursor-pointer transition-colors"
-                      title="মুছে ফেলুন"
+                      title={isBengali ? 'মুছে ফেলুন' : 'Delete'}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -222,7 +232,8 @@ export const AdminAnnouncementsTab: React.FC = () => {
                 </div>
 
                 <div className="text-[10px] text-ink-3 pt-2">
-                  প্রকাশ: {new Date(ann.createdAt).toLocaleDateString('bn-BD', { dateStyle: 'medium', timeStyle: 'short' })}
+                  {isBengali ? 'প্রকাশ: ' : 'Published: '}
+                  {new Date(ann.createdAt).toLocaleDateString(isBengali ? 'bn-BD' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' })}
                 </div>
               </div>
             ))}
@@ -237,7 +248,11 @@ export const AdminAnnouncementsTab: React.FC = () => {
             <div className="flex items-center justify-between border-b border-line pb-3">
               <h3 className="text-base font-black text-ink flex items-center gap-2">
                 <Megaphone className="w-5 h-5 text-brand" />
-                <span>{editingItem ? 'ঘোষণা সম্পাদনা' : 'নতুন ঘোষণা প্রকাশ'}</span>
+                <span>
+                  {editingItem
+                    ? (isBengali ? 'ঘোষণা সম্পাদনা' : 'Edit Announcement')
+                    : (isBengali ? 'নতুন ঘোষণা প্রকাশ' : 'Publish New Announcement')}
+                </span>
               </h3>
               <button
                 type="button"
@@ -256,54 +271,62 @@ export const AdminAnnouncementsTab: React.FC = () => {
               className="space-y-4 text-xs"
             >
               <div>
-                <label className="block font-bold text-ink mb-1">শিরোনাম (Title):</label>
+                <label className="block font-bold text-ink mb-1">
+                  {isBengali ? 'শিরোনাম (Title):' : 'Title:'}
+                </label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="যেমন: ঈদ উপলক্ষে নতুন অফার বা সিস্টেম মেইন্টেন্যান্স..."
+                  placeholder={isBengali ? 'যেমন: ঈদ উপলক্ষে নতুন অফার বা সিস্টেম মেইন্টেন্যান্স...' : 'e.g. System maintenance notice or greetings...'}
                   className="mb-input text-xs"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-ink mb-1">বিবরণ (Content):</label>
+                <label className="block font-bold text-ink mb-1">
+                  {isBengali ? 'বিবরণ (Content):' : 'Content:'}
+                </label>
                 <textarea
                   required
                   rows={4}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="বিস্তারিত ঘোষণা লিখুন..."
+                  placeholder={isBengali ? 'বিস্তারিত ঘোষণা লিখুন...' : 'Enter announcement content...'}
                   className="mb-input text-xs"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-ink mb-1">গুরুত্ব (Priority):</label>
+                  <label className="block font-bold text-ink mb-1">
+                    {isBengali ? 'গুরুত্ব (Priority):' : 'Priority:'}
+                  </label>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value as any)}
                     className="mb-input text-xs"
                   >
-                    <option value="low">সাধারণ (Low)</option>
-                    <option value="medium">মাঝারি (Medium)</option>
-                    <option value="high">উচ্চ (High)</option>
-                    <option value="urgent">জরুরি সতর্কতা (Urgent)</option>
+                    <option value="low">{isBengali ? 'সাধারণ (Low)' : 'Low'}</option>
+                    <option value="medium">{isBengali ? 'মাঝারি (Medium)' : 'Medium'}</option>
+                    <option value="high">{isBengali ? 'উচ্চ (High)' : 'High'}</option>
+                    <option value="urgent">{isBengali ? 'জরুরি সতর্কতা (Urgent)' : 'Urgent'}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-ink mb-1">লক্ষ্য দর্শক (Audience):</label>
+                  <label className="block font-bold text-ink mb-1">
+                    {isBengali ? 'লক্ষ্য দর্শক (Audience):' : 'Audience:'}
+                  </label>
                   <select
                     value={targetAudience}
                     onChange={(e) => setTargetAudience(e.target.value as any)}
                     className="mb-input text-xs"
                   >
-                    <option value="all">সকল ভিজিটর (All)</option>
-                    <option value="customer">কেবল নিবন্ধিত পাত্র-পাত্রী</option>
-                    <option value="unregistered">অনিবন্ধিত ভিজিটর</option>
+                    <option value="all">{isBengali ? 'সকল ভিজিটর (All)' : 'All Visitors'}</option>
+                    <option value="customer">{isBengali ? 'কেবল নিবন্ধিত পাত্র-পাত্রী' : 'Registered Members Only'}</option>
+                    <option value="unregistered">{isBengali ? 'অনিবন্ধিত ভিজিটর' : 'Unregistered Visitors'}</option>
                   </select>
                 </div>
               </div>
@@ -316,7 +339,7 @@ export const AdminAnnouncementsTab: React.FC = () => {
                     onChange={(e) => setIsPinned(e.target.checked)}
                     className="rounded text-brand"
                   />
-                  <span>শীর্ষে পিন করে রাখুন</span>
+                  <span>{isBengali ? 'শীর্ষে পিন করে রাখুন' : 'Pin to Top'}</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer font-semibold text-ink">
@@ -326,7 +349,7 @@ export const AdminAnnouncementsTab: React.FC = () => {
                     onChange={(e) => setIsActive(e.target.checked)}
                     className="rounded text-brand"
                   />
-                  <span>সরাসরি প্রকাশ করুন (Active)</span>
+                  <span>{isBengali ? 'সরাসরি প্রকাশ করুন (Active)' : 'Active (Published)'}</span>
                 </label>
               </div>
 
@@ -336,14 +359,18 @@ export const AdminAnnouncementsTab: React.FC = () => {
                   onClick={closeModal}
                   className="px-4 py-2 font-bold rounded-xl border border-line hover:bg-elev cursor-pointer text-ink-2"
                 >
-                  বাতিল
+                  {isBengali ? 'বাতিল' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={saveMutation.isPending || !title.trim() || !content.trim()}
                   className="px-4 py-2 font-bold rounded-xl bg-brand text-white hover:bg-brand-strong disabled:opacity-50 cursor-pointer shadow-md shadow-brand/20"
                 >
-                  {saveMutation.isPending ? 'সংরক্ষণ হচ্ছে...' : editingItem ? 'আপডেট করুন' : 'প্রকাশ করুন'}
+                  {saveMutation.isPending
+                    ? (isBengali ? 'সংরক্ষণ হচ্ছে...' : 'Saving...')
+                    : editingItem
+                    ? (isBengali ? 'আপডেট করুন' : 'Update')
+                    : (isBengali ? 'প্রকাশ করুন' : 'Publish')}
                 </button>
               </div>
             </form>

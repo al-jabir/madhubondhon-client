@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  History,
-  Shield,
-  Search,
-  Filter,
-  Clock,
-  Terminal,
-} from 'lucide-react';
+import { History } from 'lucide-react';
 import { adminApi, AuditLogItem } from '../../../api/admin.api';
 import LoadingSpinner from '../../common/LoadingSpinner';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 export const AdminAuditLogsTab: React.FC = () => {
+  const { isBengali, formatNumber } = useLanguage();
   const [actionFilter, setActionFilter] = useState('');
   const [page, setPage] = useState(1);
 
@@ -35,10 +30,12 @@ export const AdminAuditLogsTab: React.FC = () => {
         <div>
           <h2 className="text-base sm:text-lg font-black text-ink flex items-center gap-2">
             <History className="w-5 h-5 text-brand" />
-            <span>প্রশাসনিক অডিট লগ (Administrative Audit Trail)</span>
+            <span>{isBengali ? 'প্রশাসনিক অডিট লগ (Administrative Audit Trail)' : 'Administrative Audit Trail'}</span>
           </h2>
           <p className="text-xs text-ink-3">
-            প্ল্যাটফর্মের সকল স্পর্শকাতর প্রশাসনিক কার্যক্রম, পরিবর্তন ও সিদ্ধান্তের অপরিবর্তনীয় রেকর্ড
+            {isBengali
+              ? 'প্ল্যাটফর্মের সকল স্পর্শকাতর প্রশাসনিক কার্যক্রম, পরিবর্তন ও সিদ্ধান্তের অপরিবর্তনীয় রেকর্ড'
+              : 'Immutable audit trail of administrative activities, permission changes, and security actions'}
           </p>
         </div>
 
@@ -51,14 +48,14 @@ export const AdminAuditLogsTab: React.FC = () => {
             }}
             className="mb-input text-xs"
           >
-            <option value="">সকল কার্যক্রম (All Actions)</option>
-            <option value="user.status_change">ইউজার স্ট্যাটাস পরিবর্তন</option>
-            <option value="user.role_change">ইউজার রোল পরিবর্তন</option>
-            <option value="admin.create">অ্যাডমিন তৈরি</option>
-            <option value="announcement.create">ঘোষণা প্রকাশ</option>
-            <option value="announcement.update">ঘোষণা আপডেট</option>
-            <option value="content.update">কনটেন্ট আপডেট</option>
-            <option value="settings.update">সেটিংস পরিবর্তন</option>
+            <option value="">{isBengali ? 'সকল কার্যক্রম (All Actions)' : 'All Actions'}</option>
+            <option value="user.status_change">{isBengali ? 'ইউজার স্ট্যাটাস পরিবর্তন' : 'User Status Change'}</option>
+            <option value="user.role_change">{isBengali ? 'ইউজার রোল পরিবর্তন' : 'User Role Change'}</option>
+            <option value="admin.create">{isBengali ? 'অ্যাডমিন তৈরি' : 'Admin Creation'}</option>
+            <option value="announcement.create">{isBengali ? 'ঘোষণা প্রকাশ' : 'Announcement Created'}</option>
+            <option value="announcement.update">{isBengali ? 'ঘোষণা আপডেট' : 'Announcement Updated'}</option>
+            <option value="content.update">{isBengali ? 'কনটেন্ট আপডেট' : 'Content Updated'}</option>
+            <option value="settings.update">{isBengali ? 'সেটিংস পরিবর্তন' : 'Settings Updated'}</option>
           </select>
         </div>
       </div>
@@ -67,29 +64,29 @@ export const AdminAuditLogsTab: React.FC = () => {
       <div className="mb-card overflow-hidden">
         {isLoading ? (
           <div className="py-20 flex justify-center">
-            <LoadingSpinner size="lg" label="অডিট লগ লোড হচ্ছে..." />
+            <LoadingSpinner size="lg" label={isBengali ? 'অডিট লগ লোড হচ্ছে...' : 'Loading audit logs...'} />
           </div>
         ) : auditLogs.length === 0 ? (
           <div className="py-16 text-center text-ink-3 space-y-2">
             <History className="w-10 h-10 mx-auto text-ink-3/40" />
-            <p className="text-sm font-bold">কোনো অডিট লগ রেকর্ড নেই</p>
+            <p className="text-sm font-bold">{isBengali ? 'কোনো অডিট লগ রেকর্ড নেই' : 'No audit log records found'}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-elev/80 text-ink-3 font-bold border-b border-line uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-4">কর্মকর্তা (Actor)</th>
-                  <th className="py-3 px-4">অ্যাকশন</th>
-                  <th className="py-3 px-4">টার্গেট ও বিবরণ</th>
-                  <th className="py-3 px-4">আইপি ঠিকানা</th>
-                  <th className="py-3 px-4">তারিখ ও সময়</th>
+                  <th className="py-3 px-4">{isBengali ? 'কর্মকর্তা (Actor)' : 'Actor'}</th>
+                  <th className="py-3 px-4">{isBengali ? 'অ্যাকশন' : 'Action'}</th>
+                  <th className="py-3 px-4">{isBengali ? 'টার্গেট ও বিবরণ' : 'Target & Details'}</th>
+                  <th className="py-3 px-4">{isBengali ? 'আইপি ঠিকানা' : 'IP Address'}</th>
+                  <th className="py-3 px-4">{isBengali ? 'তারিখ ও সময়' : 'Timestamp'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
                 {auditLogs.map((log: AuditLogItem) => {
                   const actor = log.actor;
-                  const actorName = typeof actor === 'object' ? actor?.name : 'সিস্টেম';
+                  const actorName = typeof actor === 'object' ? actor?.name : (isBengali ? 'সিস্টেম' : 'System');
                   const actorEmail = typeof actor === 'object' ? actor?.email : '';
                   const actorRole = typeof actor === 'object' ? actor?.role : '';
 
@@ -129,7 +126,7 @@ export const AdminAuditLogsTab: React.FC = () => {
                       </td>
 
                       <td className="py-3 px-4 text-ink-3 text-[11px] whitespace-nowrap">
-                        {new Date(log.createdAt).toLocaleString('bn-BD', {
+                        {new Date(log.createdAt).toLocaleString(isBengali ? 'bn-BD' : 'en-US', {
                           dateStyle: 'medium',
                           timeStyle: 'short',
                         })}
@@ -146,7 +143,9 @@ export const AdminAuditLogsTab: React.FC = () => {
         {meta && meta.totalPages > 1 && (
           <div className="flex items-center justify-between p-4 border-t border-line text-xs">
             <span className="text-ink-3">
-              পৃষ্ঠা {meta.page} / {meta.totalPages} (মোট {meta.total} টি)
+              {isBengali
+                ? `পৃষ্ঠা ${formatNumber(meta.page)} / ${formatNumber(meta.totalPages)} (মোট ${formatNumber(meta.total)} টি)`
+                : `Page ${formatNumber(meta.page)} of ${formatNumber(meta.totalPages)} (Total: ${formatNumber(meta.total)})`}
             </span>
             <div className="flex items-center gap-2">
               <button
@@ -155,7 +154,7 @@ export const AdminAuditLogsTab: React.FC = () => {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 className="px-3 py-1.5 rounded-lg border border-line bg-elev disabled:opacity-40 cursor-pointer font-bold"
               >
-                পূর্ববর্তী
+                {isBengali ? 'পূর্ববর্তী' : 'Previous'}
               </button>
               <button
                 type="button"
@@ -163,7 +162,7 @@ export const AdminAuditLogsTab: React.FC = () => {
                 onClick={() => setPage((p) => p + 1)}
                 className="px-3 py-1.5 rounded-lg border border-line bg-elev disabled:opacity-40 cursor-pointer font-bold"
               >
-                পরবর্তী
+                {isBengali ? 'পরবর্তী' : 'Next'}
               </button>
             </div>
           </div>

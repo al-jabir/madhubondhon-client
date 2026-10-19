@@ -21,7 +21,7 @@ interface AdminHeaderProps {
 
 export const AdminHeader: React.FC<AdminHeaderProps> = () => {
   const { user, logout } = useAuth();
-  const { t } = useLanguage();
+  const { t, isBengali } = useLanguage();
   const navigate = useNavigate();
 
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -55,7 +55,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
       case UserRole.MODERATOR:
         return t('admin.moderatorRole');
       default:
-        return 'প্রশাসক';
+        return isBengali ? 'প্রশাসক' : 'Administrator';
     }
   };
 
@@ -131,7 +131,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
         <Link
           to="/"
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-line bg-elev hover:bg-brand-soft hover:text-brand-ink text-ink-2 transition-all cursor-pointer shadow-2xs"
-          title="মূল ওয়েবসাইট দেখুন"
+          title={isBengali ? 'মূল ওয়েবসাইট দেখুন' : 'View Main Site'}
         >
           <ExternalLink className="w-3.5 h-3.5" />
           <span className="hidden md:inline">{t('admin.mainSite')}</span>

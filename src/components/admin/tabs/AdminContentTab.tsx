@@ -4,18 +4,16 @@ import {
   FileEdit,
   Save,
   Eye,
-  CheckCircle2,
   FileText,
-  RotateCcw,
-  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
-import { SiteContentItem } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 export const AdminContentTab: React.FC = () => {
   const queryClient = useQueryClient();
+  const { isBengali } = useLanguage();
 
   const [selectedSlug, setSelectedSlug] = useState<string>('about');
   const [title, setTitle] = useState('');
@@ -50,12 +48,12 @@ export const AdminContentTab: React.FC = () => {
         isPublished,
       }),
     onSuccess: () => {
-      toast.success('কনটেন্ট সফলভাবে সংরক্ষিত ও প্রকাশিত হয়েছে।');
+      toast.success(isBengali ? 'কনটেন্ট সফলভাবে সংরক্ষিত ও প্রকাশিত হয়েছে।' : 'Content saved and published successfully.');
       queryClient.invalidateQueries({ queryKey: ['admin-content-pages'] });
       queryClient.invalidateQueries({ queryKey: ['public-content', selectedSlug] });
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'সংরক্ষণ ব্যর্থ হয়েছে।');
+      toast.error(err.response?.data?.message || (isBengali ? 'সংরক্ষণ ব্যর্থ হয়েছে।' : 'Failed to save content.'));
     },
   });
 
@@ -66,10 +64,12 @@ export const AdminContentTab: React.FC = () => {
         <div>
           <h2 className="text-base sm:text-lg font-black text-ink flex items-center gap-2">
             <FileEdit className="w-5 h-5 text-brand" />
-            <span>ওয়েবসাইট কনটেন্ট ব্যবস্থাপনা (Content Management)</span>
+            <span>{isBengali ? 'ওয়েবসাইট কনটেন্ট ব্যবস্থাপনা (Content Management)' : 'Site Content Management (CMS)'}</span>
           </h2>
           <p className="text-xs text-ink-3">
-            আমাদের সম্পর্কে, সাধারণ জিজ্ঞাসা, প্রাইভেসি পলিসি ও ব্যবহারের শর্তাবলী সম্পাদনা করুন
+            {isBengali
+              ? 'আমাদের সম্পর্কে, সাধারণ জিজ্ঞাসা, প্রাইভেসি পলিসি ও ব্যবহারের শর্তাবলী সম্পাদনা করুন'
+              : 'Edit About Us, FAQ, Privacy Policy, and Terms & Conditions'}
           </p>
         </div>
 
@@ -82,7 +82,11 @@ export const AdminContentTab: React.FC = () => {
             }`}
           >
             <Eye className="w-4 h-4" />
-            <span>{previewMode ? 'এডিটর দেখুন' : 'প্রিভিউ দেখুন'}</span>
+            <span>
+              {previewMode
+                ? (isBengali ? 'এডিটর দেখুন' : 'Switch to Editor')
+                : (isBengali ? 'প্রিভিউ দেখুন' : 'Preview')}
+            </span>
           </button>
 
           <button
@@ -92,21 +96,25 @@ export const AdminContentTab: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-brand text-white hover:bg-brand-strong disabled:opacity-50 cursor-pointer shadow-md shadow-brand/20 transition-all"
           >
             <Save className="w-4 h-4" />
-            <span>{updateMutation.isPending ? 'সংরক্ষণ হচ্ছে...' : 'সংরক্ষণ করুন'}</span>
+            <span>
+              {updateMutation.isPending
+                ? (isBengali ? 'সংরক্ষণ হচ্ছে...' : 'Saving...')
+                : (isBengali ? 'সংরক্ষণ করুন' : 'Save Content')}
+            </span>
           </button>
         </div>
       </div>
 
       {isLoading ? (
         <div className="py-20 flex justify-center mb-card">
-          <LoadingSpinner size="lg" label="পৃষ্ঠা লোড হচ্ছে..." />
+          <LoadingSpinner size="lg" label={isBengali ? 'পৃষ্ঠা লোড হচ্ছে...' : 'Loading pages...'} />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Page Selector Sidebar */}
           <div className="lg:col-span-1 mb-card p-3 sm:p-4 space-y-1">
             <div className="px-3 py-1 text-[11px] font-black uppercase text-ink-3">
-              সম্পাদনাযোগ্য পৃষ্ঠাসমূহ
+              {isBengali ? 'সম্পাদনাযোগ্য পৃষ্ঠাসমূহ' : 'Editable Pages'}
             </div>
             {pagesList.map((p) => (
               <button
@@ -145,7 +153,7 @@ export const AdminContentTab: React.FC = () => {
           <div className="lg:col-span-3 mb-card p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <span className="text-xs font-bold text-ink-3">
-                স্লাগ: <strong className="font-mono text-brand">/content/{selectedSlug}</strong>
+                {isBengali ? 'স্লাগ: ' : 'Slug: '}<strong className="font-mono text-brand">/content/{selectedSlug}</strong>
               </span>
 
               <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-ink">
@@ -155,7 +163,7 @@ export const AdminContentTab: React.FC = () => {
                   onChange={(e) => setIsPublished(e.target.checked)}
                   className="rounded text-brand"
                 />
-                <span>পাবলিকভাবে দৃশ্যমান (Published)</span>
+                <span>{isBengali ? 'পাবলিকভাবে দৃশ্যমান (Published)' : 'Publicly Visible (Published)'}</span>
               </label>
             </div>
 
@@ -170,27 +178,27 @@ export const AdminContentTab: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-ink mb-1">
-                    পৃষ্ঠার শিরোনাম (Page Title):
+                    {isBengali ? 'পৃষ্ঠার শিরোনাম (Page Title):' : 'Page Title:'}
                   </label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="mb-input text-xs"
-                    placeholder="শিরোনাম লিখুন..."
+                    placeholder={isBengali ? 'শিরোনাম লিখুন...' : 'Enter page title...'}
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-ink mb-1">
-                    পৃষ্ঠার বিবরণ (Content / Body):
+                    {isBengali ? 'পৃষ্ঠার বিবরণ (Content / Body):' : 'Content / Body:'}
                   </label>
                   <textarea
                     rows={14}
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     className="mb-input font-sans text-xs leading-relaxed"
-                    placeholder="বিস্তারিত কনটেন্ট লিখুন..."
+                    placeholder={isBengali ? 'বিস্তারিত কনটেন্ট লিখুন...' : 'Write page content...'}
                   />
                 </div>
               </div>

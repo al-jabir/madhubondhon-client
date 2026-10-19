@@ -3,22 +3,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   AlertTriangle,
   CheckCircle2,
-  XCircle,
-  Clock,
-  Filter,
   ShieldAlert,
-  UserX,
   X,
-  MessageSquare,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { reportsApi, ReportItem } from '../../../api/reports.api';
 import { adminApi } from '../../../api/admin.api';
 import { AccountStatus } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 export const AdminReportsTab: React.FC = () => {
   const queryClient = useQueryClient();
+  const { isBengali, formatNumber } = useLanguage();
   const [statusFilter, setStatusFilter] = useState<string>('pending');
   const [page, setPage] = useState(1);
 
@@ -50,18 +47,20 @@ export const AdminReportsTab: React.FC = () => {
       if (actionOption === 'suspend' && reportedUserId) {
         await adminApi.updateUserStatus(reportedUserId, {
           status: AccountStatus.SUSPENDED,
-          reason: `অভিযোগ নিষ্পত্তির প্রেক্ষিতে স্থগিত: ${resolutionNote}`,
+          reason: isBengali
+            ? `অভিযোগ নিষ্পত্তির প্রেক্ষিতে স্থগিত: ${resolutionNote}`
+            : `Suspended upon report resolution: ${resolutionNote}`,
         });
       }
 
       // 2. Resolve the report
       return reportsApi.resolveReport(selectedReport._id, {
         status: resolutionStatus,
-        resolutionNote: resolutionNote.trim() || 'প্রশাসনিক পর্যালোচনা সম্পন্ন',
+        resolutionNote: resolutionNote.trim() || (isBengali ? 'প্রশাসনিক পর্যালোচনা সম্পন্ন' : 'Administrative review finalized'),
       });
     },
     onSuccess: () => {
-      toast.success('অভিযোগটির নিষ্পত্তি সফলভাবে সংরক্ষিত হয়েছে।');
+      toast.success(isBengali ? 'অভিযোগটির নিষ্পত্তি সফলভাবে সংরক্ষিত হয়েছে।' : 'Report resolution saved successfully.');
       queryClient.invalidateQueries({ queryKey: ['admin-reports'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
@@ -70,7 +69,7 @@ export const AdminReportsTab: React.FC = () => {
       setActionOption('none');
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'নিষ্পত্তি সংরক্ষণ করা যায়নি।');
+      toast.error(err.response?.data?.message || (isBengali ? 'নিষ্পত্তি সংরক্ষণ করা যায়নি।' : 'Could not save resolution.'));
     },
   });
 
@@ -85,10 +84,12 @@ export const AdminReportsTab: React.FC = () => {
           <div>
             <h2 className="text-base sm:text-lg font-black text-ink flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-500" />
-              <span>অভিযোগ ও রিপোর্ট ব্যবস্থাপনা (Complaints & Moderation)</span>
+              <span>{isBengali ? 'অভিযোগ ও রিপোর্ট ব্যবস্থাপনা (Complaints & Moderation)' : 'Complaints & Moderation Management'}</span>
             </h2>
             <p className="text-xs text-ink-3">
-              সদস্যদের আপত্তিকর আচরণ, ভুয়া বায়োডাটা বা হয়রানির অভিযোগসমূহ দ্রুত তদন্ত ও সমাধান
+              {isBengali
+                ? 'সদস্যদের আপত্তিকর আচরণ, ভুয়া বায়োডাটা বা হয়রানির অভিযোগসমূহ দ্রুত তদন্ত ও সমাধান'
+                : 'Investigate and resolve reports regarding inappropriate behavior, fake profiles, or harassment'}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -100,10 +101,10 @@ export const AdminReportsTab: React.FC = () => {
               }}
               className="mb-input text-xs"
             >
-              <option value="">সকল অভিযোগ</option>
-              <option value="pending">মুলতবি (Pending)</option>
-              <option value="resolved">নিষ্পত্তিকৃত (Resolved)</option>
-              <option value="dismissed">বাতিলকৃত (Dismissed)</option>
+              <option value="">{isBengali ? 'সকল অভিযোগ' : 'All Complaints'}</option>
+              <option value="pending">{isBengali ? 'মুলতবি (Pending)' : 'Pending'}</option>
+              <option value="resolved">{isBengali ? 'নিষ্পত্তিকৃত (Resolved)' : 'Resolved'}</option>
+              <option value="dismissed">{isBengali ? 'বাতিলকৃত (Dismissed)' : 'Dismissed'}</option>
             </select>
           </div>
         </div>
@@ -113,20 +114,22 @@ export const AdminReportsTab: React.FC = () => {
       <div className="space-y-4">
         {isLoading ? (
           <div className="py-20 flex justify-center">
-            <LoadingSpinner size="lg" label="অভিযোগ লোড হচ্ছে..." />
+            <LoadingSpinner size="lg" label={isBengali ? 'অভিযোগ লোড হচ্ছে...' : 'Loading complaints...'} />
           </div>
         ) : reportsList.length === 0 ? (
           <div className="mb-card py-16 text-center text-ink-3 space-y-2">
             <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-500" />
-            <p className="text-sm font-bold">এই মুহূর্তে কোনো মুলতবি অভিযোগ নেই</p>
-            <p className="text-xs">প্ল্যাটফর্মের সকল অভিযোগ সফলভাবে নিষ্পত্তি করা হয়েছে।</p>
+            <p className="text-sm font-bold">{isBengali ? 'এই মুহূর্তে কোনো মুলতবি অভিযোগ নেই' : 'No pending complaints at this time'}</p>
+            <p className="text-xs">
+              {isBengali ? 'প্ল্যাটফর্মের সকল অভিযোগ সফলভাবে নিষ্পত্তি করা হয়েছে।' : 'All complaints have been resolved successfully.'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {reportsList.map((rep: any) => {
-              const reporterName = typeof rep.reporter === 'object' ? rep.reporter?.name : 'অভিযোগকারী';
+              const reporterName = typeof rep.reporter === 'object' ? rep.reporter?.name : (isBengali ? 'অভিযোগকারী' : 'Reporter');
               const reportedUser = rep.reportedUser || rep.reported;
-              const reportedName = typeof reportedUser === 'object' ? reportedUser?.name : 'অভিযুক্ত ব্যক্তি';
+              const reportedName = typeof reportedUser === 'object' ? reportedUser?.name : (isBengali ? 'অভিযুক্ত ব্যক্তি' : 'Reported User');
               const reportedEmail = typeof reportedUser === 'object' ? reportedUser?.email : '';
 
               return (
@@ -137,38 +140,38 @@ export const AdminReportsTab: React.FC = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-3">
                     <div className="flex items-center gap-2">
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-500/15 text-amber-600 dark:text-amber-400">
-                        কারণ: {rep.reason}
+                        {isBengali ? 'কারণ: ' : 'Reason: '}{rep.reason}
                       </span>
                       <span className="text-xs font-bold text-ink">
-                        স্ট্যাটাস: <span className="uppercase text-ink-2">{rep.status}</span>
+                        {isBengali ? 'স্ট্যাটাস: ' : 'Status: '}<span className="uppercase text-ink-2">{rep.status}</span>
                       </span>
                     </div>
                     <span className="text-[11px] text-ink-3">
-                      তারিখ: {new Date(rep.createdAt).toLocaleString('bn-BD', { dateStyle: 'medium', timeStyle: 'short' })}
+                      {isBengali ? 'তারিখ: ' : 'Date: '}{new Date(rep.createdAt).toLocaleString(isBengali ? 'bn-BD' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' })}
                     </span>
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4 text-xs">
                     <div className="space-y-1">
-                      <span className="text-ink-3 font-semibold">অভিযোগকারী:</span>
+                      <span className="text-ink-3 font-semibold">{isBengali ? 'অভিযোগকারী:' : 'Reporter:'}</span>
                       <div className="font-bold text-ink">{reporterName}</div>
                     </div>
 
                     <div className="space-y-1">
-                      <span className="text-ink-3 font-semibold">অভিযুক্ত ব্যক্তি:</span>
+                      <span className="text-ink-3 font-semibold">{isBengali ? 'অভিযুক্ত ব্যক্তি:' : 'Reported User:'}</span>
                       <div className="font-bold text-ink">{reportedName}</div>
                       {reportedEmail && <div className="text-ink-3 font-mono text-[11px]">{reportedEmail}</div>}
                     </div>
                   </div>
 
                   <div className="bg-elev p-3 rounded-xl border border-line text-xs space-y-1">
-                    <span className="text-ink-3 font-bold block">অভিযোগের বিবরণ:</span>
+                    <span className="text-ink-3 font-bold block">{isBengali ? 'অভিযোগের বিবরণ:' : 'Complaint Details:'}</span>
                     <p className="text-ink-2 whitespace-pre-wrap leading-relaxed">{rep.description}</p>
                   </div>
 
                   {rep.resolution && (
                     <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl text-xs space-y-0.5 text-emerald-800 dark:text-emerald-300">
-                      <span className="font-bold">নিষ্পত্তির নোট:</span>
+                      <span className="font-bold">{isBengali ? 'নিষ্পত্তির নোট:' : 'Resolution Note:'}</span>
                       <p>{rep.resolution}</p>
                     </div>
                   )}
@@ -185,7 +188,7 @@ export const AdminReportsTab: React.FC = () => {
                         }}
                         className="px-3 py-1.5 text-xs font-bold rounded-xl bg-brand text-white hover:bg-brand-strong cursor-pointer shadow-xs"
                       >
-                        তদন্ত ও নিষ্পত্তি করুন
+                        {isBengali ? 'তদন্ত ও নিষ্পত্তি করুন' : 'Investigate & Resolve'}
                       </button>
                     </div>
                   )}
@@ -199,7 +202,9 @@ export const AdminReportsTab: React.FC = () => {
         {meta && meta.totalPages > 1 && (
           <div className="flex items-center justify-between p-4 mb-card text-xs">
             <span className="text-ink-3">
-              পৃষ্ঠা {meta.page} / {meta.totalPages} (মোট {meta.total} টি)
+              {isBengali
+                ? `পৃষ্ঠা ${formatNumber(meta.page)} / ${formatNumber(meta.totalPages)} (মোট ${formatNumber(meta.total)} টি)`
+                : `Page ${formatNumber(meta.page)} of ${formatNumber(meta.totalPages)} (Total: ${formatNumber(meta.total)})`}
             </span>
             <div className="flex items-center gap-2">
               <button
@@ -208,7 +213,7 @@ export const AdminReportsTab: React.FC = () => {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 className="px-3 py-1.5 rounded-lg border border-line bg-elev disabled:opacity-40 cursor-pointer font-bold"
               >
-                পূর্ববর্তী
+                {isBengali ? 'পূর্ববর্তী' : 'Previous'}
               </button>
               <button
                 type="button"
@@ -216,7 +221,7 @@ export const AdminReportsTab: React.FC = () => {
                 onClick={() => setPage((p) => p + 1)}
                 className="px-3 py-1.5 rounded-lg border border-line bg-elev disabled:opacity-40 cursor-pointer font-bold"
               >
-                পরবর্তী
+                {isBengali ? 'পরবর্তী' : 'Next'}
               </button>
             </div>
           </div>
@@ -230,7 +235,7 @@ export const AdminReportsTab: React.FC = () => {
             <div className="flex items-center justify-between border-b border-line pb-3">
               <h3 className="text-base font-black text-ink flex items-center gap-2">
                 <ShieldAlert className="w-5 h-5 text-brand" />
-                <span>অভিযোগ নিষ্পত্তি ও সিদ্ধান্ত</span>
+                <span>{isBengali ? 'অভিযোগ নিষ্পত্তি ও সিদ্ধান্ত' : 'Complaint Resolution & Decision'}</span>
               </h3>
               <button
                 type="button"
@@ -249,39 +254,51 @@ export const AdminReportsTab: React.FC = () => {
               className="space-y-4 text-xs"
             >
               <div>
-                <label className="block font-bold text-ink mb-1">সিদ্ধান্তের ধরন:</label>
+                <label className="block font-bold text-ink mb-1">
+                  {isBengali ? 'সিদ্ধান্তের ধরন:' : 'Resolution Decision:'}
+                </label>
                 <select
                   value={resolutionStatus}
                   onChange={(e) => setResolutionStatus(e.target.value as any)}
                   className="mb-input text-xs"
                 >
-                  <option value="resolved">অভিযোগ প্রমাণিত ও নিষ্পত্তি (Resolved)</option>
-                  <option value="dismissed">ভিত্তিহীন বিবেচনায় বাতিল (Dismissed)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-bold text-ink mb-1">অ্যাকশন (প্রয়োজনে):</label>
-                <select
-                  value={actionOption}
-                  onChange={(e) => setActionOption(e.target.value as any)}
-                  className="mb-input text-xs"
-                >
-                  <option value="none">কোনো অ্যাকাউন্ট অ্যাকশন নয় (সতর্কবার্তা/মৌখিক সমাধান)</option>
-                  <option value="suspend">অভিযুক্ত ব্যক্তির অ্যাকাউন্ট অবিলম্বে স্থগিত করুন (Suspend Account)</option>
+                  <option value="resolved">
+                    {isBengali ? 'অভিযোগ প্রমাণিত ও নিষ্পত্তি (Resolved)' : 'Verified & Resolved'}
+                  </option>
+                  <option value="dismissed">
+                    {isBengali ? 'ভিত্তিহীন বিবেচনায় বাতিল (Dismissed)' : 'Dismissed (Unsubstantiated)'}
+                  </option>
                 </select>
               </div>
 
               <div>
                 <label className="block font-bold text-ink mb-1">
-                  নিষ্পত্তির বিবরণ / নোট (বাধ্যতামূলক):
+                  {isBengali ? 'অ্যাকশন (প্রয়োজনে):' : 'Action on Reported User (Optional):'}
+                </label>
+                <select
+                  value={actionOption}
+                  onChange={(e) => setActionOption(e.target.value as any)}
+                  className="mb-input text-xs"
+                >
+                  <option value="none">
+                    {isBengali ? 'কোনো অ্যাকাউন্ট অ্যাকশন নয় (সতর্কবার্তা/মৌখিক সমাধান)' : 'No account action (Warning / verbal warning)'}
+                  </option>
+                  <option value="suspend">
+                    {isBengali ? 'অভিযুক্ত ব্যক্তির অ্যাকাউন্ট অবিলম্বে স্থগিত করুন (Suspend Account)' : 'Suspend reported user account immediately'}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-ink mb-1">
+                  {isBengali ? 'নিষ্পত্তির বিবরণ / নোট (বাধ্যতামূলক):' : 'Resolution Details / Note (Required):'}
                 </label>
                 <textarea
                   required
                   rows={3}
                   value={resolutionNote}
                   onChange={(e) => setResolutionNote(e.target.value)}
-                  placeholder="তদন্তের ফলাফল ও গৃহীত পদক্ষেপ সংক্ষেপে লিখুন..."
+                  placeholder={isBengali ? 'তদন্তের ফলাফল ও গৃহীত পদক্ষেপ সংক্ষেপে লিখুন...' : 'Brief summary of findings and actions taken...'}
                   className="mb-input text-xs"
                 />
               </div>
@@ -292,14 +309,16 @@ export const AdminReportsTab: React.FC = () => {
                   onClick={() => setSelectedReport(null)}
                   className="px-4 py-2 font-bold rounded-xl border border-line hover:bg-elev cursor-pointer text-ink-2"
                 >
-                  বাতিল
+                  {isBengali ? 'বাতিল' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={resolveMutation.isPending || !resolutionNote.trim()}
                   className="px-4 py-2 font-bold rounded-xl bg-brand text-white hover:bg-brand-strong disabled:opacity-50 cursor-pointer shadow-md shadow-brand/20"
                 >
-                  {resolveMutation.isPending ? 'সংরক্ষণ হচ্ছে...' : 'সিদ্ধান্ত চূড়ান্ত করুন'}
+                  {resolveMutation.isPending
+                    ? (isBengali ? 'সংরক্ষণ হচ্ছে...' : 'Saving...')
+                    : (isBengali ? 'সিদ্ধান্ত চূড়ান্ত করুন' : 'Finalize Decision')}
                 </button>
               </div>
             </form>

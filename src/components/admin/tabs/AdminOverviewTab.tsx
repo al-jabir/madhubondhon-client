@@ -15,6 +15,7 @@ import {
 import { AdminStats, AuditLogItem } from '../../../api/admin.api';
 import AdminAnalytics from '../AdminAnalytics';
 import MarriageStatisticsSettings from '../../profile/MarriageStatisticsSettings';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 interface AdminOverviewTabProps {
   stats?: AdminStats;
@@ -27,6 +28,7 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
   onNavigateTab,
   isSuperAdminOrAdmin,
 }) => {
+  const { isBengali, formatNumber } = useLanguage();
   return (
     <div className="space-y-6">
       {/* Top Welcome & KPI row */}
@@ -37,17 +39,23 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
           className="mb-card p-4 sm:p-5 space-y-2 cursor-pointer hover:border-brand/40 transition-all group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-ink-3">মোট নিবন্ধিত ইউজার</span>
+            <span className="text-xs font-bold text-ink-3">
+              {isBengali ? 'মোট নিবন্ধিত ইউজার' : 'Total Registered Users'}
+            </span>
             <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Users className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-ink">
-            {stats?.users?.total?.toLocaleString('bn-BD') || '০'}
+            {formatNumber(stats?.users?.total || 0)}
           </div>
           <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
             <UserCheck className="w-3.5 h-3.5" />
-            <span>সক্রিয়: {stats?.users?.active?.toLocaleString('bn-BD') || '০'} জন</span>
+            <span>
+              {isBengali
+                ? `সক্রিয়: ${formatNumber(stats?.users?.active || 0)} জন`
+                : `Active: ${formatNumber(stats?.users?.active || 0)} users`}
+            </span>
           </div>
         </div>
 
@@ -60,16 +68,20 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
             <div className="absolute top-0 right-0 w-2 h-full bg-brand" />
           ) : null}
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-ink-3">বায়োডাটা অনুমোদন মুলতবি</span>
+            <span className="text-xs font-bold text-ink-3">
+              {isBengali ? 'বায়োডাটা অনুমোদন মুলতবি' : 'Pending Biodata Reviews'}
+            </span>
             <div className="w-8 h-8 rounded-lg bg-brand-soft text-brand-ink flex items-center justify-center group-hover:scale-110 transition-transform">
               <FileText className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-brand">
-            {stats?.biodata?.pendingReview?.toLocaleString('bn-BD') || '০'}
+            {formatNumber(stats?.biodata?.pendingReview || 0)}
           </div>
           <div className="flex items-center gap-1 text-[11px] text-brand-ink font-bold">
-            <span>অনুমোদিত: {stats?.biodata?.approved?.toLocaleString('bn-BD') || '০'}</span>
+            <span>
+              {isBengali ? 'অনুমোদিত:' : 'Approved:'} {formatNumber(stats?.biodata?.approved || 0)}
+            </span>
             <ArrowUpRight className="w-3 h-3" />
           </div>
         </div>
@@ -80,16 +92,19 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
           className="mb-card p-4 sm:p-5 space-y-2 cursor-pointer hover:border-amber-500/40 transition-all group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-ink-3">মুলতবি অভিযোগ ও রিপোর্ট</span>
+            <span className="text-xs font-bold text-ink-3">
+              {isBengali ? 'মুলতবি অভিযোগ ও রিপোর্ট' : 'Pending Complaints & Reports'}
+            </span>
             <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-ink">
-            {stats?.reports?.pending?.toLocaleString('bn-BD') || '০'}
+            {formatNumber(stats?.reports?.pending || 0)}
           </div>
           <div className="text-[11px] text-ink-3 font-semibold">
-            নিষ্পত্তি সম্পন্ন: {stats?.reports?.resolved?.toLocaleString('bn-BD') || '০'}
+            {isBengali ? 'নিষ্পত্তি সম্পন্ন:' : 'Resolved:'}{' '}
+            {formatNumber(stats?.reports?.resolved || 0)}
           </div>
         </div>
 
@@ -99,16 +114,19 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
           className="mb-card p-4 sm:p-5 space-y-2 cursor-pointer hover:border-pink-500/40 transition-all group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-ink-3">মোট বৈবাহিক প্রস্তাব</span>
+            <span className="text-xs font-bold text-ink-3">
+              {isBengali ? 'মোট বৈবাহিক প্রস্তাব' : 'Total Interest Requests'}
+            </span>
             <div className="w-8 h-8 rounded-lg bg-pink-500/10 text-pink-600 dark:text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Heart className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl sm:text-3xl font-black text-ink">
-            {stats?.interests?.total?.toLocaleString('bn-BD') || '০'}
+            {formatNumber(stats?.interests?.total || 0)}
           </div>
           <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
-            গৃহীত প্রস্তাব: {stats?.interests?.accepted?.toLocaleString('bn-BD') || '০'}
+            {isBengali ? 'গৃহীত প্রস্তাব:' : 'Accepted Requests:'}{' '}
+            {formatNumber(stats?.interests?.accepted || 0)}
           </div>
         </div>
       </div>
@@ -117,19 +135,31 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-elev p-3 rounded-2xl border border-line text-xs font-semibold text-ink-2">
         <div className="flex items-center gap-2">
           <UserPlus className="w-4 h-4 text-brand" />
-          <span>নতুন (৭ দিন): <strong>{stats?.users?.newLast7Days || 0}</strong></span>
+          <span>
+            {isBengali ? 'নতুন (৭ দিন):' : 'New (7d):'}{' '}
+            <strong>{formatNumber(stats?.users?.newLast7Days || 0)}</strong>
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <Users className="w-4 h-4 text-purple-500" />
-          <span>নতুন (৩০ দিন): <strong>{stats?.users?.newLast30Days || 0}</strong></span>
+          <span>
+            {isBengali ? 'নতুন (৩০ দিন):' : 'New (30d):'}{' '}
+            <strong>{formatNumber(stats?.users?.newLast30Days || 0)}</strong>
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <FileCheck2 className="w-4 h-4 text-emerald-500" />
-          <span>মোট বায়োডাটা: <strong>{stats?.biodata?.total || 0}</strong></span>
+          <span>
+            {isBengali ? 'মোট বায়োডাটা:' : 'Total Biodata:'}{' '}
+            <strong>{formatNumber(stats?.biodata?.total || 0)}</strong>
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <FileX className="w-4 h-4 text-red-500" />
-          <span>স্থগিত ইউজার: <strong>{stats?.users?.suspended || 0}</strong></span>
+          <span>
+            {isBengali ? 'স্থগিত ইউজার:' : 'Suspended Users:'}{' '}
+            <strong>{formatNumber(stats?.users?.suspended || 0)}</strong>
+          </span>
         </div>
       </div>
 
@@ -145,21 +175,30 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
           <div className="flex items-center justify-between border-b border-line pb-3">
             <div className="flex items-center gap-2 text-sm font-black text-ink">
               <History className="w-4 h-4 text-brand" />
-              <span>সাম্প্রতিক প্রশাসনিক কার্যক্রম (Audit Trail)</span>
+              <span>
+                {isBengali
+                  ? 'সাম্প্রতিক প্রশাসনিক কার্যক্রম (Audit Trail)'
+                  : 'Recent Administrative Activity (Audit Trail)'}
+              </span>
             </div>
             <button
               type="button"
               onClick={() => onNavigateTab('audit')}
               className="text-xs font-bold text-brand hover:underline cursor-pointer flex items-center gap-1"
             >
-              <span>সম্পূর্ণ লগ দেখুন</span>
+              <span>{isBengali ? 'সম্পূর্ণ লগ দেখুন' : 'View Full Logs'}</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           <div className="divide-y divide-line">
             {stats.recentActivity.map((log: AuditLogItem) => {
-              const actorName = typeof log.actor === 'object' ? log.actor?.name : 'সিস্টেম অ্যাডমিন';
+              const actorName =
+                typeof log.actor === 'object'
+                  ? log.actor?.name
+                  : isBengali
+                  ? 'সিস্টেম অ্যাডমিন'
+                  : 'System Admin';
               return (
                 <div key={log._id} className="py-2.5 flex items-center justify-between text-xs">
                   <div className="space-y-0.5">
@@ -174,7 +213,7 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
                     )}
                   </div>
                   <div className="text-[11px] text-ink-3 whitespace-nowrap">
-                    {new Date(log.createdAt).toLocaleString('bn-BD', {
+                    {new Date(log.createdAt).toLocaleString(isBengali ? 'bn-BD' : 'en-US', {
                       dateStyle: 'medium',
                       timeStyle: 'short',
                     })}

@@ -11,31 +11,10 @@ import {
 } from "lucide-react";
 import { adminApi } from "../../api/admin.api";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { TANGAIL_UPAZILAS, UPAZILA_DISPLAY_NAMES, TangailUpazila } from "../../constants/locations";
+import { getUpazilaDisplayName } from "../../constants/locations";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 type SeriesKey = "newUsers" | "newBiodata" | "interestsSent";
-
-const SERIES: Array<{ key: SeriesKey; label: string; color: string }> = [
-  { key: "newUsers", label: "নতুন ইউজার", color: "var(--mb-brand)" },
-  { key: "newBiodata", label: "নতুন বায়োডাটা", color: "var(--mb-gold)" },
-  { key: "interestsSent", label: "আগ্রহ", color: "var(--color-emerald-600, #059669)" },
-];
-
-const BIODATA_STATUS_LABELS: Record<string, string> = {
-  draft: "খসড়া",
-  submitted: "জমা দেওয়া",
-  under_review: "পর্যালোচনাধীন",
-  changes_requested: "পরিবর্তন চাওয়া হয়েছে",
-  approved: "অনুমোদিত",
-  rejected: "প্রত্যাখ্যাত",
-};
-
-const INTEREST_STATUS_LABELS: Record<string, string> = {
-  pending: "অপেক্ষমান",
-  accepted: "গৃহীত",
-  declined: "প্রত্যাখ্যাত",
-  withdrawn: "প্রত্যাহার",
-};
 
 const STATUS_COLORS: Record<string, string> = {
   approved: "var(--color-emerald-600, #059669)",
@@ -56,26 +35,27 @@ function niceMax(v: number): number {
   return steps;
 }
 
-const upazilaName = (key: string): string => {
-  if ((TANGAIL_UPAZILAS as readonly string[]).includes(key)) {
-    return UPAZILA_DISPLAY_NAMES[key as TangailUpazila];
-  }
-  return key;
-};
-
-const bnDate = (iso: string): string => {
-  try {
-    return new Date(iso).toLocaleDateString("bn-BD", { day: "numeric", month: "short" });
-  } catch {
-    return iso;
-  }
-};
-
 const ActivityChart: React.FC<{
   daily: Array<{ date: string; newUsers: number; newBiodata: number; interestsSent: number }>;
 }> = ({ daily }) => {
+  const { isBengali, formatNumber } = useLanguage();
   const [series, setSeries] = useState<SeriesKey>("newUsers");
-  const active = SERIES.find((s) => s.key === series) ?? SERIES[0];
+
+  const seriesList: Array<{ key: SeriesKey; label: string; color: string }> = [
+    { key: "newUsers", label: isBengali ? "নতুন ইউজার" : "New Users", color: "var(--mb-brand)" },
+    { key: "newBiodata", label: isBengali ? "নতুন বায়োডাটা" : "New Biodata", color: "var(--mb-gold)" },
+    { key: "interestsSent", label: isBengali ? "আগ্রহ" : "Interests", color: "var(--color-emerald-600, #059669)" },
+  ];
+
+  const active = seriesList.find((s) => s.key === series) ?? seriesList[0];
+
+  const formatDate = (iso: string): string => {
+    try {
+      return new Date(iso).toLocaleDateString(isBengali ? "bn-BD" : "en-US", { day: "numeric", month: "short" });
+    } catch {
+      return iso;
+    }
+  };
 
   const bar = useMemo(() => {
     const W = 720;
@@ -115,7 +95,7 @@ const ActivityChart: React.FC<{
     <div>
       {/* Series toggles */}
       <div className="bg-elev rounded-full p-1 flex gap-1 flex-wrap w-fit max-w-full">
-        {SERIES.map((s) => (
+        {seriesList.map((s) => (
           <button
             key={s.key}
             type="button"
@@ -160,7 +140,7 @@ const ActivityChart: React.FC<{
               fontSize="9"
               fill="var(--mb-ink-3)"
             >
-              {Math.round(bar.yMax * f)}
+              {formatNumber(Math.round(bar.yMax * f))}
             </text>
           ))}
           {/* Tracks + bars */}
@@ -177,7 +157,7 @@ const ActivityChart: React.FC<{
               />
               {b.h > 0 && (
                 <rect x={b.x} y={b.y} width={b.w} height={b.h} fill={active.color} rx="2">
-                  <title>{`${bnDate(b.date)} — ${b.v}`}</title>
+                  <title>{`${formatDate(b.date)} — ${formatNumber(b.v)}`}</title>
                 </rect>
               )}
             </g>
@@ -202,7 +182,7 @@ const ActivityChart: React.FC<{
                 fontSize="9"
                 fill="var(--mb-ink-3)"
               >
-                {bnDate(b.date)}
+                {formatDate(b.date)}
               </text>
             ) : null,
           )}
@@ -217,20 +197,23 @@ const StatusBars: React.FC<{
   items: Array<{ status: string; count: number }>;
   labels: Record<string, string>;
 }> = ({ title, items, labels }) => {
+  const { isBengali, formatNumber } = useLanguage();
   const max = Math.max(...items.map((i) => i.count), 0);
   const total = items.reduce((sum, i) => sum + i.count, 0);
   return (
     <div className="mb-card p-5 space-y-3">
       <h3 className="mb-section-title text-sm">{title}</h3>
       {total === 0 ? (
-        <p className="text-xs text-ink-3">এখনো কোনো তথ্য নেই।</p>
+        <p className="text-xs text-ink-3">
+          {isBengali ? "এখনো কোনো তথ্য নেই।" : "No data available yet."}
+        </p>
       ) : (
         <div className="space-y-2.5">
           {items.map((item) => (
             <div key={item.status} className="space-y-1">
               <div className="flex items-center justify-between text-[11px]">
                 <span className="font-bold text-ink-2">{labels[item.status] ?? item.status}</span>
-                <span className="font-black text-ink">{item.count}</span>
+                <span className="font-black text-ink">{formatNumber(item.count)}</span>
               </div>
               <div className="h-2 rounded-full bg-elev border border-line overflow-hidden">
                 <div
@@ -250,7 +233,8 @@ const StatusBars: React.FC<{
   );
 };
 
-const AdminAnalytics: React.FC = () => {
+export const AdminAnalytics: React.FC = () => {
+  const { isBengali, formatNumber } = useLanguage();
   const { data: analyticsData, isLoading, isError } = useQuery({
     queryKey: ["admin-analytics"],
     queryFn: () => adminApi.getAnalytics(),
@@ -258,10 +242,26 @@ const AdminAnalytics: React.FC = () => {
 
   const analytics = analyticsData?.data?.analytics;
 
+  const biodataStatusLabels: Record<string, string> = {
+    draft: isBengali ? "খসড়া" : "Draft",
+    submitted: isBengali ? "জমা দেওয়া" : "Submitted",
+    under_review: isBengali ? "পর্যালোচনাধীন" : "Under Review",
+    changes_requested: isBengali ? "পরিবর্তন চাওয়া হয়েছে" : "Changes Requested",
+    approved: isBengali ? "অনুমোদিত" : "Approved",
+    rejected: isBengali ? "প্রত্যাখ্যাত" : "Rejected",
+  };
+
+  const interestStatusLabels: Record<string, string> = {
+    pending: isBengali ? "অপেক্ষমান" : "Pending",
+    accepted: isBengali ? "গৃহীত" : "Accepted",
+    declined: isBengali ? "প্রত্যাখ্যাত" : "Declined",
+    withdrawn: isBengali ? "প্রত্যাহার" : "Withdrawn",
+  };
+
   if (isLoading) {
     return (
       <div className="py-16 flex justify-center">
-        <LoadingSpinner size="lg" label="বিশ্লেষণ লোড হচ্ছে..." />
+        <LoadingSpinner size="lg" label={isBengali ? "বিশ্লেষণ লোড হচ্ছে..." : "Loading analytics..."} />
       </div>
     );
   }
@@ -269,7 +269,9 @@ const AdminAnalytics: React.FC = () => {
   if (isError || !analytics) {
     return (
       <div className="mb-card py-16 text-center text-xs text-ink-3">
-        বিশ্লেষণ ডেটা লোড করা যায়নি। পরে আবার চেষ্টা করুন।
+        {isBengali
+          ? "বিশ্লেষণ ডেটা লোড করা যায়নি। পরে আবার চেষ্টা করুন।"
+          : "Could not load analytics data. Please try again later."}
       </div>
     );
   }
@@ -283,26 +285,26 @@ const AdminAnalytics: React.FC = () => {
 
   const kpis = [
     {
-      label: "মোট বায়োডাটা",
-      value: analytics.totals.biodata,
+      label: isBengali ? "মোট বায়োডাটা" : "Total Biodata",
+      value: formatNumber(analytics.totals.biodata),
       icon: FileText,
       chip: "bg-brand-soft border-brand/25 text-brand",
     },
     {
-      label: "অনুমোদিত",
-      value: approvedCount,
+      label: isBengali ? "অনুমোদিত" : "Approved",
+      value: formatNumber(approvedCount),
       icon: CheckCircle,
       chip: "bg-gold-soft border-gold/25 text-gold",
     },
     {
-      label: "অপেক্ষমান",
-      value: pendingReviewCount,
+      label: isBengali ? "অপেক্ষমান" : "Pending Review",
+      value: formatNumber(pendingReviewCount),
       icon: Clock,
       chip: "bg-gold-soft border-gold/25 text-gold",
     },
     {
-      label: "মোট আয়",
-      value: `৳${analytics.revenue.totalPaid}`,
+      label: isBengali ? "মোট আয়" : "Total Revenue",
+      value: `৳${formatNumber(analytics.revenue.totalPaid)}`,
       icon: Coins,
       chip: "bg-brand-soft border-brand/25 text-brand",
     },
@@ -334,7 +336,9 @@ const AdminAnalytics: React.FC = () => {
       <div className="mb-card p-5">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="w-4 h-4 text-brand" />
-          <h3 className="mb-section-title text-sm">শেষ ৩০ দিনের কার্যক্রম</h3>
+          <h3 className="mb-section-title text-sm">
+            {isBengali ? "শেষ ৩০ দিনের কার্যক্রম" : "Last 30 Days Activity"}
+          </h3>
         </div>
         <ActivityChart daily={analytics.daily} />
       </div>
@@ -342,14 +346,14 @@ const AdminAnalytics: React.FC = () => {
       {/* Status breakdowns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <StatusBars
-          title="বায়োডাটা অনুমোদনের অবস্থা"
+          title={isBengali ? "বায়োডাটা অনুমোদনের অবস্থা" : "Biodata Review Status"}
           items={analytics.biodataByStatus}
-          labels={BIODATA_STATUS_LABELS}
+          labels={biodataStatusLabels}
         />
         <StatusBars
-          title="আগ্রহের অবস্থা"
+          title={isBengali ? "আগ্রহের অবস্থা" : "Interest Requests Status"}
           items={analytics.interestsByStatus}
-          labels={INTEREST_STATUS_LABELS}
+          labels={interestStatusLabels}
         />
       </div>
 
@@ -357,10 +361,14 @@ const AdminAnalytics: React.FC = () => {
       <div className="mb-card p-5 space-y-3">
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-brand" />
-          <h3 className="mb-section-title text-sm">উপজেলা অনুযায়ী বায়োডাটা</h3>
+          <h3 className="mb-section-title text-sm">
+            {isBengali ? "উপজেলা অনুযায়ী বায়োডাটা" : "Biodata by Upazila"}
+          </h3>
         </div>
         {analytics.topDistricts.length === 0 ? (
-          <p className="text-xs text-ink-3">এখনো কোনো তথ্য নেই।</p>
+          <p className="text-xs text-ink-3">
+            {isBengali ? "এখনো কোনো তথ্য নেই।" : "No data available yet."}
+          </p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {analytics.topDistricts.map((d) => (
@@ -369,8 +377,8 @@ const AdminAnalytics: React.FC = () => {
                 className="mb-badge flex items-center gap-1.5"
               >
                 <BarChart3 className="w-3 h-3 text-brand" />
-                {upazilaName(d.name)}
-                <span className="font-black text-ink">{d.count}</span>
+                {getUpazilaDisplayName(d.name, isBengali)}
+                <span className="font-black text-ink">{formatNumber(d.count)}</span>
               </span>
             ))}
           </div>

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Search,
-  Filter,
   Eye,
   ShieldAlert,
   UserCheck,
@@ -11,16 +10,13 @@ import {
   AlertCircle,
   FileText,
   MapPin,
-  Calendar,
-  Phone,
-  Mail,
-  History,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
 import { User, UserRole, AccountStatus } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
-import { TANGAIL_UPAZILAS, UPAZILA_DISPLAY_NAMES } from '../../../constants/locations';
+import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../../../constants/locations';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 interface AdminUsersTabProps {
   currentUserRole?: UserRole;
@@ -32,6 +28,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
   currentUserId,
 }) => {
   const queryClient = useQueryClient();
+  const { isBengali, formatNumber } = useLanguage();
 
   const isSuperAdmin = currentUserRole === UserRole.SUPER_ADMIN;
 
@@ -75,14 +72,14 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
     mutationFn: ({ userId, status, reason }: { userId: string; status: AccountStatus; reason: string }) =>
       adminApi.updateUserStatus(userId, { status, reason }),
     onSuccess: () => {
-      toast.success('ইউজারের স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে।');
+      toast.success(isBengali ? 'ইউজারের স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে।' : 'User status updated successfully.');
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       setStatusModalUser(null);
       setStatusReason('');
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'স্ট্যাটাস আপডেট করা যায়নি।');
+      toast.error(err.response?.data?.message || (isBengali ? 'স্ট্যাটাস আপডেট করা যায়নি।' : 'Could not update status.'));
     },
   });
 
@@ -91,11 +88,11 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
     mutationFn: ({ userId, role, reason }: { userId: string; role: UserRole; reason?: string }) =>
       adminApi.updateUserRole(userId, { role, reason }),
     onSuccess: () => {
-      toast.success('ইউজারের ভূমিকা সফলভাবে পরিবর্তন হয়েছে।');
+      toast.success(isBengali ? 'ইউজারের ভূমিকা সফলভাবে পরিবর্তন হয়েছে।' : 'User role updated successfully.');
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'ভূমিকা পরিবর্তন করা যায়নি।');
+      toast.error(err.response?.data?.message || (isBengali ? 'ভূমিকা পরিবর্তন করা যায়নি।' : 'Could not update role.'));
     },
   });
 
@@ -114,7 +111,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
     statusMutation.mutate({
       userId: statusModalUser.id || statusModalUser._id || '',
       status: targetStatus,
-      reason: statusReason.trim() || 'প্রশাসনিক সিদ্ধান্ত',
+      reason: statusReason.trim() || (isBengali ? 'প্রশাসনিক সিদ্ধান্ত' : 'Administrative decision'),
     });
   };
 
@@ -124,14 +121,18 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
       <div className="mb-card p-4 sm:p-5 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-line pb-3">
           <div>
-            <h2 className="text-base sm:text-lg font-black text-ink">ইউজার ব্যবস্থাপনা</h2>
+            <h2 className="text-base sm:text-lg font-black text-ink">
+              {isBengali ? 'ইউজার ব্যবস্থাপনা' : 'User Management'}
+            </h2>
             <p className="text-xs text-ink-3">
-              নিবন্ধিত ব্যবহারকারীদের প্রোফাইল নিরীক্ষা, স্ট্যাটাস পরিবর্তন এবং অ্যাক্টিভিটি পর্যবেক্ষণ
+              {isBengali
+                ? 'নিবন্ধিত ব্যবহারকারীদের প্রোফাইল নিরীক্ষা, স্ট্যাটাস পরিবর্তন এবং অ্যাক্টিভিটি পর্যবেক্ষণ'
+                : 'Monitor registered user profiles, manage statuses, and oversee platform activity'}
             </p>
           </div>
           {meta?.total !== undefined && (
             <span className="text-xs font-bold text-ink-2 bg-elev px-3 py-1 rounded-full border border-line">
-              মোট: {meta.total.toLocaleString('bn-BD')} জন
+              {isBengali ? `মোট: ${formatNumber(meta.total)} জন` : `Total: ${formatNumber(meta.total)} users`}
             </span>
           )}
         </div>
@@ -148,7 +149,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              placeholder="নাম, ইমেইল বা ফোন খুঁজুন..."
+              placeholder={isBengali ? 'নাম, ইমেইল বা ফোন খুঁজুন...' : 'Search name, email, or phone...'}
               className="mb-input pl-9 text-xs"
             />
           </div>
@@ -162,11 +163,11 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
             }}
             className="mb-input text-xs"
           >
-            <option value="">সকল ভূমিকা (All Roles)</option>
-            <option value="customer">কাস্টমার (Customer)</option>
-            <option value="moderator">মডারেটর (Moderator)</option>
-            <option value="admin">অ্যাডমিন (Admin)</option>
-            <option value="super_admin">সুপার অ্যাডমিন (Super Admin)</option>
+            <option value="">{isBengali ? 'সকল ভূমিকা (All Roles)' : 'All Roles'}</option>
+            <option value="customer">{isBengali ? 'কাস্টমার (Customer)' : 'Customer'}</option>
+            <option value="moderator">{isBengali ? 'মডারেটর (Moderator)' : 'Moderator'}</option>
+            <option value="admin">{isBengali ? 'অ্যাডমিন (Admin)' : 'Admin'}</option>
+            <option value="super_admin">{isBengali ? 'সুপার অ্যাডমিন (Super Admin)' : 'Super Admin'}</option>
           </select>
 
           {/* Status Filter */}
@@ -178,11 +179,11 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
             }}
             className="mb-input text-xs"
           >
-            <option value="">সকল স্ট্যাটাস (All Status)</option>
-            <option value="active">সক্রিয় (Active)</option>
-            <option value="pending">অপেক্ষমাণ (Pending)</option>
-            <option value="suspended">স্থগিত (Suspended)</option>
-            <option value="banned">নিষিদ্ধ (Banned)</option>
+            <option value="">{isBengali ? 'সকল স্ট্যাটাস (All Status)' : 'All Statuses'}</option>
+            <option value="active">{isBengali ? 'সক্রিয় (Active)' : 'Active'}</option>
+            <option value="pending">{isBengali ? 'অপেক্ষমাণ (Pending)' : 'Pending'}</option>
+            <option value="suspended">{isBengali ? 'স্থগিত (Suspended)' : 'Suspended'}</option>
+            <option value="banned">{isBengali ? 'নিষিদ্ধ (Banned)' : 'Banned'}</option>
           </select>
 
           {/* Upazila Filter */}
@@ -194,10 +195,10 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
             }}
             className="mb-input text-xs"
           >
-            <option value="">সকল উপজেলা (All Upazilas)</option>
+            <option value="">{isBengali ? 'সকল উপজেলা (All Upazilas)' : 'All Upazilas'}</option>
             {TANGAIL_UPAZILAS.map((up) => (
               <option key={up} value={up}>
-                {UPAZILA_DISPLAY_NAMES[up]}
+                {getUpazilaDisplayName(up, isBengali)}
               </option>
             ))}
           </select>
@@ -208,25 +209,25 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
       <div className="mb-card overflow-hidden">
         {isLoading ? (
           <div className="py-20 flex justify-center">
-            <LoadingSpinner size="lg" label="ইউজার তালিকা লোড হচ্ছে..." />
+            <LoadingSpinner size="lg" label={isBengali ? 'ইউজার তালিকা লোড হচ্ছে...' : 'Loading user list...'} />
           </div>
         ) : usersList.length === 0 ? (
           <div className="py-16 text-center text-ink-3 space-y-2">
             <UserX className="w-10 h-10 mx-auto text-ink-3/40" />
-            <p className="text-sm font-bold">কোনো ইউজার পাওয়া যায়নি</p>
-            <p className="text-xs">ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন।</p>
+            <p className="text-sm font-bold">{isBengali ? 'কোনো ইউজার পাওয়া যায়নি' : 'No users found'}</p>
+            <p className="text-xs">{isBengali ? 'ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন।' : 'Try adjusting your filters.'}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-elev/80 text-ink-3 font-bold border-b border-line uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-4">ব্যবহারকারী</th>
-                  <th className="py-3 px-4">যোগাযোগ</th>
-                  <th className="py-3 px-4">ভূমিকা (Role)</th>
-                  <th className="py-3 px-4">স্ট্যাটাস</th>
-                  <th className="py-3 px-4">নিবন্ধনের তারিখ</th>
-                  <th className="py-3 px-4 text-right">পদক্ষেপ</th>
+                  <th className="py-3 px-4">{isBengali ? 'ব্যবহারকারী' : 'User'}</th>
+                  <th className="py-3 px-4">{isBengali ? 'যোগাযোগ' : 'Contact'}</th>
+                  <th className="py-3 px-4">{isBengali ? 'ভূমিকা (Role)' : 'Role'}</th>
+                  <th className="py-3 px-4">{isBengali ? 'স্ট্যাটাস' : 'Status'}</th>
+                  <th className="py-3 px-4">{isBengali ? 'নিবন্ধনের তারিখ' : 'Registered At'}</th>
+                  <th className="py-3 px-4 text-right">{isBengali ? 'পদক্ষেপ' : 'Actions'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -243,7 +244,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                           <span>{u.name}</span>
                           {isSelf && (
                             <span className="text-[10px] font-black text-brand bg-brand-soft px-1.5 py-0.2 rounded-sm">
-                              আপনি
+                              {isBengali ? 'আপনি' : 'You'}
                             </span>
                           )}
                         </div>
@@ -268,16 +269,19 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                             disabled={roleMutation.isPending}
                             onChange={(e) => {
                               const nextRole = e.target.value as UserRole;
-                              if (window.confirm(`আপনি কি নিশ্চিতভাবে ${u.name}-এর ভূমিকা ${nextRole}-এ পরিবর্তন করতে চান?`)) {
+                              const confirmMsg = isBengali
+                                ? `আপনি কি নিশ্চিতভাবে ${u.name}-এর ভূমিকা ${nextRole}-এ পরিবর্তন করতে চান?`
+                                : `Are you sure you want to change ${u.name}'s role to ${nextRole}?`;
+                              if (window.confirm(confirmMsg)) {
                                 roleMutation.mutate({ userId: uid, role: nextRole });
                               }
                             }}
                             className="mb-input !text-[11px] font-bold !py-1 !px-2 !rounded-lg border-line bg-elev text-ink cursor-pointer"
                           >
-                            <option value="customer">কাস্টমার</option>
-                            <option value="moderator">মডারেটর</option>
-                            <option value="admin">অ্যাডমিন</option>
-                            <option value="super_admin">সুপার অ্যাডমিন</option>
+                            <option value="customer">{isBengali ? 'কাস্টমার' : 'Customer'}</option>
+                            <option value="moderator">{isBengali ? 'মডারেটর' : 'Moderator'}</option>
+                            <option value="admin">{isBengali ? 'অ্যাডমিন' : 'Admin'}</option>
+                            <option value="super_admin">{isBengali ? 'সুপার অ্যাডমিন' : 'Super Admin'}</option>
                           </select>
                         ) : (
                           <span
@@ -312,13 +316,13 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                           {u.accountStatus === AccountStatus.ACTIVE && <UserCheck className="w-3 h-3" />}
                           {u.accountStatus === AccountStatus.SUSPENDED && <AlertCircle className="w-3 h-3" />}
                           {u.accountStatus === AccountStatus.BANNED && <UserX className="w-3 h-3" />}
-                          <span>{u.accountStatus}</span>
+                          <span className="capitalize">{u.accountStatus}</span>
                         </span>
                       </td>
 
                       {/* Registration Date */}
                       <td className="py-3 px-4 text-ink-3 text-[11px]">
-                        {u.createdAt ? new Date(u.createdAt).toLocaleDateString('bn-BD') : '—'}
+                        {u.createdAt ? new Date(u.createdAt).toLocaleDateString(isBengali ? 'bn-BD' : 'en-US') : '—'}
                       </td>
 
                       {/* Actions */}
@@ -327,10 +331,10 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                           type="button"
                           onClick={() => setDetailUserId(uid)}
                           className="px-2 py-1 text-[11px] font-bold rounded-lg border border-line bg-elev hover:bg-brand-soft hover:text-brand-ink text-ink-2 cursor-pointer transition-colors"
-                          title="বিস্তারিত তথ্য"
+                          title={isBengali ? 'বিস্তারিত তথ্য' : 'View Details'}
                         >
                           <Eye className="w-3.5 h-3.5 inline mr-1" />
-                          <span>ডিটেইল</span>
+                          <span>{isBengali ? 'ডিটেইল' : 'Details'}</span>
                         </button>
 
                         {!isSelf && (!isUserSuperAdmin || isSuperAdmin) && (
@@ -341,7 +345,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                                 onClick={() => handleOpenStatusModal(u, AccountStatus.SUSPENDED)}
                                 className="px-2 py-1 text-[11px] font-bold rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 cursor-pointer transition-colors"
                               >
-                                স্থগিত
+                                {isBengali ? 'স্থগিত' : 'Suspend'}
                               </button>
                             ) : (
                               <button
@@ -349,7 +353,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                                 onClick={() => handleOpenStatusModal(u, AccountStatus.ACTIVE)}
                                 className="px-2 py-1 text-[11px] font-bold rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 cursor-pointer transition-colors"
                               >
-                                সক্রিয়
+                                {isBengali ? 'সক্রিয়' : 'Activate'}
                               </button>
                             )}
                           </>
@@ -367,7 +371,9 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
         {meta && meta.totalPages > 1 && (
           <div className="flex items-center justify-between p-4 border-t border-line text-xs">
             <span className="text-ink-3">
-              পৃষ্ঠা {meta.page} / {meta.totalPages} (মোট {meta.total} জন)
+              {isBengali
+                ? `পৃষ্ঠা ${formatNumber(meta.page)} / ${formatNumber(meta.totalPages)} (মোট ${formatNumber(meta.total)} জন)`
+                : `Page ${formatNumber(meta.page)} of ${formatNumber(meta.totalPages)} (Total: ${formatNumber(meta.total)})`}
             </span>
             <div className="flex items-center gap-2">
               <button
@@ -376,7 +382,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 className="px-3 py-1.5 rounded-lg border border-line bg-elev hover:bg-card disabled:opacity-40 cursor-pointer font-bold text-ink"
               >
-                পূর্ববর্তী
+                {isBengali ? 'পূর্ববর্তী' : 'Previous'}
               </button>
               <button
                 type="button"
@@ -384,7 +390,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                 onClick={() => setPage((p) => p + 1)}
                 className="px-3 py-1.5 rounded-lg border border-line bg-elev hover:bg-card disabled:opacity-40 cursor-pointer font-bold text-ink"
               >
-                পরবর্তী
+                {isBengali ? 'পরবর্তী' : 'Next'}
               </button>
             </div>
           </div>
@@ -398,7 +404,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
             <div className="flex items-center justify-between border-b border-line pb-3">
               <h3 className="text-base font-black text-ink flex items-center gap-2">
                 <ShieldAlert className="w-5 h-5 text-amber-500" />
-                <span>ইউজার স্ট্যাটাস পরিবর্তন</span>
+                <span>{isBengali ? 'ইউজার স্ট্যাটাস পরিবর্তন' : 'Change User Account Status'}</span>
               </h3>
               <button
                 type="button"
@@ -410,21 +416,31 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
             </div>
 
             <p className="text-xs text-ink-2 leading-relaxed">
-              আপনি <strong>{statusModalUser.name}</strong> ({statusModalUser.email})-এর অ্যাকাউন্ট স্ট্যাটাস{' '}
-              <strong className="text-brand uppercase">{targetStatus}</strong> এ রূপান্তর করতে যাচ্ছেন।
+              {isBengali ? (
+                <>
+                  আপনি <strong>{statusModalUser.name}</strong> ({statusModalUser.email})-এর অ্যাকাউন্ট স্ট্যাটাস{' '}
+                  <strong className="text-brand uppercase">{targetStatus}</strong> এ রূপান্তর করতে যাচ্ছেন।
+                </>
+              ) : (
+                <>
+                  You are about to change the account status of{' '}
+                  <strong>{statusModalUser.name}</strong> ({statusModalUser.email}) to{' '}
+                  <strong className="text-brand uppercase">{targetStatus}</strong>.
+                </>
+              )}
             </p>
 
             <form onSubmit={handleConfirmStatusChange} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-ink mb-1">
-                  সিদ্ধান্তের কারণ (বাধ্যতামূলক):
+                  {isBengali ? 'সিদ্ধান্তের কারণ (বাধ্যতামূলক):' : 'Reason for Decision (Required):'}
                 </label>
                 <textarea
                   required
                   rows={3}
                   value={statusReason}
                   onChange={(e) => setStatusReason(e.target.value)}
-                  placeholder="যেমন: অনুপযুক্ত আচরণ, ভেরিফিকেশন সমস্যা বা অনুরোধ অনুযায়ী..."
+                  placeholder={isBengali ? 'যেমন: অনুপযুক্ত আচরণ, ভেরিফিকেশন সমস্যা বা অনুরোধ অনুযায়ী...' : 'e.g. Inappropriate conduct, verification failure, requested...'}
                   className="mb-input text-xs"
                 />
               </div>
@@ -435,14 +451,14 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                   onClick={() => setStatusModalUser(null)}
                   className="px-4 py-2 text-xs font-bold rounded-xl border border-line hover:bg-elev cursor-pointer text-ink-2"
                 >
-                  বাতিল
+                  {isBengali ? 'বাতিল' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={statusMutation.isPending || !statusReason.trim()}
                   className="px-4 py-2 text-xs font-bold rounded-xl bg-brand text-white hover:bg-brand-strong disabled:opacity-50 cursor-pointer shadow-md shadow-brand/20"
                 >
-                  {statusMutation.isPending ? 'সংরক্ষণ হচ্ছে...' : 'নিশ্চিত করুন'}
+                  {statusMutation.isPending ? (isBengali ? 'সংরক্ষণ হচ্ছে...' : 'Saving...') : (isBengali ? 'নিশ্চিত করুন' : 'Confirm')}
                 </button>
               </div>
             </form>
@@ -457,7 +473,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
             <div className="flex items-center justify-between border-b border-line pb-3">
               <h3 className="text-base font-black text-ink flex items-center gap-2">
                 <FileText className="w-5 h-5 text-brand" />
-                <span>ব্যবহারকারীর বিস্তারিত রেকর্ড</span>
+                <span>{isBengali ? 'ব্যবহারকারীর বিস্তারিত রেকর্ড' : 'User Detailed Profile & Activity'}</span>
               </h3>
               <button
                 type="button"
@@ -470,35 +486,35 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
 
             {isDetailLoading ? (
               <div className="py-12 flex justify-center">
-                <LoadingSpinner size="md" label="রেকর্ড লোড হচ্ছে..." />
+                <LoadingSpinner size="md" label={isBengali ? 'রেকর্ড লোড হচ্ছে...' : 'Loading records...'} />
               </div>
             ) : detailData?.data ? (
               <div className="space-y-5 text-xs">
                 {/* Basic User Info */}
                 <div className="grid sm:grid-cols-2 gap-3 bg-elev p-4 rounded-xl border border-line">
                   <div>
-                    <span className="text-ink-3">নাম:</span>{' '}
+                    <span className="text-ink-3">{isBengali ? 'নাম:' : 'Name:'}</span>{' '}
                     <strong className="text-ink">{detailData.data.user.name}</strong>
                   </div>
                   <div>
-                    <span className="text-ink-3">ইমেইল:</span>{' '}
+                    <span className="text-ink-3">{isBengali ? 'ইমেইল:' : 'Email:'}</span>{' '}
                     <strong className="text-ink font-mono">{detailData.data.user.email}</strong>
                   </div>
                   <div>
-                    <span className="text-ink-3">ফোন:</span>{' '}
+                    <span className="text-ink-3">{isBengali ? 'ফোন:' : 'Phone:'}</span>{' '}
                     <strong className="text-ink font-mono">{detailData.data.user.phone || '—'}</strong>
                   </div>
                   <div>
-                    <span className="text-ink-3">ভূমিকা:</span>{' '}
+                    <span className="text-ink-3">{isBengali ? 'ভূমিকা:' : 'Role:'}</span>{' '}
                     <span className="font-bold text-brand uppercase">{detailData.data.user.role}</span>
                   </div>
                   <div>
-                    <span className="text-ink-3">স্ট্যাটাস:</span>{' '}
-                    <strong className="text-ink">{detailData.data.user.accountStatus}</strong>
+                    <span className="text-ink-3">{isBengali ? 'স্ট্যাটাস:' : 'Status:'}</span>{' '}
+                    <strong className="text-ink capitalize">{detailData.data.user.accountStatus}</strong>
                   </div>
                   <div>
-                    <span className="text-ink-3">কন্টাক্ট ক্রেডিট:</span>{' '}
-                    <strong className="text-ink">{detailData.data.user.contactCredits || 0}</strong>
+                    <span className="text-ink-3">{isBengali ? 'কন্টাক্ট ক্রেডিট:' : 'Contact Credits:'}</span>{' '}
+                    <strong className="text-ink">{formatNumber(detailData.data.user.contactCredits || 0)}</strong>
                   </div>
                 </div>
 
@@ -507,18 +523,35 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                   <div className="space-y-2 border border-line rounded-xl p-4">
                     <h4 className="font-bold text-ink flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-brand" />
-                      <span>সংযুক্ত বৈবাহিক প্রোফাইল</span>
+                      <span>{isBengali ? 'সংযুক্ত বৈবাহিক প্রোফাইল' : 'Linked Matrimonial Biodata'}</span>
                     </h4>
                     <div className="grid sm:grid-cols-2 gap-2 text-ink-2">
-                      <div>উপজেলা: {UPAZILA_DISPLAY_NAMES[detailData.data.profile.upazila as keyof typeof UPAZILA_DISPLAY_NAMES] || detailData.data.profile.upazila}</div>
-                      <div>লিঙ্গ: {detailData.data.profile.gender === 'male' ? 'পাত্র' : 'পাত্রী'}</div>
-                      <div>পেশা: {detailData.data.profile.occupation || '—'}</div>
-                      <div>শিক্ষাগত যোগ্যতা: {detailData.data.profile.education || '—'}</div>
-                      <div>অনুমোদনের অবস্থা: {detailData.data.profile.isApproved ? 'অনুমোদিত' : 'অনুমোদনহীন'}</div>
+                      <div>
+                        {isBengali ? 'উপজেলা: ' : 'Upazila: '}
+                        {getUpazilaDisplayName(detailData.data.profile.upazila, isBengali)}
+                      </div>
+                      <div>
+                        {isBengali ? 'লিঙ্গ: ' : 'Gender: '}
+                        {detailData.data.profile.gender === 'male' ? (isBengali ? 'পাত্র' : 'Male') : (isBengali ? 'পাত্রী' : 'Female')}
+                      </div>
+                      <div>
+                        {isBengali ? 'পেশা: ' : 'Occupation: '}
+                        {detailData.data.profile.occupation || '—'}
+                      </div>
+                      <div>
+                        {isBengali ? 'শিক্ষাগত যোগ্যতা: ' : 'Education: '}
+                        {detailData.data.profile.education || '—'}
+                      </div>
+                      <div>
+                        {isBengali ? 'অনুমোদনের অবস্থা: ' : 'Approval Status: '}
+                        {detailData.data.profile.isApproved
+                          ? (isBengali ? 'অনুমোদিত' : 'Approved')
+                          : (isBengali ? 'অনুমোদনহীন' : 'Unapproved')}
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-ink-3 italic">কোনো বায়োডাটা প্রোফাইল তৈরি করা নেই।</p>
+                  <p className="text-ink-3 italic">{isBengali ? 'কোনো বায়োডাটা প্রোফাইল তৈরি করা নেই।' : 'No matrimonial biodata created yet.'}</p>
                 )}
 
                 {/* Reports against user */}
@@ -526,12 +559,18 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                   <div className="space-y-2 border border-red-500/20 bg-red-500/5 rounded-xl p-4">
                     <h4 className="font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
                       <AlertCircle className="w-4 h-4" />
-                      <span>এই ব্যবহারকারীর বিরুদ্ধে অভিযোগ ({detailData.data.reportsReceived.length} টি)</span>
+                      <span>
+                        {isBengali
+                          ? `এই ব্যবহারকারীর বিরুদ্ধে অভিযোগ (${formatNumber(detailData.data.reportsReceived.length)} টি)`
+                          : `Reports against this user (${formatNumber(detailData.data.reportsReceived.length)})`}
+                      </span>
                     </h4>
                     <div className="divide-y divide-red-500/10">
                       {detailData.data.reportsReceived.map((rep: any) => (
                         <div key={rep._id} className="py-2">
-                          <div className="font-bold text-ink">কারণ: {rep.reason} (স্ট্যাটাস: {rep.status})</div>
+                          <div className="font-bold text-ink">
+                            {isBengali ? 'কারণ: ' : 'Reason: '}{rep.reason} ({isBengali ? 'স্ট্যাটাস: ' : 'Status: '}{rep.status})
+                          </div>
                           <div className="text-ink-3 text-[11px]">{rep.description}</div>
                         </div>
                       ))}

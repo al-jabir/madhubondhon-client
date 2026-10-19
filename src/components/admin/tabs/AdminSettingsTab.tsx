@@ -4,9 +4,6 @@ import {
   Settings,
   Save,
   Globe,
-  Phone,
-  MessageCircle,
-  Mail,
   Shield,
   AlertTriangle,
   ToggleLeft,
@@ -15,11 +12,12 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
-import { PlatformSettings } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 export const AdminSettingsTab: React.FC = () => {
   const queryClient = useQueryClient();
+  const { isBengali } = useLanguage();
 
   const [siteName, setSiteName] = useState('');
   const [siteTagline, setSiteTagline] = useState('');
@@ -42,8 +40,11 @@ export const AdminSettingsTab: React.FC = () => {
 
   useEffect(() => {
     if (settings) {
-      setSiteName(settings.siteName || 'মধুবন্ধন');
-      setSiteTagline(settings.siteTagline || 'টাঙ্গাইল জেলার বিশ্বস্ত বৈবাহিক প্ল্যাটফর্ম');
+      setSiteName(settings.siteName || (isBengali ? 'মধুবন্ধন' : 'MadhuBondhon'));
+      setSiteTagline(
+        settings.siteTagline ||
+          (isBengali ? 'টাঙ্গাইল জেলার বিশ্বস্ত বৈবাহিক প্ল্যাটফর্ম' : 'Tangail Matrimonial Platform')
+      );
       setContactEmail(settings.contactEmail || 'support@madhubondhon.com');
       setContactPhone(settings.contactPhone || '+8801711000000');
       setSupportWhatsApp(settings.supportWhatsApp || '+8801711000000');
@@ -53,7 +54,7 @@ export const AdminSettingsTab: React.FC = () => {
       setShowDemoProfiles(settings.showDemoProfiles !== false);
       setContactCreditCost(settings.contactCreditCost || 100);
     }
-  }, [settings]);
+  }, [settings, isBengali]);
 
   // Update Mutation
   const updateMutation = useMutation({
@@ -71,12 +72,12 @@ export const AdminSettingsTab: React.FC = () => {
         contactCreditCost,
       }),
     onSuccess: () => {
-      toast.success('প্ল্যাটফর্ম সেটিংস সফলভাবে সংরক্ষিত হয়েছে।');
+      toast.success(isBengali ? 'প্ল্যাটফর্ম সেটিংস সফলভাবে সংরক্ষিত হয়েছে।' : 'Platform settings saved successfully.');
       queryClient.invalidateQueries({ queryKey: ['admin-platform-settings'] });
       queryClient.invalidateQueries({ queryKey: ['public-settings'] });
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'সেটিংস সংরক্ষণ ব্যর্থ হয়েছে।');
+      toast.error(err.response?.data?.message || (isBengali ? 'সেটিংস সংরক্ষণ ব্যর্থ হয়েছে।' : 'Failed to save settings.'));
     },
   });
 
@@ -87,10 +88,12 @@ export const AdminSettingsTab: React.FC = () => {
         <div>
           <h2 className="text-base sm:text-lg font-black text-ink flex items-center gap-2">
             <Settings className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            <span>সিস্টেম ও প্ল্যাটফর্ম সেটিংস (Platform Configuration)</span>
+            <span>{isBengali ? 'সিস্টেম ও প্ল্যাটফর্ম সেটিংস (Platform Configuration)' : 'System & Platform Settings'}</span>
           </h2>
           <p className="text-xs text-ink-3">
-            শুধুমাত্র সুপার অ্যাডমিনের জন্য: ওয়েবসাইটের সাধারণ তথ্য, রেজিস্ট্রেশন কন্ট্রোল ও নিরাপত্তা নিয়মাবলী
+            {isBengali
+              ? 'শুধুমাত্র সুপার অ্যাডমিনের জন্য: ওয়েবসাইটের সাধারণ তথ্য, রেজিস্ট্রেশন কন্ট্রোল ও নিরাপত্তা নিয়মাবলী'
+              : 'Super Admin Only: Site information, registration control, and platform operations'}
           </p>
         </div>
 
@@ -101,13 +104,17 @@ export const AdminSettingsTab: React.FC = () => {
           className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 cursor-pointer shadow-md shadow-purple-600/20 transition-all"
         >
           <Save className="w-4 h-4" />
-          <span>{updateMutation.isPending ? 'সংরক্ষণ হচ্ছে...' : 'সেটিংস সংরক্ষণ করুন'}</span>
+          <span>
+            {updateMutation.isPending
+              ? (isBengali ? 'সংরক্ষণ হচ্ছে...' : 'Saving...')
+              : (isBengali ? 'সেটিংস সংরক্ষণ করুন' : 'Save Settings')}
+          </span>
         </button>
       </div>
 
       {isLoading ? (
         <div className="py-20 flex justify-center mb-card">
-          <LoadingSpinner size="lg" label="সেটিংস লোড হচ্ছে..." />
+          <LoadingSpinner size="lg" label={isBengali ? 'সেটিংস লোড হচ্ছে...' : 'Loading settings...'} />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -115,12 +122,14 @@ export const AdminSettingsTab: React.FC = () => {
           <div className="mb-card p-5 space-y-4">
             <h3 className="font-bold text-sm text-ink flex items-center gap-2 border-b border-line pb-2">
               <Globe className="w-4 h-4 text-brand" />
-              <span>ওয়েবসাইট পরিচিতি ও ব্র্যান্ডিং</span>
+              <span>{isBengali ? 'ওয়েবসাইট পরিচিতি ও ব্র্যান্ডিং' : 'Website Info & Branding'}</span>
             </h3>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-bold text-ink mb-1">ওয়েবসাইটের নাম (Site Name):</label>
+                <label className="block font-bold text-ink mb-1">
+                  {isBengali ? 'ওয়েবসাইটের নাম (Site Name):' : 'Site Name:'}
+                </label>
                 <input
                   type="text"
                   value={siteName}
@@ -130,7 +139,9 @@ export const AdminSettingsTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-bold text-ink mb-1">ট্যাগলাইন (Tagline):</label>
+                <label className="block font-bold text-ink mb-1">
+                  {isBengali ? 'ট্যাগলাইন (Tagline):' : 'Tagline:'}
+                </label>
                 <input
                   type="text"
                   value={siteTagline}
@@ -140,7 +151,9 @@ export const AdminSettingsTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-bold text-ink mb-1">সাপোর্ট ইমেইল (Contact Email):</label>
+                <label className="block font-bold text-ink mb-1">
+                  {isBengali ? 'সাপোর্ট ইমেইল (Contact Email):' : 'Contact Email:'}
+                </label>
                 <input
                   type="email"
                   value={contactEmail}
@@ -150,7 +163,9 @@ export const AdminSettingsTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-bold text-ink mb-1">হটলাইন নম্বর (Contact Phone):</label>
+                <label className="block font-bold text-ink mb-1">
+                  {isBengali ? 'হটলাইন নম্বর (Contact Phone):' : 'Contact Phone:'}
+                </label>
                 <input
                   type="text"
                   value={contactPhone}
@@ -160,7 +175,9 @@ export const AdminSettingsTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-bold text-ink mb-1">হোয়াটসঅ্যাপ সাপোর্ট নম্বর:</label>
+                <label className="block font-bold text-ink mb-1">
+                  {isBengali ? 'হোয়াটসঅ্যাপ সাপোর্ট নম্বর:' : 'WhatsApp Support Number:'}
+                </label>
                 <input
                   type="text"
                   value={supportWhatsApp}
@@ -176,15 +193,17 @@ export const AdminSettingsTab: React.FC = () => {
             <div className="mb-card p-5 space-y-4">
               <h3 className="font-bold text-sm text-ink flex items-center gap-2 border-b border-line pb-2">
                 <Shield className="w-4 h-4 text-purple-600" />
-                <span>অপারেশনাল কন্ট্রোল ও ফিচার সুইচ</span>
+                <span>{isBengali ? 'অপারেশনাল কন্ট্রোল ও ফিচার সুইচ' : 'Operational Controls & Feature Switches'}</span>
               </h3>
 
               <div className="space-y-4 text-xs">
                 {/* Registration Switch */}
                 <div className="flex items-center justify-between p-3 rounded-xl bg-elev border border-line">
                   <div>
-                    <div className="font-bold text-ink">নতুন মেম্বার রেজিস্ট্রেশন</div>
-                    <div className="text-ink-3 text-[11px]">উন্মুক্ত রাখলে নতুন পাত্র-পাত্রী একাউন্ট খুলতে পারবেন</div>
+                    <div className="font-bold text-ink">{isBengali ? 'নতুন মেম্বার রেজিস্ট্রেশন' : 'Member Registration'}</div>
+                    <div className="text-ink-3 text-[11px]">
+                      {isBengali ? 'উন্মুক্ত রাখলে নতুন পাত্র-পাত্রী একাউন্ট খুলতে পারবেন' : 'Allow new users to register on the site'}
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -202,8 +221,10 @@ export const AdminSettingsTab: React.FC = () => {
                 {/* Require Biodata Approval */}
                 <div className="flex items-center justify-between p-3 rounded-xl bg-elev border border-line">
                   <div>
-                    <div className="font-bold text-ink">বায়োডাটা অনুমোদন আবশ্যক</div>
-                    <div className="text-ink-3 text-[11px]">মডারেটর অনুমোদন ছাড়া প্রোফাইল সার্চে আসবে না</div>
+                    <div className="font-bold text-ink">{isBengali ? 'বায়োডাটা অনুমোদন আবশ্যক' : 'Require Biodata Approval'}</div>
+                    <div className="text-ink-3 text-[11px]">
+                      {isBengali ? 'মডারেটর অনুমোদন ছাড়া প্রোফাইল সার্চে আসবে না' : 'Profiles must be approved by moderators before appearing publicly'}
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -223,9 +244,13 @@ export const AdminSettingsTab: React.FC = () => {
                   <div>
                     <div className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>ওয়েবসাইটে নমুনা বায়োডাটা প্রদর্শন (Demo Data)</span>
+                      <span>{isBengali ? 'ওয়েবসাইটে নমুনা বায়োডাটা প্রদর্শন (Demo Data)' : 'Display Demo Profiles on Website'}</span>
                     </div>
-                    <div className="text-ink-3 text-[11px]">চালু থাকলে সাধারণ ভিজিটররা ন্যাভবারে "নমুনা বায়োডাটা" লিংক দেখতে পাবেন</div>
+                    <div className="text-ink-3 text-[11px]">
+                      {isBengali
+                        ? 'চালু থাকলে সাধারণ ভিজিটররা ন্যাভবারে "নমুনা বায়োডাটা" লিংক দেখতে পাবেন'
+                        : 'When enabled, public visitors can view sample demo profiles'}
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -245,9 +270,13 @@ export const AdminSettingsTab: React.FC = () => {
                   <div>
                     <div className="font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
                       <AlertTriangle className="w-3.5 h-3.5" />
-                      <span>মেইনটেন্যান্স মোড (Maintenance Mode)</span>
+                      <span>{isBengali ? 'মেইনটেন্যান্স মোড (Maintenance Mode)' : 'Maintenance Mode'}</span>
                     </div>
-                    <div className="text-ink-3 text-[11px]">চালু থাকলে সাধারণ সদস্যরা সাময়িক রক্ষণাবেক্ষণ বার্তা দেখবেন</div>
+                    <div className="text-ink-3 text-[11px]">
+                      {isBengali
+                        ? 'চালু থাকলে সাধারণ সদস্যরা সাময়িক রক্ষণাবেক্ষণ বার্তা দেখবেন'
+                        : 'When enabled, public visitors will see a scheduled maintenance notice'}
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -267,11 +296,11 @@ export const AdminSettingsTab: React.FC = () => {
             {/* Economic / Credit pricing */}
             <div className="mb-card p-5 space-y-3">
               <h3 className="font-bold text-sm text-ink border-b border-line pb-2">
-                কন্টাক্ট ক্রেডিট খরচ (টাকা)
+                {isBengali ? 'কন্টাক্ট ক্রেডিট খরচ (টাকা)' : 'Contact Credit Pricing (BDT)'}
               </h3>
               <div>
                 <label className="block text-xs font-bold text-ink mb-1">
-                  প্রতি যোগাযোগ তথ্যের অনুমোদনে ক্রেডিট মূল্য (BDT):
+                  {isBengali ? 'প্রতি যোগাযোগ তথ্যের অনুমোদনে ক্রেডিট মূল্য (BDT):' : 'Credit Cost per Contact Unlock (BDT):'}
                 </label>
                 <input
                   type="number"

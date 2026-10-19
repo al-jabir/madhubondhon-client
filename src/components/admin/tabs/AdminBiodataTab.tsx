@@ -5,13 +5,10 @@ import {
   FileClock,
   Eye,
   EyeOff,
-  Filter,
   Search,
   CheckCircle2,
-  XCircle,
   AlertTriangle,
   MapPin,
-  Calendar,
   Briefcase,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -20,10 +17,12 @@ import { profilesApi } from '../../../api/profiles.api';
 import { adminApi } from '../../../api/admin.api';
 import { Profile } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
-import { TANGAIL_UPAZILAS, UPAZILA_DISPLAY_NAMES } from '../../../constants/locations';
+import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../../../constants/locations';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 export const AdminBiodataTab: React.FC = () => {
   const queryClient = useQueryClient();
+  const { isBengali, formatNumber } = useLanguage();
   const [subTab, setSubTab] = useState<'queue' | 'published'>('queue');
 
   // Filters for published profiles
@@ -55,13 +54,13 @@ export const AdminBiodataTab: React.FC = () => {
     mutationFn: ({ profileId, isHidden, reason }: { profileId: string; isHidden: boolean; reason: string }) =>
       adminApi.toggleProfileVisibility(profileId, { isHidden, reason }),
     onSuccess: () => {
-      toast.success('বায়োডাটার দৃশ্যমানতা সফলভাবে পরিবর্তিত হয়েছে।');
+      toast.success(isBengali ? 'বায়োডাটার দৃশ্যমানতা সফলভাবে পরিবর্তিত হয়েছে।' : 'Biodata visibility updated successfully.');
       queryClient.invalidateQueries({ queryKey: ['admin-published-profiles'] });
       setSelectedProfile(null);
       setVisibilityReason('');
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'পরিবর্তন করা যায়নি।');
+      toast.error(err.response?.data?.message || (isBengali ? 'পরিবর্তন করা যায়নি।' : 'Could not update visibility.'));
     },
   });
 
@@ -83,7 +82,7 @@ export const AdminBiodataTab: React.FC = () => {
             }`}
           >
             <FileClock className="w-4 h-4" />
-            <span>পর্যালোচনা কিউ (Review Queue)</span>
+            <span>{isBengali ? 'পর্যালোচনা কিউ (Review Queue)' : 'Review Queue'}</span>
           </button>
 
           <button
@@ -96,7 +95,7 @@ export const AdminBiodataTab: React.FC = () => {
             }`}
           >
             <FileCheck className="w-4 h-4" />
-            <span>প্রকাশিত বায়োডাটা ব্যবস্থাপনা</span>
+            <span>{isBengali ? 'প্রকাশিত বায়োডাটা ব্যবস্থাপনা' : 'Published Biodata Management'}</span>
           </button>
         </div>
       </div>
@@ -107,11 +106,12 @@ export const AdminBiodataTab: React.FC = () => {
           <div className="bg-brand-soft/40 border border-brand/20 p-4 rounded-xl text-xs text-brand-ink space-y-1">
             <h4 className="font-bold flex items-center gap-1.5 text-sm">
               <CheckCircle2 className="w-4 h-4 text-brand" />
-              <span>বায়োডাটা যাচাই ও অনুমোদন প্রক্রিয়া</span>
+              <span>{isBengali ? 'বায়োডাটা যাচাই ও অনুমোদন প্রক্রিয়া' : 'Biodata Verification & Approval Process'}</span>
             </h4>
             <p className="leading-relaxed">
-              সদস্যদের জমা দেওয়া নতুন আবেদন বা সংশোধিত বায়োডাটা অভিভাবকের সম্মতি যাচাই সাপেক্ষে পরীক্ষা করে অনুমোদন,
-              সংশোধন অনুরোধ বা বাতিল করুন। প্রতিটি প্রত্যাখ্যান বা সংশোধনে স্পষ্ট কারণ উল্লেখ করুন।
+              {isBengali
+                ? 'সদস্যদের জমা দেওয়া নতুন আবেদন বা সংশোধিত বায়োডাটা অভিভাবকের সম্মতি যাচাই সাপেক্ষে পরীক্ষা করে অনুমোদন, সংশোধন অনুরোধ বা বাতিল করুন। প্রতিটি প্রত্যাখ্যান বা সংশোধনে স্পষ্ট কারণ উল্লেখ করুন।'
+                : 'Review newly submitted or revised biodata applications with guardian verification before approving, requesting changes, or rejecting. Always provide clear feedback for any rejection.'}
             </p>
           </div>
           <ReviewQueue />
@@ -133,7 +133,7 @@ export const AdminBiodataTab: React.FC = () => {
                     setSearch(e.target.value);
                     setPage(1);
                   }}
-                  placeholder="নাম বা পেশা দিয়ে খুঁজুন..."
+                  placeholder={isBengali ? 'নাম বা পেশা দিয়ে খুঁজুন...' : 'Search by name or occupation...'}
                   className="mb-input pl-9 text-xs"
                 />
               </div>
@@ -146,9 +146,9 @@ export const AdminBiodataTab: React.FC = () => {
                 }}
                 className="mb-input text-xs"
               >
-                <option value="">সকল পাত্র-পাত্রী</option>
-                <option value="male">পাত্র (Male)</option>
-                <option value="female">পাত্রী (Female)</option>
+                <option value="">{isBengali ? 'সকল পাত্র-পাত্রী' : 'All Profiles'}</option>
+                <option value="male">{isBengali ? 'পাত্র (Male)' : 'Groom (Male)'}</option>
+                <option value="female">{isBengali ? 'পাত্রী (Female)' : 'Bride (Female)'}</option>
               </select>
 
               <select
@@ -159,10 +159,10 @@ export const AdminBiodataTab: React.FC = () => {
                 }}
                 className="mb-input text-xs"
               >
-                <option value="">সকল উপজেলা</option>
+                <option value="">{isBengali ? 'সকল উপজেলা' : 'All Upazilas'}</option>
                 {TANGAIL_UPAZILAS.map((up) => (
                   <option key={up} value={up}>
-                    {UPAZILA_DISPLAY_NAMES[up]}
+                    {getUpazilaDisplayName(up, isBengali)}
                   </option>
                 ))}
               </select>
@@ -172,11 +172,11 @@ export const AdminBiodataTab: React.FC = () => {
           {/* Published Profiles Grid */}
           {isProfilesLoading ? (
             <div className="py-16 flex justify-center">
-              <LoadingSpinner size="lg" label="বায়োডাটা লোড হচ্ছে..." />
+              <LoadingSpinner size="lg" label={isBengali ? 'বায়োডাটা লোড হচ্ছে...' : 'Loading biodata...'} />
             </div>
           ) : profilesList.length === 0 ? (
             <div className="mb-card py-16 text-center text-ink-3">
-              <p className="text-sm font-bold">কোনো বায়োডাটা পাওয়া যায়নি</p>
+              <p className="text-sm font-bold">{isBengali ? 'কোনো বায়োডাটা পাওয়া যায়নি' : 'No biodata found'}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -189,18 +189,18 @@ export const AdminBiodataTab: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-sm text-ink">{p.displayName}</span>
                       <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-elev text-ink-2">
-                        {p.gender === 'male' ? 'পাত্র' : 'পাত্রী'}
+                        {p.gender === 'male' ? (isBengali ? 'পাত্র' : 'Male') : (isBengali ? 'পাত্রী' : 'Female')}
                       </span>
                     </div>
 
                     <div className="space-y-1 text-xs text-ink-2">
                       <div className="flex items-center gap-1.5">
                         <MapPin className="w-3.5 h-3.5 text-brand shrink-0" />
-                        <span>{UPAZILA_DISPLAY_NAMES[p.upazila as keyof typeof UPAZILA_DISPLAY_NAMES] || p.upazila}</span>
+                        <span>{getUpazilaDisplayName(p.upazila, isBengali)}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Briefcase className="w-3.5 h-3.5 text-ink-3 shrink-0" />
-                        <span className="truncate">{p.occupation || 'উল্লেখ নেই'}</span>
+                        <span className="truncate">{p.occupation || (isBengali ? 'উল্লেখ নেই' : 'Not specified')}</span>
                       </div>
                     </div>
                   </div>
@@ -213,7 +213,9 @@ export const AdminBiodataTab: React.FC = () => {
                           : 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
                       }`}
                     >
-                      {p.visibility === 'public' ? 'উন্মুক্ত (Public)' : 'লুকানো (Hidden)'}
+                      {p.visibility === 'public'
+                        ? (isBengali ? 'উন্মুক্ত (Public)' : 'Public')
+                        : (isBengali ? 'লুকানো (Hidden)' : 'Hidden')}
                     </span>
 
                     <button
@@ -227,12 +229,12 @@ export const AdminBiodataTab: React.FC = () => {
                       {p.visibility === 'public' ? (
                         <>
                           <EyeOff className="w-3.5 h-3.5 inline mr-1" />
-                          <span>লুকান</span>
+                          <span>{isBengali ? 'লুকান' : 'Hide'}</span>
                         </>
                       ) : (
                         <>
                           <Eye className="w-3.5 h-3.5 inline mr-1" />
-                          <span>উন্মুক্ত করুন</span>
+                          <span>{isBengali ? 'উন্মুক্ত করুন' : 'Make Public'}</span>
                         </>
                       )}
                     </button>
@@ -246,7 +248,9 @@ export const AdminBiodataTab: React.FC = () => {
           {meta && meta.totalPages > 1 && (
             <div className="flex items-center justify-between p-4 mb-card text-xs">
               <span className="text-ink-3">
-                পৃষ্ঠা {meta.page} / {meta.totalPages} (মোট {meta.total} টি)
+                {isBengali
+                  ? `পৃষ্ঠা ${formatNumber(meta.page)} / ${formatNumber(meta.totalPages)} (মোট ${formatNumber(meta.total)} টি)`
+                  : `Page ${formatNumber(meta.page)} of ${formatNumber(meta.totalPages)} (Total: ${formatNumber(meta.total)})`}
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -255,7 +259,7 @@ export const AdminBiodataTab: React.FC = () => {
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   className="px-3 py-1.5 rounded-lg border border-line bg-elev disabled:opacity-40 cursor-pointer font-bold"
                 >
-                  পূর্ববর্তী
+                  {isBengali ? 'পূর্ববর্তী' : 'Previous'}
                 </button>
                 <button
                   type="button"
@@ -263,7 +267,7 @@ export const AdminBiodataTab: React.FC = () => {
                   onClick={() => setPage((p) => p + 1)}
                   className="px-3 py-1.5 rounded-lg border border-line bg-elev disabled:opacity-40 cursor-pointer font-bold"
                 >
-                  পরবর্তী
+                  {isBengali ? 'পরবর্তী' : 'Next'}
                 </button>
               </div>
             </div>
@@ -277,15 +281,25 @@ export const AdminBiodataTab: React.FC = () => {
           <div className="mb-card max-w-md w-full p-6 space-y-4">
             <h3 className="text-base font-black text-ink flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-500" />
-              <span>বায়োডাটা দৃশ্যমানতা নিয়ন্ত্রণ</span>
+              <span>{isBengali ? 'বায়োডাটা দৃশ্যমানতা নিয়ন্ত্রণ' : 'Biodata Visibility Control'}</span>
             </h3>
 
             <p className="text-xs text-ink-2">
-              আপনি <strong>{selectedProfile.displayName}</strong>-এর প্রোফাইল{' '}
-              {selectedProfile.visibility === 'public'
-                ? 'সাময়িকভাবে লুকানোর (Hide)'
-                : 'পুনরায় উন্মুক্ত করার (Public)'}{' '}
-              অনুরোধ করছেন।
+              {isBengali ? (
+                <>
+                  আপনি <strong>{selectedProfile.displayName}</strong>-এর প্রোফাইল{' '}
+                  {selectedProfile.visibility === 'public'
+                    ? 'সাময়িকভাবে লুকানোর (Hide)'
+                    : 'পুনরায় উন্মুক্ত করার (Public)'}{' '}
+                  অনুরোধ করছেন।
+                </>
+              ) : (
+                <>
+                  You are requesting to{' '}
+                  <strong>{selectedProfile.visibility === 'public' ? 'hide' : 'make public'}</strong>{' '}
+                  the biodata of <strong>{selectedProfile.displayName}</strong>.
+                </>
+              )}
             </p>
 
             <form
@@ -295,21 +309,21 @@ export const AdminBiodataTab: React.FC = () => {
                 visibilityMutation.mutate({
                   profileId: selectedProfile._id || '',
                   isHidden: isCurrentlyPublic,
-                  reason: visibilityReason.trim() || 'প্রশাসনিক নিরীক্ষা',
+                  reason: visibilityReason.trim() || (isBengali ? 'প্রশাসনিক নিরীক্ষা' : 'Administrative audit'),
                 });
               }}
               className="space-y-4"
             >
               <div>
                 <label className="block text-xs font-bold text-ink mb-1">
-                  কারণ / প্রশাসনিক নোট (বাধ্যতামূলক):
+                  {isBengali ? 'কারণ / প্রশাসনিক নোট (বাধ্যতামূলক):' : 'Reason / Admin Note (Required):'}
                 </label>
                 <textarea
                   required
                   rows={3}
                   value={visibilityReason}
                   onChange={(e) => setVisibilityReason(e.target.value)}
-                  placeholder="যেমন: অভিযোগ প্রাপ্তি, অসম্পূর্ণ তথ্য ইত্যাদি..."
+                  placeholder={isBengali ? 'যেমন: অভিযোগ প্রাপ্তি, অসম্পূর্ণ তথ্য ইত্যাদি...' : 'e.g. Received complaint, missing verification...'}
                   className="mb-input text-xs"
                 />
               </div>
@@ -320,14 +334,14 @@ export const AdminBiodataTab: React.FC = () => {
                   onClick={() => setSelectedProfile(null)}
                   className="px-4 py-2 text-xs font-bold rounded-xl border border-line hover:bg-elev cursor-pointer text-ink-2"
                 >
-                  বাতিল
+                  {isBengali ? 'বাতিল' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={visibilityMutation.isPending || !visibilityReason.trim()}
                   className="px-4 py-2 text-xs font-bold rounded-xl bg-brand text-white hover:bg-brand-strong disabled:opacity-50 cursor-pointer"
                 >
-                  {visibilityMutation.isPending ? 'সংরক্ষণ হচ্ছে...' : 'সংরক্ষণ করুন'}
+                  {visibilityMutation.isPending ? (isBengali ? 'সংরক্ষণ হচ্ছে...' : 'Saving...') : (isBengali ? 'সংরক্ষণ করুন' : 'Save')}
                 </button>
               </div>
             </form>

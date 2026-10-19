@@ -44,14 +44,21 @@ export const AdminDemoTab: React.FC = () => {
     onSuccess: (_, newStatus) => {
       toast.success(
         newStatus
-          ? 'নমুনা বায়োডাটা লাইভ ওয়েবসাইটে সফলভাবে প্রদর্শন করা হয়েছে।'
-          : 'নমুনা বায়োডাটা লাইভ ওয়েবসাইট থেকে সফলভাবে লুকানো (Hide) হয়েছে।'
+          ? isBengali
+            ? 'নমুনা বায়োডাটা লাইভ ওয়েবসাইটে সফলভাবে প্রদর্শন করা হয়েছে।'
+            : 'Sample biodata has been published live on the website.'
+          : isBengali
+          ? 'নমুনা বায়োডাটা লাইভ ওয়েবসাইট থেকে সফলভাবে লুকানো (Hide) হয়েছে।'
+          : 'Sample biodata has been hidden from the live website.'
       );
       queryClient.invalidateQueries({ queryKey: ['admin-platform-settings'] });
       queryClient.invalidateQueries({ queryKey: ['public-settings'] });
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'সেটিংস আপডেট ব্যর্থ হয়েছে।');
+      toast.error(
+        err.response?.data?.message ||
+          (isBengali ? 'সেটিংস আপডেট ব্যর্থ হয়েছে।' : 'Failed to update settings.')
+      );
     },
   });
 
@@ -81,13 +88,15 @@ export const AdminDemoTab: React.FC = () => {
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-black text-ink flex items-center gap-2">
-              <span>ডেমো ডেটা নিয়ন্ত্রণ কেন্দ্র</span>
+              <span>{isBengali ? 'ডেমো ডেটা নিয়ন্ত্রণ কেন্দ্র' : 'Demo Data Control Center'}</span>
               <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
                 Demo Data Control
               </span>
             </h2>
             <p className="text-xs sm:text-sm text-ink-3 mt-0.5">
-              ওয়েবসাইটে কাল্পনিক নমুনা বায়োডাটা প্রদর্শন নিয়ন্ত্রণ করুন, তাৎক্ষণিক অন/অফ করুন এবং স্যাম্পল ডেটা পর্যবেক্ষণ করুন
+              {isBengali
+                ? 'ওয়েবসাইটে কাল্পনিক নমুনা বায়োডাটা প্রদর্শন নিয়ন্ত্রণ করুন, তাৎক্ষণিক অন/অফ করুন এবং স্যাম্পল ডেটা পর্যবেক্ষণ করুন'
+                : 'Control sample matrimonial profiles on the website, toggle live visibility, and inspect mock datasets.'}
             </p>
           </div>
         </div>
@@ -99,7 +108,7 @@ export const AdminDemoTab: React.FC = () => {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-white hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all shrink-0 cursor-pointer"
         >
           <ExternalLink className="w-4 h-4" />
-          <span>পাবলিক ডেমো পেজ দেখুন</span>
+          <span>{isBengali ? 'পাবলিক ডেমো পেজ দেখুন' : 'View Public Demo Page'}</span>
         </Link>
       </div>
 
@@ -109,24 +118,30 @@ export const AdminDemoTab: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-base text-ink">
-                ওয়েবসাইটে নমুনা বায়োডাটা দৃশ্যমানতা (Live Visibility)
+                {isBengali
+                  ? 'ওয়েবসাইটে নমুনা বায়োডাটা দৃশ্যমানতা (Live Visibility)'
+                  : 'Sample Biodata Live Visibility on Website'}
               </span>
               {isDemoVisible ? (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  সক্রিয় (Visible)
+                  {isBengali ? 'সক্রিয় (Visible)' : 'Visible (Active)'}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-ink/10 text-ink-3 border border-line">
                   <EyeOff className="w-3.5 h-3.5" />
-                  লুকানো (Hidden)
+                  {isBengali ? 'লুকানো (Hidden)' : 'Hidden (Inactive)'}
                 </span>
               )}
             </div>
             <p className="text-xs text-ink-3 mt-1 max-w-2xl leading-relaxed">
               {isDemoVisible
-                ? 'বর্তমানে মূল ওয়েবসাইটের ন্যাভবারে "নমুনা বায়োডাটা" লিংক প্রদর্শিত হচ্ছে এবং নতুন দর্শনার্থীরা ১২টি স্যাম্পল বায়োডাটা দেখতে পারছেন।'
-                : 'বর্তমানে নমুনা বায়োডাটা মূল সাইট থেকে লুকানো রয়েছে। সাধারণ ভিজিটররা শুধুমাত্র অনুমোদিত বাস্তব ব্যবহারকারীদের বায়োডাটাই দেখতে পাবেন।'}
+                ? isBengali
+                  ? 'বর্তমানে মূল ওয়েবসাইটের ন্যাভবারে "নমুনা বায়োডাটা" লিংক প্রদর্শিত হচ্ছে এবং নতুন দর্শনার্থীরা ১২টি স্যাম্পল বায়োডাটা দেখতে পারছেন।'
+                  : 'Currently the "Sample Profiles" link is visible in the main website navbar and visitors can browse 12 sample profiles.'
+                : isBengali
+                ? 'বর্তমানে নমুনা বায়োডাটা মূল সাইট থেকে লুকানো রয়েছে। সাধারণ ভিজিটররা শুধুমাত্র অনুমোদিত বাস্তব ব্যবহারকারীদের বায়োডাটাই দেখতে পাবেন।'
+                : 'Sample profiles are currently hidden from the live website. Visitors will only see real verified member profiles.'}
             </p>
           </div>
 
@@ -135,20 +150,40 @@ export const AdminDemoTab: React.FC = () => {
             disabled={isLoading || toggleMutation.isPending}
             onClick={() => toggleMutation.mutate(!isDemoVisible)}
             className="flex items-center gap-2.5 px-5 py-2.5 rounded-2xl border border-line hover:border-amber-500/50 bg-elev hover:bg-amber-500/10 cursor-pointer transition-all shrink-0 select-none disabled:opacity-50"
-            title={isDemoVisible ? 'নমুনা বায়োডাটা বন্ধ করতে ক্লিক করুন' : 'নমুনা বায়োডাটা চালু করতে ক্লিক করুন'}
+            title={
+              isDemoVisible
+                ? isBengali
+                  ? 'নমুনা বায়োডাটা বন্ধ করতে ক্লিক করুন'
+                  : 'Click to hide sample profiles'
+                : isBengali
+                ? 'নমুনা বায়োডাটা চালু করতে ক্লিক করুন'
+                : 'Click to show sample profiles'
+            }
           >
             {isDemoVisible ? (
               <>
                 <ToggleRight className="w-8 h-8 text-emerald-500 shrink-0" />
                 <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                  {toggleMutation.isPending ? 'সংরক্ষণ হচ্ছে...' : 'প্রদর্শন চালু আছে'}
+                  {toggleMutation.isPending
+                    ? isBengali
+                      ? 'সংরক্ষণ হচ্ছে...'
+                      : 'Saving...'
+                    : isBengali
+                    ? 'প্রদর্শন চালু আছে'
+                    : 'Visibility ON'}
                 </span>
               </>
             ) : (
               <>
                 <ToggleLeft className="w-8 h-8 text-ink-3 shrink-0" />
                 <span className="text-xs font-bold text-ink-3">
-                  {toggleMutation.isPending ? 'সংরক্ষণ হচ্ছে...' : 'প্রদর্শন বন্ধ আছে'}
+                  {toggleMutation.isPending
+                    ? isBengali
+                      ? 'সংরক্ষণ হচ্ছে...'
+                      : 'Saving...'
+                    : isBengali
+                    ? 'প্রদর্শন বন্ধ আছে'
+                    : 'Visibility OFF'}
                 </span>
               </>
             )}
@@ -159,7 +194,10 @@ export const AdminDemoTab: React.FC = () => {
         <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-ink-2">
           <HelpCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <div className="leading-relaxed">
-            <strong>প্রশাসনিক নির্দেশনা:</strong> ওয়েবসাইট প্রাথমিক পর্যায়ে যখন পর্যাপ্ত বাস্তব বায়োডাটা থাকে না, তখন নতুন দর্শনার্থীদের প্ল্যাটফর্মের ফিচার ও লেআউট বোঝাতে এই ১২টি ডেমো প্রোফাইল কার্যকর ভূমিকা রাখে। বাস্তব সদস্যরা যোগ দিলে আপনি এই সুইচের মাধ্যমে যে কোনো সময় ডেমো ডেটা হাইড বা আনহাইড করতে পারেন।
+            <strong>{isBengali ? 'প্রশাসনিক নির্দেশনা:' : 'Admin Advisory:'}</strong>{' '}
+            {isBengali
+              ? 'ওয়েবসাইট প্রাথমিক পর্যায়ে যখন পর্যাপ্ত বাস্তব বায়োডাটা থাকে না, তখন নতুন দর্শনার্থীদের প্ল্যাটফর্মের ফিচার ও লেআউট বোঝাতে এই ১২টি ডেমো প্রোফাইল কার্যকর ভূমিকা রাখে। বাস্তব সদস্যরা যোগ দিলে আপনি এই সুইচের মাধ্যমে যে কোনো সময় ডেমো ডেটা হাইড বা আনহাইড করতে পারেন।'
+              : 'These 12 demo profiles help initial visitors experience search filters and full biodata layouts prior to large-scale organic member registrations. Once real candidates register, you can toggle this switch anytime.'}
           </div>
         </div>
       </div>
@@ -168,38 +206,52 @@ export const AdminDemoTab: React.FC = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="mb-card p-4">
           <div className="flex items-center justify-between text-ink-3 text-xs font-semibold mb-2">
-            <span>মোট নমুনা প্রোফাইল</span>
+            <span>{isBengali ? 'মোট নমুনা প্রোফাইল' : 'Total Sample Profiles'}</span>
             <Users className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-black text-ink">{formatNumber(demoProfiles.length)}</div>
-          <div className="text-[11px] text-ink-3 mt-1">টাঙ্গাইল জেলার ১২টি উপজেলা</div>
+          <div className="text-[11px] text-ink-3 mt-1">
+            {isBengali ? 'টাঙ্গাইল জেলার ১২টি উপজেলা' : '12 Upazilas of Tangail'}
+          </div>
         </div>
 
         <div className="mb-card p-4">
           <div className="flex items-center justify-between text-ink-3 text-xs font-semibold mb-2">
-            <span>পাত্রের বায়োডাটা (Male)</span>
+            <span>{isBengali ? 'পাত্রের বায়োডাটা (Male)' : "Groom's Profiles (Male)"}</span>
             <span className="text-xs font-bold text-sky-500">♂</span>
           </div>
-          <div className="text-2xl font-black text-sky-600 dark:text-sky-400">{formatNumber(maleCount)}</div>
-          <div className="text-[11px] text-ink-3 mt-1">প্রকৌশলী, ব্যাংকার, শিক্ষক ইত্যাদি</div>
+          <div className="text-2xl font-black text-sky-600 dark:text-sky-400">
+            {formatNumber(maleCount)}
+          </div>
+          <div className="text-[11px] text-ink-3 mt-1">
+            {isBengali ? 'প্রকৌশলী, ব্যাংকার, শিক্ষক ইত্যাদি' : 'Engineers, Bankers, Teachers etc.'}
+          </div>
         </div>
 
         <div className="mb-card p-4">
           <div className="flex items-center justify-between text-ink-3 text-xs font-semibold mb-2">
-            <span>পাত্রীর বায়োডাটা (Female)</span>
+            <span>{isBengali ? 'পাত্রীর বায়োডাটা (Female)' : "Bride's Profiles (Female)"}</span>
             <span className="text-xs font-bold text-pink-500">♀</span>
           </div>
-          <div className="text-2xl font-black text-pink-600 dark:text-pink-400">{formatNumber(femaleCount)}</div>
-          <div className="text-[11px] text-ink-3 mt-1">শিক্ষিকা, ডিজাইনার, পুষ্টিবিদ ইত্যাদি</div>
+          <div className="text-2xl font-black text-pink-600 dark:text-pink-400">
+            {formatNumber(femaleCount)}
+          </div>
+          <div className="text-[11px] text-ink-3 mt-1">
+            {isBengali ? 'শিক্ষিকা, ডিজাইনার, পুষ্টিবিদ ইত্যাদি' : 'Teachers, Designers, Nutritionists etc.'}
+          </div>
         </div>
 
         <div className="mb-card p-4">
           <div className="flex items-center justify-between text-ink-3 text-xs font-semibold mb-2">
-            <span>কভারেজ</span>
+            <span>{isBengali ? 'কভারেজ' : 'Coverage'}</span>
             <MapPin className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">১০০%</div>
-          <div className="text-[11px] text-ink-3 mt-1">সকল ১২টি উপজেলা কভার্ড</div>
+          <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+            {isBengali ? '১০০%' : '100%'}
+          </div>
+          <div className="text-[11px] text-ink-3 mt-1">
+            {isBengali ? 'সকল ১২টি উপজেলা কভার্ড' : 'All 12 Upazilas covered'}
+          </div>
         </div>
       </div>
 
@@ -209,10 +261,16 @@ export const AdminDemoTab: React.FC = () => {
           <div>
             <h3 className="font-bold text-sm sm:text-base text-ink flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>নমুনা বায়োডাটার তালিকা (Demo Profiles Catalog)</span>
+              <span>
+                {isBengali
+                  ? 'নমুনা বায়োডাটার তালিকা (Demo Profiles Catalog)'
+                  : 'Sample Profiles Catalog (Tangail District)'}
+              </span>
             </h3>
             <p className="text-xs text-ink-3">
-              ফিল্টার করে যেকোনো নমুনা প্রোফাইল বিস্তারিতভাবে পর্যবেক্ষণ করুন
+              {isBengali
+                ? 'ফিল্টার করে যেকোনো নমুনা প্রোফাইল বিস্তারিতভাবে পর্যবেক্ষণ করুন'
+                : 'Filter and inspect any sample profile in detail'}
             </p>
           </div>
 
@@ -222,7 +280,9 @@ export const AdminDemoTab: React.FC = () => {
               <Search className="w-3.5 h-3.5 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="নাম, পেশা বা আইডি..."
+                placeholder={
+                  isBengali ? 'নাম, পেশা বা আইডি...' : 'Search by name, occupation, ID...'
+                }
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="mb-input text-xs pl-8 pr-3 py-1.5 h-8 w-44 sm:w-56"
@@ -239,7 +299,7 @@ export const AdminDemoTab: React.FC = () => {
                     : 'text-ink-3 hover:text-ink'
                 }`}
               >
-                সব ({formatNumber(demoProfiles.length)})
+                {isBengali ? 'সব' : 'All'} ({formatNumber(demoProfiles.length)})
               </button>
               <button
                 type="button"
@@ -250,7 +310,7 @@ export const AdminDemoTab: React.FC = () => {
                     : 'text-ink-3 hover:text-ink'
                 }`}
               >
-                পাত্র ({formatNumber(maleCount)})
+                {isBengali ? 'পাত্র' : 'Male'} ({formatNumber(maleCount)})
               </button>
               <button
                 type="button"
@@ -261,7 +321,7 @@ export const AdminDemoTab: React.FC = () => {
                     : 'text-ink-3 hover:text-ink'
                 }`}
               >
-                পাত্রী ({formatNumber(femaleCount)})
+                {isBengali ? 'পাত্রী' : 'Female'} ({formatNumber(femaleCount)})
               </button>
             </div>
           </div>
@@ -272,19 +332,19 @@ export const AdminDemoTab: React.FC = () => {
           <table className="w-full text-left text-xs">
             <thead className="bg-elev border-b border-line text-ink-3 font-semibold uppercase tracking-wider text-[11px]">
               <tr>
-                <th className="py-3 px-4">আইডি</th>
-                <th className="py-3 px-4">নাম ও লিঙ্গ</th>
-                <th className="py-3 px-4">বয়স</th>
-                <th className="py-3 px-4">উপজেলা</th>
-                <th className="py-3 px-4">পেশা ও শিক্ষা</th>
-                <th className="py-3 px-4 text-right">অ্যাকশন</th>
+                <th className="py-3 px-4">{isBengali ? 'আইডি' : 'Biodata ID'}</th>
+                <th className="py-3 px-4">{isBengali ? 'নাম ও লিঙ্গ' : 'Name & Gender'}</th>
+                <th className="py-3 px-4">{isBengali ? 'বয়স' : 'Age'}</th>
+                <th className="py-3 px-4">{isBengali ? 'উপজেলা' : 'Upazila'}</th>
+                <th className="py-3 px-4">{isBengali ? 'পেশা ও শিক্ষা' : 'Occupation & Education'}</th>
+                <th className="py-3 px-4 text-right">{isBengali ? 'অ্যাকশন' : 'Action'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {filteredProfiles.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-ink-3">
-                    কোনো নমুনা বায়োডাটা মেলেনি।
+                    {isBengali ? 'কোনো নমুনা বায়োডাটা মেলেনি।' : 'No sample profiles matched.'}
                   </td>
                 </tr>
               ) : (
@@ -297,19 +357,27 @@ export const AdminDemoTab: React.FC = () => {
                       <div className="font-bold text-ink">{p.displayName}</div>
                       <div className="text-[11px] text-ink-3">
                         {p.gender === 'male' ? (
-                          <span className="text-sky-600 dark:text-sky-400 font-semibold">পাত্র (Male)</span>
+                          <span className="text-sky-600 dark:text-sky-400 font-semibold">
+                            {isBengali ? 'পাত্র (Male)' : 'Male'}
+                          </span>
                         ) : (
-                          <span className="text-pink-600 dark:text-pink-400 font-semibold">পাত্রী (Female)</span>
+                          <span className="text-pink-600 dark:text-pink-400 font-semibold">
+                            {isBengali ? 'পাত্রী (Female)' : 'Female'}
+                          </span>
                         )}
                       </div>
                     </td>
                     <td className="py-3 px-4 font-semibold text-ink">
-                      {p.age ? `${formatNumber(p.age)} বছর` : '—'}
+                      {p.age
+                        ? isBengali
+                          ? `${formatNumber(p.age)} বছর`
+                          : `${formatNumber(p.age)} yrs`
+                        : '—'}
                     </td>
                     <td className="py-3 px-4">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-elev border border-line text-[11px] font-semibold text-ink-2">
                         <MapPin className="w-3 h-3 text-brand shrink-0" />
-                        <span>{p.upazila ? p.upazila.replace('_', ' ') : 'টাঙ্গাইল'}</span>
+                        <span>{p.upazila ? p.upazila.replace('_', ' ') : 'Tangail'}</span>
                       </span>
                     </td>
                     <td className="py-3 px-4">
@@ -326,7 +394,7 @@ export const AdminDemoTab: React.FC = () => {
                         className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-bold bg-brand-soft text-brand-ink hover:bg-brand hover:text-white transition-all cursor-pointer"
                       >
                         <ExternalLink className="w-3 h-3" />
-                        <span>প্রোফাইল দেখুন</span>
+                        <span>{isBengali ? 'প্রোফাইল দেখুন' : 'View Profile'}</span>
                       </Link>
                     </td>
                   </tr>
