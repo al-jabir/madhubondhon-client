@@ -7,9 +7,9 @@ import { useLanguage } from '../../i18n/LanguageContext';
 export const Footer: React.FC = () => {
   const { t } = useLanguage();
   return (
-    <footer className="bg-[#2b161f] text-[#e9d3db] pt-14 pb-8">
+    <footer className="bg-[#2b161f] text-[#e9d3db] pt-10 sm:pt-14 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 mb-8 sm:mb-12">
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">

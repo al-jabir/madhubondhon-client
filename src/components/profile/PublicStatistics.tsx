@@ -18,10 +18,10 @@ export default function PublicStatistics() {
   });
 
   return (
-    <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="text-center max-w-2xl mx-auto mb-12 space-y-2.5">
+    <section className="py-10 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 space-y-2">
         <span className="mb-badge">সংখ্যায় মধুবন্ধন</span>
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-section-title">
+        <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold mb-section-title">
           মধুবন্ধন সেবা গ্রহীতার পরিসংখ্যান
         </h2>
         <p className="text-xs sm:text-sm text-ink-2">
@@ -41,17 +41,17 @@ export default function PublicStatistics() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {cards.map(({ key, label, icon: Icon }) => (
             <article
               key={key}
-              className="mb-card mb-card-hover p-6 flex flex-col items-center text-center space-y-3 group"
+              className="mb-card mb-card-hover p-4 sm:p-6 rounded-2xl flex flex-col items-center text-center space-y-2 sm:space-y-3 group"
             >
-              <div className="w-14 h-14 rounded-2xl bg-brand-soft border border-brand/20 flex items-center justify-center text-brand group-hover:scale-105 group-hover:-rotate-2 transition-transform">
-                <Icon className="w-7 h-7 stroke-[1.5]" />
+              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-soft border border-brand/20 flex items-center justify-center text-brand group-hover:scale-105 group-hover:-rotate-2 transition-transform">
+                <Icon className="w-5 h-5 sm:w-7 sm:h-7 stroke-[1.6]" />
               </div>
-              <h3 className="text-xs sm:text-sm font-semibold text-ink-2">{label}</h3>
-              <p className="text-3xl font-bold text-ink tracking-tight bg-linear-to-br from-ink to-brand bg-clip-text text-transparent">
+              <h3 className="text-xs sm:text-sm font-semibold text-ink-2 leading-snug">{label}</h3>
+              <p className="text-xl sm:text-3xl font-bold text-ink tracking-tight bg-linear-to-br from-ink to-brand bg-clip-text text-transparent">
                 {isPending ? '—' : data?.data?.stats[key]?.toLocaleString('bn-BD') ?? '—'}
               </p>
             </article>

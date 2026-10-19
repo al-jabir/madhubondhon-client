@@ -72,7 +72,7 @@ const AppShell: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-base text-ink font-sans antialiased selection:bg-brand selection:text-white">
+    <div className="min-h-screen flex flex-col bg-base text-ink font-sans antialiased selection:bg-brand selection:text-white overflow-x-hidden max-w-full">
       {/* Public Navbar & Announcement Banner are hidden on Admin routes */}
       {!isAdminRoute && <Navbar />}
       {!isAdminRoute && <AnnouncementBanner />}

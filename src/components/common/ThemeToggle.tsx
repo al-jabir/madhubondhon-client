@@ -18,7 +18,12 @@ function applyTheme(theme: Resolved) {
   document.documentElement.style.colorScheme = theme;
 }
 
-export default function ThemeToggle() {
+export interface ThemeToggleProps {
+  compact?: boolean;
+  className?: string;
+}
+
+export default function ThemeToggle({ compact = false, className = '' }: ThemeToggleProps) {
   const [saved, setSaved] = useState<'light' | 'dark' | null>(readSavedTheme);
   const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -47,6 +52,26 @@ export default function ThemeToggle() {
     window.dispatchEvent(new CustomEvent('mb-theme-change', { detail: next }));
   };
 
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        role="switch"
+        aria-checked={dark}
+        aria-label="রং পরিবর্তন — light/dark থিম সুইচ"
+        title={dark ? 'Light থিমে যান' : 'Dark থিমে যান'}
+        className={`w-8 h-8 rounded-full border border-line bg-elev hover:border-brand/40 flex items-center justify-center transition-all cursor-pointer shadow-2xs shrink-0 ${className}`}
+      >
+        {dark ? (
+          <Sun className="w-4 h-4 text-amber-400 shrink-0" strokeWidth={2.2} />
+        ) : (
+          <Moon className="w-4 h-4 text-brand shrink-0" strokeWidth={2.2} />
+        )}
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
@@ -55,7 +80,7 @@ export default function ThemeToggle() {
       aria-checked={dark}
       aria-label="রং পরিবর্তন — light/dark থিম সুইচ"
       title={dark ? 'Light থিমে যান' : 'Dark থিমে যান'}
-      className="group relative inline-flex h-8 w-16 shrink-0 items-center rounded-full border border-strongline bg-elev cursor-pointer focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 transition-colors hover:border-brand/50"
+      className={`group relative inline-flex h-8 w-16 shrink-0 items-center rounded-full border border-strongline bg-elev cursor-pointer focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 transition-colors hover:border-brand/50 ${className}`}
     >
       {/* Sliding knob */}
       <span

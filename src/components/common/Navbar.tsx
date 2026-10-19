@@ -31,7 +31,7 @@ import { UserRole } from "../../types";
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
-  const { t, formatNumber } = useLanguage();
+  const { t, formatNumber, isBengali } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -102,16 +102,16 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-2 sm:gap-3">
           {/* Brand */}
-          <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="relative w-9 h-9 rounded-xl bg-linear-to-br from-brand to-pink-500 flex items-center justify-center text-white shadow-md shadow-brand/30 group-hover:scale-105 transition-transform shrink-0">
-              <Heart className="w-4.5 h-4.5 fill-current" />
-              <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-card border-2 border-brand/30" />
+          <Link to="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0 min-w-0">
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-linear-to-br from-brand to-pink-500 flex items-center justify-center text-white shadow-md shadow-brand/30 group-hover:scale-105 transition-transform shrink-0">
+              <Heart className="w-4 h-4 sm:w-4.5 sm:h-4.5 fill-current" />
+              <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-card border-2 border-brand/30" />
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="font-bold text-xl tracking-tight text-brand">
+            <div className="flex flex-col leading-none min-w-0">
+              <span className="font-bold text-lg sm:text-xl tracking-tight text-brand truncate">
                 {t('nav.brandName')}
               </span>
-              <span className="text-[9px] text-ink-3 font-semibold mt-0.5 tracking-[0.18em] uppercase whitespace-nowrap">
+              <span className="text-[8px] sm:text-[9px] text-ink-3 font-semibold mt-0.5 tracking-[0.14em] sm:tracking-[0.18em] uppercase whitespace-nowrap">
                 Tangail Matrimony
               </span>
             </div>
@@ -300,18 +300,18 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile & tablet controls */}
-          <div className="flex lg:hidden items-center gap-1.5">
+          <div className="flex lg:hidden items-center gap-1 sm:gap-1.5 shrink-0">
             <LanguageToggle compact />
-            <ThemeToggle />
+            <ThemeToggle compact />
             {isAuthenticated && (
               <Link
                 to="/notifications"
-                className="relative p-2 rounded-xl text-ink-2 hover:bg-brand-soft hover:text-brand"
+                className="relative p-1.5 sm:p-2 rounded-xl text-ink-2 hover:bg-brand-soft hover:text-brand transition-colors"
                 aria-label={t('nav.notifications')}
               >
-                <Bell className="w-5 h-5 shrink-0" />
+                <Bell className="w-4.5 h-4.5 sm:w-5 sm:h-5 shrink-0" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-brand text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-card">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] px-1 rounded-full bg-brand text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-card">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -320,10 +320,10 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-ink-2 hover:text-brand hover:bg-brand-soft rounded-xl cursor-pointer"
+              className="p-1.5 sm:p-2 text-ink-2 hover:text-brand hover:bg-brand-soft rounded-xl cursor-pointer transition-colors"
               aria-label="Toggle navigation"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
           </div>
         </div>
@@ -334,7 +334,7 @@ export const Navbar: React.FC = () => {
         <div className="lg:hidden border-t border-line bg-card px-4 pt-3 pb-6 space-y-1 shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto">
           {isAuthenticated && user && (
             <div className="p-3 mb-2 rounded-2xl bg-elev border border-line flex items-center justify-between gap-2">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <span className="w-9 h-9 rounded-full bg-linear-to-br from-brand to-pink-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
                   {user.name ? user.name.trim().charAt(0).toUpperCase() : <UserIcon className="w-4 h-4" />}
                 </span>
@@ -345,20 +345,32 @@ export const Navbar: React.FC = () => {
               </div>
               {isAdminOrMod && (
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gold-soft text-gold shrink-0">
-                  {user.role === UserRole.SUPER_ADMIN ? "সুপার অ্যাডমিন" : user.role === UserRole.ADMIN ? "অ্যাডমিন" : "মডারেটর"}
+                  {user.role === UserRole.SUPER_ADMIN ? (isBengali ? "সুপার অ্যাডমিন" : "Super Admin") : user.role === UserRole.ADMIN ? (isBengali ? "অ্যাডমিন" : "Admin") : (isBengali ? "মডারেটর" : "Moderator")}
                 </span>
               )}
             </div>
           )}
 
+          {/* Quick Settings Bar in Mobile Drawer */}
+          <div className="grid grid-cols-2 gap-2 mb-3 pt-1">
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-elev border border-line">
+              <span className="text-xs font-bold text-ink-2">{isBengali ? 'ভাষা' : 'Language'}</span>
+              <LanguageToggle compact />
+            </div>
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-elev border border-line">
+              <span className="text-xs font-bold text-ink-2">{isBengali ? 'থিম' : 'Theme'}</span>
+              <ThemeToggle compact />
+            </div>
+          </div>
+
           <div className="space-y-0.5">
             {[...menuLinks, ...(isAuthenticated ? [
-              { to: "/shortlist", icon: Bookmark, label: "পছন্দের তালিকা" },
-              { to: "/interests", icon: Heart, label: "আগ্রহ তালিকা" },
-              { to: "/contacts", icon: Phone, label: "যোগাযোগের তথ্য" },
-              { to: "/my-profile", icon: UserIcon, label: "আমার প্রোফাইল" },
-              { to: "/edit-profile", icon: Settings, label: "বায়োডাটা সম্পাদনা" },
-              { to: "/notifications", icon: Bell, label: "বিজ্ঞপ্তি" },
+              { to: "/shortlist", icon: Bookmark, label: isBengali ? "পছন্দের তালিকা" : "Shortlist" },
+              { to: "/interests", icon: Heart, label: isBengali ? "আগ্রহ তালিকা" : "Interests" },
+              { to: "/contacts", icon: Phone, label: isBengali ? "যোগাযোগের তথ্য" : "Contacts" },
+              { to: "/my-profile", icon: UserIcon, label: isBengali ? "আমার প্রোফাইল" : "My Profile" },
+              { to: "/edit-profile", icon: Settings, label: isBengali ? "বায়োডাটা সম্পাদনা" : "Edit Biodata" },
+              { to: "/notifications", icon: Bell, label: isBengali ? "বিজ্ঞপ্তি" : "Notifications" },
             ] : [])].map(({ to, icon: Icon, label }) => (
               <Link
                 key={to}
@@ -374,7 +386,7 @@ export const Navbar: React.FC = () => {
                 <span>{label}</span>
                 {to === "/notifications" && unreadCount > 0 && (
                   <span className="ml-auto px-2 py-0.5 rounded-full bg-brand text-white text-[10px] font-bold">
-                    {unreadCount} নতুন
+                    {unreadCount} {isBengali ? 'নতুন' : 'New'}
                   </span>
                 )}
               </Link>
@@ -386,14 +398,14 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/packages"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold bg-gold-soft text-gold border border-gold/20"
+                className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold bg-gold-soft text-gold border border-gold/20 mt-2"
               >
                 <div className="flex items-center gap-2">
                   <Coins className="w-4 h-4" />
-                  <span>কন্টাক্ট ক্রেডিট</span>
+                  <span>{isBengali ? 'কন্টাক্ট ক্রেডিট' : 'Contact Credits'}</span>
                 </div>
                 <span className="px-2 py-0.5 rounded-full bg-card text-xs">
-                  {user?.contactCredits ?? 0} টি বাকি
+                  {formatNumber(user?.contactCredits ?? 0)} {isBengali ? 'টি বাকি' : 'remaining'}
                 </span>
               </Link>
 
@@ -404,7 +416,7 @@ export const Navbar: React.FC = () => {
                   className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold bg-gold-soft text-gold border border-gold/20"
                 >
                   <Shield className="w-5 h-5 shrink-0" />
-                  <span>অ্যাডমিন কন্ট্রোল প্যানেল</span>
+                  <span>{isBengali ? 'অ্যাডমিন কন্ট্রোল প্যানেল' : 'Admin Control Panel'}</span>
                 </Link>
               )}
 
@@ -418,7 +430,7 @@ export const Navbar: React.FC = () => {
                   className="flex items-center gap-2.5 w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-brand hover:bg-brand-soft cursor-pointer"
                 >
                   <LogOut className="w-4.5 h-4.5 shrink-0" />
-                  <span>লগআউট</span>
+                  <span>{isBengali ? 'লগআউট' : 'Logout'}</span>
                 </button>
               </div>
             </>
@@ -431,7 +443,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="block text-center w-full py-2.5 text-sm font-semibold text-brand bg-brand-soft rounded-xl"
               >
-                লগইন করুন
+                {isBengali ? 'লগইন করুন' : 'Login'}
               </Link>
             </div>
           )}
