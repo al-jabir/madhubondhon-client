@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 
 import { AuthProvider } from './context/AuthContext';
+import { LanguageProvider } from './i18n/LanguageContext';
 import { UserRole } from './types';
 
 import Navbar from './components/common/Navbar';
@@ -179,11 +180,13 @@ const AppShell: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <AppShell />
-        </BrowserRouter>
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppShell />
+          </BrowserRouter>
+        </AuthProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 };

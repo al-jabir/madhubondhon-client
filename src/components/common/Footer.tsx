@@ -2,8 +2,10 @@ import React from 'react';
 import { Link } from 'react-router';
 import { Heart, ShieldCheck, MapPin, PhoneCall, ArrowRight } from 'lucide-react';
 import { TANGAIL_UPAZILAS, UPAZILA_DISPLAY_NAMES } from '../../constants/locations';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export const Footer: React.FC = () => {
+  const { t } = useLanguage();
   return (
     <footer className="bg-[#2b161f] text-[#e9d3db] pt-14 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -94,14 +96,14 @@ export const Footer: React.FC = () => {
 
         <div className="pt-8 border-t border-white/10 text-xs text-[#c8a9b6] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="flex items-center flex-wrap gap-x-2">
-            <span>© {new Date().getFullYear()} মধুবন্ধন — Tangail Matrimony. সর্বস্বত্ব সংরক্ষিত।</span>
+            <span>© {new Date().getFullYear()} {t('footer.copyright')}</span>
             <span className="opacity-40">•</span>
             <Link to="/admin/login" className="hover:text-white transition-colors opacity-60 hover:opacity-100 text-[11px]">
-              প্রশাসনিক পোর্টাল
+              {t('footer.adminPortal')}
             </Link>
           </p>
           <p className="flex items-center gap-1.5">
-            টাঙ্গাইলের মানুষের জন্য ভালোবাসার সাথে নির্মিত
+            {t('footer.builtWithLove')}
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-current" />
           </p>
         </div>

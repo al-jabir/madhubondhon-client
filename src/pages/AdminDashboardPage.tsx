@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/useAuth';
+import { useLanguage } from '../i18n/LanguageContext';
 import { UserRole } from '../types';
 import { adminApi } from '../api/admin.api';
 
@@ -23,6 +24,7 @@ import AdminAuditLogsTab from '../components/admin/tabs/AdminAuditLogsTab';
 
 export const AdminDashboardPage: React.FC = () => {
   const { user: currentUser } = useAuth();
+  const { t } = useLanguage();
 
   // Initial tab based on role
   const initialTab: AdminTab =
@@ -100,7 +102,7 @@ export const AdminDashboardPage: React.FC = () => {
 
       {/* Minimal Admin Control Footer */}
       <footer className="py-2.5 px-4 sm:px-8 border-t border-line text-center text-[11px] text-ink-3 bg-card/30">
-        মধুবন্ধন অ্যাডমিন কন্ট্রোল সিস্টেম &bull; টাঙ্গাইল জেলা &bull; সুরক্ষিত ও সংরক্ষিত
+        {t('admin.adminFooterText')}
       </footer>
     </div>
   );

@@ -15,11 +15,14 @@ import {
 import { toast } from "sonner";
 import { getApiErrorMessage } from "../api/errors";
 import { useAuth } from "../context/useAuth";
+import { useLanguage } from "../i18n/LanguageContext";
 import { UserRole } from "../types";
 import ThemeToggle from "../components/common/ThemeToggle";
+import LanguageToggle from "../components/common/LanguageToggle";
 
 export const AdminLoginPage: React.FC = () => {
   const { user, isAuthenticated, isLoading, login, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -53,7 +56,7 @@ export const AdminLoginPage: React.FC = () => {
 
     const cleanEmail = email.trim();
     if (!cleanEmail || !password) {
-      setErrorMessage("অনুগ্রহ করে প্রশাসনিক ইমেইল ও পাসওয়ার্ড প্রদান করুন।");
+      setErrorMessage(t('auth.errorEmpty'));
       return;
     }
 
@@ -69,8 +72,7 @@ export const AdminLoginPage: React.FC = () => {
       if (!isAdminRole) {
         // If a regular customer accidentally logged in here, revoke and reject
         await logout();
-        const err =
-          "অননুমোদিত প্রবেশ! এই পোর্টালটি শুধুমাত্র অ্যাডমিনিস্ট্রেটরদের জন্য সংরক্ষিত। সাধারণ অ্যাকাউন্টের জন্য মূল সাইটে লগইন করুন।";
+        const err = t('admin.unauthorizedPortal');
         setErrorMessage(err);
         toast.error(err);
         return;
@@ -78,13 +80,13 @@ export const AdminLoginPage: React.FC = () => {
 
       toast.success(
         loggedInUser.role === UserRole.SUPER_ADMIN
-          ? "সুপার অ্যাডমিন হিসেবে সফলভাবে প্রবেশ করেছেন!"
-          : "অ্যাডমিন প্যানেলে সফলভাবে প্রবেশ করেছেন!"
+          ? t('admin.superAdminWelcome')
+          : t('admin.adminWelcome')
       );
 
       navigate(from.startsWith("/admin") ? from : "/admin", { replace: true });
     } catch (err: unknown) {
-      const msg = getApiErrorMessage(err, "প্রশাসনিক লগইন সম্পন্ন করা যায়নি।");
+      const msg = getApiErrorMessage(err, t('admin.verifyingAuth'));
       setErrorMessage(msg);
       toast.error(msg);
     } finally {
@@ -101,12 +103,13 @@ export const AdminLoginPage: React.FC = () => {
           className="inline-flex items-center gap-2 text-xs font-bold text-ink-2 hover:text-brand transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span>মূল সাইটে ফিরুন</span>
+          <span>{t('admin.backToMain')}</span>
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <span className="text-[11px] font-mono uppercase tracking-wider text-ink-3 hidden sm:inline">
-            Admin Auth Gateway v2.0
+            {t('admin.authGateway')}
           </span>
+          <LanguageToggle />
           <ThemeToggle />
         </div>
       </header>
@@ -128,13 +131,13 @@ export const AdminLoginPage: React.FC = () => {
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 mb-2">
                 <Sparkles className="w-3 h-3" />
-                <span>Security Clearance Required</span>
+                <span>{t('admin.securityClearance')}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
-                মধুবন্ধন কন্ট্রোল সেন্টার
+                {t('admin.controlCenter')}
               </h1>
               <p className="text-xs sm:text-sm text-ink-2 mt-1">
-                টাঙ্গাইল জেলা বৈবাহিক প্ল্যাটফর্ম পরিচালনা ও প্রশাসনিক পোর্টাল
+                {t('admin.controlCenterSubtitle')}
               </p>
             </div>
           </div>
@@ -151,7 +154,7 @@ export const AdminLoginPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-ink mb-1.5">
-                  প্রশাসনিক ইমেইল ঠিকানা
+                  {t('admin.adminEmailLabel')}
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -170,7 +173,7 @@ export const AdminLoginPage: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-ink mb-1.5">
-                  সিকিউরিটি পাসওয়ার্ড
+                  {t('admin.adminPasswordLabel')}
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -200,10 +203,10 @@ export const AdminLoginPage: React.FC = () => {
                 className="w-full mt-2 py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-linear-to-r from-brand via-purple-600 to-pink-600 hover:opacity-95 shadow-lg shadow-brand/25 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isSubmitting ? (
-                  <span>প্রমাণীকরণ যাচাই হচ্ছে...</span>
+                  <span>{t('admin.verifyingAuth')}</span>
                 ) : (
                   <>
-                    <span>কন্ট্রোল সেন্টারে প্রবেশ করুন</span>
+                    <span>{t('admin.enterControlCenter')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -214,19 +217,19 @@ export const AdminLoginPage: React.FC = () => {
             <div className="mt-6 pt-4 border-t border-line text-[11px] text-ink-3 leading-relaxed flex items-start gap-2 bg-elev/50 p-3 rounded-xl border border-line/60">
               <Lock className="w-3.5 h-3.5 shrink-0 mt-0.5 text-gold" />
               <span>
-                <strong>নিরাপত্তা সতর্কতা:</strong> এই পোর্টালে প্রতিটি প্রশাসনিক কার্যকলাপ, আইপি ঠিকানা ও টাইমস্ট্যাম্প অডিট লগে রেকর্ড করা হয়। অননুমোদিত অ্যাক্সেস নিষিদ্ধ।
+                <strong>{t('admin.securityNoticeTitle')}</strong> {t('admin.securityNoticeDesc')}
               </span>
             </div>
           </div>
 
           {/* Quick links & public login redirect */}
           <div className="text-center text-xs text-ink-3">
-            সাধারণ সদস্য হিসেবে লগইন করতে চান?{" "}
+            {t('admin.loginAsMember')}{" "}
             <Link
               to="/login"
               className="font-bold text-brand hover:underline inline-flex items-center gap-1"
             >
-              মূল ওয়েবসাইটে লগইন করুন
+              {t('admin.mainSiteLogin')}
             </Link>
           </div>
         </div>
@@ -234,7 +237,7 @@ export const AdminLoginPage: React.FC = () => {
 
       {/* Footer */}
       <footer className="w-full py-4 text-center text-[11px] text-ink-3 border-t border-line/60">
-        মধুবন্ধন ম্যাট্রিমনি অ্যাডমিনিস্ট্রেশন &bull; সুরক্ষিত ও এনক্রিপ্টেড সেশন
+        {t('admin.adminFooterText')}
       </footer>
     </div>
   );

@@ -1,4 +1,5 @@
 import ThemeToggle from './ThemeToggle';
+import LanguageToggle from './LanguageToggle';
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -24,10 +25,12 @@ import {
 } from "lucide-react";
 import { notificationsApi } from "../../api/notifications.api";
 import { useAuth } from "../../context/useAuth";
+import { useLanguage } from "../../i18n/LanguageContext";
 import { UserRole } from "../../types";
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { t, formatNumber } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -76,13 +79,13 @@ export const Navbar: React.FC = () => {
   const unreadCount = notificationsData?.data?.unreadCount || 0;
 
   const menuLinks = [
-    { to: "/", icon: Home, label: "হোম" },
-    { to: "/search", icon: Search, label: "বায়োডাটা খুঁজুন" },
-    { to: "/demo", icon: Sparkles, label: "নমুনা বায়োডাটা" },
-    { to: "/about", icon: Info, label: "আমাদের সম্পর্কে" },
-    { to: "/faq", icon: HelpCircle, label: "জিজ্ঞাসা" },
-    { to: "/guide", icon: Compass, label: "নির্দেশনা" },
-    { to: "/contact", icon: Phone, label: "যোগাযোগ" },
+    { to: "/", icon: Home, label: t('nav.home') },
+    { to: "/search", icon: Search, label: t('nav.search') },
+    { to: "/demo", icon: Sparkles, label: t('nav.demo') },
+    { to: "/about", icon: Info, label: t('nav.about') },
+    { to: "/faq", icon: HelpCircle, label: t('nav.faq') },
+    { to: "/guide", icon: Compass, label: t('nav.guide') },
+    { to: "/contact", icon: Phone, label: t('nav.contact') },
   ];
 
   return (
@@ -97,7 +100,7 @@ export const Navbar: React.FC = () => {
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-bold text-xl tracking-tight text-brand">
-                মধুবন্ধন
+                {t('nav.brandName')}
               </span>
               <span className="text-[9px] text-ink-3 font-semibold mt-0.5 tracking-[0.18em] uppercase whitespace-nowrap">
                 Tangail Matrimony
@@ -125,6 +128,7 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop right side */}
           <div className="hidden lg:flex items-center gap-2 shrink-0">
+            <LanguageToggle />
             <ThemeToggle />
 
             {isAuthenticated ? (
@@ -136,7 +140,7 @@ export const Navbar: React.FC = () => {
                   title="যোগাযোগ ক্রেডিট দেখুন বা রিচার্জ করুন"
                 >
                   <Coins className="w-3.5 h-3.5" />
-                  <span>{user?.contactCredits ?? 0} ক্রেডিট</span>
+                  <span>{formatNumber(user?.contactCredits ?? 0)} {t('nav.credits')}</span>
                 </Link>
 
                 {/* Notifications */}
@@ -215,7 +219,7 @@ export const Navbar: React.FC = () => {
                           </span>
                           <span className="text-[11px] text-ink-3 whitespace-nowrap flex items-center gap-1">
                             <Coins className="w-3 h-3 text-gold" />
-                            {user?.contactCredits ?? 0} ক্রেডিট
+                            {formatNumber(user?.contactCredits ?? 0)} {t('nav.credits')}
                           </span>
                         </div>
                       </div>
@@ -229,16 +233,16 @@ export const Navbar: React.FC = () => {
                             className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-gold bg-gold-soft/70 rounded-lg hover:bg-gold-soft transition-colors whitespace-nowrap"
                           >
                             <Shield className="w-4 h-4 shrink-0" />
-                            <span>অ্যাডমিন প্যানেল</span>
+                            <span>{t('nav.adminPanel')}</span>
                           </Link>
                         )}
                         {[
-                          { to: "/my-profile", icon: UserIcon, label: "আমার বায়োডাটা" },
-                          { to: "/edit-profile", icon: Settings, label: "বায়োডাটা সম্পাদনা" },
-                          { to: "/interests", icon: Heart, label: "আগ্রহ তালিকা" },
-                          { to: "/contacts", icon: Phone, label: "যোগাযোগের তথ্য" },
-                          { to: "/packages", icon: Coins, label: "প্যাকেজ ও রিচার্জ" },
-                          { to: "/notifications", icon: Bell, label: "বিজ্ঞপ্তি" },
+                          { to: "/my-profile", icon: UserIcon, label: t('nav.myProfile') },
+                          { to: "/edit-profile", icon: Settings, label: t('nav.editProfile') },
+                          { to: "/interests", icon: Heart, label: t('nav.interests') },
+                          { to: "/contacts", icon: Phone, label: t('nav.contacts') },
+                          { to: "/packages", icon: Coins, label: t('nav.packages') },
+                          { to: "/notifications", icon: Bell, label: t('nav.notifications') },
                         ].map(({ to, icon: Icon, label }) => (
                           <Link
                             key={to}
@@ -267,7 +271,7 @@ export const Navbar: React.FC = () => {
                           className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-brand hover:bg-brand-soft rounded-lg transition-colors cursor-pointer text-left whitespace-nowrap"
                         >
                           <LogOut className="w-4 h-4 shrink-0" />
-                          <span>লগআউট করুন</span>
+                          <span>{t('nav.logout')}</span>
                         </button>
                       </div>
                     </div>
@@ -280,7 +284,7 @@ export const Navbar: React.FC = () => {
                   to="/login"
                   className="px-4 py-2 text-sm font-semibold text-ink-2 hover:text-brand rounded-full border border-line hover:border-brand/50 hover:bg-brand-soft/50 transition-all"
                 >
-                  লগইন করুন
+                  {t('nav.login')}
                 </Link>
               </div>
             )}
@@ -288,12 +292,13 @@ export const Navbar: React.FC = () => {
 
           {/* Mobile & tablet controls */}
           <div className="flex lg:hidden items-center gap-1.5">
+            <LanguageToggle compact />
             <ThemeToggle />
             {isAuthenticated && (
               <Link
                 to="/notifications"
                 className="relative p-2 rounded-xl text-ink-2 hover:bg-brand-soft hover:text-brand"
-                aria-label="বিজ্ঞপ্তি"
+                aria-label={t('nav.notifications')}
               >
                 <Bell className="w-5 h-5 shrink-0" />
                 {unreadCount > 0 && (

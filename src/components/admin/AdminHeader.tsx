@@ -9,8 +9,10 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { UserRole } from '../../types';
 import ThemeToggle from '../common/ThemeToggle';
+import LanguageToggle from '../common/LanguageToggle';
 
 interface AdminHeaderProps {
   onToggleSidebar?: () => void;
@@ -18,6 +20,7 @@ interface AdminHeaderProps {
 
 export const AdminHeader: React.FC<AdminHeaderProps> = () => {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
 
   const getRoleBadge = (role?: UserRole) => {
     switch (role) {
@@ -25,21 +28,21 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30 shadow-xs">
             <ShieldAlert className="w-3.5 h-3.5" />
-            সুপার অ্যাডমিন (Super Admin)
+            {t('admin.superAdmin')}
           </span>
         );
       case UserRole.ADMIN:
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-brand-soft text-brand-ink border border-brand/30 shadow-xs">
             <ShieldCheck className="w-3.5 h-3.5" />
-            অ্যাডমিন (Admin)
+            {t('admin.adminRole')}
           </span>
         );
       case UserRole.MODERATOR:
         return (
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shadow-xs">
             <UserCheck className="w-3.5 h-3.5" />
-            মডারেটর (Moderator)
+            {t('admin.moderatorRole')}
           </span>
         );
       default:
@@ -56,16 +59,16 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
           </div>
           <div>
             <h1 className="text-base sm:text-lg font-black text-ink tracking-tight flex items-center gap-2">
-              মধুবন্ধন কন্ট্রোল সেন্টার
+              {t('admin.controlCenter')}
             </h1>
             <p className="text-[11px] text-ink-3 hidden sm:block">
-              টাঙ্গাইল জেলা বৈবাহিক প্ল্যাটফর্ম পরিচালনা প্যানেল
+              {t('admin.controlCenterSubtitle')}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-3">
         <div className="hidden md:flex items-center gap-2">
           {getRoleBadge(user?.role)}
         </div>
@@ -77,6 +80,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
           <div className="text-[10px] text-ink-3 font-mono leading-tight">{user?.email}</div>
         </div>
 
+        <LanguageToggle />
         <ThemeToggle />
 
         <Link
@@ -85,17 +89,17 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
           title="মূল ওয়েবসাইট দেখুন"
         >
           <ExternalLink className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">মূল সাইট</span>
+          <span className="hidden md:inline">{t('admin.mainSite')}</span>
         </Link>
 
         <button
           type="button"
           onClick={() => logout()}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-all cursor-pointer"
-          title="লগআউট"
+          title={t('admin.logout')}
         >
           <LogOut className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">লগআউট</span>
+          <span className="hidden md:inline">{t('admin.logout')}</span>
         </button>
       </div>
     </header>

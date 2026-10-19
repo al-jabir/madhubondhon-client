@@ -15,6 +15,7 @@ import {
   Activity,
 } from 'lucide-react';
 import { UserRole } from '../../types';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export type AdminTab =
   | 'overview'
@@ -44,6 +45,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   pendingBiodataCount = 0,
   pendingReportsCount = 0,
 }) => {
+  const { t, formatNumber, isBengali } = useLanguage();
   const isSuperAdmin = userRole === UserRole.SUPER_ADMIN;
   const isSuperAdminOrAdmin = isSuperAdmin || userRole === UserRole.ADMIN;
 
@@ -59,14 +61,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     // Main Section
     {
       id: 'overview',
-      label: 'ওভারভিউ ও এনালিটিক্স',
+      label: t('admin.tabs.overview'),
       icon: LayoutDashboard,
       section: 'main',
       visible: true,
     },
     {
       id: 'biodata',
-      label: 'বায়োডাটা অনুমোদন',
+      label: t('admin.tabs.biodata'),
       icon: FileCheck2,
       badge: pendingBiodataCount,
       badgeColor: 'bg-brand text-white',
@@ -75,21 +77,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     },
     {
       id: 'users',
-      label: 'ইউজার ব্যবস্থাপনা',
+      label: t('admin.tabs.users'),
       icon: Users,
       section: 'main',
       visible: isSuperAdminOrAdmin,
     },
     {
       id: 'interests',
-      label: 'প্রস্তাব পর্যবেক্ষণ',
+      label: t('admin.tabs.interests'),
       icon: HeartHandshake,
       section: 'main',
       visible: isSuperAdminOrAdmin,
     },
     {
       id: 'reports',
-      label: 'অভিযোগ ও রিপোর্ট',
+      label: t('admin.tabs.reports'),
       icon: AlertTriangle,
       badge: pendingReportsCount,
       badgeColor: 'bg-amber-500 text-white',
@@ -98,7 +100,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     },
     {
       id: 'payments',
-      label: 'পেমেন্ট যাচাই',
+      label: t('admin.tabs.payments'),
       icon: CreditCard,
       section: 'main',
       visible: isSuperAdminOrAdmin,
@@ -107,14 +109,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     // CMS & Content
     {
       id: 'announcements',
-      label: 'নোটিশ ও ঘোষণা',
+      label: t('admin.tabs.announcements'),
       icon: Megaphone,
       section: 'cms',
       visible: isSuperAdminOrAdmin,
     },
     {
       id: 'content',
-      label: 'ওয়েবসাইট কনটেন্ট',
+      label: t('admin.tabs.content'),
       icon: FileEdit,
       section: 'cms',
       visible: isSuperAdminOrAdmin,
@@ -123,21 +125,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     // Super Admin Only
     {
       id: 'team',
-      label: 'অ্যাডমিন টিম',
+      label: t('admin.tabs.team'),
       icon: UserCog,
       section: 'superadmin',
       visible: isSuperAdmin,
     },
     {
       id: 'settings',
-      label: 'প্ল্যাটফর্ম সেটিংস',
+      label: t('admin.tabs.settings'),
       icon: Settings,
       section: 'superadmin',
       visible: isSuperAdmin,
     },
     {
       id: 'audit',
-      label: 'অডিট লগ হিস্টোরি',
+      label: t('admin.tabs.audit'),
       icon: History,
       section: 'superadmin',
       visible: isSuperAdminOrAdmin,
@@ -153,7 +155,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       {/* Main modules */}
       <div className="space-y-1">
         <div className="px-3 py-1 text-[11px] font-black uppercase tracking-wider text-ink-3">
-          মূল পরিচালনা
+          {isBengali ? 'মূল পরিচালনা' : 'Core Modules'}
         </div>
         {mainItems.map((item) => {
           const Icon = item.icon;
@@ -179,7 +181,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                     isActive ? 'bg-white text-brand' : item.badgeColor
                   }`}
                 >
-                  {item.badge}
+                  {formatNumber(item.badge)}
                 </span>
               )}
             </button>
@@ -191,7 +193,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       {cmsItems.length > 0 && (
         <div className="space-y-1">
           <div className="px-3 py-1 text-[11px] font-black uppercase tracking-wider text-ink-3">
-            পাবলিক কনটেন্ট ও ঘোষণা
+            {isBengali ? 'পাবলিক কনটেন্ট ও ঘোষণা' : 'Content & Notices'}
           </div>
           {cmsItems.map((item) => {
             const Icon = item.icon;
@@ -222,7 +224,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         <div className="space-y-1 pt-2 border-t border-line">
           <div className="px-3 py-1 text-[11px] font-black uppercase tracking-wider text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
             <Shield className="w-3 h-3" />
-            <span>সুপার অ্যাডমিন জোন</span>
+            <span>{isBengali ? 'সুপার অ্যাডমিন জোন' : 'Super Admin Zone'}</span>
           </div>
           {superAdminItems.map((item) => {
             const Icon = item.icon;
