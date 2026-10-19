@@ -29,7 +29,10 @@
   color-scheme: light;
 }
 
-[data-theme="dark"] {
+:root[data-theme="dark"],
+[data-theme="dark"],
+:root.dark,
+.dark {
   --mb-base: #101319;
   --mb-card: #191e28;
   --mb-elev: #1e2431;

@@ -150,29 +150,29 @@ export const FAQPage: React.FC = () => {
           <HelpCircle className="w-3.5 h-3.5" />
           <span>সহায়তা ও দিকনির্দেশনা</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
           সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)
         </h1>
-        <p className="text-sm text-ink-2">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           মধুবন্ধন টাঙ্গাইল মেট্রিমনি প্ল্যাটফর্মের ব্যবহারবিধি, শরিয়াহ নীতিমালা ও সেবা সংক্রান্ত যাবতীয় উত্তর
         </p>
 
         {/* Search bar */}
         <div className="pt-2">
           <div className="relative max-w-md mx-auto">
-            <Search className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-gray-400 dark:text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="প্রশ্ন বা কীওয়ার্ড লিখে খুঁজুন..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="mb-input w-full !text-sm pl-10 pr-10 py-2.5"
+              className="mb-input w-full !text-sm pl-10 pr-10 py-2.5 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink transition-colors cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer"
                 aria-label="ক্লিয়ার করুন"
               >
                 <X className="w-4 h-4" />
@@ -189,8 +189,8 @@ export const FAQPage: React.FC = () => {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-ink">শতভাগ গোপনীয়তা</h4>
-            <p className="text-[11px] text-ink-3">অনুমতি ছাড়া কোনো ফোন নম্বর শেয়ার হয় না</p>
+            <h4 className="text-xs font-bold text-gray-900 dark:text-white">শতভাগ গোপনীয়তা</h4>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">অনুমতি ছাড়া কোনো ফোন নম্বর শেয়ার হয় না</p>
           </div>
         </div>
 
@@ -199,8 +199,8 @@ export const FAQPage: React.FC = () => {
             <Users className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-ink">অভিভাবকের তত্ত্বাবধান</h4>
-            <p className="text-[11px] text-ink-3">পারিবারিক সম্মতির মাধ্যমে সরাসরি যোগাযোগ</p>
+            <h4 className="text-xs font-bold text-gray-900 dark:text-white">অভিভাবকের তত্ত্বাবধান</h4>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">পারিবারিক সম্মতির মাধ্যমে সরাসরি যোগাযোগ</p>
           </div>
         </div>
 
@@ -209,8 +209,8 @@ export const FAQPage: React.FC = () => {
             <Lock className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-ink">পর্দাশীল ব্লার সুবিধা</h4>
-            <p className="text-[11px] text-ink-3">মা-বোনদের ছবির জন্য পূর্ণ শালীনতা ও সুরক্ষা</p>
+            <h4 className="text-xs font-bold text-gray-900 dark:text-white">পর্দাশীল ব্লার সুবিধা</h4>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">মা-বোনদের ছবির জন্য পূর্ণ শালীনতা ও সুরক্ষা</p>
           </div>
         </div>
       </div>
@@ -231,14 +231,14 @@ export const FAQPage: React.FC = () => {
               onClick={() => setSelectedCategory(category)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer inline-flex items-center gap-1.5 ${
                 isActive
-                  ? 'bg-brand text-white shadow-xs shadow-brand/25'
-                  : 'bg-card text-ink-2 border border-line hover:border-brand/40 hover:text-brand hover:bg-brand-soft/30'
+                  ? 'bg-rose-600 text-white shadow-xs shadow-rose-600/30 font-bold'
+                  : 'bg-card text-gray-700 dark:text-gray-300 border border-line hover:border-brand/40 hover:text-brand hover:bg-brand-soft/30'
               }`}
             >
               <span>{category}</span>
               <span
                 className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                  isActive ? 'bg-white/20 text-white' : 'bg-elev text-ink-3'
+                  isActive ? 'bg-white/20 text-white' : 'bg-elev text-gray-500 dark:text-gray-400'
                 }`}
               >
                 {count}
@@ -301,7 +301,7 @@ export const FAQPage: React.FC = () => {
                 key={faq.id}
                 className={`bg-card mb-card overflow-hidden transition-all duration-200 border ${
                   isOpen
-                    ? 'border-brand/40 shadow-xs'
+                    ? 'border-rose-400 dark:border-rose-500/80 shadow-md ring-1 ring-rose-500/20'
                     : 'border-line hover:border-line-strong'
                 }`}
               >
@@ -309,22 +309,22 @@ export const FAQPage: React.FC = () => {
                   type="button"
                   onClick={() => toggleOpen(faq.id)}
                   className={`w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer transition-colors ${
-                    isOpen ? 'bg-brand-soft/20' : 'hover:bg-brand-soft/30'
+                    isOpen ? 'bg-rose-500/10 dark:bg-rose-950/30' : 'hover:bg-rose-500/5 dark:hover:bg-gray-800/40'
                   }`}
                   aria-expanded={isOpen}
                 >
                   <div className="space-y-1.5 pr-2">
-                    <span className="bg-brand-soft border border-brand/20 rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-brand-ink inline-flex items-center">
+                    <span className="bg-rose-100 text-rose-800 border border-rose-300/80 dark:bg-rose-950/70 dark:text-rose-200 dark:border-rose-800/70 rounded-full px-2.5 py-0.5 text-[11px] font-bold inline-flex items-center">
                       {faq.category}
                     </span>
-                    <h3 className="text-sm sm:text-base font-bold text-ink leading-snug">
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white leading-snug">
                       {faq.question}
                     </h3>
                   </div>
 
                   <div
-                    className={`w-7 h-7 rounded-full bg-elev flex items-center justify-center text-ink-3 shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 bg-brand-soft text-brand' : ''
+                    className={`w-7 h-7 rounded-full bg-elev flex items-center justify-center text-gray-500 dark:text-gray-300 shrink-0 transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 bg-rose-500/20 text-rose-600 dark:text-rose-400' : ''
                     }`}
                   >
                     <ChevronDown className="w-4 h-4" />
@@ -332,8 +332,8 @@ export const FAQPage: React.FC = () => {
                 </button>
 
                 {isOpen && (
-                  <div className="px-4 sm:px-5 pb-5 pt-2 text-xs sm:text-sm text-ink-2 leading-relaxed border-t border-line bg-elev/40">
-                    <p className="whitespace-pre-line">{faq.answer}</p>
+                  <div className="px-4 sm:px-5 pb-5 pt-3 text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed border-t border-line bg-elev/50 dark:bg-[#161b24]/60">
+                    <p className="whitespace-pre-line leading-relaxed">{faq.answer}</p>
                   </div>
                 )}
               </div>
