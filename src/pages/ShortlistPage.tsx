@@ -30,7 +30,9 @@ export const ShortlistPage: React.FC = () => {
     },
   });
 
-  const profiles: ShortlistItem[] = data?.data || [];
+  // API returns { data: { profiles: [...], meta } }
+  const payload = (data?.data || {}) as { profiles?: ShortlistItem[] };
+  const profiles: ShortlistItem[] = payload.profiles || [];
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">

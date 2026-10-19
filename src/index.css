@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+/* Self-hosted Bengali + Latin subsets (weights 300–700) — no CDN dependency */
+@import './fonts.css';
 @import "tailwindcss";
 
 /* Dark mode follows the app's data-theme attribute (set by ThemeToggle), not the OS. */
