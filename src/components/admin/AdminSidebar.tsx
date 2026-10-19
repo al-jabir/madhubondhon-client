@@ -13,6 +13,7 @@ import {
   History,
   Shield,
   Activity,
+  Sparkles,
 } from 'lucide-react';
 import { UserRole } from '../../types';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -25,6 +26,7 @@ export type AdminTab =
   | 'reports'
   | 'announcements'
   | 'content'
+  | 'demo'
   | 'payments'
   | 'team'
   | 'settings'
@@ -118,6 +120,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       id: 'content',
       label: t('admin.tabs.content'),
       icon: FileEdit,
+      section: 'cms',
+      visible: isSuperAdminOrAdmin,
+    },
+    {
+      id: 'demo',
+      label: t('admin.tabs.demo'),
+      icon: Sparkles,
       section: 'cms',
       visible: isSuperAdminOrAdmin,
     },

@@ -24,6 +24,7 @@ import {
   Settings,
 } from "lucide-react";
 import { notificationsApi } from "../../api/notifications.api";
+import { adminApi } from "../../api/admin.api";
 import { useAuth } from "../../context/useAuth";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { UserRole } from "../../types";
@@ -78,10 +79,18 @@ export const Navbar: React.FC = () => {
   });
   const unreadCount = notificationsData?.data?.unreadCount || 0;
 
+  // Public Platform Settings (for controlling demo data visibility)
+  const { data: publicSettingsData } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: () => adminApi.getPublicSettings(),
+    staleTime: 1000 * 60 * 5,
+  });
+  const showDemo = publicSettingsData?.data?.settings?.showDemoProfiles !== false;
+
   const menuLinks = [
     { to: "/", icon: Home, label: t('nav.home') },
     { to: "/search", icon: Search, label: t('nav.search') },
-    { to: "/demo", icon: Sparkles, label: t('nav.demo') },
+    ...(showDemo ? [{ to: "/demo", icon: Sparkles, label: t('nav.demo') }] : []),
     { to: "/about", icon: Info, label: t('nav.about') },
     { to: "/faq", icon: HelpCircle, label: t('nav.faq') },
     { to: "/guide", icon: Compass, label: t('nav.guide') },

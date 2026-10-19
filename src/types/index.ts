@@ -244,6 +244,7 @@ export interface PlatformSettings {
   registrationOpen: boolean;
   requireBiodataApproval: boolean;
   maintenanceMode: boolean;
+  showDemoProfiles?: boolean;
   allowedUpazilas: string[];
   maxPhotosPerUser: number;
   contactCreditCost: number;

@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   ToggleLeft,
   ToggleRight,
+  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
@@ -28,6 +29,7 @@ export const AdminSettingsTab: React.FC = () => {
   const [registrationOpen, setRegistrationOpen] = useState(true);
   const [requireBiodataApproval, setRequireBiodataApproval] = useState(true);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [showDemoProfiles, setShowDemoProfiles] = useState(true);
   const [contactCreditCost, setContactCreditCost] = useState(100);
 
   // Settings Query
@@ -48,6 +50,7 @@ export const AdminSettingsTab: React.FC = () => {
       setRegistrationOpen(settings.registrationOpen !== false);
       setRequireBiodataApproval(settings.requireBiodataApproval !== false);
       setMaintenanceMode(Boolean(settings.maintenanceMode));
+      setShowDemoProfiles(settings.showDemoProfiles !== false);
       setContactCreditCost(settings.contactCreditCost || 100);
     }
   }, [settings]);
@@ -64,6 +67,7 @@ export const AdminSettingsTab: React.FC = () => {
         registrationOpen,
         requireBiodataApproval,
         maintenanceMode,
+        showDemoProfiles,
         contactCreditCost,
       }),
     onSuccess: () => {
@@ -208,6 +212,28 @@ export const AdminSettingsTab: React.FC = () => {
                   >
                     {requireBiodataApproval ? (
                       <ToggleRight className="w-8 h-8 text-emerald-500" />
+                    ) : (
+                      <ToggleLeft className="w-8 h-8 text-ink-3" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Show Demo Profiles Switch */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                  <div>
+                    <div className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>ওয়েবসাইটে নমুনা বায়োডাটা প্রদর্শন (Demo Data)</span>
+                    </div>
+                    <div className="text-ink-3 text-[11px]">চালু থাকলে সাধারণ ভিজিটররা ন্যাভবারে "নমুনা বায়োডাটা" লিংক দেখতে পাবেন</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowDemoProfiles(!showDemoProfiles)}
+                    className="cursor-pointer"
+                  >
+                    {showDemoProfiles ? (
+                      <ToggleRight className="w-8 h-8 text-amber-500" />
                     ) : (
                       <ToggleLeft className="w-8 h-8 text-ink-3" />
                     )}

@@ -10,6 +10,7 @@ import ProfileCard from '../components/profile/ProfileCard';
 import SendInterestModal from '../components/profile/SendInterestModal';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { useAuth } from '../context/useAuth';
+import { adminApi } from '../api/admin.api';
 
 export const SearchPage: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const [params] = useSearchParams();
@@ -122,13 +123,43 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
     setMobileFiltersOpen(false);
   };
 
+  // Public platform settings check
+  const { data: publicSettingsData } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: () => adminApi.getPublicSettings(),
+    staleTime: 1000 * 60 * 5,
+  });
+  const isDemoEnabled = publicSettingsData?.data?.settings?.showDemoProfiles !== false;
+
   const profiles = data?.data?.profiles || [];
   const meta = data?.meta || { total: profiles.length, totalPages: 1, page: 1, limit: 9 };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 sm:space-y-8">
-      {demo && <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold"><strong>নমুনা বায়োডাটা</strong> — নিচের ১২টি প্রোফাইল কাল্পনিক। ফিল্টার ও বিস্তারিত পেজ ঘুরে দেখতে পারেন।</div>}
-      {!demo && import.meta.env.DEV && import.meta.env.VITE_LOCAL_DEV === 'true' && <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold">নিজের local database থেকে ফলাফল দেখানো হচ্ছে। Development-এর জন্য যোগ করা ১২টি sample বায়োডাটা কাল্পনিক।</div>}
+      {demo && !isDemoEnabled && (
+        <div className="rounded-2xl bg-amber-500/15 border border-amber-500/30 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-amber-800 dark:text-amber-300">
+          <div>
+            <strong>নমুনা বায়োডাটা প্রদর্শন বর্তমানে নিষ্ক্রিয়:</strong> প্ল্যাটফর্ম অ্যাডমিনিস্ট্রেটর কর্তৃক নমুনা বায়োডাটা সাময়িকভাবে লুকানো হয়েছে। বাস্তব সদস্যদের বায়োডাটা অনুসন্ধান করতে নিচের বাটনে ক্লিক করুন।
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/search')}
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-600 text-white hover:bg-amber-700 transition-colors shrink-0 cursor-pointer"
+          >
+            মূল অনুসন্ধানে যান
+          </button>
+        </div>
+      )}
+      {demo && isDemoEnabled && (
+        <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold">
+          <strong>নমুনা বায়োডাটা</strong> — নিচের ১২টি প্রোফাইল কাল্পনিক। ফিল্টার ও বিস্তারিত পেজ ঘুরে দেখতে পারেন।
+        </div>
+      )}
+      {!demo && import.meta.env.DEV && import.meta.env.VITE_LOCAL_DEV === 'true' && (
+        <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold">
+          নিজের local database থেকে ফলাফল দেখানো হচ্ছে। Development-এর জন্য যোগ করা ১২টি sample বায়োডাটা কাল্পনিক।
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-line">

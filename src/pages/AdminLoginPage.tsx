@@ -36,19 +36,19 @@ export const AdminLoginPage: React.FC = () => {
     (location.state as { from?: { pathname: string } })?.from?.pathname ||
     "/admin";
 
+  const isAdminRole =
+    user?.role === UserRole.ADMIN ||
+    user?.role === UserRole.SUPER_ADMIN ||
+    user?.role === UserRole.MODERATOR;
+
   // If already authenticated with an administrative role, redirect to /admin directly
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
-      const isAdminRole =
-        user.role === UserRole.ADMIN ||
-        user.role === UserRole.SUPER_ADMIN ||
-        user.role === UserRole.MODERATOR;
-
       if (isAdminRole) {
         navigate(from.startsWith("/admin") ? from : "/admin", { replace: true });
       }
     }
-  }, [user, isAuthenticated, isLoading, navigate, from]);
+  }, [user, isAuthenticated, isLoading, navigate, from, isAdminRole]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,6 +144,15 @@ export const AdminLoginPage: React.FC = () => {
 
           {/* Form Card */}
           <div className="mb-card p-6 sm:p-8 rounded-3xl border border-line bg-card/90 shadow-xl backdrop-blur-md">
+            {isAuthenticated && user && !isAdminRole && (
+              <div className="mb-5 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-700 dark:text-amber-400 flex items-start gap-2.5">
+                <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <strong>সদস্য লগইন সক্রিয়:</strong> আপনি বর্তমানে সাধারণ সদস্য হিসেবে লগইন আছেন ({user.email})। প্রশাসনিক ড্যাশবোর্ডে প্রবেশ করতে অনুগ্রহ করে অ্যাডমিন ক্রেডেনশিয়াল দিন।
+                </div>
+              </div>
+            )}
+
             {errorMessage && (
               <div className="mb-5 p-3.5 rounded-2xl bg-red-500/10 border border-red-500/25 text-xs font-semibold text-red-600 dark:text-red-400 flex items-start gap-2.5">
                 <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />

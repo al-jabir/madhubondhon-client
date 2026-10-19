@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Navigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/useAuth';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -18,6 +19,7 @@ import AdminInterestsTab from '../components/admin/tabs/AdminInterestsTab';
 import AdminReportsTab from '../components/admin/tabs/AdminReportsTab';
 import AdminAnnouncementsTab from '../components/admin/tabs/AdminAnnouncementsTab';
 import AdminContentTab from '../components/admin/tabs/AdminContentTab';
+import AdminDemoTab from '../components/admin/tabs/AdminDemoTab';
 import AdminTeamTab from '../components/admin/tabs/AdminTeamTab';
 import AdminSettingsTab from '../components/admin/tabs/AdminSettingsTab';
 import AdminAuditLogsTab from '../components/admin/tabs/AdminAuditLogsTab';
@@ -26,18 +28,26 @@ export const AdminDashboardPage: React.FC = () => {
   const { user: currentUser } = useAuth();
   const { t } = useLanguage();
 
+  const isSuperAdmin = currentUser?.role === UserRole.SUPER_ADMIN;
+  const isSuperAdminOrAdmin = isSuperAdmin || currentUser?.role === UserRole.ADMIN;
+  const isAdminOrMod = isSuperAdminOrAdmin || currentUser?.role === UserRole.MODERATOR;
+
+  // Strict In-Component Role Protection Guard:
+  // If not authenticated or role is customer/undefined, immediately redirect to admin login
+  if (!currentUser || !isAdminOrMod) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
   // Initial tab based on role
   const initialTab: AdminTab =
     currentUser?.role === UserRole.MODERATOR ? 'biodata' : 'overview';
   const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
 
-  const isSuperAdmin = currentUser?.role === UserRole.SUPER_ADMIN;
-  const isSuperAdminOrAdmin = isSuperAdmin || currentUser?.role === UserRole.ADMIN;
-
-  // Real Stats Query
+  // Real Stats Query (only enabled for verified administrative accounts)
   const { data: statsData } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: () => adminApi.getStats(),
+    enabled: !!currentUser && isAdminOrMod,
     refetchInterval: 30000, // Refresh every 30s
   });
 
@@ -89,6 +99,8 @@ export const AdminDashboardPage: React.FC = () => {
           {activeTab === 'announcements' && isSuperAdminOrAdmin && <AdminAnnouncementsTab />}
 
           {activeTab === 'content' && isSuperAdminOrAdmin && <AdminContentTab />}
+
+          {activeTab === 'demo' && isSuperAdminOrAdmin && <AdminDemoTab />}
 
           {activeTab === 'team' && isSuperAdmin && (
             <AdminTeamTab currentUserId={currentUser?.id || (currentUser as any)?._id} />

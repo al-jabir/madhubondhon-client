@@ -31,10 +31,11 @@ export const LoginPage: React.FC = () => {
         user.role === UserRole.SUPER_ADMIN ||
         user.role === UserRole.MODERATOR;
 
-      if (isAdminRole && (from === "/my-profile" || from === "/")) {
-        navigate("/admin", { replace: true });
+      if (isAdminRole) {
+        navigate(from.startsWith("/admin") ? from : "/admin", { replace: true });
       } else {
-        navigate(from, { replace: true });
+        const safeDestination = from.startsWith("/admin") ? "/my-profile" : from;
+        navigate(safeDestination, { replace: true });
       }
     }
   }, [user, isAuthenticated, isLoading, navigate, from]);
@@ -57,10 +58,11 @@ export const LoginPage: React.FC = () => {
         loggedInUser?.role === UserRole.SUPER_ADMIN ||
         loggedInUser?.role === UserRole.MODERATOR;
 
-      if (isAdminRole && (from === "/my-profile" || from === "/")) {
-        navigate("/admin", { replace: true });
+      if (isAdminRole) {
+        navigate(from.startsWith("/admin") ? from : "/admin", { replace: true });
       } else {
-        navigate(from, { replace: true });
+        const safeDestination = from.startsWith("/admin") ? "/my-profile" : from;
+        navigate(safeDestination, { replace: true });
       }
     } catch (err: unknown) {
       const msg = getApiErrorMessage(err, t('auth.loginFailed'));

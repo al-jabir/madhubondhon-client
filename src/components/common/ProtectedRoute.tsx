@@ -24,10 +24,23 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
+  const isGoingToAdmin = location.pathname.startsWith('/admin');
+
   if (!isAuthenticated || !user) {
-    const isGoingToAdmin = location.pathname.startsWith('/admin');
     const targetLogin = isGoingToAdmin ? '/admin/login' : '/login';
     return <Navigate to={targetLogin} state={{ from: location }} replace />;
+  }
+
+  // Strict Admin Isolation Guard: Customers must NEVER access /admin routes
+  if (isGoingToAdmin) {
+    const isAdminOrMod =
+      user.role === UserRole.ADMIN ||
+      user.role === UserRole.SUPER_ADMIN ||
+      user.role === UserRole.MODERATOR;
+
+    if (!isAdminOrMod) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
