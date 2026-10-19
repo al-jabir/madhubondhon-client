@@ -301,8 +301,11 @@ export const Navbar: React.FC = () => {
 
           {/* Mobile & tablet controls */}
           <div className="flex lg:hidden items-center gap-1 sm:gap-1.5 shrink-0">
-            <LanguageToggle compact />
-            <ThemeToggle compact />
+            {/* Language & Theme in header only on sm+ tablets/desktops; hidden on mobile phones because they appear inside the mobile drawer */}
+            <div className="hidden sm:flex items-center gap-1 sm:gap-1.5">
+              <LanguageToggle compact />
+              <ThemeToggle compact />
+            </div>
             {isAuthenticated && (
               <Link
                 to="/notifications"
