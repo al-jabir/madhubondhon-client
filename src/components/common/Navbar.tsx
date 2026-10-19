@@ -300,9 +300,9 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile & tablet controls */}
-          <div className="flex lg:hidden items-center gap-1 sm:gap-1.5 shrink-0">
-            {/* Language & Theme in header only on sm+ tablets/desktops; hidden on mobile phones because they appear inside the mobile drawer */}
-            <div className="hidden sm:flex items-center gap-1 sm:gap-1.5">
+          <div className="flex lg:hidden items-center gap-1 sm:gap-2 shrink-0">
+            {/* Language & Theme in header only on screens >767px (md+); hidden on mobile phones (<=767px) because they appear inside the mobile drawer */}
+            <div className="hidden md:flex items-center gap-1.5">
               <LanguageToggle compact />
               <ThemeToggle compact />
             </div>
@@ -354,8 +354,8 @@ export const Navbar: React.FC = () => {
             </div>
           )}
 
-          {/* Quick Settings Bar in Mobile Drawer */}
-          <div className="grid grid-cols-2 gap-2 mb-3 pt-1">
+          {/* Quick Settings Bar in Mobile Drawer: Only shown on mobile (<768px), removed on 768px+ (md:hidden) */}
+          <div className="grid grid-cols-2 gap-2 mb-3 pt-1 md:hidden">
             <div className="flex items-center justify-between p-2.5 rounded-xl bg-elev border border-line">
               <span className="text-xs font-bold text-ink-2">{isBengali ? 'ভাষা' : 'Language'}</span>
               <LanguageToggle compact />
