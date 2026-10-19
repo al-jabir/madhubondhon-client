@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
-import { Heart, Lock, Mail, Eye, EyeOff, Sparkles, ArrowRight } from "lucide-react";
+import { Heart, Lock, Mail, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "../api/errors";
 import { useAuth } from "../context/useAuth";
@@ -40,12 +40,6 @@ export const LoginPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const fillQuickAccount = (e: string, p: string) => {
-    setEmail(e);
-    setPassword(p);
-    setErrorMessage("");
   };
 
   return (
@@ -125,33 +119,6 @@ export const LoginPage: React.FC = () => {
             পাসওয়ার্ড ভুলে গেছেন?
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
-
-          {/* Quick Test Accounts for Instant Verification */}
-          {import.meta.env.DEV && import.meta.env.VITE_LOCAL_DEV === 'true' && (
-            <div className="mt-6 pt-5 border-t border-line">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-ink-2 mb-2.5">
-                <Sparkles className="w-3.5 h-3.5 text-brand" />
-                <span>টেস্ট অ্যাকাউন্টে এক ক্লিকে লগইন পূরণ:</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {[
-                  { label: 'অ্যাডমিন (Admin)', email: "admin@local.test" },
-                  { label: 'মডারেটর (Moderator)', email: "moderator@local.test" },
-                  { label: 'পাত্র (Male User)', email: "male@local.test" },
-                  { label: 'পাত্রী (Female User)', email: "female@local.test" },
-                ].map(({ label, email: mail }) => (
-                  <button
-                    key={mail}
-                    type="button"
-                    onClick={() => fillQuickAccount(mail, "Password123!")}
-                    className="px-2.5 py-1 text-[11px] font-semibold bg-elev hover:bg-brand-soft text-ink-2 hover:text-brand-ink rounded-lg border border-line hover:border-brand/40 cursor-pointer transition-colors"
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="mt-5 pt-4 border-t border-line text-center text-xs text-ink-2">
             নতুন সদস্য?{" "}
