@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { paymentsApi } from '../../api/payments.api';
 import { CreditTransaction, User } from '../../types';
 import LoadingSpinner from '../common/LoadingSpinner';
+import ConfirmationModal from '../common/ConfirmationModal';
 import { useLanguage } from '../../i18n/LanguageContext';
 
 export const AdminPaymentsQueue: React.FC = () => {
@@ -22,6 +23,8 @@ export const AdminPaymentsQueue: React.FC = () => {
   const { isBengali, formatNumber } = useLanguage();
   const [statusFilter, setStatusFilter] = useState<string>('pending');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [approveTarget, setApproveTarget] = useState<CreditTransaction | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<CreditTransaction | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-transactions', statusFilter, searchTerm],
@@ -63,25 +66,11 @@ export const AdminPaymentsQueue: React.FC = () => {
   const transactions: CreditTransaction[] = data?.data || [];
 
   const handleApprove = (trx: CreditTransaction) => {
-    const confirmMsg = isBengali
-      ? `আপনি কি নিশ্চিত যে TrxID: ${trx.trxId} এর পেমেন্ট অনুমোদন করবেন? এর ফলে ব্যবহারকারী ${formatNumber(trx.credits)} টি কন্টাক্ট ক্রেডিট পাবেন।`
-      : `Are you sure you want to approve the payment for TrxID: ${trx.trxId}? This will grant ${formatNumber(trx.credits)} contact credits to the user.`;
-    if (window.confirm(confirmMsg)) {
-      reviewMutation.mutate({ id: trx._id, status: 'completed' });
-    }
+    setApproveTarget(trx);
   };
 
   const handleReject = (trx: CreditTransaction) => {
-    const reasonPrompt = isBengali ? 'বাতিলের কারণ লিখুন (ঐচ্ছিক):' : 'Enter rejection reason (optional):';
-    const defaultReason = isBengali ? 'প্রদত্ত TrxID অথবা টাকার পরিমাণ সঠিক নয়' : 'Invalid TrxID or mismatched amount';
-    const reason = window.prompt(reasonPrompt, defaultReason);
-    if (reason !== null) {
-      reviewMutation.mutate({
-        id: trx._id,
-        status: 'rejected',
-        note: reason.trim() || undefined,
-      });
-    }
+    setRejectTarget(trx);
   };
 
   return (
@@ -256,6 +245,63 @@ export const AdminPaymentsQueue: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Approve Payment Modal */}
+      <ConfirmationModal
+        isOpen={!!approveTarget}
+        onClose={() => setApproveTarget(null)}
+        onConfirm={() => {
+          if (approveTarget) {
+            reviewMutation.mutate(
+              { id: approveTarget._id, status: 'completed' },
+              { onSettled: () => setApproveTarget(null) }
+            );
+          }
+        }}
+        title={isBengali ? 'পেমেন্ট অনুমোদন' : 'Approve Payment'}
+        message={
+          isBengali
+            ? `আপনি কি নিশ্চিত যে TrxID: ${approveTarget?.trxId} এর পেমেন্ট অনুমোদন করবেন? এর ফলে ব্যবহারকারী ${formatNumber(approveTarget?.credits || 0)} টি কন্টাক্ট ক্রেডিট পাবেন।`
+            : `Are you sure you want to approve the payment for TrxID: ${approveTarget?.trxId}? This will grant ${formatNumber(approveTarget?.credits || 0)} contact credits to the user.`
+        }
+        confirmText={isBengali ? 'অনুমোদন করুন' : 'Approve'}
+        variant="success"
+        isLoading={reviewMutation.isPending}
+      />
+
+      {/* Reject Payment Modal */}
+      <ConfirmationModal
+        isOpen={!!rejectTarget}
+        onClose={() => setRejectTarget(null)}
+        onConfirm={(reason) => {
+          if (rejectTarget) {
+            reviewMutation.mutate(
+              {
+                id: rejectTarget._id,
+                status: 'rejected',
+                note: reason?.trim() || undefined,
+              },
+              { onSettled: () => setRejectTarget(null) }
+            );
+          }
+        }}
+        title={isBengali ? 'পেমেন্ট বাতিল' : 'Reject Payment'}
+        message={
+          isBengali
+            ? `আপনি কি নিশ্চিত যে TrxID: ${rejectTarget?.trxId} এর পেমেন্ট বাতিল করতে চান?`
+            : `Are you sure you want to reject the payment for TrxID: ${rejectTarget?.trxId}?`
+        }
+        confirmText={isBengali ? 'বাতিল করুন' : 'Reject'}
+        variant="danger"
+        hasInput={true}
+        inputLabel={isBengali ? 'বাতিলের কারণ লিখুন (ঐচ্ছিক):' : 'Rejection Reason (optional):'}
+        inputDefaultValue={
+          isBengali
+            ? 'প্রদত্ত TrxID অথবা টাকার পরিমাণ সঠিক নয়'
+            : 'Invalid TrxID or mismatched amount'
+        }
+        isLoading={reviewMutation.isPending}
+      />
     </div>
   );
 };

@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
 import { AdminStaffUser, UserRole, AccountStatus } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
+import ConfirmationModal from '../../common/ConfirmationModal';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export const AdminTeamTab: React.FC<{ currentUserId?: string }> = ({ currentUserId }) => {
@@ -24,6 +25,11 @@ export const AdminTeamTab: React.FC<{ currentUserId?: string }> = ({ currentUser
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<UserRole>(UserRole.ADMIN);
+  const [statusConfirmTarget, setStatusConfirmTarget] = useState<{
+    userId: string;
+    name: string;
+    nextStatus: AccountStatus;
+  } | null>(null);
 
   // List admins query
   const { data: teamData, isLoading } = useQuery({
@@ -200,12 +206,11 @@ export const AdminTeamTab: React.FC<{ currentUserId?: string }> = ({ currentUser
                                 st.accountStatus === AccountStatus.ACTIVE
                                   ? AccountStatus.SUSPENDED
                                   : AccountStatus.ACTIVE;
-                              const confirmMsg = isBengali
-                                ? 'আপনি কি নিশ্চিতভাবে এই অ্যাকাউন্টের স্ট্যাটাস পরিবর্তন করতে চান?'
-                                : 'Are you sure you want to change the status of this account?';
-                              if (window.confirm(confirmMsg)) {
-                                statusMutation.mutate({ userId: uid, status: next });
-                              }
+                              setStatusConfirmTarget({
+                                userId: uid,
+                                name: st.name || st.email,
+                                nextStatus: next,
+                              });
                             }}
                             className="px-2.5 py-1 text-xs font-bold rounded-lg border border-line bg-elev hover:bg-card cursor-pointer"
                           >
@@ -345,6 +350,42 @@ export const AdminTeamTab: React.FC<{ currentUserId?: string }> = ({ currentUser
           </div>
         </div>
       )}
+
+      {/* Status Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!statusConfirmTarget}
+        onClose={() => setStatusConfirmTarget(null)}
+        onConfirm={() => {
+          if (statusConfirmTarget) {
+            statusMutation.mutate(
+              {
+                userId: statusConfirmTarget.userId,
+                status: statusConfirmTarget.nextStatus,
+              },
+              {
+                onSettled: () => setStatusConfirmTarget(null),
+              }
+            );
+          }
+        }}
+        title={
+          statusConfirmTarget?.nextStatus === AccountStatus.SUSPENDED
+            ? (isBengali ? 'অ্যাকাউন্ট নিষ্ক্রিয়করণ' : 'Deactivate Account')
+            : (isBengali ? 'অ্যাকাউন্ট সক্রিয়করণ' : 'Activate Account')
+        }
+        message={
+          isBengali
+            ? `আপনি কি নিশ্চিতভাবে "${statusConfirmTarget?.name}" অ্যাকাউন্টের স্ট্যাটাস পরিবর্তন করতে চান?`
+            : `Are you sure you want to change the status of "${statusConfirmTarget?.name}"?`
+        }
+        confirmText={
+          statusConfirmTarget?.nextStatus === AccountStatus.SUSPENDED
+            ? (isBengali ? 'নিষ্ক্রিয় করুন' : 'Deactivate')
+            : (isBengali ? 'সক্রিয় করুন' : 'Activate')
+        }
+        variant={statusConfirmTarget?.nextStatus === AccountStatus.SUSPENDED ? 'danger' : 'success'}
+        isLoading={statusMutation.isPending}
+      />
     </div>
   );
 };

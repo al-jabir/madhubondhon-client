@@ -29,6 +29,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import GenderAvatar from '../components/common/GenderAvatar';
 import SendInterestModal from '../components/profile/SendInterestModal';
 import ReportModal from '../components/profile/ReportModal';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 import { useAuth } from '../context/useAuth';
 
 export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
@@ -40,6 +41,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   const [isInterestOpen, setIsInterestOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isBlocking, setIsBlocking] = useState(false);
+  const [isBlockConfirmOpen, setIsBlockConfirmOpen] = useState(false);
   const [contactBusy, setContactBusy] = useState(false);
   const [isShortlistBusy, setIsShortlistBusy] = useState(false);
 
@@ -120,11 +122,13 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
     toast.success('বায়োডাটার লিংক কপি করা হয়েছে!');
   };
 
-  const handleBlockUser = async () => {
+  const handleBlockUser = () => {
     if (!userId) return;
-    if (!window.confirm('আপনি কি সত্যিই এই প্রোফাইলটি ব্লক করতে চান? ব্লক করলে তার কোনো তথ্য দেখতে পাবেন না।')) {
-      return;
-    }
+    setIsBlockConfirmOpen(true);
+  };
+
+  const confirmBlockUser = async () => {
+    if (!userId) return;
     try {
       setIsBlocking(true);
       await blocksApi.blockUser(userId, 'ইউজার দ্বারা ব্লককৃত');
@@ -137,6 +141,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
       toast.error(msg);
     } finally {
       setIsBlocking(false);
+      setIsBlockConfirmOpen(false);
     }
   };
 
@@ -402,6 +407,16 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
         onClose={() => setIsReportOpen(false)}
         targetUserId={targetUserId || ''}
         targetName={profile.displayName}
+      />
+      <ConfirmationModal
+        isOpen={isBlockConfirmOpen}
+        onClose={() => setIsBlockConfirmOpen(false)}
+        onConfirm={confirmBlockUser}
+        title="প্রোফাইল ব্লক নিশ্চিতকরণ"
+        message={`আপনি কি সত্যিই ${profile?.displayName || 'এই ব্যবহারকারী'} এর প্রোফাইলটি ব্লক করতে চান? ব্লক করলে তার কোনো তথ্য দেখতে পাবেন না এবং তিনিও আপনার সাথে যোগাযোগ করতে পারবেন না।`}
+        confirmText="ব্লক করুন"
+        variant="danger"
+        isLoading={isBlocking}
       />
     </div>
   );

@@ -17,6 +17,7 @@ import { User, UserRole, AccountStatus } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../../../constants/locations';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import ConfirmationModal from '../../common/ConfirmationModal';
 
 interface AdminUsersTabProps {
   currentUserRole?: UserRole;
@@ -37,6 +38,9 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [upazilaFilter, setUpazilaFilter] = useState<string>('');
   const [page, setPage] = useState(1);
+
+  // Role Change Modal State
+  const [roleConfirmTarget, setRoleConfirmTarget] = useState<{ user: User; nextRole: UserRole } | null>(null);
 
   // Status Change Modal State
   const [statusModalUser, setStatusModalUser] = useState<User | null>(null);
@@ -269,12 +273,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                             disabled={roleMutation.isPending}
                             onChange={(e) => {
                               const nextRole = e.target.value as UserRole;
-                              const confirmMsg = isBengali
-                                ? `আপনি কি নিশ্চিতভাবে ${u.name}-এর ভূমিকা ${nextRole}-এ পরিবর্তন করতে চান?`
-                                : `Are you sure you want to change ${u.name}'s role to ${nextRole}?`;
-                              if (window.confirm(confirmMsg)) {
-                                roleMutation.mutate({ userId: uid, role: nextRole });
-                              }
+                              setRoleConfirmTarget({ user: u, nextRole });
                             }}
                             className="mb-input !text-[11px] font-bold !py-1 !px-2 !rounded-lg border-line bg-elev text-ink cursor-pointer"
                           >
@@ -582,6 +581,40 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
           </div>
         </div>
       )}
+
+      {/* Role Change Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(roleConfirmTarget)}
+        onClose={() => setRoleConfirmTarget(null)}
+        onConfirm={() => {
+          if (roleConfirmTarget) {
+            roleMutation.mutate({
+              userId: roleConfirmTarget.user.id || roleConfirmTarget.user._id || '',
+              role: roleConfirmTarget.nextRole,
+            });
+            setRoleConfirmTarget(null);
+          }
+        }}
+        title={isBengali ? 'ইউজার ভূমিকা পরিবর্তন' : 'Change User Role'}
+        message={
+          roleConfirmTarget ? (
+            isBengali ? (
+              <>
+                আপনি কি নিশ্চিতভাবে <strong>{roleConfirmTarget.user.name}</strong>-এর ভূমিকা{' '}
+                <strong className="text-brand uppercase font-black">{roleConfirmTarget.nextRole}</strong>-এ রূপান্তর করতে চান?
+              </>
+            ) : (
+              <>
+                Are you sure you want to change <strong>{roleConfirmTarget.user.name}</strong>'s role to{' '}
+                <strong className="text-brand uppercase font-black">{roleConfirmTarget.nextRole}</strong>?
+              </>
+            )
+          ) : null
+        }
+        confirmText={isBengali ? 'হ্যাঁ, পরিবর্তন করুন' : 'Confirm Change'}
+        variant="warning"
+        isLoading={roleMutation.isPending}
+      />
     </div>
   );
 };

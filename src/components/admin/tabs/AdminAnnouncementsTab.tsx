@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
 import { AnnouncementItem } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
+import ConfirmationModal from '../../common/ConfirmationModal';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export const AdminAnnouncementsTab: React.FC = () => {
@@ -20,6 +21,7 @@ export const AdminAnnouncementsTab: React.FC = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<AnnouncementItem | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AnnouncementItem | null>(null);
 
   // Form State
   const [title, setTitle] = useState('');
@@ -210,14 +212,7 @@ export const AdminAnnouncementsTab: React.FC = () => {
 
                     <button
                       type="button"
-                      onClick={() => {
-                        const confirmMsg = isBengali
-                          ? 'আপনি কি নিশ্চিতভাবে এই ঘোষণাটি মুছে ফেলতে চান?'
-                          : 'Are you sure you want to delete this announcement?';
-                        if (window.confirm(confirmMsg)) {
-                          deleteMutation.mutate(ann._id);
-                        }
-                      }}
+                      onClick={() => setDeleteTarget(ann)}
                       className="p-1.5 rounded-lg border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 cursor-pointer transition-colors"
                       title={isBengali ? 'মুছে ফেলুন' : 'Delete'}
                     >
@@ -377,6 +372,28 @@ export const AdminAnnouncementsTab: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) {
+            deleteMutation.mutate(deleteTarget._id, {
+              onSettled: () => setDeleteTarget(null),
+            });
+          }
+        }}
+        title={isBengali ? 'ঘোষণা মুছে ফেলা' : 'Delete Announcement'}
+        message={
+          isBengali
+            ? `আপনি কি নিশ্চিতভাবে "${deleteTarget?.title}" ঘোষণাটি মুছে ফেলতে চান? এটি আর ওয়েবসাইটে দেখা যাবে না।`
+            : `Are you sure you want to delete the announcement "${deleteTarget?.title}"? It will no longer appear on the website.`
+        }
+        confirmText={isBengali ? 'মুছে ফেলুন' : 'Delete'}
+        variant="danger"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 };

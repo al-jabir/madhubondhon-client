@@ -36,6 +36,7 @@ import PhotoManager from '../components/profile/PhotoManager';
 import ProfileCard from '../components/profile/ProfileCard';
 import GenderAvatar from '../components/common/GenderAvatar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 
 /* ═══════════════ Bengali numerals for stats ═══════════════ */
 const bnDigits = (value: string | number) =>
@@ -489,6 +490,8 @@ const SettingsTab: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [isPwSubmitting, setIsPwSubmitting] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<'deactivate' | 'delete' | null>(null);
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -516,11 +519,9 @@ const SettingsTab: React.FC = () => {
     }
   };
 
-  const handleDeactivate = async () => {
-    if (!window.confirm('আপনি কি নিশ্চিত যে আপনার অ্যাকাউন্টটি সাময়িকভাবে নিষ্ক্রিয় করতে চান?')) {
-      return;
-    }
+  const executeDeactivate = async () => {
     try {
+      setIsActionLoading(true);
       await profilesApi.deactivateAccount();
       toast.info('আপনার অ্যাকাউন্ট নিষ্ক্রিয় করা হয়েছে।');
       await logout();
@@ -530,14 +531,15 @@ const SettingsTab: React.FC = () => {
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
         'নিষ্ক্রিয় করতে সমস্যা হয়েছে।';
       toast.error(msg);
+    } finally {
+      setIsActionLoading(false);
+      setConfirmAction(null);
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('সতর্কতা: অ্যাকাউন্ট মুছে ফেললে আপনার সকল তথ্য ও বায়োডাটা চিরতরে মুছে যাবে। আপনি কি নিশ্চিত?')) {
-      return;
-    }
+  const executeDelete = async () => {
     try {
+      setIsActionLoading(true);
       await profilesApi.deleteAccount();
       toast.info('আপনার অ্যাকাউন্ট মুছে ফেলা হয়েছে।');
       await logout();
@@ -547,6 +549,9 @@ const SettingsTab: React.FC = () => {
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
         'অ্যাকাউন্ট মুছতে সমস্যা হয়েছে।';
       toast.error(msg);
+    } finally {
+      setIsActionLoading(false);
+      setConfirmAction(null);
     }
   };
 
@@ -656,7 +661,7 @@ const SettingsTab: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             type="button"
-            onClick={handleDeactivate}
+            onClick={() => setConfirmAction('deactivate')}
             className="px-4 py-2.5 text-xs font-bold text-gold bg-gold-soft hover:bg-gold/20 rounded-xl border border-gold/25 cursor-pointer flex items-center gap-1.5 transition-colors"
           >
             <PauseCircle className="w-3.5 h-3.5" />
@@ -664,7 +669,7 @@ const SettingsTab: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={handleDelete}
+            onClick={() => setConfirmAction('delete')}
             className="px-4 py-2.5 text-xs font-bold text-brand bg-brand-soft hover:bg-brand/20 rounded-xl border border-brand/40 cursor-pointer flex items-center gap-1.5 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -675,6 +680,30 @@ const SettingsTab: React.FC = () => {
           মোবাইল যাচাই সম্পর্কিত সেটিংস "যাচাই ও জমা" ট্যাবে আছে।
         </p>
       </div>
+
+      {/* Deactivate Account Modal */}
+      <ConfirmationModal
+        isOpen={confirmAction === 'deactivate'}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={executeDeactivate}
+        title="অ্যাকাউন্ট নিষ্ক্রিয়করণ"
+        message="আপনি কি নিশ্চিত যে আপনার অ্যাকাউন্টটি সাময়িকভাবে নিষ্ক্রিয় করতে চান? আপনি পরবর্তীতে যেকোনো সময় পুনরায় লগইন করে এটি আবার সক্রিয় করতে পারবেন।"
+        confirmText="নিষ্ক্রিয় করুন"
+        variant="warning"
+        isLoading={isActionLoading}
+      />
+
+      {/* Delete Account Modal */}
+      <ConfirmationModal
+        isOpen={confirmAction === 'delete'}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={executeDelete}
+        title="স্থায়ীভাবে অ্যাকাউন্ট মুছে ফেলা"
+        message="সতর্কতা: অ্যাকাউন্ট মুছে ফেললে আপনার সকল বায়োডাটা, সংরক্ষিত তালিকা এবং যোগাযোগের তথ্য চিরতরে ডাটাবেজ থেকে মুছে ফেলা হবে। এই কাজটি আর ফিরিয়ে আনা সম্ভব নয়। আপনি কি এগিয়ে যেতে চান?"
+        confirmText="স্থায়ীভাবে মুছুন"
+        variant="danger"
+        isLoading={isActionLoading}
+      />
     </div>
   );
 };
