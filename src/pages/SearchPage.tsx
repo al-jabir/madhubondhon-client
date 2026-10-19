@@ -105,132 +105,123 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 sm:space-y-8">
-      {demo && <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"><strong>নমুনা বায়োডাটা</strong> — নিচের ১২টি প্রোফাইল কাল্পনিক। ফিল্টার ও বিস্তারিত পেজ ঘুরে দেখতে পারেন।</div>}
-      {!demo && import.meta.env.DEV && import.meta.env.VITE_LOCAL_DEV === 'true' && <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">নিজের local database থেকে ফলাফল দেখানো হচ্ছে। Development-এর জন্য যোগ করা ১২টি sample বায়োডাটা কাল্পনিক।</div>}
-      {/* Search Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-rose-100 pb-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 flex items-center gap-2.5">
-            <Search className="w-7 h-7 text-rose-600" />
+      {demo && <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold"><strong>নমুনা বায়োডাটা</strong> — নিচের ১২টি প্রোফাইল কাল্পনিক। ফিল্টার ও বিস্তারিত পেজ ঘুরে দেখতে পারেন।</div>}
+      {!demo && import.meta.env.DEV && import.meta.env.VITE_LOCAL_DEV === 'true' && <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold">নিজের local database থেকে ফলাফল দেখানো হচ্ছে। Development-এর জন্য যোগ করা ১২টি sample বায়োডাটা কাল্পনিক।</div>}
+
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-line">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl sm:text-3xl font-bold text-ink flex items-center gap-3">
+            <span className="w-11 h-11 rounded-2xl bg-brand-soft border border-brand/20 text-brand flex items-center justify-center">
+              <Search className="w-5 h-5" />
+            </span>
             <span>বায়োডাটা অনুসন্ধান</span>
           </h1>
-          <p className="text-sm text-gray-550 mt-1">
+          <p className="text-sm text-ink-2 pl-[3.75rem]">
             টাঙ্গাইলের ১২টি উপজেলার দ্বীনি ও উপযুক্ত পাত্র-পাত্রী খুঁজে নিন
           </p>
         </div>
 
         {data?.meta && (
-          <div className="text-xs font-semibold px-3.5 py-1.5 bg-rose-50 text-rose-700 rounded-full border border-rose-200 self-start md:self-auto">
+          <div className="mb-badge self-start md:self-auto px-3.5 py-1.5">
             মোট {meta.total} টি বায়োডাটা পাওয়া গেছে
           </div>
         )}
       </div>
 
-      {/* Quick Search Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-rose-150 shadow-xs">
+      {/* Quick search bar */}
+      <div className="mb-card p-4 sm:p-5">
         <form onSubmit={handleApplyFilter} className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="কীওয়ার্ড (নাম, পেশা বা শিক্ষা দিয়ে খুঁজুন)..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full text-xs sm:text-sm pl-10 pr-4 py-2.5 rounded-xl border border-gray-250 focus:outline-hidden focus:ring-2 focus:ring-rose-500 bg-gray-50/50 focus:bg-white"
+              className="mb-input pl-10"
             />
           </div>
 
-          <div className="w-full sm:w-64 relative">
-            <span className="text-[10px] font-black uppercase tracking-wider text-rose-600 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              কোড
-            </span>
+          <div className="relative w-full sm:w-64">
             <input
               type="text"
-              placeholder="বায়োডাটা কোড (যেমন: MB-M101)"
+              placeholder="বায়োডাটা কোড (MB-M101)"
               value={biodataId}
               onChange={(e) => setBiodataId(e.target.value.toUpperCase())}
-              className="w-full text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-gray-250 uppercase font-mono focus:outline-hidden focus:ring-2 focus:ring-rose-500 bg-gray-50/50 focus:bg-white"
+              className="mb-input uppercase font-mono tracking-wider"
             />
           </div>
 
-          <button
-            type="submit"
-            className="w-full sm:w-auto px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
-          >
+          <button type="submit" className="mb-btn-primary w-full sm:w-auto shrink-0">
             <Search className="w-4 h-4" />
             <span>খুঁজুন</span>
           </button>
         </form>
       </div>
 
-      {/* Mobile Filters Toggle Button */}
+      {/* Mobile filters toggle */}
       <div className="lg:hidden">
         <button
           type="button"
           onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-rose-200 text-sm font-bold text-gray-800 shadow-2xs cursor-pointer hover:border-rose-400"
+          className="mb-card w-full flex items-center justify-between p-3.5 text-sm font-bold text-ink cursor-pointer hover:border-strongline transition-colors"
         >
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-rose-600" />
+            <Filter className="w-4 h-4 text-brand" />
             <span>ফিল্টারসমূহ</span>
             {activeFilterCount > 0 ? (
-              <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[11px] font-bold">
+              <span className="px-2 py-0.5 rounded-full bg-brand text-white text-[11px] font-bold">
                 {activeFilterCount} টি সক্রিয়
               </span>
             ) : (
-              <span className="text-xs text-gray-400 font-normal">(উপজেলা, বয়স, পেশা...)</span>
+              <span className="text-xs text-ink-3 font-normal">(উপজেলা, বয়স, পেশা...)</span>
             )}
           </div>
           <ChevronDown
-            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-              mobileFiltersOpen ? 'rotate-180 text-rose-600' : ''
-            }`}
+            className={`w-4 h-4 text-ink-3 transition-transform duration-200 ${mobileFiltersOpen ? 'rotate-180 text-brand' : ''}`}
           />
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Filters Sidebar */}
+        {/* Filters sidebar */}
         <aside className={`lg:col-span-1 ${mobileFiltersOpen ? 'block' : 'hidden lg:block'}`}>
           <form
             onSubmit={handleApplyFilter}
-            className="bg-white p-5 rounded-2xl border border-rose-100/90 shadow-xs space-y-5 sticky top-20"
+            className="mb-card p-5 space-y-5 sticky top-20"
           >
-            <div className="flex items-center justify-between border-b border-gray-150 pb-3">
-              <span className="font-bold text-sm text-gray-900 flex items-center gap-1.5">
-                <Filter className="w-4 h-4 text-rose-600" />
+            <div className="flex items-center justify-between border-b border-line pb-3">
+              <span className="font-bold text-sm text-ink flex items-center gap-1.5">
+                <Filter className="w-4 h-4 text-brand" />
                 ফিল্টারসমূহ
               </span>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="text-[11px] font-semibold text-gray-400 hover:text-rose-600 flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-semibold text-ink-3 hover:text-brand flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <RotateCcw className="w-3 h-3" />
                 রিসেট
               </button>
             </div>
 
-            {/* Biodata ID Filter */}
+            {/* Biodata code */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5">বায়োডাটা কোড</label>
+              <label className="mb-label">বায়োডাটা কোড</label>
               <input
                 type="text"
                 placeholder="যেমন: MB-M101"
                 value={biodataId}
                 onChange={(e) => setBiodataId(e.target.value.toUpperCase())}
-                className="w-full text-xs font-mono uppercase border border-gray-200 rounded-xl p-2.5 bg-gray-50/70 focus:bg-white focus:outline-hidden focus:border-rose-500"
+                className="mb-input !text-xs font-mono uppercase"
               />
             </div>
 
             {/* Gender */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5">পাত্র / পাত্রী</label>
-              <select
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                className="w-full text-xs font-medium border border-gray-200 rounded-xl p-2.5 bg-gray-50/70 focus:bg-white focus:outline-hidden focus:border-rose-500"
-              >
+              <label className="mb-label">পাত্র / পাত্রী</label>
+              <select value={gender} onChange={(e) => setGender(e.target.value)} className="mb-input !text-xs">
                 <option value="">উভয় (সকল)</option>
                 <option value="female">পাত্রী</option>
                 <option value="male">পাত্র</option>
@@ -239,24 +230,18 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
             {/* Upazila */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5">টাঙ্গাইলের উপজেলা</label>
-              <select
-                value={upazila}
-                onChange={(e) => setUpazila(e.target.value)}
-                className="w-full text-xs font-medium border border-gray-200 rounded-xl p-2.5 bg-gray-50/70 focus:bg-white focus:outline-hidden focus:border-rose-500"
-              >
+              <label className="mb-label">টাঙ্গাইলের উপজেলা</label>
+              <select value={upazila} onChange={(e) => setUpazila(e.target.value)} className="mb-input !text-xs">
                 <option value="">সকল উপজেলা</option>
                 {TANGAIL_UPAZILAS.map((up) => (
-                  <option key={up} value={up}>
-                    {UPAZILA_DISPLAY_NAMES[up]}
-                  </option>
+                  <option key={up} value={up}>{UPAZILA_DISPLAY_NAMES[up]}</option>
                 ))}
               </select>
             </div>
 
-            {/* Age Range */}
+            {/* Age */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5">বয়স পরিসীমা (১৮+)</label>
+              <label className="mb-label">বয়স পরিসীমা (১৮+)</label>
               <div className="grid grid-cols-2 gap-2">
                 <input
                   type="number"
@@ -265,7 +250,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                   value={minAge}
                   onChange={(e) => setMinAge(e.target.value)}
                   placeholder="নূন্যতম"
-                  className="w-full text-xs border border-gray-200 rounded-xl p-2.5 bg-gray-50/70 focus:bg-white focus:outline-hidden focus:border-rose-500"
+                  className="mb-input !text-xs"
                 />
                 <input
                   type="number"
@@ -274,19 +259,15 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                   value={maxAge}
                   onChange={(e) => setMaxAge(e.target.value)}
                   placeholder="সর্বোচ্চ"
-                  className="w-full text-xs border border-gray-200 rounded-xl p-2.5 bg-gray-50/70 focus:bg-white focus:outline-hidden focus:border-rose-500"
+                  className="mb-input !text-xs"
                 />
               </div>
             </div>
 
-            {/* Marital Status */}
+            {/* Marital status */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5">বৈবাহিক অবস্থা</label>
-              <select
-                value={maritalStatus}
-                onChange={(e) => setMaritalStatus(e.target.value)}
-                className="w-full text-xs font-medium border border-gray-200 rounded-xl p-2.5 bg-gray-50/70 focus:bg-white focus:outline-hidden focus:border-rose-500"
-              >
+              <label className="mb-label">বৈবাহিক অবস্থা</label>
+              <select value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input !text-xs">
                 <option value="">সকল অবস্থা</option>
                 <option value="never_married">অবিবাহিত (Never Married)</option>
                 <option value="divorced">ডিভোর্সড (Divorced)</option>
@@ -295,18 +276,23 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
               </select>
             </div>
 
+            {/* Occupation */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5" htmlFor="occupation-filter">পেশা</label>
-              <input id="occupation-filter" value={occupation} onChange={e => setOccupation(e.target.value)} maxLength={100} placeholder="যেমন: শিক্ষক" className="w-full text-xs border border-gray-200 rounded-xl p-2.5" />
+              <label className="mb-label" htmlFor="occupation-filter">পেশা</label>
+              <input
+                id="occupation-filter"
+                value={occupation}
+                onChange={e => setOccupation(e.target.value)}
+                maxLength={100}
+                placeholder="যেমন: শিক্ষক"
+                className="mb-input !text-xs"
+              />
             </div>
+
             {/* Education */}
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5">শিক্ষাগত যোগ্যতা</label>
-              <select
-                value={education}
-                onChange={(e) => setEducation(e.target.value)}
-                className="w-full text-xs font-medium border border-gray-200 rounded-xl p-2.5 bg-gray-50/70 focus:bg-white focus:outline-hidden focus:border-rose-500"
-              >
+              <label className="mb-label">শিক্ষাগত যোগ্যতা</label>
+              <select value={education} onChange={(e) => setEducation(e.target.value)} className="mb-input !text-xs">
                 <option value="">সকল যোগ্যতা</option>
                 <option value="bachelors">স্নাতক / অনার্স (Bachelors)</option>
                 <option value="masters">মাস্টার্স (Masters)</option>
@@ -318,48 +304,39 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
               </select>
             </div>
 
-            <button
-              type="submit"
-              className="w-full py-2.5 px-4 text-xs font-bold text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 rounded-xl shadow-xs transition-all cursor-pointer"
-            >
+            <button type="submit" className="mb-btn-primary w-full">
               ফিল্টার প্রয়োগ করুন
             </button>
           </form>
         </aside>
 
-        {/* Profiles Grid */}
+        {/* Results */}
         <main className="lg:col-span-3 space-y-6">
           {isLoading ? (
             <div className="py-20 flex justify-center">
               <LoadingSpinner size="lg" label="বায়োডাটা অনুসন্ধান করা হচ্ছে..." />
             </div>
           ) : isError ? (
-            <div className="p-8 text-center bg-rose-50 rounded-2xl border border-rose-200">
-              <AlertCircle className="w-10 h-10 text-rose-500 mx-auto mb-2" />
-              <p className="text-sm font-bold text-rose-800">বায়োডাটা লোড করতে সমস্যা হয়েছে।</p>
-              <button
-                type="button"
-                onClick={() => refetch()}
-                className="mt-3 px-4 py-2 text-xs font-semibold text-white bg-rose-600 rounded-lg"
-              >
+            <div className="p-8 text-center bg-brand-soft rounded-3xl border border-brand/25">
+              <AlertCircle className="w-10 h-10 text-brand mx-auto mb-2" />
+              <p className="text-sm font-bold text-brand-ink">বায়োডাটা লোড করতে সমস্যা হয়েছে।</p>
+              <button type="button" onClick={() => refetch()} className="mb-btn-primary mt-4 px-4 py-2 text-xs">
                 পুনরায় চেষ্টা করুন
               </button>
             </div>
           ) : profiles.length === 0 ? (
-            <div className="py-16 px-4 text-center bg-white rounded-2xl border border-gray-200/80 shadow-xs space-y-3">
-              <div className="w-14 h-14 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto">
+            <div className="py-16 px-4 text-center mb-card space-y-3">
+              <div className="w-14 h-14 rounded-full bg-brand-soft text-brand flex items-center justify-center mx-auto">
                 <Search className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-base text-gray-800">
-                কোনো বায়োডাটা খুঁজে পাওয়া যায়নি
-              </h3>
-              <p className="text-xs text-gray-500 max-w-md mx-auto">
-                আপনার নির্বাচিত ফিল্টারের সাথে মিল রেখে কোনো রেকর্ড পাওয়া যায়নি। অনুগ্রহ করে ফিল্টার শিথিল করে পুনরায় চেষ্টা করুন।
+              <h3 className="font-bold text-base text-ink">কোনো বায়োডাটা খুঁজে পাওয়া যায়নি</h3>
+              <p className="text-xs text-ink-2 max-w-md mx-auto">
+                আপনার নির্বাচিত ফিল্টারের সাথে মিল রেখে কোনো রেকর্ড পাওয়া যায়নি। অনুগ্রহ করে ফিল্টার শিথিল করে পুনরায় চেষ্টা করুন।
               </p>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl border border-rose-200 cursor-pointer"
+                className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-brand bg-brand-soft hover:bg-brand/15 rounded-xl border border-brand/25 cursor-pointer transition-colors"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>সব ফিল্টার রিসেট করুন</span>
@@ -384,9 +361,9 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                 ))}
               </div>
 
-              {/* Pagination Controls */}
+              {/* Pagination */}
               {meta.totalPages > 1 && (
-                <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between pt-6 border-t border-line">
                   <button
                     type="button"
                     disabled={page <= 1}
@@ -397,14 +374,14 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                       params.set('page', String(newPage));
                       setSearchParams(params);
                     }}
-                    className="flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg border border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
+                    className="mb-btn-secondary !text-xs disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   >
                     <ChevronLeft className="w-4 h-4" />
                     পূর্ববর্তী
                   </button>
 
-                  <span className="text-xs font-medium text-gray-600">
-                    পৃষ্ঠা <strong className="text-gray-900">{page}</strong> এর <strong className="text-gray-900">{meta.totalPages}</strong>
+                  <span className="text-xs font-medium text-ink-2">
+                    পৃষ্ঠা <strong className="text-ink">{page}</strong> এর <strong className="text-ink">{meta.totalPages}</strong>
                   </span>
 
                   <button
@@ -417,7 +394,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                       params.set('page', String(newPage));
                       setSearchParams(params);
                     }}
-                    className="flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg border border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 cursor-pointer"
+                    className="mb-btn-secondary !text-xs disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   >
                     পরবর্তী
                     <ChevronRight className="w-4 h-4" />

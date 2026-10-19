@@ -45,6 +45,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
 
   const primaryPhoto = profile.photos?.find((p) => p.isProfilePhoto) || profile.photos?.[0];
   const isBlurred = Boolean(primaryPhoto?.blurPhoto || profile.photoPrivacy === 'on_interest_accepted');
+  const isHidden = profile.photoPrivacy === 'hidden';
 
   const handleToggleShortlist = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -74,11 +75,11 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-rose-100/90 shadow-xs hover:shadow-lg hover:border-rose-300 transition-all duration-300 overflow-hidden flex flex-col justify-between group relative">
-      {/* Top Badges & Shortlist Button */}
+    <div className="mb-card mb-card-hover overflow-hidden flex flex-col justify-between group relative p-0">
+      {/* Top badges & shortlist button */}
       <div className="absolute top-3 inset-x-3 z-10 flex items-center justify-between pointer-events-none">
         {profile.biodataId ? (
-          <span className="pointer-events-auto text-[11px] font-black tracking-wider px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur-md text-amber-300 border border-amber-400/30 shadow-xs">
+          <span className="pointer-events-auto text-[11px] font-black tracking-wider px-2.5 py-1 rounded-full bg-[#2b161f]/85 backdrop-blur-md text-gold border border-gold/30">
             {profile.biodataId}
           </span>
         ) : <span />}
@@ -90,8 +91,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           title={isShortlisted ? 'শর্টলিস্ট থেকে সরান' : 'শর্টলিস্টে রাখুন'}
           className={`pointer-events-auto p-2 rounded-full backdrop-blur-md border shadow-sm transition-all cursor-pointer ${
             isShortlisted
-              ? 'bg-rose-600 text-white border-rose-500 hover:bg-rose-700'
-              : 'bg-white/90 text-gray-600 hover:text-rose-600 border-gray-250 hover:bg-white'
+              ? 'bg-brand text-white border-brand hover:bg-brand-strong'
+              : 'bg-card/90 text-ink-2 hover:text-brand border-strongline hover:border-brand/50'
           }`}
         >
           <Bookmark className={`w-3.5 h-3.5 ${isShortlisted ? 'fill-current' : ''}`} />
@@ -99,10 +100,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
       </div>
 
       <div>
-        {/* Header Ribbon / Photo Avatar Placeholder */}
-        <div className="relative bg-linear-to-r from-rose-50 via-pink-50/50 to-rose-50 pt-10 pb-6 px-6 flex flex-col items-center text-center border-b border-rose-100/60">
-          <div className="relative w-22 h-22 rounded-full overflow-hidden shadow-md border-3 border-white mb-3 group-hover:scale-105 transition-transform bg-rose-100 flex items-center justify-center">
-            {primaryPhoto?.url ? (
+        {/* Photo / avatar header */}
+        <div className="relative bg-linear-to-b from-brand-soft/60 to-card pt-10 pb-6 px-6 flex flex-col items-center text-center border-b border-line">
+          <div className="relative w-24 h-24 rounded-full overflow-hidden shadow-md border-3 border-card mb-3 group-hover:scale-105 transition-transform bg-elev flex items-center justify-center">
+            {primaryPhoto?.url && !isHidden ? (
               <>
                 <img
                   src={primaryPhoto.url}
@@ -110,37 +111,40 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                   className={`w-full h-full object-cover transition-all ${isBlurred ? 'filter blur-md scale-110' : ''}`}
                 />
                 {isBlurred && (
-                  <div className="absolute inset-0 bg-black/25 flex flex-col items-center justify-center text-white p-1">
+                  <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-white p-1">
                     <EyeOff className="w-5 h-5 text-white/90 drop-shadow-md" />
                     <span className="text-[9px] font-bold tracking-tight">পর্দাশীল</span>
                   </div>
                 )}
               </>
             ) : (
-              <span className="text-2xl font-black text-rose-600">
-                {profile.displayName ? profile.displayName.charAt(0) : (isMale ? 'পা' : 'পা')}
-              </span>
+              <div className="flex flex-col items-center justify-center gap-0.5 text-brand">
+                <UsersIcon />
+                <span className="text-2xl font-black">
+                  {profile.displayName ? profile.displayName.charAt(0) : 'পা'}
+                </span>
+              </div>
             )}
           </div>
-          
-          <h3 className="font-bold text-lg text-gray-900 flex items-center gap-1.5">
+
+          <h3 className="font-bold text-lg text-ink flex items-center gap-1.5 text-center">
             {profile.displayName || 'সম্মানিত সদস্য'}
             {profile.isApproved && (
               <span title="ভেরিফাইড বায়োডাটা">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-50" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-50 dark:fill-transparent" />
               </span>
             )}
           </h3>
 
-          <div className="flex items-center gap-2 mt-1 text-xs text-rose-700 font-semibold bg-rose-100/80 px-2.5 py-0.5 rounded-full">
+          <div className="flex items-center gap-2 mt-1.5 text-xs text-brand-ink font-semibold bg-brand-soft px-2.5 py-0.5 rounded-full border border-brand/15">
             <span>{isMale ? 'পাত্র' : 'পাত্রী'}</span>
-            <span>•</span>
+            <span className="text-brand/50">•</span>
             <span>{profile.age ? `${profile.age} বছর` : 'প্রাপ্তবয়স্ক'}</span>
           </div>
 
           {compatibility && (
             <div
-              className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-amber-900 bg-amber-100/90 border border-amber-200 px-2.5 py-0.5 rounded-full shadow-2xs"
+              className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-gold bg-gold-soft border border-gold/25 px-2.5 py-0.5 rounded-full"
               title={compatibility.reasons.join(' • ')}
             >
               <span>✨ {compatibility.score}% মিল</span>
@@ -148,40 +152,40 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           )}
         </div>
 
-        {/* Profile Details */}
-        <div className="p-5 space-y-2.5 text-sm text-gray-650">
-          <div className="flex items-center gap-2 text-gray-700">
-            <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
-            <span className="font-medium text-gray-850">{upazilaBangla}, টাঙ্গাইল</span>
+        {/* Details */}
+        <div className="p-5 space-y-2.5 text-sm text-ink-2">
+          <div className="flex items-center gap-2 text-ink font-medium">
+            <MapPin className="w-4 h-4 text-brand shrink-0" />
+            <span>{upazilaBangla}, টাঙ্গাইল</span>
           </div>
 
           {profile.occupation && (
             <div className="flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-rose-400 shrink-0" />
+              <Briefcase className="w-4 h-4 text-brand/60 shrink-0" />
               <span className="truncate">{profile.occupation}</span>
             </div>
           )}
 
           {profile.education && (
             <div className="flex items-center gap-2">
-              <GraduationCap className="w-4 h-4 text-rose-400 shrink-0" />
+              <GraduationCap className="w-4 h-4 text-brand/60 shrink-0" />
               <span className="truncate uppercase">{profile.education}</span>
             </div>
           )}
 
           {profile.bio && (
-            <p className="text-xs text-gray-500 line-clamp-2 italic pt-1 border-t border-gray-100">
+            <p className="text-xs text-ink-3 line-clamp-2 italic pt-1.5 border-t border-line">
               "{profile.bio}"
             </p>
           )}
         </div>
       </div>
 
-      {/* Action Footer */}
-      <div className="p-4 bg-gray-50/70 border-t border-rose-100/60 flex items-center gap-2">
+      {/* Action footer */}
+      <div className="p-4 bg-elev border-t border-line flex items-center gap-2 rounded-b-[1.25rem]">
         <Link
           to={`${detailsBasePath}/${targetId}`}
-          className="flex-1 py-2 px-3 text-center text-xs font-semibold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors"
+          className="flex-1 py-2 px-3 text-center text-xs font-semibold text-brand bg-card hover:bg-brand-soft border border-brand/25 rounded-lg transition-colors"
         >
           সম্পূর্ণ বায়োডাটা
         </Link>
@@ -189,7 +193,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           <button
             type="button"
             onClick={() => onSendInterest(profile)}
-            className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 rounded-lg shadow-xs hover:shadow-sm transition-all cursor-pointer"
+            className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold text-white bg-linear-to-r from-brand to-pink-500 hover:brightness-110 rounded-lg shadow-sm transition-all cursor-pointer"
           >
             <Heart className="w-3.5 h-3.5 fill-current" />
             <span>পছন্দ</span>
@@ -199,5 +203,14 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     </div>
   );
 };
+
+function UsersIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="opacity-50">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+    </svg>
+  );
+}
 
 export default ProfileCard;

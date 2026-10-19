@@ -14,7 +14,6 @@ import {
   SlidersHorizontal,
   UserRound,
   User,
-  Sparkles,
   UserRoundPlus,
   FileCheck2,
   MessagesSquare,
@@ -43,101 +42,84 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0e0a12] text-gray-100 font-sans selection:bg-rose-500 selection:text-white">
-      {/* ─────────────────── HERO SECTION ─────────────────── */}
-      <section className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24 border-b border-[#231728]">
-        {/* Atmospheric Background Image with night mosque reflection */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+    <div className="min-h-screen bg-base text-ink">
+      {/* ─────────────────── HERO ─────────────────── */}
+      <section className="relative overflow-hidden pt-10 pb-20 lg:pt-16 lg:pb-28 border-b border-line">
+        {/* ─ Light decorations ─ */}
+        <div className="absolute inset-0 z-0 pointer-events-none dark:hidden" aria-hidden="true">
+          <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_80%_-10%,theme(colors.pink.100/70%),transparent),radial-gradient(800px_400px_at_5%_20%,var(--mb-brand-soft),transparent)]" />
+          <div className="absolute -top-20 -left-16 w-96 h-96 text-brand/10">
+            <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z" />
+              <circle cx="100" cy="140" r="32" />
+            </svg>
+          </div>
+          <div className="absolute -bottom-24 right-0 w-80 h-80 text-pink-300/25 rotate-12">
+            <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z" />
+            </svg>
+          </div>
+        </div>
+
+        {/* ─ Dark: atmospheric mosque photo ─ */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden hidden dark:block" aria-hidden="true">
           <img
             src="/hero-mosque-bg.jpg"
-            alt="Tangail Historic Mosque at Night"
-            className="w-full h-full object-cover object-center opacity-35 filter contrast-125 brightness-95"
+            alt=""
+            className="w-full h-full object-cover object-center opacity-30 filter contrast-125 brightness-95"
           />
-          {/* Dark radial and gradient overlays matching the aesthetic */}
-          <div className="absolute inset-0 bg-radial-[ellipse_at_center] from-[#1c1022]/40 via-[#110a15]/85 to-[#0e0a12]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0e0a12] via-[#0e0a12]/75 to-[#0e0a12]/85" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0e0a12] via-transparent to-[#0e0a12]/70" />
-
-          {/* Decorative Islamic arch watermark silhouette in top-left corner */}
-          <div className="absolute -top-10 -left-10 w-96 h-96 opacity-10 text-rose-400 pointer-events-none">
-            <svg viewBox="0 0 200 200" fill="currentColor">
-              <path
-                d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-              />
-              <circle cx="100" cy="140" r="32" fill="none" stroke="currentColor" strokeWidth="2" />
+          <div className="absolute inset-0 bg-radial-[ellipse_at_center] from-[#1c1022]/40 via-[#110a15]/85 to-[var(--mb-base)]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--mb-base)] via-[var(--mb-base)]/75 to-[var(--mb-base)]/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--mb-base)] via-transparent to-[var(--mb-base)]/70" />
+          <div className="absolute -top-10 -left-10 w-96 h-96 opacity-10 text-brand pointer-events-none">
+            <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z" />
+              <circle cx="100" cy="140" r="32" />
             </svg>
           </div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Main 2-Column Hero Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
-            {/* ─── Left Column (Hero Copy & CTAs) ─── */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            {/* Left column */}
             <div className="lg:col-span-7 space-y-6 text-left">
-              {/* Location Pill Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#2a1320]/80 border border-rose-900/50 text-rose-300 text-xs font-semibold backdrop-blur-xs">
-                <MapPin className="w-3.5 h-3.5 text-rose-400 fill-rose-500/20" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-soft border border-brand/25 text-brand-ink text-xs font-bold">
+                <MapPin className="w-3.5 h-3.5 text-brand" />
                 <span>টাঙ্গাইল জেলার জন্য বিশেষভাবে</span>
               </div>
 
-              {/* Bold Bengali Headline */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-black text-white leading-[1.22] tracking-tight">
-                একই শিকড়ের টানে,<br />
-                শুরু হোক <span className="text-rose-500">নতুন গল্প</span>{' '}
-                <span className="text-rose-400 font-normal">♡</span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-bold leading-[1.3] tracking-tight text-ink">
+                একই শিকড়ের টানে,<br />
+                শুরু হোক <span className="text-brand">নতুন গল্প</span>{' '}
+                <span className="text-pink-500 font-normal align-middle">♡</span>
               </h1>
 
-              {/* Subtitle */}
-              <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-xl">
+              <p className="text-ink-2 text-sm sm:text-base leading-relaxed max-w-xl">
                 পরিবার, সংস্কৃতি, মূল্যবোধ এবং টাঙ্গাইলের মানুষের জন্য নিরাপদ, বিশ্বাসযোগ্য ও সম্মানজনক একটি ম্যাট্রিমনিয়াল প্ল্যাটফর্ম।
               </p>
 
-              {/* 3 Feature Badges in Row */}
+              {/* Feature badges */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                {/* Feature 1 */}
-                <div className="flex items-center gap-3 p-2 rounded-2xl bg-[#1b121f]/50 border border-rose-950/40">
-                  <div className="w-10 h-10 rounded-full bg-rose-950/70 border border-rose-800/40 flex items-center justify-center text-rose-400 shrink-0 shadow-inner">
-                    <ShieldCheck className="w-5 h-5" />
+                {[
+                  { icon: ShieldCheck, t: 'নিরাপদ ও', s: 'গোপনীয়তা রক্ষা' },
+                  { icon: Users, t: 'বাস্তব ও', s: 'বিশ্বস্ত সদস্য' },
+                  { icon: MapPin, t: 'শুধু টাঙ্গাইল', s: 'জেলার জন্য' },
+                ].map(({ icon: Icon, t, s }) => (
+                  <div key={t + s} className="flex items-center gap-3 p-2.5 rounded-2xl bg-card/70 backdrop-blur-xs border border-line">
+                    <div className="w-10 h-10 rounded-full bg-brand-soft border border-brand/20 flex items-center justify-center text-brand shrink-0">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div className="text-left leading-tight">
+                      <div className="text-xs font-bold text-ink">{t}</div>
+                      <div className="text-[11px] text-ink-3">{s}</div>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <div className="text-xs font-bold text-gray-200">নিরাপদ ও</div>
-                    <div className="text-[11px] text-gray-400">গোপনীয়তা রক্ষা</div>
-                  </div>
-                </div>
-
-                {/* Feature 2 */}
-                <div className="flex items-center gap-3 p-2 rounded-2xl bg-[#1b121f]/50 border border-rose-950/40">
-                  <div className="w-10 h-10 rounded-full bg-rose-950/70 border border-rose-800/40 flex items-center justify-center text-rose-400 shrink-0 shadow-inner">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xs font-bold text-gray-200">বাস্তব ও</div>
-                    <div className="text-[11px] text-gray-400">বিশ্বস্ত সদস্য</div>
-                  </div>
-                </div>
-
-                {/* Feature 3 */}
-                <div className="flex items-center gap-3 p-2 rounded-2xl bg-[#1b121f]/50 border border-rose-950/40">
-                  <div className="w-10 h-10 rounded-full bg-rose-950/70 border border-rose-800/40 flex items-center justify-center text-rose-400 shrink-0 shadow-inner">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xs font-bold text-gray-200">শুধু টাঙ্গাইল</div>
-                    <div className="text-[11px] text-gray-400">জেলার জন্য</div>
-                  </div>
-                </div>
+                ))}
               </div>
 
-              {/* Action Buttons */}
+              {/* CTAs */}
               <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Link
-                  to="/search"
-                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-linear-to-r from-rose-500 via-rose-600 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold text-sm shadow-xl shadow-rose-950/80 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-                >
+                <Link to="/search" className="mb-btn-primary px-7 py-3.5">
                   <Search className="w-4 h-4 stroke-[2.5]" />
                   <span>বায়োডাটা খুঁজুন</span>
                   <ArrowRight className="w-4 h-4" />
@@ -145,181 +127,137 @@ export const HomePage: React.FC = () => {
 
                 <a
                   href="#how-it-works"
-                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl border border-gray-700/80 hover:border-gray-500 bg-[#1c1422]/60 hover:bg-[#251a2d] text-gray-200 hover:text-white font-semibold text-sm transition-all cursor-pointer"
+                  className="mb-btn-secondary px-5 py-3.5"
                 >
-                  <Play className="w-4 h-4 text-rose-400 fill-rose-400/40" />
+                  <Play className="w-4 h-4 text-brand fill-brand/30" />
                   <span>কিভাবে কাজ করে?</span>
                 </a>
               </div>
 
-              {/* Trust Note */}
-              <div className="flex items-center gap-2 text-xs text-gray-400 pt-1 font-medium">
-                <Lock className="w-3.5 h-3.5 text-rose-400/80 shrink-0" />
+              <div className="flex items-center gap-2 text-xs text-ink-3 pt-1 font-medium">
+                <Lock className="w-3.5 h-3.5 text-brand/80 shrink-0" />
                 <span>আপনার তথ্য সর্বদা নিরাপদ ও গোপন রাখা হয়</span>
               </div>
             </div>
 
-            {/* ─── Right Column (Search Matchmaking Card) ─── */}
+            {/* Search card */}
             <div className="lg:col-span-5">
-              <div className="bg-[#18121c]/92 backdrop-blur-md rounded-3xl p-6 sm:p-7 border border-rose-900/50 shadow-2xl shadow-rose-950/80 relative">
-                
-                {/* Card Top Pill Badge */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-950/70 border border-rose-900/60 text-rose-300 text-[11px] font-semibold mb-3">
-                  <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />
-                  <span>হাজারো সুন্দর পরিচয়ের প্রথম ধাপ</span>
+              <div className="bg-card/95 backdrop-blur-md rounded-[1.75rem] p-6 sm:p-7 border border-line shadow-[var(--mb-shadow-pop)] relative">
+                <span className="absolute -top-3 right-8 h-6 w-14 rounded-full bg-linear-to-r from-brand to-pink-500 opacity-90 blur-md" aria-hidden="true" />
+
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-soft border border-brand/20 text-brand-ink text-[11px] font-bold mb-3">
+                  <Heart className="w-3.5 h-3.5 text-brand fill-brand" />
+                  <span>হাজারো সুন্দর পরিচয়ের প্রথম ধাপ</span>
                 </div>
 
-                {/* Card Header with circular search icon */}
-                <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="flex items-start justify-between gap-3 mb-5">
                   <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                    <h2 className="text-xl sm:text-2xl font-bold text-ink tracking-tight">
                       আপনার জীবনসঙ্গী খুঁজছেন?
                     </h2>
-                    <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                      সহজ কিছু তথ্য দিন, পেয়ে যান আপনার সম্ভাব্য জীবনসঙ্গী
+                    <p className="text-xs text-ink-3 mt-1 leading-relaxed">
+                      সহজ কিছু তথ্য দিন, পেয়ে যান আপনার সম্ভাব্য জীবনসঙ্গী
                     </p>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-rose-950/70 border border-rose-800/50 text-rose-400 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-brand-soft border border-brand/25 text-brand flex items-center justify-center shrink-0">
                     <Search className="w-4 h-4 stroke-[2.5]" />
                   </div>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSearch} className="space-y-3.5">
-                  {/* Gender Selector: আমি খুঁজছি */}
+                <form onSubmit={handleSearch} className="space-y-4">
+                  {/* Gender selector */}
                   <div>
-                    <label className="block text-xs font-bold text-gray-300 mb-2">
-                      আমি খুঁজছি
-                    </label>
+                    <label className="mb-label">আমি খুঁজছি</label>
                     <div className="grid grid-cols-2 gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() => setGender('female')}
-                        className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          gender === 'female'
-                            ? 'bg-linear-to-r from-rose-600 to-pink-600 text-white shadow-md shadow-rose-950/60 border border-rose-400/40'
-                            : 'bg-[#221727]/80 hover:bg-[#2a1d30] text-gray-400 hover:text-gray-200 border border-[#35223c]'
-                        }`}
-                      >
-                        <UserRound className="w-4 h-4 text-white" />
-                        <span>পাত্রীর বায়োডাটা</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setGender('male')}
-                        className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          gender === 'male'
-                            ? 'bg-linear-to-r from-rose-600 to-pink-600 text-white shadow-md shadow-rose-950/60 border border-rose-400/40'
-                            : 'bg-[#221727]/80 hover:bg-[#2a1d30] text-gray-400 hover:text-gray-200 border border-[#35223c]'
-                        }`}
-                      >
-                        <User className="w-4 h-4" />
-                        <span>পাত্রের বায়োডাটা</span>
-                      </button>
+                      {([
+                        { value: 'female', icon: UserRound, label: 'পাত্রীর বায়োডাটা' },
+                        { value: 'male', icon: User, label: 'পাত্রের বায়োডাটা' },
+                      ] as const).map(({ value, icon: Icon, label }) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setGender(value)}
+                          className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                            gender === value
+                              ? 'bg-linear-to-r from-brand to-pink-500 text-white border-transparent shadow-md shadow-brand/30'
+                              : 'bg-elev text-ink-2 border-line hover:border-strongline hover:text-ink'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span>{label}</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Upazila Dropdown */}
+                  {/* Upazila */}
                   <div>
-                    <label className="block text-xs font-bold text-gray-300 mb-1.5">
-                      উপজেলা নির্বাচন করুন
-                    </label>
+                    <label className="mb-label">উপজেলা নির্বাচন করুন</label>
                     <div className="relative">
-                      <MapPin className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      <select
-                        value={upazila}
-                        onChange={(e) => setUpazila(e.target.value)}
-                        className="w-full bg-[#201524]/90 border border-[#36223d] focus:border-rose-500 rounded-xl pl-10 pr-9 py-2.5 text-xs text-gray-200 appearance-none focus:outline-hidden cursor-pointer"
-                      >
-                        <option value="" className="bg-[#1c1421] text-gray-200">টাঙ্গাইলের সকল উপজেলা</option>
+                      <MapPin className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <select value={upazila} onChange={(e) => setUpazila(e.target.value)} className="mb-input pl-10">
+                        <option value="">টাঙ্গাইলের সকল উপজেলা</option>
                         {TANGAIL_UPAZILAS.map((up) => (
-                          <option key={up} value={up} className="bg-[#1c1421] text-gray-200">
-                            {UPAZILA_DISPLAY_NAMES[up]}
-                          </option>
+                          <option key={up} value={up}>{UPAZILA_DISPLAY_NAMES[up]}</option>
                         ))}
                       </select>
-                      <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <ChevronDown className="w-4 h-4 text-ink-3 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
 
-                  {/* Marital Status Dropdown */}
+                  {/* Marital status */}
                   <div>
-                    <label className="block text-xs font-bold text-gray-300 mb-1.5">
-                      বৈবাহিক অবস্থা
-                    </label>
+                    <label className="mb-label">বৈবাহিক অবস্থা</label>
                     <div className="relative">
-                      <Heart className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      <select
-                        value={maritalStatus}
-                        onChange={(e) => setMaritalStatus(e.target.value)}
-                        className="w-full bg-[#201524]/90 border border-[#36223d] focus:border-rose-500 rounded-xl pl-10 pr-9 py-2.5 text-xs text-gray-200 appearance-none focus:outline-hidden cursor-pointer"
-                      >
-                        <option value="" className="bg-[#1c1421] text-gray-200">সকল অবস্থা</option>
-                        <option value="never_married" className="bg-[#1c1421] text-gray-200">অবিবাহিত</option>
-                        <option value="divorced" className="bg-[#1c1421] text-gray-200">বিবাহবিচ্ছেদ হয়েছে</option>
-                        <option value="widowed" className="bg-[#1c1421] text-gray-200">বিধবা / বিপত্নীক</option>
-                        <option value="separated" className="bg-[#1c1421] text-gray-200">পৃথক বসবাস</option>
+                      <Heart className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <select value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input pl-10">
+                        <option value="">সকল অবস্থা</option>
+                        <option value="never_married">অবিবাহিত</option>
+                        <option value="divorced">বিবাহবিচ্ছেদ হয়েছে</option>
+                        <option value="widowed">বিধবা / বিপত্নীক</option>
+                        <option value="separated">পৃথক বসবাস</option>
                       </select>
-                      <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <ChevronDown className="w-4 h-4 text-ink-3 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
 
-                  {/* Age Range Dropdowns */}
+                  {/* Age range */}
                   <div>
-                    <label className="block text-xs font-bold text-gray-300 mb-1.5">
-                      বয়স সীমা (ঐচ্ছিক)
-                    </label>
+                    <label className="mb-label">বয়স সীমা (ঐচ্ছিক)</label>
                     <div className="grid grid-cols-2 gap-2.5">
-                      {/* Min Age */}
                       <div className="relative">
-                        <Calendar className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <select
-                          value={minAge}
-                          onChange={(e) => setMinAge(e.target.value)}
-                          className="w-full bg-[#201524]/90 border border-[#36223d] focus:border-rose-500 rounded-xl pl-8 pr-7 py-2 text-xs text-gray-200 appearance-none focus:outline-hidden cursor-pointer"
-                        >
-                          <option value="" className="bg-[#1c1421] text-gray-200">সর্বনিম্ন বয়স</option>
+                        <Calendar className="w-3.5 h-3.5 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <select value={minAge} onChange={(e) => setMinAge(e.target.value)} className="mb-input pl-8 !py-2 !text-xs">
+                          <option value="">সর্বনিম্ন বয়স</option>
                           {[18, 20, 22, 24, 26, 28, 30, 32, 35, 40].map((a) => (
-                            <option key={a} value={a} className="bg-[#1c1421] text-gray-200">{toBanglaNumber(a)} বছর</option>
+                            <option key={a} value={a}>{toBanglaNumber(a)} বছর</option>
                           ))}
                         </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <ChevronDown className="w-3.5 h-3.5 text-ink-3 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
-
-                      {/* Max Age */}
                       <div className="relative">
-                        <Calendar className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <select
-                          value={maxAge}
-                          onChange={(e) => setMaxAge(e.target.value)}
-                          className="w-full bg-[#201524]/90 border border-[#36223d] focus:border-rose-500 rounded-xl pl-8 pr-7 py-2 text-xs text-gray-200 appearance-none focus:outline-hidden cursor-pointer"
-                        >
-                          <option value="" className="bg-[#1c1421] text-gray-200">সর্বোচ্চ বয়স</option>
+                        <Calendar className="w-3.5 h-3.5 text-ink-3 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <select value={maxAge} onChange={(e) => setMaxAge(e.target.value)} className="mb-input pl-8 !py-2 !text-xs">
+                          <option value="">সর্বোচ্চ বয়স</option>
                           {[22, 25, 28, 30, 32, 35, 38, 40, 45, 50, 60].map((a) => (
-                            <option key={a} value={a} className="bg-[#1c1421] text-gray-200">{toBanglaNumber(a)} বছর</option>
+                            <option key={a} value={a}>{toBanglaNumber(a)} বছর</option>
                           ))}
                         </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <ChevronDown className="w-3.5 h-3.5 text-ink-3 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
                     </div>
                   </div>
 
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    className="w-full mt-2 py-3.5 px-4 rounded-xl bg-linear-to-r from-rose-500 via-rose-600 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold text-sm shadow-lg shadow-rose-950/80 flex items-center justify-center gap-2 transition-all cursor-pointer hover:shadow-rose-900/90 active:scale-[0.99]"
-                  >
+                  <button type="submit" className="mb-btn-primary w-full mt-1 py-3.5">
                     <Search className="w-4 h-4 stroke-[2.5]" />
                     <span>বায়োডাটা খুঁজুন</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
 
-                {/* Advanced Filter Link */}
                 <Link
                   to="/search"
-                  className="flex items-center justify-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 font-semibold mt-3.5 transition-colors"
+                  className="flex items-center justify-center gap-1.5 text-xs text-brand hover:text-brand-strong font-bold mt-4 transition-colors"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
                   <span>বিস্তারিত ফিল্টার দিয়ে খুঁজুন</span>
@@ -329,167 +267,101 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* ─── Bottom 4 Stats Bar ─── */}
-          <div className="bg-[#18121c]/85 backdrop-blur-md border border-rose-950/60 rounded-3xl p-5 sm:p-6 mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {/* Stat 1 */}
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-full bg-rose-950/70 border border-rose-800/40 text-rose-400 flex items-center justify-center shrink-0 shadow-inner">
-                <Users className="w-5 h-5" />
+          {/* Stats bar */}
+          <div className="bg-card/85 backdrop-blur-md border border-line rounded-3xl p-5 sm:p-6 mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 shadow-[var(--mb-shadow-card)]">
+            {[
+              { icon: Users, v: '৫,০০০+', l: 'নিবন্ধিত সদস্য' },
+              { icon: Heart, v: '৩৫০+', l: 'সফল পরিচয়', fill: true },
+              { icon: MapPin, v: '১২টি', l: 'টাঙ্গাইল উপজেলা', fill: true },
+              { icon: ShieldCheck, v: '১০০%', l: 'নিরাপত্তা ও গোপনীয়তা' },
+            ].map(({ icon: Icon, v, l, fill }) => (
+              <div key={l} className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-2xl bg-brand-soft border border-brand/20 text-brand flex items-center justify-center shrink-0">
+                  <Icon className={`w-5 h-5 ${fill ? 'fill-brand/15' : ''}`} />
+                </div>
+                <div className="text-left leading-tight">
+                  <div className="text-xl font-bold text-ink tracking-tight">{v}</div>
+                  <div className="text-xs text-ink-3">{l}</div>
+                </div>
               </div>
-              <div className="text-left">
-                <div className="text-xl font-black text-white tracking-tight">৫,০০০+</div>
-                <div className="text-xs text-gray-400">নিবন্ধিত সদস্য</div>
-              </div>
-            </div>
-
-            {/* Stat 2 */}
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-full bg-rose-950/70 border border-rose-800/40 text-rose-400 flex items-center justify-center shrink-0 shadow-inner">
-                <Heart className="w-5 h-5 fill-rose-500/20" />
-              </div>
-              <div className="text-left">
-                <div className="text-xl font-black text-white tracking-tight">৩৫০+</div>
-                <div className="text-xs text-gray-400">সফল পরিচয়</div>
-              </div>
-            </div>
-
-            {/* Stat 3 */}
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-full bg-rose-950/70 border border-rose-800/40 text-rose-400 flex items-center justify-center shrink-0 shadow-inner">
-                <MapPin className="w-5 h-5 fill-rose-500/20" />
-              </div>
-              <div className="text-left">
-                <div className="text-xl font-black text-white tracking-tight">১২টি</div>
-                <div className="text-xs text-gray-400">টাঙ্গাইল উপজেলা</div>
-              </div>
-            </div>
-
-            {/* Stat 4 */}
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-full bg-rose-950/70 border border-rose-800/40 text-rose-400 flex items-center justify-center shrink-0 shadow-inner">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div className="text-left">
-                <div className="text-xl font-black text-white tracking-tight">১০০%</div>
-                <div className="text-xs text-gray-400">নিরাপত্তা ও গোপনীয়তা</div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ─────────────────── PRINCIPLES SECTION ─────────────────── */}
-      <section className="py-16 border-b border-[#231728] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="আমাদের অঙ্গীকার">
+      {/* ─ Public stats (from live DB) ─ */}
+      <div className="border-b border-line">
+        <PublicStatistics />
+      </div>
+
+      {/* ─ Principles ─ */}
+      <section className="py-16 border-b border-line max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="আমাদের অঙ্গীকার">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            {
-              icon: MapPin,
-              title: 'কাছের মানুষ, পরিচিত পরিবেশ',
-              description: 'টাঙ্গাইলের ১২ উপজেলাকে ঘিরে জীবনসঙ্গীর সন্ধান।',
-            },
-            {
-              icon: ShieldCheck,
-              title: 'গোপনীয়তায় আপনার নিয়ন্ত্রণ',
-              description: 'অনুমতি অনুযায়ী অভিভাবকের সঙ্গে যোগাযোগ ও সর্বোচ্চ নিরাপত্তা।',
-            },
-            {
-              icon: FileCheck2,
-              title: 'পর্যালোচনার পর প্রকাশ',
-              description: 'জমা দেওয়া প্রতিটি বায়োডাটা যাচাই ও নিরীক্ষা করেন মডারেটর।',
-            },
+            { icon: MapPin, title: 'কাছের মানুষ, পরিচিত পরিবেশ', description: 'টাঙ্গাইলের ১২ উপজেলাকে ঘিরে জীবনসঙ্গীর সন্ধান।' },
+            { icon: ShieldCheck, title: 'গোপনীয়তায় আপনার নিয়ন্ত্রণ', description: 'অনুমতি অনুযায়ী অভিভাবকের সঙ্গে যোগাযোগ ও সর্বোচ্চ নিরাপত্তা।' },
+            { icon: FileCheck2, title: 'পর্যালোচনার পর প্রকাশ', description: 'জমা দেওয়া প্রতিটি বায়োডাটা যাচাই ও নিরীক্ষা করেন মডারেটর।' },
           ].map(({ icon: Icon, title, description }) => (
             <div
               key={title}
-              className="flex items-start gap-4 p-5 rounded-2xl bg-[#16101c]/80 border border-[#2b1b30] hover:border-rose-900/50 transition-all"
+              className="mb-card mb-card-hover flex items-start gap-4 p-5"
             >
-              <div className="w-12 h-12 rounded-xl bg-rose-950/70 border border-rose-900/50 flex items-center justify-center text-rose-400 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-brand-soft border border-brand/20 flex items-center justify-center text-brand shrink-0">
                 <Icon className="w-6 h-6 stroke-[1.7]" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white mb-1">{title}</h3>
-                <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">{description}</p>
+                <h3 className="text-base font-bold text-ink mb-1">{title}</h3>
+                <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">{description}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ─────────────────── PUBLIC STATS COMPONENT ─────────────────── */}
-      <div className="border-b border-[#231728]">
-        <PublicStatistics />
-      </div>
-
-      {/* ─────────────────── HOW IT WORKS SECTION ─────────────────── */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-[#231728]" id="how-it-works">
-        <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
-          <span className="text-xs font-bold text-rose-400 tracking-wider uppercase bg-rose-950/60 px-3 py-1 rounded-full border border-rose-900/50">
-            সহজ চারটি ধাপ
-          </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white">
-            পরিচয় থেকে পরিণয়ের পথে
+      {/* ─ How it works ─ */}
+      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-line" id="how-it-works">
+        <div className="text-center max-w-2xl mx-auto mb-14 space-y-2.5">
+          <span className="mb-badge">সহজ চারটি ধাপ</span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-section-title">
+            পরিচয় থেকে পরিণয়ের পথে
           </h2>
-          <p className="text-xs sm:text-sm text-gray-400">
-            নিজের তথ্য দিয়ে শুরু করুন। সময় নিয়ে জানুন, পরিবারের সঙ্গে আলোচনা করে সিদ্ধান্ত নিন।
+          <p className="text-xs sm:text-sm text-ink-2">
+            নিজের তথ্য দিয়ে শুরু করুন। সময় নিয়ে জানুন, পরিবারের সঙ্গে আলোচনা করে সিদ্ধান্ত নিন।
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            {
-              icon: UserRoundPlus,
-              n: '০১',
-              title: 'নিজের বায়োডাটা তৈরি',
-              body: 'অ্যাকাউন্ট খুলে নিজের পরিচয়, পরিবার ও জীবনসঙ্গীর প্রত্যাশার তথ্য পূরণ করুন।',
-            },
-            {
-              icon: Search,
-              n: '০২',
-              title: 'পছন্দ মিলিয়ে অনুসন্ধান',
-              body: 'উপজেলা, বয়স, শিক্ষা ও পেশার ফিল্টারে উপযুক্ত বায়োডাটা সহজেই খুঁজুন।',
-            },
-            {
-              icon: MessagesSquare,
-              n: '০৩',
-              title: 'পরিবারের সঙ্গে যোগাযোগ',
-              body: 'আগ্রহ প্রকাশ করুন। উভয় পক্ষের সম্মতিতে অভিভাবকের সঙ্গে কথা এগিয়ে নিন।',
-            },
-            {
-              icon: Handshake,
-              n: '০৪',
-              title: 'বিবাহের সুন্দর পরিণয়',
-              body: 'তথ্য যাচাই ও পারিবারিক আলোচনার পর সম্মানজনকভাবে বিবাহের সিদ্ধান্ত নিন।',
-            },
+            { icon: UserRoundPlus, n: '০১', title: 'নিজের বায়োডাটা তৈরি', body: 'অ্যাকাউন্ট খুলে নিজের পরিচয়, পরিবার ও জীবনসঙ্গীর প্রত্যাশার তথ্য পূরণ করুন।' },
+            { icon: Search, n: '০২', title: 'পছন্দ মিলিয়ে অনুসন্ধান', body: 'উপজেলা, বয়স, শিক্ষা ও পেশার ফিল্টারে উপযুক্ত বায়োডাটা সহজেই খুঁজুন।' },
+            { icon: MessagesSquare, n: '০৩', title: 'পরিবারের সঙ্গে যোগাযোগ', body: 'আগ্রহ প্রকাশ করুন। উভয় পক্ষের সম্মতিতে অভিভাবকের সঙ্গে কথা এগিয়ে নিন।' },
+            { icon: Handshake, n: '০৪', title: 'বিবাহের সুন্দর পরিণয়', body: 'তথ্য যাচাই ও পারিবারিক আলোচনার পর সম্মানজনকভাবে বিবাহের সিদ্ধান্ত নিন।' },
           ].map(({ icon: Icon, n, title, body }) => (
-            <article
-              key={n}
-              className="p-6 rounded-3xl bg-[#16101c]/80 border border-[#2b1b30] hover:border-rose-900/60 transition-all space-y-3 relative group"
-            >
+            <article key={n} className="mb-card mb-card-hover p-6 space-y-3 relative group">
               <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-2xl bg-rose-950/60 border border-rose-900/50 flex items-center justify-center text-rose-400 group-hover:scale-105 transition-transform">
-                  <Icon className="w-6 h-6 stroke-[1.7]" />
+                <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-brand to-pink-500 text-white flex items-center justify-center shadow-md shadow-brand/25 group-hover:scale-105 group-hover:-rotate-3 transition-transform">
+                  <Icon className="w-6 h-6 stroke-[1.8]" />
                 </div>
-                <span className="text-2xl font-black text-rose-500/40 group-hover:text-rose-500/70 transition-colors">
+                <span className="text-3xl font-bold text-brand/15 group-hover:text-brand/35 transition-colors select-none">
                   {n}
                 </span>
               </div>
-              <h3 className="text-base font-bold text-white pt-1">{title}</h3>
-              <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">{body}</p>
+              <h3 className="text-base font-bold text-ink pt-1">{title}</h3>
+              <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">{body}</p>
             </article>
           ))}
         </div>
       </section>
 
-      {/* ─────────────────── LOCAL UPAZILAS SECTION ─────────────────── */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-[#231728]">
-        <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-          <span className="text-xs font-bold text-rose-400 tracking-wider uppercase bg-rose-950/60 px-3 py-1 rounded-full border border-rose-900/50">
-            নিজের এলাকার মানুষ
-          </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white">
+      {/* ─ Upazilas ─ */}
+      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-line">
+        <div className="text-center max-w-2xl mx-auto mb-12 space-y-2.5">
+          <span className="mb-badge">নিজের এলাকার মানুষ</span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-section-title">
             এক জেলা, বারোটি পরিচিত ঠিকানা
           </h2>
-          <p className="text-xs sm:text-sm text-gray-400">
-            আপনার পছন্দের উপজেলা বেছে নিন এবং সেই এলাকার নির্ভরযোগ্য বায়োডাটা দেখুন।
+          <p className="text-xs sm:text-sm text-ink-2">
+            আপনার পছন্দের উপজেলা বেছে নিন এবং সেই এলাকার নির্ভরযোগ্য বায়োডাটা দেখুন।
           </p>
         </div>
 
@@ -498,42 +370,52 @@ export const HomePage: React.FC = () => {
             <Link
               key={up}
               to={'/search?upazila=' + up}
-              className="p-3.5 rounded-2xl bg-[#16101c]/80 border border-[#2b1b30] hover:border-rose-600/60 hover:bg-[#201526] transition-all flex items-center justify-between group"
+              className="p-3.5 rounded-2xl bg-card border border-line hover:border-brand/50 hover:shadow-[var(--mb-shadow-card)] hover:-translate-y-0.5 transition-all flex items-center justify-between group"
             >
               <div className="flex items-center gap-2.5">
-                <span className="text-xs font-black text-rose-500/60 group-hover:text-rose-400 transition-colors">
+                <span className="text-[11px] font-bold text-brand/60 group-hover:text-brand transition-colors">
                   {(i + 1).toLocaleString('bn-BD', { minimumIntegerDigits: 2 })}
                 </span>
-                <span className="text-xs sm:text-sm font-bold text-gray-200 group-hover:text-white transition-colors">
+                <span className="text-xs sm:text-sm font-bold text-ink-2 group-hover:text-ink transition-colors">
                   {UPAZILA_DISPLAY_NAMES[up]}
                 </span>
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-rose-400 group-hover:translate-x-0.5 transition-all" />
+              <ArrowRight className="w-3.5 h-3.5 text-ink-3 group-hover:text-brand group-hover:translate-x-0.5 transition-all" />
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ─────────────────── INVITATION BANNER ─────────────────── */}
+      {/* ─ CTA banner ─ */}
       <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="p-8 sm:p-12 rounded-3xl bg-linear-to-r from-[#201124] via-[#28132d] to-[#1d0e21] border border-rose-900/60 shadow-2xl shadow-rose-950/60 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-          <div className="space-y-2 text-center md:text-left z-10">
-            <span className="text-xs font-bold text-rose-400 tracking-wider uppercase bg-rose-950/70 px-3 py-1 rounded-full border border-rose-900/50 inline-block">
-              আপনার গল্পের অপেক্ষায়
+        <div className="p-8 sm:p-14 rounded-[2rem] bg-linear-to-br from-brand via-rose-600 to-pink-600 text-white shadow-2xl shadow-brand/30 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+          {/* decorative pattern */}
+          <svg className="absolute inset-0 w-full h-full opacity-10" aria-hidden="true">
+            <defs>
+              <pattern id="mb-arch" width="40" height="80" patternUnits="userSpaceOnUse">
+                <path d="M20 10 C10 22 6 34 6 52 L6 78 L34 78 L34 52 C34 34 30 22 20 10 Z" fill="none" stroke="white" strokeWidth="1.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#mb-arch)" />
+          </svg>
+
+          <div className="space-y-3 text-center md:text-left z-10">
+            <span className="inline-block text-xs font-bold text-white/90 tracking-wider bg-white/15 px-3 py-1 rounded-full border border-white/25 backdrop-blur-xs">
+              আপনার গল্পের অপেক্ষায়
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">
               সুন্দর শুরুর প্রথম পদক্ষেপ নিন
             </h2>
-            <p className="text-xs sm:text-sm text-gray-300 max-w-xl">
-              আজই বিনামূল্যে আপনার বায়োডাটা তৈরি করুন এবং টাঙ্গাইলের মানুষের সঙ্গে দ্বীনি ও বিশ্বস্ত পরিচয়ের নতুন দরজা খুলুন।
+            <p className="text-xs sm:text-sm text-white/85 max-w-xl">
+              আজই বিনামূল্যে আপনার বায়োডাটা তৈরি করুন এবং টাঙ্গাইলের মানুষের সঙ্গে দ্বীনি ও বিশ্বস্ত পরিচয়ের নতুন দরজা খুলুন।
             </p>
           </div>
 
           <Link
             to="/register"
-            className="z-10 inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-linear-to-r from-rose-500 via-rose-600 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-bold text-sm shadow-xl shadow-rose-950/90 hover:scale-105 transition-all shrink-0 cursor-pointer"
+            className="z-10 inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-white text-brand font-bold text-base shadow-xl hover:scale-105 hover:shadow-2xl transition-all shrink-0 cursor-pointer"
           >
-            <span>বিনামূল্যে বায়োডাটা তৈরি করুন</span>
+            <span>বিনামূল্যে বায়োডাটা তৈরি করুন</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

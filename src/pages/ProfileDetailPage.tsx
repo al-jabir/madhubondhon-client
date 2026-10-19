@@ -150,19 +150,16 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
 
   if (isError || !profile) {
     return (
-      <div className="max-w-2xl mx-auto my-16 p-8 bg-white rounded-3xl border border-gray-200 text-center space-y-4 shadow-xs">
-        <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+      <div className="max-w-2xl mx-auto my-16 p-8 mb-card text-center space-y-4">
+        <div className="w-16 h-16 rounded-full bg-brand-soft text-brand flex items-center justify-center mx-auto">
           <AlertTriangle className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold text-gray-900">বায়োডাটা প্রদর্শনে অনুপলব্ধ</h2>
-        <p className="text-sm text-gray-600">
+        <h2 className="text-xl font-bold text-ink">বায়োডাটা প্রদর্শনে অনুপলব্ধ</h2>
+        <p className="text-sm text-ink-2">
           এই বায়োডাটাটি হয়তো মুছে ফেলা হয়েছে, প্রাইভেট রাখা হয়েছে অথবা আপনাকে দেখতে অনুমতি দেয়া হয়নি।
         </p>
         <div className="pt-2">
-          <Link
-            to={demo ? '/demo' : '/search'}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl"
-          >
+          <Link to={demo ? '/demo' : '/search'} className="mb-btn-secondary text-xs inline-flex">
             <ArrowLeft className="w-4 h-4" />
             <span>অনুসন্ধানে ফিরে যান</span>
           </Link>
@@ -185,11 +182,12 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
 
   const primaryPhoto = profile.photos?.find((p) => p.isProfilePhoto) || profile.photos?.[0];
   const isBlurred = Boolean(primaryPhoto?.blurPhoto || profile.photoPrivacy === 'on_interest_accepted');
+  const isHidden = profile.photoPrivacy === 'hidden';
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 print:p-0 print:m-0 print:max-w-full">
       {demo && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 print:hidden">
+        <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold print:hidden">
           <strong>নমুনা বায়োডাটা</strong> — এই প্রোফাইলটি কাল্পনিক, শুধু উদাহরণ দেখানোর জন্য।{' '}
           <Link to="/demo" className="font-bold underline">
             সব নমুনা দেখুন
@@ -197,9 +195,9 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
         </div>
       )}
 
-      {/* Print-Only Header */}
-      <div className="hidden print:block border-b-2 border-rose-600 pb-4 mb-6 text-center">
-        <h1 className="text-2xl font-black text-rose-700">মধুবন্ধন — Tangail Matrimony</h1>
+      {/* Print-only header */}
+      <div className="hidden print:block border-b-2 border-brand pb-4 mb-6 text-center">
+        <h1 className="text-2xl font-black text-brand">মধুবন্ধন — Tangail Matrimony</h1>
         <p className="text-xs text-gray-600">টাঙ্গাইল জেলার পাত্র-পাত্রীর সম্পূর্ণ পারিবারিক বায়োডাটা</p>
         {profile.biodataId && (
           <span className="inline-block mt-1 font-mono font-bold text-sm bg-gray-100 px-3 py-0.5 rounded-full border">
@@ -208,12 +206,12 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
         )}
       </div>
 
-      {/* Navigation & Utilities Bar */}
+      {/* Navigation & utilities bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-rose-600 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-3 hover:text-brand transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>পূর্ববর্তী পৃষ্ঠায় ফিরুন</span>
@@ -223,20 +221,15 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
           <button
             type="button"
             onClick={handleWhatsAppShare}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs transition-colors cursor-pointer"
+            className="mb-btn-secondary !text-xs !border-emerald-300 dark:!border-emerald-800 hover:!text-emerald-700 gap-1.5 bg-elev"
             title="পারিবারিক আলোচনার জন্য হোয়াটসঅ্যাপে শেয়ার করুন"
           >
-            <MessageCircle className="w-3.5 h-3.5 text-emerald-600 fill-emerald-500" />
+            <MessageCircle className="w-3.5 h-3.5 text-emerald-600 fill-emerald-100 dark:fill-transparent" />
             <span>হোয়াটসঅ্যাপে শেয়ার</span>
           </button>
 
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-gray-50 text-gray-700 border border-gray-250 shadow-2xs transition-colors cursor-pointer"
-            title="বায়োডাটার লিংক কপি করুন"
-          >
-            <Copy className="w-3.5 h-3.5 text-gray-500" />
+          <button type="button" onClick={handleCopyLink} className="mb-btn-secondary !px-3 gap-1.5 !text-xs" title="বায়োডাটার লিংক কপি করুন">
+            <Copy className="w-3.5 h-3.5 text-ink-3" />
             <span>লিংক কপি</span>
           </button>
 
@@ -245,109 +238,106 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
               type="button"
               onClick={handleToggleShortlist}
               disabled={isShortlistBusy}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-                isShortlisted
-                  ? 'bg-rose-50 text-rose-700 border-rose-300'
-                  : 'bg-white text-gray-700 border-gray-250 hover:bg-gray-50'
-              }`}
+              className={`mb-btn-secondary !px-3 gap-1.5 !text-xs ${isShortlisted ? '!text-brand !border-brand/50 !bg-brand-soft' : ''}`}
             >
-              <Bookmark className={`w-3.5 h-3.5 ${isShortlisted ? 'fill-rose-600 text-rose-600' : ''}`} />
+              <Bookmark className={`w-3.5 h-3.5 ${isShortlisted ? 'fill-brand text-brand' : 'text-ink-3'}`} />
               <span>{isShortlisted ? 'শর্টলিস্ট করা আছে' : 'শর্টলিস্টে রাখুন'}</span>
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={handlePrintBiodata}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-gray-50 text-gray-700 border border-gray-250 shadow-2xs transition-colors cursor-pointer"
-            title="বায়োডাটা প্রিন্ট বা PDF হিসেবে সংরক্ষণ করুন"
-          >
-            <Printer className="w-3.5 h-3.5 text-rose-600" />
+          <button type="button" onClick={handlePrintBiodata} className="mb-btn-secondary !px-3 gap-1.5 !text-xs" title="বায়োডাটা প্রিন্ট বা PDF হিসেবে সংরক্ষণ করুন">
+            <Printer className="w-3.5 h-3.5 text-brand" />
             <span>প্রিন্ট / PDF</span>
           </button>
         </div>
       </div>
 
-      {/* Hero Header Card */}
-      <div className="bg-white rounded-3xl border border-rose-100 shadow-md p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 print:border-none print:shadow-none print:p-0">
-        <div className="relative w-28 h-28 rounded-full overflow-hidden shadow-lg border-3 border-rose-200 shrink-0 bg-rose-100 flex items-center justify-center">
-          {primaryPhoto?.url ? (
-            <>
-              <img
-                src={primaryPhoto.url}
-                alt={profile.displayName}
-                className={`w-full h-full object-cover ${isBlurred ? 'filter blur-md scale-110' : ''}`}
-              />
-              {isBlurred && (
-                <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-white p-1">
-                  <EyeOff className="w-6 h-6 text-white drop-shadow-md" />
-                  <span className="text-[10px] font-bold">পর্দাশীল বায়োডাটা</span>
-                </div>
-              )}
-            </>
-          ) : (
-            <span className="text-4xl font-extrabold text-rose-600">
-              {profile.displayName?.charAt(0) || (isMale ? 'পা' : 'পা')}
-            </span>
-          )}
+      {/* Hero header card */}
+      <div className="relative mb-card rounded-[1.5rem] p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-start gap-7 print:border-none print:shadow-none print:p-0 overflow-hidden">
+        {/* decorative corner wash */}
+        <div className="absolute -top-16 -right-10 w-64 h-64 rounded-full bg-brand-soft/70 blur-3xl -z-0 pointer-events-none max-md:hidden" aria-hidden="true" />
+
+        <div className="relative shrink-0 mx-auto md:mx-0">
+          <div className="absolute -inset-1.5 rounded-full bg-linear-to-br from-brand/60 via-pink-500/40 to-transparent opacity-70" aria-hidden="true" />
+          <div className="relative w-32 h-32 rounded-full overflow-hidden shadow-lg border-3 border-card bg-elev flex items-center justify-center">
+            {primaryPhoto?.url && !isHidden ? (
+              <>
+                <img
+                  src={primaryPhoto.url}
+                  alt={profile.displayName}
+                  className={`w-full h-full object-cover ${isBlurred ? 'filter blur-md scale-110' : ''}`}
+                />
+                {isBlurred && (
+                  <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-white p-1">
+                    <EyeOff className="w-6 h-6 text-white drop-shadow-md" />
+                    <span className="text-[10px] font-bold">পর্দাশীল বায়োডাটা</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <span className="text-4xl font-bold text-brand">
+                {profile.displayName?.charAt(0) || 'পা'}
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="flex-1 text-center md:text-left space-y-2">
+        <div className="flex-1 text-center md:text-left space-y-3 relative">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-ink">
               {profile.displayName}
             </h1>
             {profile.biodataId && (
-              <span className="text-xs font-black tracking-wider px-3 py-1 rounded-full bg-slate-900 text-amber-300 border border-amber-400/30">
+              <span className="text-xs font-black tracking-wider px-3 py-1 rounded-full bg-[#2b161f] text-gold border border-gold/30">
                 {profile.biodataId}
               </span>
             )}
             {profile.isApproved && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 ভেরিফাইড বায়োডাটা
               </span>
             )}
             {compatibility && (
               <span
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-linear-to-r from-amber-50 to-rose-50 text-rose-700 border border-rose-200 shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gold-soft text-gold border border-gold/30"
                 title={compatibility.reasons.join(' • ')}
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
+                <Sparkles className="w-3.5 h-3.5" />
                 <span>{compatibility.score}% মিল ({compatibility.label})</span>
               </span>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-xs sm:text-sm text-gray-600 font-medium">
-            <span className="flex items-center gap-1 text-rose-600 font-bold">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 text-xs sm:text-sm text-ink-2 font-medium">
+            <span className="flex items-center gap-1 text-brand font-bold">
               <Sparkles className="w-4 h-4" />
               {isMale ? 'পাত্র (বর)' : 'পাত্রী (কনে)'} • {profile.age ? `${profile.age} বছর` : ''}
             </span>
-            <span>•</span>
+            <span className="text-ink-3">•</span>
             <span className="flex items-center gap-1">
-              <MapPin className="w-4 h-4 text-rose-500" />
+              <MapPin className="w-4 h-4 text-brand/70" />
               {upazilaBangla}, টাঙ্গাইল
             </span>
           </div>
 
           {profile.bio && (
-            <p className="text-sm text-gray-650 pt-2 italic max-w-2xl leading-relaxed">
+            <p className="text-sm text-ink-2 pt-2 italic max-w-2xl leading-relaxed border-l-2 border-brand/40 pl-3">
               "{profile.bio}"
             </p>
           )}
         </div>
 
-        {/* Action Buttons (Hidden on Print) */}
+        {/* Action buttons (hidden on print) */}
         {!demo && !isOwnProfile && (
-          <div className="flex flex-row md:flex-col gap-2 shrink-0 w-full md:w-auto print:hidden">
+          <div className="flex flex-row md:flex-col gap-2 shrink-0 w-full md:w-auto print:hidden relative">
             <button
               type="button"
               onClick={() => {
                 if (!isAuthenticated) navigate('/login');
                 else setIsInterestOpen(true);
               }}
-              className="flex-1 md:flex-initial flex items-center justify-center gap-2 py-3 px-6 text-sm font-bold text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 rounded-xl shadow-md shadow-rose-200 hover:shadow-lg transition-all cursor-pointer"
+              className="mb-btn-primary flex-1 md:flex-initial py-3 px-6"
             >
               <Heart className="w-4 h-4 fill-current" />
               <span>আগ্রহ পাঠান</span>
@@ -357,7 +347,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
               <button
                 type="button"
                 disabled={contactBusy}
-                className="text-xs text-rose-700 font-semibold p-2.5 border border-rose-200 bg-rose-50/50 hover:bg-rose-100/60 rounded-xl transition-colors disabled:opacity-40 cursor-pointer"
+                className="mb-btn-secondary !text-xs text-center flex items-center justify-center disabled:opacity-40"
                 onClick={async () => {
                   if (!userId) return;
                   setContactBusy(true);
@@ -381,7 +371,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
                 <button
                   type="button"
                   onClick={() => setIsReportOpen(true)}
-                  className="p-2 text-xs font-medium text-amber-700 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                  className="p-2 text-xs font-medium text-gold hover:bg-gold-soft rounded-lg transition-colors cursor-pointer flex items-center gap-1"
                   title="রিপোর্ট করুন"
                 >
                   <AlertTriangle className="w-3.5 h-3.5" />
@@ -391,7 +381,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
                   type="button"
                   disabled={isBlocking}
                   onClick={handleBlockUser}
-                  className="p-2 text-xs font-medium text-gray-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                  className="p-2 text-xs font-medium text-ink-3 hover:text-brand hover:bg-brand-soft rounded-lg transition-colors cursor-pointer flex items-center gap-1"
                   title="ব্লক করুন"
                 >
                   <Ban className="w-3.5 h-3.5" />
@@ -405,9 +395,9 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
 
       <BiodataInfoTables profile={profile} />
 
-      {/* Safety Notice Banner */}
-      <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl flex items-start gap-3 text-xs text-amber-850 leading-relaxed print:mt-6">
-        <Shield className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+      {/* Safety notice */}
+      <div className="p-4 bg-gold-soft border border-gold/25 rounded-2xl flex items-start gap-3 text-xs text-gold leading-relaxed print:mt-6">
+        <Shield className="w-5 h-5 shrink-0 mt-0.5" />
         <div>
           <strong className="block font-bold">সতর্কতামূলক পরামর্শ:</strong>
           মধুবন্ধনে কোনো পাত্র বা পাত্রীর অভিভাবকের সম্মতি ছাড়া ব্যক্তিগত নম্বর প্রকাশ করা হয় না। উভয় পক্ষ
