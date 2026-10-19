@@ -118,52 +118,57 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-1 h-16">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 h-16">
             {menuLinks.map(({ to, icon: Icon, label }) => (
               <Link
                 key={to}
                 to={to}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${
+                className={`flex items-center gap-1.5 px-2 xl:px-3.5 py-1.5 xl:py-2 rounded-full text-xs xl:text-sm font-semibold transition-all whitespace-nowrap ${
                   isActive(to)
                     ? "bg-brand-soft text-brand-ink"
                     : "text-ink-2 hover:text-brand hover:bg-brand-soft/60"
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive(to) ? "text-brand" : ""}`} />
+                <Icon className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 hidden xl:inline ${isActive(to) ? "text-brand" : ""}`} />
                 <span>{label}</span>
               </Link>
             ))}
           </nav>
 
           {/* Desktop right side */}
-          <div className="hidden lg:flex items-center gap-2 shrink-0">
-            <LanguageToggle />
-            <ThemeToggle />
+          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 shrink-0">
+            {/* On lg (1024-1279px): compact toggles to fit neatly; on xl+: full toggles */}
+            <LanguageToggle compact className="xl:hidden" />
+            <LanguageToggle className="hidden xl:inline-flex" />
+
+            <ThemeToggle compact className="xl:hidden" />
+            <ThemeToggle className="hidden xl:inline-flex" />
 
             {isAuthenticated ? (
               <>
                 {/* Credits pill */}
                 <Link
                   to="/packages"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gold-soft text-gold border border-gold/25 hover:border-gold/50 transition-all whitespace-nowrap"
+                  className="flex items-center gap-1 xl:gap-1.5 px-2 xl:px-3 py-1.5 rounded-full text-xs font-bold bg-gold-soft text-gold border border-gold/25 hover:border-gold/50 transition-all whitespace-nowrap"
                   title="যোগাযোগ ক্রেডিট দেখুন বা রিচার্জ করুন"
                 >
                   <Coins className="w-3.5 h-3.5" />
-                  <span>{formatNumber(user?.contactCredits ?? 0)} {t('nav.credits')}</span>
+                  <span className="hidden xl:inline">{formatNumber(user?.contactCredits ?? 0)} {t('nav.credits')}</span>
+                  <span className="xl:hidden">{formatNumber(user?.contactCredits ?? 0)}</span>
                 </Link>
 
                 {/* Notifications */}
                 <Link
                   to="/notifications"
                   aria-label="বিজ্ঞপ্তি"
-                  className={`relative p-2 rounded-full transition-all ${
+                  className={`relative p-1.5 xl:p-2 rounded-full transition-all ${
                     isActive("/notifications")
                       ? "bg-brand-soft text-brand"
                       : "text-ink-2 hover:bg-brand-soft hover:text-brand"
                   }`}
                   title="বিজ্ঞপ্তি"
                 >
-                  <Bell className="w-5 h-5 shrink-0" />
+                  <Bell className="w-4.5 h-4.5 xl:w-5 xl:h-5 shrink-0" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-card">
                       {unreadCount > 9 ? '9+' : unreadCount}
@@ -176,7 +181,7 @@ export const Navbar: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className={`flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-full border transition-all cursor-pointer select-none shrink-0 ${
+                    className={`flex items-center gap-1.5 xl:gap-2 p-1 xl:pl-1.5 xl:pr-2.5 xl:py-1.5 rounded-full border transition-all cursor-pointer select-none shrink-0 ${
                       userDropdownOpen
                         ? "border-brand/50 bg-brand-soft"
                         : "border-line bg-elev hover:border-strongline"
@@ -184,10 +189,10 @@ export const Navbar: React.FC = () => {
                     aria-expanded={userDropdownOpen}
                     aria-haspopup="true"
                   >
-                    <span className="w-8 h-8 rounded-full bg-linear-to-br from-brand to-pink-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                    <span className="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-linear-to-br from-brand to-pink-500 text-white flex items-center justify-center font-bold text-xs xl:text-sm shrink-0">
                       {user?.name ? user.name.trim().charAt(0).toUpperCase() : <UserIcon className="w-4 h-4" />}
                     </span>
-                    <span className="flex flex-col text-left max-w-[110px] xl:max-w-[140px] leading-tight">
+                    <span className="hidden xl:flex flex-col text-left max-w-[110px] xl:max-w-[140px] leading-tight">
                       <span className="text-xs font-bold text-ink truncate whitespace-nowrap">
                         {user?.name || "ইউজার"}
                       </span>
@@ -202,7 +207,7 @@ export const Navbar: React.FC = () => {
                       </span>
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-ink-3 transition-transform duration-200 shrink-0 ${userDropdownOpen ? "rotate-180" : ""}`}
+                      className={`w-3.5 h-3.5 xl:w-4 xl:h-4 text-ink-3 transition-transform duration-200 shrink-0 ${userDropdownOpen ? "rotate-180" : ""}`}
                     />
                   </button>
 
@@ -291,7 +296,7 @@ export const Navbar: React.FC = () => {
               <div className="flex items-center gap-2 whitespace-nowrap">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-semibold text-ink-2 hover:text-brand rounded-full border border-line hover:border-brand/50 hover:bg-brand-soft/50 transition-all"
+                  className="px-3 xl:px-4 py-1.5 xl:py-2 text-xs xl:text-sm font-semibold text-ink-2 hover:text-brand rounded-full border border-line hover:border-brand/50 hover:bg-brand-soft/50 transition-all"
                 >
                   {t('nav.login')}
                 </Link>
