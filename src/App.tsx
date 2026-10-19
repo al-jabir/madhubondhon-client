@@ -11,6 +11,7 @@ import Footer from './components/common/Footer';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import WhatsAppSupportWidget from './components/common/WhatsAppSupportWidget';
+import AnnouncementBanner from './components/common/AnnouncementBanner';
 
 // Route-level code splitting — every page is a separate chunk, loaded on demand.
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -56,6 +57,7 @@ export const App: React.FC = () => {
         <BrowserRouter>
           <div className="min-h-screen flex flex-col bg-base text-ink font-sans antialiased selection:bg-brand selection:text-white">
             <Navbar />
+            <AnnouncementBanner />
             <main className="flex-1">
               <Suspense fallback={<PageFallback />}>
                 <Routes>

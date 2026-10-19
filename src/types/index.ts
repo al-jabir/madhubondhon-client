@@ -204,3 +204,84 @@ export interface ApiResponse<T = unknown> {
   };
   errors?: Array<{ field?: string; message: string }>;
 }
+
+export interface AnnouncementItem {
+  _id: string;
+  title: string;
+  content: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  targetAudience: 'all' | 'customer' | 'unregistered';
+  isActive: boolean;
+  isPinned: boolean;
+  startsAt?: string;
+  expiresAt?: string;
+  createdBy: { _id: string; name: string; email: string } | string;
+  updatedBy?: { _id: string; name: string; email: string } | string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SiteContentItem {
+  _id: string;
+  slug: string;
+  title: string;
+  content: string;
+  isPublished: boolean;
+  version: number;
+  metaDescription?: string;
+  updatedBy?: { _id: string; name: string; email: string } | string;
+  updatedAt: string;
+}
+
+export interface PlatformSettings {
+  _id?: string;
+  key: string;
+  siteName: string;
+  siteTagline: string;
+  contactEmail: string;
+  contactPhone: string;
+  supportWhatsApp: string;
+  registrationOpen: boolean;
+  requireBiodataApproval: boolean;
+  maintenanceMode: boolean;
+  allowedUpazilas: string[];
+  maxPhotosPerUser: number;
+  contactCreditCost: number;
+  updatedBy?: { _id: string; name: string; email: string };
+  updatedAt?: string;
+}
+
+export interface AdminInterestItem {
+  _id: string;
+  sender: {
+    _id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    accountStatus: string;
+  };
+  recipient: {
+    _id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    accountStatus: string;
+  };
+  status: InterestStatus;
+  message?: string;
+  respondedAt?: string;
+  createdAt: string;
+}
+
+export interface AdminStaffUser {
+  _id: string;
+  id?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: UserRole;
+  accountStatus: AccountStatus;
+  isEmailVerified: boolean;
+  lastLogin?: string;
+  createdAt: string;
+}
