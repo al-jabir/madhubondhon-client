@@ -57,6 +57,10 @@ export const App: React.FC = () => {
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/profiles/:userId" element={<ProfileDetailPage />} />
 
+                {/* Sample biodata demo routes (fictional profiles, no database needed) */}
+                <Route path="/demo" element={<SearchPage demo />} />
+                <Route path="/demo/profiles/:userId" element={<ProfileDetailPage demo />} />
+
                 {/* Protected User Routes */}
                 <Route
                   path="/my-profile"

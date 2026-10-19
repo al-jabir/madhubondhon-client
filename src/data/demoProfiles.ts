@@ -57,7 +57,12 @@ export function searchDemoProfiles(params: SearchProfilesParams = {}): ApiRespon
 }
 
 export function getDemoProfile(userId: string): ApiResponse<{ profile: Profile }> {
-  const profile = demoProfiles.find(p => p.user === userId);
+  const key = userId.trim().toLocaleLowerCase();
+  // Accept biodata ID (e.g. MB-F101), demo _id, or demo-user id
+  const profile = demoProfiles.find(p =>
+    (p.biodataId || '').toLocaleLowerCase() === key ||
+    p.user === userId ||
+    p._id === userId);
   if (!profile) throw new Error('নমুনা বায়োডাটা পাওয়া যায়নি');
   return { success: true, message: 'নমুনা বায়োডাটা', data: { profile } };
 }
