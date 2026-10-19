@@ -31,37 +31,37 @@ import { toast } from 'sonner';
 import { profilesApi } from '../api/profiles.api';
 import { authApi } from '../api/auth.api';
 import { useAuth } from '../context/useAuth';
-import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../constants/locations';
+import { getUpazilaDisplayName, TangailUpazila } from '../constants/locations';
 import PhotoManager from '../components/profile/PhotoManager';
 import ProfileCard from '../components/profile/ProfileCard';
 import GenderAvatar from '../components/common/GenderAvatar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ConfirmationModal from '../components/common/ConfirmationModal';
+import { useLanguage } from '../i18n/LanguageContext';
 
-/* ═══════════════ Bengali numerals for stats ═══════════════ */
-const bnDigits = (value: string | number) =>
-  String(value).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[Number(d)]);
-
-/* ═══════════════ Segmented tabs ═══════════════ */
 type TabKey = 'overview' | 'photos' | 'recommendations' | 'verification' | 'settings';
-
-const TABS: Array<{ key: TabKey; label: string; icon: React.ElementType }> = [
-  { key: 'overview', label: 'সারসংক্ষেপ', icon: LayoutDashboard },
-  { key: 'photos', label: 'ছবি ও পর্দাশীলতা', icon: Image },
-  { key: 'recommendations', label: 'পরামর্শ', icon: Sparkles },
-  { key: 'verification', label: 'যাচাই ও জমা', icon: ClipboardCheck },
-  { key: 'settings', label: 'অ্যাকাউন্ট সেটিংস', icon: Settings },
-];
 
 export const MyProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const { isBengali } = useLanguage();
+
+  const tabs: Array<{ key: TabKey; label: string; icon: React.ElementType }> = [
+    { key: 'overview', label: isBengali ? 'সারসংক্ষেপ' : 'Overview', icon: LayoutDashboard },
+    { key: 'photos', label: isBengali ? 'ছবি ও পর্দাশীলতা' : 'Photos & Privacy', icon: Image },
+    { key: 'recommendations', label: isBengali ? 'পরামর্শ' : 'Matches', icon: Sparkles },
+    { key: 'verification', label: isBengali ? 'যাচাই ও জমা' : 'Verification', icon: ClipboardCheck },
+    { key: 'settings', label: isBengali ? 'অ্যাকাউন্ট সেটিংস' : 'Account Settings', icon: Settings },
+  ];
 
   return (
     <div className="max-w-6xl mx-auto">
       {/* Sticky segmented tab bar */}
       <div className="sticky top-16 z-20 bg-base/90 backdrop-blur-md border-b border-line">
-        <nav className="max-w-6xl mx-auto px-4 flex items-center gap-1.5 overflow-x-auto py-2.5" style={{ scrollbarWidth: 'none' }}>
-          {TABS.map((tab) => {
+        <nav
+          className="max-w-6xl mx-auto px-4 flex items-center gap-1.5 overflow-x-auto py-2.5"
+          style={{ scrollbarWidth: 'none' }}
+        >
+          {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = tab.key === activeTab;
             return (
@@ -119,55 +119,86 @@ const useMyProfile = () => {
 const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavigateTab }) => {
   const { profile } = useMyProfile();
   const { user } = useAuth();
+  const { isBengali, formatNumber } = useLanguage();
 
   if (!profile) return <ProfileMissing />;
 
-  const upazilaBangla =
-    UPAZILA_DISPLAY_NAMES[profile.upazila as TangailUpazila] || profile.upazila;
+  const upazilaName = getUpazilaDisplayName(profile.upazila, isBengali);
 
   const targetUserId =
     typeof profile.user === 'string' ? profile.user : profile.user?._id || user?.id;
 
   const completionPercent = profile.completionPercentage ?? 0;
   const verifiedCount = (user?.isEmailVerified ? 1 : 0) + (user?.isPhoneVerified ? 1 : 0);
+
   const photoPrivacyLabels: Record<string, string> = {
-    public: 'প্রকাশিত',
-    on_interest_accepted: 'আগ্রহ গ্রহণের পর',
-    hidden: 'গোপন',
+    public: isBengali ? 'প্রকাশিত' : 'Public',
+    on_interest_accepted: isBengali ? 'আগ্রহ গ্রহণের পর' : 'On Interest Accepted',
+    hidden: isBengali ? 'গোপন' : 'Hidden',
   };
 
   const stats = [
     {
-      label: 'সম্পূর্ণতা',
-      value: `${bnDigits(completionPercent)}%`,
+      label: isBengali ? 'সম্পূর্ণতা' : 'Completion',
+      value: `${isBengali ? formatNumber(completionPercent) : completionPercent}%`,
       tone: completionPercent >= 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gold',
       icon: Sparkles,
     },
     {
-      label: 'প্রকাশের অবস্থা',
-      value: profile.isApproved ? 'অনুমোদিত' : 'অপেক্ষমান',
+      label: isBengali ? 'প্রকাশের অবস্থা' : 'Approval Status',
+      value: profile.isApproved
+        ? isBengali
+          ? 'অনুমোদিত'
+          : 'Approved'
+        : isBengali
+        ? 'অপেক্ষমান'
+        : 'Pending',
       tone: profile.isApproved ? 'text-emerald-600 dark:text-emerald-400' : 'text-gold',
       icon: profile.isApproved ? CheckCircle2 : AlertCircle,
     },
     {
-      label: 'ইমেইল ও মোবাইল যাচাই',
-      value: `${bnDigits(verifiedCount)}/২`,
+      label: isBengali ? 'ইমেইল ও মোবাইল যাচাই' : 'Email & Phone Verified',
+      value: isBengali ? `${formatNumber(verifiedCount)}/২` : `${verifiedCount}/2`,
       tone: verifiedCount === 2 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gold',
       icon: verifiedCount === 2 ? Shield : ClipboardCheck,
     },
     {
-      label: 'ছবি (পর্দাশীলতা: ' + (photoPrivacyLabels[profile.photoPrivacy || 'public'] || 'প্রকাশিত') + ')',
-      value: `${bnDigits((profile.photos || []).length)}টি`,
+      label: isBengali
+        ? `ছবি (পর্দাশীলতা: ${photoPrivacyLabels[profile.photoPrivacy || 'public'] || 'প্রকাশিত'})`
+        : `Photos (${photoPrivacyLabels[profile.photoPrivacy || 'public'] || 'Public'})`,
+      value: isBengali
+        ? `${formatNumber((profile.photos || []).length)}টি`
+        : `${(profile.photos || []).length}`,
       tone: 'text-brand',
       icon: Image,
     },
   ];
 
   const quickLinks = [
-    { to: '/interests', icon: Heart, label: 'আগ্রহের তালিকা', desc: 'পাঠানো ও প্রাপ্ত' },
-    { to: '/shortlist', icon: Bookmark, label: 'পছন্দের তালিকা', desc: 'সংরক্ষিত পাত্র-পাত্রী' },
-    { to: '/contacts', icon: Contact, label: 'যোগাযোগ', desc: 'অনুরোধ ও প্রাপ্তি' },
-    { to: '/packages', icon: Gem, label: 'প্যাকেজ', desc: 'ক্রেডিট ও মূল্য' },
+    {
+      to: '/interests',
+      icon: Heart,
+      label: isBengali ? 'আগ্রহের তালিকা' : 'Interests',
+      desc: isBengali ? 'পাঠানো ও প্রাপ্ত' : 'Sent & Received',
+    },
+    {
+      to: '/shortlist',
+      icon: Bookmark,
+      label: isBengali ? 'পছন্দের তালিকা' : 'Shortlist',
+      desc: isBengali ? 'সংরক্ষিত পাত্র-পাত্রী' : 'Saved Profiles',
+    },
+    {
+      to: '/contacts',
+      icon: Contact,
+      label: isBengali ? 'যোগাযোগ' : 'Contacts',
+      desc: isBengali ? 'অনুরোধ ও প্রাপ্তি' : 'Requests & Grants',
+    },
+    {
+      to: '/packages',
+      icon: Gem,
+      label: isBengali ? 'প্যাকেজ' : 'Packages',
+      desc: isBengali ? 'ক্রেডিট ও মূল্য' : 'Credits & Pricing',
+    },
   ];
 
   return (
@@ -175,18 +206,27 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
       {/* ── Hero card ── */}
       <div className="relative overflow-hidden mb-card rounded-[2rem] px-6 sm:px-8 pt-10 pb-8">
         {/* decorative blobs */}
-        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-brand/10 blur-3xl pointer-events-none" aria-hidden="true" />
-        <div className="absolute -bottom-32 -left-20 w-72 h-72 rounded-full bg-pink-500/8 blur-3xl pointer-events-none" aria-hidden="true" />
+        <div
+          className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-brand/10 blur-3xl pointer-events-none"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute -bottom-32 -left-20 w-72 h-72 rounded-full bg-pink-500/8 blur-3xl pointer-events-none"
+          aria-hidden="true"
+        />
 
         <div className="relative flex flex-col md:flex-row md:items-center gap-6">
           {/* Avatar with gradient halo */}
           <div className="relative shrink-0 mx-auto md:mx-0">
-            <div className="absolute -inset-2 rounded-full bg-linear-to-br from-brand/50 via-pink-500/30 to-transparent" aria-hidden="true" />
+            <div
+              className="absolute -inset-2 rounded-full bg-linear-to-br from-brand/50 via-pink-500/30 to-transparent"
+              aria-hidden="true"
+            />
             <div className="relative rounded-full shadow-xl border-4 border-card w-28 h-28">
               <GenderAvatar gender={profile.gender} size={112} className="w-full h-full" />
               {profile.isApproved && (
                 <span
-                  title="ভেরিফাইড বায়োডাটা"
+                  title={isBengali ? 'ভেরিফাইড বায়োডাটা' : 'Verified Biodata'}
                   className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 border-3 border-card flex items-center justify-center"
                 >
                   <CheckCircle2 className="w-4.5 h-4.5 text-white fill-none" />
@@ -198,7 +238,9 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
           {/* Identity */}
           <div className="flex-1 space-y-2.5 text-center md:text-left">
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-              <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">{profile.displayName}</h1>
+              <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
+                {profile.displayName}
+              </h1>
               {profile.biodataId && (
                 <span className="text-xs font-black px-3 py-1 rounded-full bg-gold-soft text-gold border border-gold/25 font-mono">
                   {profile.biodataId}
@@ -214,15 +256,21 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs font-bold">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-soft text-brand-ink border border-brand/20">
                 <UserIcon className="w-3.5 h-3.5" />
-                {profile.gender === 'male' ? 'পাত্র' : 'পাত্রী'}
+                {profile.gender === 'male'
+                  ? isBengali
+                    ? 'পাত্র'
+                    : 'Groom'
+                  : isBengali
+                  ? 'পাত্রী'
+                  : 'Bride'}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-elev text-ink-2 border border-line">
                 <MapPin className="w-3.5 h-3.5 text-brand" />
-                {upazilaBangla}, টাঙ্গাইল
+                {upazilaName}, {isBengali ? 'টাঙ্গাইল' : 'Tangail'}
               </span>
               {profile.age ? (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-elev text-ink-2 border border-line">
-                  <span>{profile.age} বছর</span>
+                  <span>{isBengali ? `${formatNumber(profile.age)} বছর` : `${profile.age} yrs`}</span>
                 </span>
               ) : null}
               {profile.occupation && (
@@ -240,7 +288,7 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
               className="mb-btn-primary py-2.5 px-5 text-xs rounded-xl inline-flex items-center gap-2 shadow-lg shadow-brand/20"
             >
               <Edit3 className="w-3.5 h-3.5" />
-              <span>বায়োডাটা সম্পাদনা</span>
+              <span>{isBengali ? 'বায়োডাটা সম্পাদনা' : 'Edit Biodata'}</span>
             </Link>
             {targetUserId ? (
               <Link
@@ -248,7 +296,7 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
                 className="inline-flex items-center gap-1.5 py-2.5 px-5 text-xs font-bold text-brand bg-brand-soft hover:bg-brand/20 rounded-xl border border-brand/40 transition-all hover:scale-[1.03]"
               >
                 <Eye className="w-3.5 h-3.5" />
-                <span>পাবলিক ভিউ</span>
+                <span>{isBengali ? 'পাবলিক ভিউ' : 'Public View'}</span>
               </Link>
             ) : null}
           </div>
@@ -265,7 +313,9 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
                 <Icon className={`w-4.5 h-4.5 ${stat.tone}`} />
               </div>
               <div className="min-w-0">
-                <p className={`text-base sm:text-lg font-black leading-tight ${stat.tone}`}>{stat.value}</p>
+                <p className={`text-base sm:text-lg font-black leading-tight ${stat.tone}`}>
+                  {stat.value}
+                </p>
                 <p className="text-[10.5px] text-ink-3 font-semibold truncate">{stat.label}</p>
               </div>
             </div>
@@ -282,7 +332,7 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
         <div className="lg:col-span-2 space-y-4">
           <h3 className="mb-section-title text-sm flex items-center gap-2 px-1">
             <Compass className="w-4 h-4 text-gold" />
-            <span>দ্রুত লিংক</span>
+            <span>{isBengali ? 'দ্রুত লিংক' : 'Quick Links'}</span>
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
             {quickLinks.map((link) => {
@@ -315,8 +365,9 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
 const CompletionCard: React.FC<{ onNavigateTab?: ((t: TabKey) => void) | undefined }> = ({
   onNavigateTab,
 }) => {
-  const { profile, completion } = useMyProfile();
+  const { completion } = useMyProfile();
   const navigate = useNavigate();
+  const { isBengali, formatNumber } = useLanguage();
 
   const completionPercent = completion?.percent ?? 0;
   const isProfileComplete = completionPercent >= 100;
@@ -327,7 +378,14 @@ const CompletionCard: React.FC<{ onNavigateTab?: ((t: TabKey) => void) | undefin
         {/* Ring */}
         <div className="relative w-28 h-28 shrink-0">
           <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-            <circle cx="50" cy="50" r="42" fill="none" strokeWidth="9" style={{ stroke: 'var(--mb-line)' }} />
+            <circle
+              cx="50"
+              cy="50"
+              r="42"
+              fill="none"
+              strokeWidth="9"
+              style={{ stroke: 'var(--mb-line)' }}
+            />
             <circle
               cx="50"
               cy="50"
@@ -345,10 +403,18 @@ const CompletionCard: React.FC<{ onNavigateTab?: ((t: TabKey) => void) | undefin
             {isProfileComplete ? (
               <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <span className="text-2xl font-black text-ink">{bnDigits(completionPercent)}%</span>
+              <span className="text-2xl font-black text-ink">
+                {isBengali ? formatNumber(completionPercent) : completionPercent}%
+              </span>
             )}
             <span className="text-[10px] text-ink-3 font-bold mt-0.5">
-              {isProfileComplete ? 'সম্পূর্ণ' : 'সম্পূর্ণতা'}
+              {isProfileComplete
+                ? isBengali
+                  ? 'সম্পূর্ণ'
+                  : 'Complete'
+                : isBengali
+                ? 'সম্পূর্ণতা'
+                : 'Progress'}
             </span>
           </div>
         </div>
@@ -358,21 +424,27 @@ const CompletionCard: React.FC<{ onNavigateTab?: ((t: TabKey) => void) | undefin
           {isProfileComplete ? (
             <>
               <h3 className="text-lg font-black text-ink">
-                আপনার প্রোফাইল সম্পূর্ণ! এখন পছন্দের সঙ্গী খুঁজুন।
+                {isBengali
+                  ? 'আপনার প্রোফাইল সম্পূর্ণ! এখন পছন্দের সঙ্গী খুঁজুন।'
+                  : 'Your profile is 100% complete! Explore prospective matches.'}
               </h3>
               <Link
                 to="/search"
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-brand hover:text-brand/80"
               >
-                <span>পছন্দের সঙ্গী খুঁজুন</span>
+                <span>{isBengali ? 'পছন্দের সঙ্গী খুঁজুন' : 'Explore Matches'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </>
           ) : (
             <>
-              <h3 className="text-lg font-black text-ink">প্রোফাইল সম্পূর্ণ করুন</h3>
+              <h3 className="text-lg font-black text-ink">
+                {isBengali ? 'প্রোফাইল সম্পূর্ণ করুন' : 'Complete Your Profile'}
+              </h3>
               <p className="text-xs text-ink-2 leading-relaxed">
-                বাকি তথ্যগুলো যোগ করলে আপনার বায়োডাটা আরও সম্পূর্ণ ও আকর্ষণীয় হবে।
+                {isBengali
+                  ? 'বাকি তথ্যগুলো যোগ করলে আপনার বায়োডাটা আরও সম্পূর্ণ ও আকর্ষণীয় হবে।'
+                  : 'Adding complete information makes your biodata more attractive and credible.'}
               </p>
               {(completion?.missing?.length ?? 0) > 0 ? (
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
@@ -404,6 +476,7 @@ const CompletionCard: React.FC<{ onNavigateTab?: ((t: TabKey) => void) | undefin
 /* ═══════════════ Photos tab ═══════════════ */
 const PhotosTab: React.FC = () => {
   const { profile, isLoading } = useMyProfile();
+  const { isBengali } = useLanguage();
 
   if (isLoading) return <TabLoader />;
   if (!profile) return <ProfileMissing />;
@@ -412,7 +485,7 @@ const PhotosTab: React.FC = () => {
     <div className="space-y-4">
       <h2 className="mb-section-title text-lg flex items-center gap-2 px-1">
         <Image className="w-5 h-5 text-brand" />
-        <span>ছবি ব্যবস্থাপনা ও পর্দাশীলতা</span>
+        <span>{isBengali ? 'ছবি ব্যবস্থাপনা ও পর্দাশীলতা' : 'Photo Management & Privacy'}</span>
       </h2>
       <PhotoManager photos={profile.photos || []} currentPrivacy={profile.photoPrivacy || 'public'} />
     </div>
@@ -422,6 +495,7 @@ const PhotosTab: React.FC = () => {
 /* ═══════════════ Recommendations tab ═══════════════ */
 const RecommendationsTab: React.FC = () => {
   const { profile } = useMyProfile();
+  const { isBengali } = useLanguage();
   const { data: recsData, isLoading } = useQuery({
     queryKey: ['profile-recommendations'],
     queryFn: () => profilesApi.getRecommendations(),
@@ -439,10 +513,13 @@ const RecommendationsTab: React.FC = () => {
       <div className="flex items-center justify-between px-1">
         <h2 className="mb-section-title text-lg flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-gold" />
-          <span>আপনার জন্য পরামর্শ</span>
+          <span>{isBengali ? 'আপনার জন্য পরামর্শ' : 'Recommended For You'}</span>
         </h2>
-        <Link to="/search" className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:text-brand/80">
-          <span>সব দেখুন</span>
+        <Link
+          to="/search"
+          className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:text-brand/80"
+        >
+          <span>{isBengali ? 'সব দেখুন' : 'View All'}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -464,9 +541,15 @@ const RecommendationsTab: React.FC = () => {
           <div className="w-14 h-14 rounded-full bg-elev flex items-center justify-center mx-auto border border-line">
             <Sparkles className="w-6 h-6 text-ink-3" />
           </div>
-          <p className="text-sm font-bold text-ink">এখন কোনো পরামর্শ নেই — একটু পরে আবার দেখুন</p>
+          <p className="text-sm font-bold text-ink">
+            {isBengali
+              ? 'এখন কোনো পরামর্শ নেই — একটু পরে আবার দেখুন'
+              : 'No recommendations at this time — please check back soon'}
+          </p>
           <p className="text-xs text-ink-3 max-w-sm mx-auto leading-relaxed">
-            নতুন সদস্যরা যুক্ত হলে এখানে দেখতে পাবেন। ততক্ষণ পর্যন্ত সার্চ ব্যবহার করে খুঁজে দেখুন।
+            {isBengali
+              ? 'নতুন সদস্যরা যুক্ত হলে এখানে দেখতে পাবেন। ততক্ষণ পর্যন্ত সার্চ ব্যবহার করে খুঁজে দেখুন।'
+              : 'As new members register, you will see recommendations here. Meanwhile, explore using search.'}
           </p>
         </div>
       ) : (
@@ -484,6 +567,7 @@ const RecommendationsTab: React.FC = () => {
 const SettingsTab: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { isBengali } = useLanguage();
 
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -496,13 +580,17 @@ const SettingsTab: React.FC = () => {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmNewPassword) {
-      toast.error('নতুন পাসওয়ার্ড মেলেনি।');
+      toast.error(isBengali ? 'নতুন পাসওয়ার্ড মেলেনি।' : 'New passwords do not match.');
       return;
     }
     try {
       setIsPwSubmitting(true);
       await authApi.changePassword({ currentPassword, newPassword, confirmNewPassword });
-      toast.success('পাসওয়ার্ড পরিবর্তিত হয়েছে। আবার লগইন করুন।');
+      toast.success(
+        isBengali
+          ? 'পাসওয়ার্ড পরিবর্তিত হয়েছে। আবার লগইন করুন।'
+          : 'Password changed successfully. Please log in again.'
+      );
       await logout();
       navigate('/login');
       setIsChangingPassword(false);
@@ -512,7 +600,7 @@ const SettingsTab: React.FC = () => {
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        'পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।';
+        (isBengali ? 'পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।' : 'Failed to change password.');
       toast.error(msg);
     } finally {
       setIsPwSubmitting(false);
@@ -523,13 +611,13 @@ const SettingsTab: React.FC = () => {
     try {
       setIsActionLoading(true);
       await profilesApi.deactivateAccount();
-      toast.info('আপনার অ্যাকাউন্ট নিষ্ক্রিয় করা হয়েছে।');
+      toast.info(isBengali ? 'আপনার অ্যাকাউন্ট নিষ্ক্রিয় করা হয়েছে।' : 'Your account has been deactivated.');
       await logout();
       navigate('/login');
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        'নিষ্ক্রিয় করতে সমস্যা হয়েছে।';
+        (isBengali ? 'নিষ্ক্রিয় করতে সমস্যা হয়েছে।' : 'Failed to deactivate account.');
       toast.error(msg);
     } finally {
       setIsActionLoading(false);
@@ -541,13 +629,13 @@ const SettingsTab: React.FC = () => {
     try {
       setIsActionLoading(true);
       await profilesApi.deleteAccount();
-      toast.info('আপনার অ্যাকাউন্ট মুছে ফেলা হয়েছে।');
+      toast.info(isBengali ? 'আপনার অ্যাকাউন্ট মুছে ফেলা হয়েছে।' : 'Your account has been deleted.');
       await logout();
       navigate('/login');
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        'অ্যাকাউন্ট মুছতে সমস্যা হয়েছে।';
+        (isBengali ? 'অ্যাকাউন্ট মুছতে সমস্যা হয়েছে।' : 'Failed to delete account.');
       toast.error(msg);
     } finally {
       setIsActionLoading(false);
@@ -564,8 +652,12 @@ const SettingsTab: React.FC = () => {
             <Lock className="w-4.5 h-4.5" />
           </div>
           <div>
-            <h3 className="text-base font-black text-ink leading-tight">নিরাপত্তা</h3>
-            <p className="text-[11px] text-ink-3">পাসওয়ার্ড পরিবর্তন করুন</p>
+            <h3 className="text-base font-black text-ink leading-tight">
+              {isBengali ? 'নিরাপত্তা' : 'Security'}
+            </h3>
+            <p className="text-[11px] text-ink-3">
+              {isBengali ? 'পাসওয়ার্ড পরিবর্তন করুন' : 'Change your account password'}
+            </p>
           </div>
         </div>
 
@@ -573,10 +665,13 @@ const SettingsTab: React.FC = () => {
           <div className="bg-elev rounded-2xl p-4 flex items-center justify-between gap-3 border border-line">
             <div>
               <p className="text-xs font-bold text-ink">
-                শেষ লগইন: <span className="text-ink-2 font-semibold">{user?.email}</span>
+                {isBengali ? 'বর্তমান অ্যাকাউন্ট: ' : 'Account: '}
+                <span className="text-ink-2 font-semibold">{user?.email}</span>
               </p>
               <p className="text-[10.5px] text-ink-3 mt-0.5">
-                মাঝে মাঝে পাসওয়ার্ড পরিবর্তন করলে অ্যাকাউন্ট নিরাপদ থাকে।
+                {isBengali
+                  ? 'মাঝে মাঝে পাসওয়ার্ড পরিবর্তন করলে অ্যাকাউন্ট নিরাপদ থাকে।'
+                  : 'Regularly updating your password keeps your account secure.'}
               </p>
             </div>
             <button
@@ -584,13 +679,18 @@ const SettingsTab: React.FC = () => {
               onClick={() => setIsChangingPassword(true)}
               className="mb-btn-primary !text-xs py-2 px-4 rounded-xl cursor-pointer shrink-0 whitespace-nowrap"
             >
-              <span>পরিবর্তন করুন</span>
+              <span>{isBengali ? 'পরিবর্তন করুন' : 'Change Password'}</span>
             </button>
           </div>
         ) : (
-          <form onSubmit={handleChangePassword} className="space-y-3.5 bg-elev rounded-2xl p-4 border border-line">
+          <form
+            onSubmit={handleChangePassword}
+            className="space-y-3.5 bg-elev rounded-2xl p-4 border border-line"
+          >
             <div>
-              <label className="mb-label !text-[11px]">বর্তমান পাসওয়ার্ড</label>
+              <label className="mb-label !text-[11px]">
+                {isBengali ? 'বর্তমান পাসওয়ার্ড' : 'Current Password'}
+              </label>
               <input
                 type="password"
                 value={currentPassword}
@@ -600,7 +700,9 @@ const SettingsTab: React.FC = () => {
               />
             </div>
             <div>
-              <label className="mb-label !text-[11px]">নতুন পাসওয়ার্ড</label>
+              <label className="mb-label !text-[11px]">
+                {isBengali ? 'নতুন পাসওয়ার্ড' : 'New Password'}
+              </label>
               <input
                 type="password"
                 value={newPassword}
@@ -611,7 +713,9 @@ const SettingsTab: React.FC = () => {
               />
             </div>
             <div>
-              <label className="mb-label !text-[11px]">নতুন পাসওয়ার্ড নিশ্চিত করুন</label>
+              <label className="mb-label !text-[11px]">
+                {isBengali ? 'নতুন পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm New Password'}
+              </label>
               <input
                 type="password"
                 value={confirmNewPassword}
@@ -627,14 +731,20 @@ const SettingsTab: React.FC = () => {
                 disabled={isPwSubmitting}
                 className="mb-btn-primary py-2 px-5 text-xs rounded-xl cursor-pointer"
               >
-                {isPwSubmitting ? 'সংরক্ষণ হচ্ছে...' : 'পাসওয়ার্ড আপডেট করুন'}
+                {isPwSubmitting
+                  ? isBengali
+                    ? 'সংরক্ষণ হচ্ছে...'
+                    : 'Saving...'
+                  : isBengali
+                  ? 'পাসওয়ার্ড আপডেট করুন'
+                  : 'Update Password'}
               </button>
               <button
                 type="button"
                 onClick={() => setIsChangingPassword(false)}
                 className="text-xs font-bold text-ink-3 hover:text-ink transition-colors cursor-pointer px-2"
               >
-                বাতিল
+                {isBengali ? 'বাতিল' : 'Cancel'}
               </button>
             </div>
           </form>
@@ -648,14 +758,19 @@ const SettingsTab: React.FC = () => {
             <Shield className="w-4.5 h-4.5" />
           </div>
           <div>
-            <h3 className="text-base font-black text-ink leading-tight">বিয়ে হয়ে গেছে? অ্যাকাউন্ট নিয়ন্ত্রণ</h3>
-            <p className="text-[11px] text-ink-3">সাময়িক বিরতি অথবা চিরতরে মুছে ফেলা</p>
+            <h3 className="text-base font-black text-ink leading-tight">
+              {isBengali ? 'বিয়ে হয়ে গেছে? অ্যাকাউন্ট নিয়ন্ত্রণ' : 'Got Married? Account Control'}
+            </h3>
+            <p className="text-[11px] text-ink-3">
+              {isBengali ? 'সাময়িক বিরতি অথবা চিরতরে মুছে ফেলা' : 'Temporary pause or permanent deletion'}
+            </p>
           </div>
         </div>
 
         <p className="text-xs text-ink-2 leading-relaxed bg-elev rounded-2xl p-4 border border-line">
-          বিয়ে ঠিক হয়ে গেলে অথবা সাময়িক বিরতির জন্য অ্যাকাউন্ট স্থগিত বা মুছে ফেলতে পারেন। প্রয়োজনে
-          আগে <strong className="text-ink">পছন্দের তালিকা ও যোগাযোগ</strong> ডেটা দেখে নিন।
+          {isBengali
+            ? 'বিয়ে ঠিক হয়ে গেলে অথবা সাময়িক বিরতির জন্য অ্যাকাউন্ট স্থগিত বা মুছে ফেলতে পারেন। প্রয়োজনে আগে পছন্দের তালিকা ও যোগাযোগ ডেটা দেখে নিন।'
+            : 'If your marriage has been arranged or you wish to take a pause, you can deactivate or delete your account.'}
         </p>
 
         <div className="flex flex-wrap items-center gap-2.5">
@@ -665,7 +780,7 @@ const SettingsTab: React.FC = () => {
             className="px-4 py-2.5 text-xs font-bold text-gold bg-gold-soft hover:bg-gold/20 rounded-xl border border-gold/25 cursor-pointer flex items-center gap-1.5 transition-colors"
           >
             <PauseCircle className="w-3.5 h-3.5" />
-            <span>সাময়িকভাবে নিষ্ক্রিয় করুন</span>
+            <span>{isBengali ? 'সাময়িকভাবে নিষ্ক্রিয় করুন' : 'Deactivate Temporarily'}</span>
           </button>
           <button
             type="button"
@@ -673,12 +788,9 @@ const SettingsTab: React.FC = () => {
             className="px-4 py-2.5 text-xs font-bold text-brand bg-brand-soft hover:bg-brand/20 rounded-xl border border-brand/40 cursor-pointer flex items-center gap-1.5 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span>স্থায়ীভাবে মুছুন</span>
+            <span>{isBengali ? 'স্থায়ীভাবে মুছুন' : 'Delete Permanently'}</span>
           </button>
         </div>
-        <p className="text-[10.5px] text-ink-3">
-          মোবাইল যাচাই সম্পর্কিত সেটিংস "যাচাই ও জমা" ট্যাবে আছে।
-        </p>
       </div>
 
       {/* Deactivate Account Modal */}
@@ -686,9 +798,13 @@ const SettingsTab: React.FC = () => {
         isOpen={confirmAction === 'deactivate'}
         onClose={() => setConfirmAction(null)}
         onConfirm={executeDeactivate}
-        title="অ্যাকাউন্ট নিষ্ক্রিয়করণ"
-        message="আপনি কি নিশ্চিত যে আপনার অ্যাকাউন্টটি সাময়িকভাবে নিষ্ক্রিয় করতে চান? আপনি পরবর্তীতে যেকোনো সময় পুনরায় লগইন করে এটি আবার সক্রিয় করতে পারবেন।"
-        confirmText="নিষ্ক্রিয় করুন"
+        title={isBengali ? 'অ্যাকাউন্ট নিষ্ক্রিয়করণ' : 'Account Deactivation'}
+        message={
+          isBengali
+            ? 'আপনি কি নিশ্চিত যে আপনার অ্যাকাউন্টটি সাময়িকভাবে নিষ্ক্রিয় করতে চান? আপনি পরবর্তীতে যেকোনো সময় পুনরায় লগইন করে এটি আবার সক্রিয় করতে পারবেন।'
+            : 'Are you sure you want to temporarily deactivate your account? You can reactivate it anytime by logging in again.'
+        }
+        confirmText={isBengali ? 'নিষ্ক্রিয় করুন' : 'Deactivate'}
         variant="warning"
         isLoading={isActionLoading}
       />
@@ -698,9 +814,13 @@ const SettingsTab: React.FC = () => {
         isOpen={confirmAction === 'delete'}
         onClose={() => setConfirmAction(null)}
         onConfirm={executeDelete}
-        title="স্থায়ীভাবে অ্যাকাউন্ট মুছে ফেলা"
-        message="সতর্কতা: অ্যাকাউন্ট মুছে ফেললে আপনার সকল বায়োডাটা, সংরক্ষিত তালিকা এবং যোগাযোগের তথ্য চিরতরে ডাটাবেজ থেকে মুছে ফেলা হবে। এই কাজটি আর ফিরিয়ে আনা সম্ভব নয়। আপনি কি এগিয়ে যেতে চান?"
-        confirmText="স্থায়ীভাবে মুছুন"
+        title={isBengali ? 'স্থায়ীভাবে অ্যাকাউন্ট মুছে ফেলা' : 'Permanent Account Deletion'}
+        message={
+          isBengali
+            ? 'সতর্কতা: অ্যাকাউন্ট মুছে ফেললে আপনার সকল বায়োডাটা, সংরক্ষিত তালিকা এবং যোগাযোগের তথ্য চিরতরে ডাটাবেজ থেকে মুছে ফেলা হবে। এই কাজটি আর ফিরিয়ে আনা সম্ভব নয়। আপনি কি এগিয়ে যেতে চান?'
+            : 'Warning: Deleting your account will permanently remove your biodata, saved lists, and communication history. This action cannot be undone. Do you wish to proceed?'
+        }
+        confirmText={isBengali ? 'স্থায়ীভাবে মুছুন' : 'Delete Permanently'}
         variant="danger"
         isLoading={isActionLoading}
       />
@@ -709,31 +829,44 @@ const SettingsTab: React.FC = () => {
 };
 
 /* ═══════════════ Shared bits ═══════════════ */
-const TabLoader: React.FC = () => (
-  <div className="py-24 flex justify-center">
-    <LoadingSpinner size="lg" label="প্রোফাইল তথ্য লোড হচ্ছে..." />
-  </div>
-);
+const TabLoader: React.FC = () => {
+  const { isBengali } = useLanguage();
+  return (
+    <div className="py-24 flex justify-center">
+      <LoadingSpinner
+        size="lg"
+        label={isBengali ? 'প্রোফাইল তথ্য লোড হচ্ছে...' : 'Loading profile details...'}
+      />
+    </div>
+  );
+};
 
-const ProfileMissing: React.FC = () => (
-  <div className="mb-card rounded-[2rem] p-10 text-center space-y-5 max-w-2xl mx-auto">
-    <div className="w-16 h-16 rounded-full bg-brand-soft text-brand flex items-center justify-center mx-auto border border-brand/20">
-      <UserIcon className="w-7 h-7" />
+const ProfileMissing: React.FC = () => {
+  const { isBengali } = useLanguage();
+  return (
+    <div className="mb-card rounded-[2rem] p-10 text-center space-y-5 max-w-2xl mx-auto">
+      <div className="w-16 h-16 rounded-full bg-brand-soft text-brand flex items-center justify-center mx-auto border border-brand/20">
+        <UserIcon className="w-7 h-7" />
+      </div>
+      <h2 className="text-2xl font-black text-ink">
+        {isBengali ? 'আপনার প্রকাশিত বায়োডাটা এখনও নেই' : 'You do not have a published biodata yet'}
+      </h2>
+      <p className="text-sm text-ink-2 max-w-md mx-auto leading-relaxed">
+        {isBengali
+          ? 'টাঙ্গাইলের উপযুক্ত জীবনসঙ্গী খুঁজতে এবং অন্যদের সাথে সংযুক্ত হতে অনুগ্রহ করে আপনার বায়োডাটা সম্পন্ন করুন।'
+          : 'Complete your biodata to connect with prospective brides and grooms across Tangail.'}
+      </p>
+      <div>
+        <Link
+          to="/edit-profile"
+          className="mb-btn-primary py-3 px-6 text-sm rounded-xl inline-flex items-center gap-2 cursor-pointer"
+        >
+          <Edit3 className="w-4 h-4" />
+          <span>{isBengali ? 'এখনই বায়োডাটা তৈরি করুন' : 'Create Biodata Now'}</span>
+        </Link>
+      </div>
     </div>
-    <h2 className="text-2xl font-black text-ink">আপনার প্রকাশিত বায়োডাটা এখনও নেই</h2>
-    <p className="text-sm text-ink-2 max-w-md mx-auto leading-relaxed">
-      টাঙ্গাইলের উপযুক্ত জীবনসঙ্গী খুঁজতে এবং অন্যদের সাথে সংযুক্ত হতে অনুগ্রহ করে আপনার বায়োডাটা সম্পন্ন করুন।
-    </p>
-    <div>
-      <Link
-        to="/edit-profile"
-        className="mb-btn-primary py-3 px-6 text-sm rounded-xl inline-flex items-center gap-2 cursor-pointer"
-      >
-        <Edit3 className="w-4 h-4" />
-        <span>এখনই বায়োডাটা তৈরি করুন</span>
-      </Link>
-    </div>
-  </div>
-);
+  );
+};
 
 export default MyProfilePage;

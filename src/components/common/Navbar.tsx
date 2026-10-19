@@ -154,7 +154,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/packages"
                   className="flex items-center gap-1 xl:gap-1.5 px-2 xl:px-3 py-1.5 rounded-full text-xs font-bold bg-gold-soft text-gold border border-gold/25 hover:border-gold/50 transition-all whitespace-nowrap"
-                  title="যোগাযোগ ক্রেডিট দেখুন বা রিচার্জ করুন"
+                  title={isBengali ? "যোগাযোগ ক্রেডিট দেখুন বা রিচার্জ করুন" : "View or recharge contact credits"}
                 >
                   <Coins className="w-3.5 h-3.5" />
                   <span className="hidden xl:inline">{formatNumber(user?.contactCredits ?? 0)} {t('nav.credits')}</span>
@@ -164,13 +164,13 @@ export const Navbar: React.FC = () => {
                 {/* Notifications */}
                 <Link
                   to="/notifications"
-                  aria-label="বিজ্ঞপ্তি"
+                  aria-label={isBengali ? "বিজ্ঞপ্তি" : "Notifications"}
                   className={`relative p-1.5 xl:p-2 rounded-full transition-all ${
                     isActive("/notifications")
                       ? "bg-brand-soft text-brand"
                       : "text-ink-2 hover:bg-brand-soft hover:text-brand"
                   }`}
-                  title="বিজ্ঞপ্তি"
+                  title={isBengali ? "বিজ্ঞপ্তি" : "Notifications"}
                 >
                   <Bell className="w-4.5 h-4.5 xl:w-5 xl:h-5 shrink-0" />
                   {unreadCount > 0 && (
@@ -198,15 +198,15 @@ export const Navbar: React.FC = () => {
                     </span>
                     <span className="hidden xl:flex flex-col text-left max-w-[110px] xl:max-w-[140px] leading-tight">
                       <span className="text-xs font-bold text-ink truncate whitespace-nowrap">
-                        {user?.name || "ইউজার"}
+                        {user?.name || (isBengali ? "ইউজার" : "User")}
                       </span>
                       <span className="text-[10px] truncate whitespace-nowrap">
                         {isAdminOrMod ? (
                           <span className="text-gold font-semibold">
-                            {user?.role === UserRole.SUPER_ADMIN ? "সুপার অ্যাডমিন" : user?.role === UserRole.ADMIN ? "অ্যাডমিন" : "মডারেটর"}
+                            {user?.role === UserRole.SUPER_ADMIN ? (isBengali ? "সুপার অ্যাডমিন" : "Super Admin") : user?.role === UserRole.ADMIN ? (isBengali ? "অ্যাডমিন" : "Admin") : (isBengali ? "মডারেটর" : "Moderator")}
                           </span>
                         ) : (
-                          <span className="text-ink-3">সদস্য</span>
+                          <span className="text-ink-3">{isBengali ? "সদস্য" : "Member"}</span>
                         )}
                       </span>
                     </span>
@@ -228,12 +228,12 @@ export const Navbar: React.FC = () => {
                               : "bg-brand-soft text-brand-ink"
                           }`}>
                             {user?.role === UserRole.SUPER_ADMIN
-                              ? "সুপার অ্যাডমিন"
+                              ? (isBengali ? "সুপার অ্যাডমিন" : "Super Admin")
                               : user?.role === UserRole.ADMIN
-                              ? "অ্যাডমিন"
+                              ? (isBengali ? "অ্যাডমিন" : "Admin")
                               : user?.role === UserRole.MODERATOR
-                              ? "মডারেটর"
-                              : "সাধারণ সদস্য"}
+                              ? (isBengali ? "মডারেটর" : "Moderator")
+                              : (isBengali ? "সাধারণ সদস্য" : "General Member")}
                           </span>
                           <span className="text-[11px] text-ink-3 whitespace-nowrap flex items-center gap-1">
                             <Coins className="w-3 h-3 text-gold" />

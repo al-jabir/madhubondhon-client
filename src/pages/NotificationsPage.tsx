@@ -5,9 +5,11 @@ import { toast } from 'sonner';
 import { notificationsApi } from '../api/notifications.api';
 import { Notification } from '../types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const NotificationsPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const { isBengali } = useLanguage();
 
   const { data, isLoading } = useQuery({
     queryKey: ['notifications'],
@@ -17,7 +19,11 @@ export const NotificationsPage: React.FC = () => {
   const markAllMutation = useMutation({
     mutationFn: () => notificationsApi.markAllAsRead(),
     onSuccess: () => {
-      toast.success('সকল বিজ্ঞপ্তি পড়া হয়েছে চিহ্নিত করা হলো');
+      toast.success(
+        isBengali
+          ? 'সকল বিজ্ঞপ্তি পড়া হয়েছে চিহ্নিত করা হলো'
+          : 'All notifications marked as read'
+      );
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
@@ -54,10 +60,12 @@ export const NotificationsPage: React.FC = () => {
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink flex items-center gap-2.5">
             <Bell className="w-7 h-7 text-brand" />
-            <span>বিজ্ঞপ্তিসমূহ</span>
+            <span>{isBengali ? 'বিজ্ঞপ্তিসমূহ' : 'Notifications'}</span>
           </h1>
           <p className="text-sm text-ink-3 mt-1">
-            আপনার অ্যাকাউন্টের সাম্প্রতিক সকল আপডেট ও গুরুত্বপূর্ণ নোটিফিকেশন
+            {isBengali
+              ? 'আপনার অ্যাকাউন্টের সাম্প্রতিক সকল আপডেট ও গুরুত্বপূর্ণ নোটিফিকেশন'
+              : 'Recent updates, activity and notices regarding your account'}
           </p>
         </div>
 
@@ -65,24 +73,31 @@ export const NotificationsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => markAllMutation.mutate()}
-            className="mb-btn-secondary self-start sm:self-auto inline-flex items-center gap-1.5 !px-3.5 !py-2 !text-xs !bg-brand-soft !text-brand-ink !border-brand/25 hover:!bg-brand/15 rounded-xl"
+            className="mb-btn-secondary self-start sm:self-auto inline-flex items-center gap-1.5 !px-3.5 !py-2 !text-xs !bg-brand-soft !text-brand-ink !border-brand/25 hover:!bg-brand/15 rounded-xl cursor-pointer"
           >
             <CheckCheck className="w-4 h-4" />
-            <span>সব পড়া হয়েছে চিহ্নিত করুন</span>
+            <span>{isBengali ? 'সব পড়া হয়েছে চিহ্নিত করুন' : 'Mark all as read'}</span>
           </button>
         )}
       </div>
 
       {isLoading ? (
         <div className="py-20 flex justify-center">
-          <LoadingSpinner size="lg" label="বিজ্ঞপ্তি লোড হচ্ছে..." />
+          <LoadingSpinner
+            size="lg"
+            label={isBengali ? 'বিজ্ঞপ্তি লোড হচ্ছে...' : 'Loading notifications...'}
+          />
         </div>
       ) : notifications.length === 0 ? (
         <div className="py-16 text-center mb-card p-8 space-y-3">
           <Bell className="w-12 h-12 text-ink-3 mx-auto" />
-          <h3 className="font-bold text-ink">কোনো বিজ্ঞপ্তি নেই</h3>
+          <h3 className="font-bold text-ink">
+            {isBengali ? 'কোনো বিজ্ঞপ্তি নেই' : 'No notifications yet'}
+          </h3>
           <p className="text-xs text-ink-3 max-w-sm mx-auto">
-            আপনার বায়োডাটায় কোনো নতুন আপডেট বা আগ্রহ প্রকাশ করা হলে আপনি অবিলম্বে জানতে পারবেন।
+            {isBengali
+              ? 'আপনার বায়োডাটায় কোনো নতুন আপডেট বা আগ্রহ প্রকাশ করা হলে আপনি অবিলম্বে জানতে পারবেন।'
+              : 'You will receive notifications here whenever there is an update or interest on your biodata.'}
           </p>
         </div>
       ) : (
@@ -109,7 +124,7 @@ export const NotificationsPage: React.FC = () => {
                     {n.title}
                   </h4>
                   <span className="text-[11px] text-ink-3 shrink-0">
-                    {new Date(n.createdAt).toLocaleDateString('bn-BD', {
+                    {new Date(n.createdAt).toLocaleDateString(isBengali ? 'bn-BD' : 'en-US', {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
@@ -119,7 +134,10 @@ export const NotificationsPage: React.FC = () => {
               </div>
 
               {!n.isRead && (
-                <div className="w-2.5 h-2.5 rounded-full bg-brand mt-2 shrink-0" title="অপঠিত" />
+                <div
+                  className="w-2.5 h-2.5 rounded-full bg-brand mt-2 shrink-0"
+                  title={isBengali ? 'অপঠিত' : 'Unread'}
+                />
               )}
             </div>
           ))}

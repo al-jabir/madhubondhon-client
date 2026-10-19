@@ -8,6 +8,7 @@ import {
   errorMessage,
 } from "../../api/workflow.api";
 import { useAuth } from "../../context/useAuth";
+import { useLanguage } from "../../i18n/LanguageContext";
 import {
   Mail,
   Phone,
@@ -23,10 +24,6 @@ import {
 
 const input = "mb-input w-full";
 
-/* Bengali numerals for the "x/৩" counter */
-const bnDigits = (value: string | number) =>
-  String(value).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]);
-
 /* ─────────── Verification mini-card ─────────── */
 function VerificationCard({
   purpose,
@@ -36,6 +33,7 @@ function VerificationCard({
   verified: boolean;
 }) {
   const { user, refreshUser } = useAuth();
+  const { isBengali } = useLanguage();
   const [phone, setPhone] = useState(user?.phone || "");
   const [challenge, setChallenge] = useState("");
   const [code, setCode] = useState("");
@@ -47,7 +45,9 @@ function VerificationCard({
       const res = await workflowApi.requestVerification(purpose, phone);
       setChallenge(res.data!.challengeId);
       setCode("");
-      toast.success("যাচাই কোড পাঠানো হয়েছে");
+      toast.success(
+        isBengali ? "যাচাই কোড পাঠানো হয়েছে" : "Verification code sent"
+      );
     } catch (e) {
       toast.error(errorMessage(e));
     } finally {
@@ -62,7 +62,7 @@ function VerificationCard({
       await refreshUser();
       setChallenge("");
       setCode("");
-      toast.success("যাচাই সম্পূর্ণ");
+      toast.success(isBengali ? "যাচাই সম্পূর্ণ" : "Verification successful");
     } catch (e) {
       toast.error(errorMessage(e));
     } finally {
@@ -87,29 +87,37 @@ function VerificationCard({
             <Icon className="w-4 h-4" />
           </div>
           <h3 className="font-bold text-sm text-ink">
-            {isEmail ? "ইমেইল যাচাই" : "মোবাইল যাচাই"}
+            {isEmail
+              ? isBengali
+                ? "ইমেইল যাচাই"
+                : "Email Verification"
+              : isBengali
+              ? "মোবাইল যাচাই"
+              : "Phone Verification"}
           </h3>
         </div>
         {verified ? (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
             <CheckCircle2 className="w-3 h-3" />
-            সম্পন্ন
+            {isBengali ? "সম্পন্ন" : "Verified"}
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-gold-soft text-gold border border-gold/25">
             <CircleAlert className="w-3 h-3" />
-            বাকি আছে
+            {isBengali ? "বাকি আছে" : "Pending"}
           </span>
         )}
       </div>
 
       {isEmail ? (
-        <p className="text-sm text-ink-2 bg-card rounded-xl px-3 py-2 border border-line">{user?.email}</p>
+        <p className="text-sm text-ink-2 bg-card rounded-xl px-3 py-2 border border-line">
+          {user?.email}
+        </p>
       ) : (
         <input
           className={input}
           type="tel"
-          placeholder="আপনার মোবাইল নম্বর"
+          placeholder={isBengali ? "আপনার মোবাইল নম্বর" : "Your mobile number"}
           value={phone}
           disabled={verified || busy}
           onChange={(e) => setPhone(e.target.value)}
@@ -124,7 +132,15 @@ function VerificationCard({
             className="text-brand text-xs font-bold hover:underline disabled:opacity-40 cursor-pointer flex items-center gap-1.5"
           >
             <RotateCw className={`w-3 h-3 ${busy ? "animate-spin" : ""}`} />
-            <span>{challenge ? "আবার কোড নিন (১ মিনিট পর)" : "যাচাই কোড নিন"}</span>
+            <span>
+              {challenge
+                ? isBengali
+                  ? "আবার কোড নিন (১ মিনিট পর)"
+                  : "Resend Code"
+                : isBengali
+                ? "যাচাই কোড নিন"
+                : "Send Verification Code"}
+            </span>
           </button>
           {challenge && (
             <div className="space-y-2.5">
@@ -133,7 +149,7 @@ function VerificationCard({
                 autoComplete="one-time-code"
                 maxLength={6}
                 className={`${input} text-center tracking-[0.35em] font-mono font-bold`}
-                placeholder="৬ সংখ্যার কোড"
+                placeholder={isBengali ? "৬ সংখ্যার কোড" : "6-digit code"}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
               />
@@ -142,7 +158,7 @@ function VerificationCard({
                 onClick={confirm}
                 className="mb-btn-primary px-4 py-2 text-xs w-full cursor-pointer disabled:opacity-50"
               >
-                যাচাই করুন
+                {isBengali ? "যাচাই করুন" : "Verify"}
               </button>
             </div>
           )}
@@ -156,6 +172,7 @@ function VerificationCard({
 export default function BiodataDashboard() {
   const cache = useQueryClient();
   const { user } = useAuth();
+  const { isBengali, formatNumber } = useLanguage();
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["biodata-draft"],
     queryFn: workflowApi.getDraft,
@@ -185,7 +202,10 @@ export default function BiodataDashboard() {
   const submissible = !!(app && ["draft", "changes_requested", "rejected"].includes(app.status));
 
   const stepCount =
-    (emailVerified ? 1 : 0) + (phoneVerified ? 1 : 0) + (guardianConsented ? 1 : 0) + (app?.status === "approved" ? 1 : 0);
+    (emailVerified ? 1 : 0) +
+    (phoneVerified ? 1 : 0) +
+    (guardianConsented ? 1 : 0) +
+    (app?.status === "approved" ? 1 : 0);
 
   const statusTone: Record<string, { bg: string; text: string; border: string }> = {
     approved: {
@@ -202,6 +222,19 @@ export default function BiodataDashboard() {
       border: "border-brand/25",
     };
 
+  const statusLabel = app
+    ? isBengali
+      ? statusLabels[app.status]
+      : ({
+          draft: "Draft",
+          submitted: "Pending Review",
+          under_review: "Under Review",
+          approved: "Approved",
+          changes_requested: "Changes Requested",
+          rejected: "Rejected",
+        } as Record<string, string>)[app.status] || app.status
+    : "";
+
   return (
     <div className="space-y-6">
       {/* ── Progress header ── */}
@@ -212,9 +245,13 @@ export default function BiodataDashboard() {
               <ClipboardCheck className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-ink leading-tight">যাচাই ও জমা প্রক্রিয়া</h2>
+              <h2 className="text-lg font-black text-ink leading-tight">
+                {isBengali ? "যাচাই ও জমা প্রক্রিয়া" : "Verification & Submission Process"}
+              </h2>
               <p className="text-xs text-ink-3 mt-0.5">
-                ইমেইল → মোবাইল → অভিভাবকের সম্মতি → পর্যালোচনায় জমা
+                {isBengali
+                  ? "ইমেইল → মোবাইল → অভিভাবকের সম্মতি → পর্যালোচনায় জমা"
+                  : "Email → Phone → Guardian Consent → Review Submission"}
               </p>
             </div>
           </div>
@@ -232,11 +269,21 @@ export default function BiodataDashboard() {
                       : "bg-elev text-ink-3 border border-line"
                   }`}
                 >
-                  {done ? <CheckCircle2 className="w-4 h-4" /> : bnDigits(idx + 1)}
+                  {done ? (
+                    <CheckCircle2 className="w-4 h-4" />
+                  ) : isBengali ? (
+                    formatNumber(idx + 1)
+                  ) : (
+                    idx + 1
+                  )}
                 </span>
               );
             })}
-            <span className="text-[11px] font-bold text-ink-2 ml-1">{bnDigits(stepCount)}/৩ সম্পন্ন</span>
+            <span className="text-[11px] font-bold text-ink-2 ml-1">
+              {isBengali
+                ? `${formatNumber(stepCount)}/৩ সম্পন্ন`
+                : `${stepCount}/3 Completed`}
+            </span>
           </div>
         </div>
       </div>
@@ -250,17 +297,21 @@ export default function BiodataDashboard() {
       {/* ── Application status ── */}
       {isLoading ? (
         <div className="mb-card rounded-2xl p-8 text-center">
-          <p className="text-sm text-ink-2 animate-pulse">বায়োডাটার অবস্থা লোড হচ্ছে...</p>
+          <p className="text-sm text-ink-2 animate-pulse">
+            {isBengali ? "বায়োডাটার অবস্থা লোড হচ্ছে..." : "Loading biodata status..."}
+          </p>
         </div>
       ) : isError ? (
         <div className="mb-card rounded-2xl p-8 text-center space-y-3">
-          <p className="text-sm text-ink-2">তথ্য লোড করা যায়নি।</p>
+          <p className="text-sm text-ink-2">
+            {isBengali ? "তথ্য লোড করা যায়নি।" : "Failed to load details."}
+          </p>
           <button
             onClick={() => refetch()}
             className="mb-btn-secondary !text-xs py-2 px-4 rounded-xl cursor-pointer inline-flex items-center gap-1.5"
           >
             <RotateCw className="w-3.5 h-3.5" />
-            <span>আবার চেষ্টা করুন</span>
+            <span>{isBengali ? "আবার চেষ্টা করুন" : "Try again"}</span>
           </button>
         </div>
       ) : (
@@ -269,9 +320,13 @@ export default function BiodataDashboard() {
             {/* status row */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <h3 className="text-base font-black text-ink">বায়োডাটার অবস্থা</h3>
-                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${tone.bg} ${tone.text} border ${tone.border}`}>
-                  {statusLabels[app.status]}
+                <h3 className="text-base font-black text-ink">
+                  {isBengali ? "বায়োডাটার অবস্থা" : "Biodata Status"}
+                </h3>
+                <span
+                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${tone.bg} ${tone.text} border ${tone.border}`}
+                >
+                  {statusLabel}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -280,13 +335,13 @@ export default function BiodataDashboard() {
                   className="mb-btn-secondary !text-xs py-2 px-4 rounded-xl inline-flex items-center gap-1.5 bg-elev"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
-                  <span>খসড়া সম্পাদনা করুন</span>
+                  <span>{isBengali ? "খসড়া সম্পাদনা করুন" : "Edit Draft"}</span>
                 </Link>
                 <Link
                   to="/contacts"
                   className="text-xs font-bold text-brand hover:text-brand/80 inline-flex items-center gap-1.5"
                 >
-                  <span>যোগাযোগের অনুরোধ</span>
+                  <span>{isBengali ? "যোগাযোগের অনুরোধ" : "Contact Requests"}</span>
                 </Link>
               </div>
             </div>
@@ -295,7 +350,8 @@ export default function BiodataDashboard() {
               <div className="bg-gold-soft text-gold border border-gold/25 p-4 rounded-xl text-xs leading-relaxed flex gap-2">
                 <DoorOpen className="w-4 h-4 shrink-0 mt-0.5" />
                 <p>
-                  <strong>মডারেটরের মন্তব্য:</strong> {app.reviewNote}
+                  <strong>{isBengali ? "মডারেটরের মন্তব্য:" : "Moderator Note:"}</strong>{" "}
+                  {app.reviewNote}
                 </p>
               </div>
             )}
@@ -306,11 +362,13 @@ export default function BiodataDashboard() {
                 <div className="w-8 h-8 rounded-lg bg-card flex items-center justify-center border border-line">
                   <Users className="w-4 h-4 text-brand" />
                 </div>
-                <h4 className="font-bold text-sm text-ink">অভিভাবকের সম্মতি</h4>
+                <h4 className="font-bold text-sm text-ink">
+                  {isBengali ? "অভিভাবকের সম্মতি" : "Guardian Consent"}
+                </h4>
                 {guardianConsented && (
                   <span className="ml-auto inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                     <ShieldCheck className="w-3 h-3" />
-                    যাচাই সম্পূর্ণ
+                    {isBengali ? "যাচাই সম্পূর্ণ" : "Verified"}
                   </span>
                 )}
               </div>
@@ -324,18 +382,24 @@ export default function BiodataDashboard() {
                 </div>
               ) : (
                 <p className="text-xs text-ink-2 leading-relaxed">
-                  খসড়ায় অভিভাবকের নাম, সম্পর্ক ও মোবাইল সংরক্ষণ করুন।
+                  {isBengali
+                    ? "খসড়ায় অভিভাবকের নাম, সম্পর্ক ও মোবাইল সংরক্ষণ করুন।"
+                    : "Please provide guardian name, relationship, and mobile number in the draft."}
                 </p>
               )}
 
               {guardianConsented ? (
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
-                  মোবাইল ও সম্মতি যাচাই সম্পূর্ণ ✓
+                  {isBengali
+                    ? "মোবাইল ও সম্মতি যাচাই সম্পূর্ণ ✓"
+                    : "Mobile & Guardian Consent Verified ✓"}
                 </p>
               ) : (
                 <div className="space-y-3">
                   <p className="text-[11px] text-ink-2 leading-relaxed">
-                    অভিভাবককে উদ্দেশ্য বুঝিয়ে সম্মতি নিন। কোডটি তাঁর মোবাইলে যাবে; তিনি সম্মত হলেই কোডটি দেবেন।
+                    {isBengali
+                      ? "অভিভাবককে উদ্দেশ্য বুঝিয়ে সম্মতি নিন। কোডটি তাঁর মোবাইলে যাবে; তিনি সম্মত হলেই কোডটি দেবেন।"
+                      : "Obtain consent from your guardian. A verification code will be sent to their mobile number."}
                   </p>
                   <button
                     disabled={busy || !app.guardian?.phone}
@@ -349,7 +413,11 @@ export default function BiodataDashboard() {
                     }
                   >
                     <Phone className="w-3.5 h-3.5" />
-                    <span>অভিভাবকের মোবাইলে কোড পাঠান</span>
+                    <span>
+                      {isBengali
+                        ? "অভিভাবকের মোবাইলে কোড পাঠান"
+                        : "Send Code to Guardian"}
+                    </span>
                   </button>
 
                   {challenge && (
@@ -358,7 +426,9 @@ export default function BiodataDashboard() {
                         className={`${input} text-center tracking-[0.35em] font-mono font-bold`}
                         maxLength={6}
                         inputMode="numeric"
-                        placeholder="অভিভাবকের সম্মতির কোড"
+                        placeholder={
+                          isBengali ? "অভিভাবকের সম্মতির কোড" : "Guardian Consent Code"
+                        }
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
                       />
@@ -369,7 +439,11 @@ export default function BiodataDashboard() {
                           checked={consent}
                           onChange={(e) => setConsent(e.target.checked)}
                         />
-                        অভিভাবক তথ্য সংরক্ষণ ও অনুমতি অনুযায়ী যোগাযোগ প্রকাশে সম্মতি দিয়েছেন
+                        <span>
+                          {isBengali
+                            ? "অভিভাবক তথ্য সংরক্ষণ ও অনুমতি অনুযায়ী যোগাযোগ প্রকাশে সম্মতি দিয়েছেন"
+                            : "Guardian has consented to data storage and contact release upon approval"}
+                        </span>
                       </label>
                       <button
                         disabled={busy || !consent || code.length !== 6}
@@ -378,11 +452,13 @@ export default function BiodataDashboard() {
                           action(async () => {
                             await workflowApi.confirmGuardian(challenge, code, consent);
                             setChallenge("");
-                            toast.success("সম্মতি যাচাই হয়েছে");
+                            toast.success(
+                              isBengali ? "সম্মতি যাচাই হয়েছে" : "Consent confirmed"
+                            );
                           })
                         }
                       >
-                        সম্মতি নিশ্চিত করুন
+                        {isBengali ? "সম্মতি নিশ্চিত করুন" : "Confirm Consent"}
                       </button>
                     </div>
                   )}
@@ -393,7 +469,9 @@ export default function BiodataDashboard() {
             {/* submit area */}
             <div className="rounded-2xl bg-brand-soft/60 dark:bg-brand-soft/40 border border-brand/15 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <p className="text-xs text-ink-2 leading-relaxed max-w-md">
-                জমা দিতে ইমেইল, মোবাইল, অভিভাবকের সম্মতি ও বায়োডাটার আবশ্যক তথ্য পূরণ করুন।
+                {isBengali
+                  ? "জমা দিতে ইমেইল, মোবাইল, অভিভাবকের সম্মতি ও বায়োডাটার আবশ্যক তথ্য পূরণ করুন।"
+                  : "To submit, complete email, phone, and guardian verification along with required biodata fields."}
               </p>
               <button
                 disabled={
@@ -406,12 +484,16 @@ export default function BiodataDashboard() {
                 onClick={() =>
                   action(async () => {
                     await workflowApi.submit(app.revision);
-                    toast.success("পর্যালোচনার জন্য জমা হয়েছে");
+                    toast.success(
+                      isBengali
+                        ? "পর্যালোচনার জন্য জমা হয়েছে"
+                        : "Submitted for moderation review"
+                    );
                   })
                 }
                 className="mb-btn-primary px-6 py-3 text-sm rounded-xl shrink-0 cursor-pointer disabled:opacity-50"
               >
-                পর্যালোচনার জন্য জমা দিন
+                {isBengali ? "পর্যালোচনার জন্য জমা দিন" : "Submit for Review"}
               </button>
             </div>
           </section>

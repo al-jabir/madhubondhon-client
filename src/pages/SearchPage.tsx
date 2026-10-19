@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Filter, RotateCcw, AlertCircle, ChevronLeft, ChevronRight, ChevronDown, EyeOff, Home } from 'lucide-react';
-import { TANGAIL_UPAZILAS, UPAZILA_DISPLAY_NAMES } from '../constants/locations';
+import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../constants/locations';
 import { searchDemoProfiles } from '../data/demoProfiles';
 import { profilesApi } from '../api/profiles.api';
 import { Gender, MaritalStatus, EducationLevel, Profile } from '../types';
@@ -11,6 +11,7 @@ import SendInterestModal from '../components/profile/SendInterestModal';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { useAuth } from '../context/useAuth';
 import { adminApi } from '../api/admin.api';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const SearchPage: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const [params] = useSearchParams();
@@ -21,6 +22,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const { isBengali, formatNumber } = useLanguage();
 
   // Local filter states initialized from URL params
   const [biodataId, setBiodataId] = useState<string>(searchParams.get('biodataId') || '');
@@ -186,12 +188,17 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 sm:space-y-8">
       {demo && (
         <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold">
-          <strong>নমুনা বায়োডাটা</strong> — নিচের ১২টি প্রোফাইল কাল্পনিক। ফিল্টার ও বিস্তারিত পেজ ঘুরে দেখতে পারেন।
+          <strong>{isBengali ? 'নমুনা বায়োডাটা' : 'Sample Biodatas'}</strong> —{' '}
+          {isBengali
+            ? 'নিচের ১২টি প্রোফাইল কাল্পনিক। ফিল্টার ও বিস্তারিত পেজ ঘুরে দেখতে পারেন।'
+            : 'The following 12 profiles are illustrative samples. Feel free to explore filters and details.'}
         </div>
       )}
       {!demo && import.meta.env.DEV && import.meta.env.VITE_LOCAL_DEV === 'true' && (
         <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold">
-          নিজের local database থেকে ফলাফল দেখানো হচ্ছে। Development-এর জন্য যোগ করা ১২টি sample বায়োডাটা কাল্পনিক।
+          {isBengali
+            ? 'নিজের local database থেকে ফলাফল দেখানো হচ্ছে। Development-এর জন্য যোগ করা ১২টি sample বায়োডাটা কাল্পনিক।'
+            : 'Showing results from local database. 12 sample biodatas added for development are fictional.'}
         </div>
       )}
 
@@ -202,16 +209,20 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
             <span className="w-11 h-11 rounded-2xl bg-brand-soft border border-brand/20 text-brand flex items-center justify-center">
               <Search className="w-5 h-5" />
             </span>
-            <span>বায়োডাটা অনুসন্ধান</span>
+            <span>{isBengali ? 'বায়োডাটা অনুসন্ধান' : 'Find Biodata'}</span>
           </h1>
           <p className="text-sm text-ink-2 pl-[3.75rem]">
-            টাঙ্গাইলের ১২টি উপজেলার দ্বীনি ও উপযুক্ত পাত্র-পাত্রী খুঁজে নিন
+            {isBengali
+              ? 'টাঙ্গাইলের ১২টি উপজেলার দ্বীনি ও উপযুক্ত পাত্র-পাত্রী খুঁজে নিন'
+              : 'Explore pious & compatible matrimonial profiles across 12 upazilas of Tangail'}
           </p>
         </div>
 
         {data?.meta && (
           <div className="mb-badge self-start md:self-auto px-3.5 py-1.5">
-            মোট {meta.total} টি বায়োডাটা পাওয়া গেছে
+            {isBengali
+              ? `মোট ${formatNumber(meta.total)} টি বায়োডাটা পাওয়া গেছে`
+              : `Total ${formatNumber(meta.total)} biodatas found`}
           </div>
         )}
       </div>
@@ -223,7 +234,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
             <Search className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="কীওয়ার্ড (নাম, পেশা বা শিক্ষা দিয়ে খুঁজুন)..."
+              placeholder={isBengali ? "কীওয়ার্ড (নাম, পেশা বা শিক্ষা দিয়ে খুঁজুন)..." : "Keywords (name, profession, education)..."}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="mb-input pl-10"
@@ -233,7 +244,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
           <div className="relative w-full sm:w-64">
             <input
               type="text"
-              placeholder="বায়োডাটা কোড (MB-M101)"
+              placeholder={isBengali ? "বায়োডাটা কোড (MB-M101)" : "Biodata Code (MB-M101)"}
               value={biodataId}
               onChange={(e) => setBiodataId(e.target.value.toUpperCase())}
               className="mb-input uppercase font-mono tracking-wider"
@@ -242,7 +253,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
           <button type="submit" className="mb-btn-primary w-full sm:w-auto shrink-0">
             <Search className="w-4 h-4" />
-            <span>খুঁজুন</span>
+            <span>{isBengali ? 'খুঁজুন' : 'Search'}</span>
           </button>
         </form>
       </div>
@@ -256,13 +267,15 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
         >
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-brand" />
-            <span>ফিল্টারসমূহ</span>
+            <span>{isBengali ? 'ফিল্টারসমূহ' : 'Filters'}</span>
             {activeFilterCount > 0 ? (
               <span className="px-2 py-0.5 rounded-full bg-brand text-white text-[11px] font-bold">
-                {activeFilterCount} টি সক্রিয়
+                {isBengali ? `${formatNumber(activeFilterCount)} টি সক্রিয়` : `${formatNumber(activeFilterCount)} active`}
               </span>
             ) : (
-              <span className="text-xs text-ink-2 font-normal">(উপজেলা, বয়স, পেশা...)</span>
+              <span className="text-xs text-ink-2 font-normal">
+                {isBengali ? '(উপজেলা, বয়স, পেশা...)' : '(Upazila, age, profession...)'}
+              </span>
             )}
           </div>
           <ChevronDown
@@ -281,7 +294,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
             <div className="flex items-center justify-between border-b border-line pb-3">
               <span className="font-bold text-sm text-ink flex items-center gap-1.5">
                 <Filter className="w-4 h-4 text-brand" />
-                ফিল্টারসমূহ
+                {isBengali ? 'ফিল্টারসমূহ' : 'Filters'}
               </span>
               <button
                 type="button"
@@ -289,16 +302,16 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                 className="text-[11px] font-semibold text-ink-3 hover:text-brand flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <RotateCcw className="w-3 h-3" />
-                রিসেট
+                {isBengali ? 'রিসেট' : 'Reset'}
               </button>
             </div>
 
             {/* Biodata code */}
             <div>
-              <label className="mb-label">বায়োডাটা কোড</label>
+              <label className="mb-label">{isBengali ? 'বায়োডাটা কোড' : 'Biodata Code'}</label>
               <input
                 type="text"
-                placeholder="যেমন: MB-M101"
+                placeholder={isBengali ? "যেমন: MB-M101" : "e.g. MB-M101"}
                 value={biodataId}
                 onChange={(e) => setBiodataId(e.target.value.toUpperCase())}
                 className="mb-input !text-xs font-mono uppercase"
@@ -307,21 +320,21 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
             {/* Gender */}
             <div>
-              <label className="mb-label">পাত্র / পাত্রী</label>
+              <label className="mb-label">{isBengali ? 'পাত্র / পাত্রী' : 'Groom / Bride'}</label>
               <select value={gender} onChange={(e) => setGender(e.target.value)} className="mb-input !text-xs">
-                <option value="">উভয় (সকল)</option>
-                <option value="female">পাত্রী</option>
-                <option value="male">পাত্র</option>
+                <option value="">{isBengali ? 'উভয় (সকল)' : 'Both (All)'}</option>
+                <option value="female">{isBengali ? 'পাত্রী' : 'Bride'}</option>
+                <option value="male">{isBengali ? 'পাত্র' : 'Groom'}</option>
               </select>
             </div>
 
             {/* Upazila */}
             <div>
-              <label className="mb-label">টাঙ্গাইলের উপজেলা</label>
+              <label className="mb-label">{isBengali ? 'টাঙ্গাইলের উপজেলা' : 'Tangail Upazila'}</label>
               <select value={upazila} onChange={(e) => setUpazila(e.target.value)} className="mb-input !text-xs">
-                <option value="">সকল উপজেলা</option>
+                <option value="">{isBengali ? 'সকল উপজেলা' : 'All Upazilas'}</option>
                 {TANGAIL_UPAZILAS.map((up) => (
-                  <option key={up} value={up}>{UPAZILA_DISPLAY_NAMES[up]}</option>
+                  <option key={up} value={up}>{getUpazilaDisplayName(up, isBengali)}</option>
                 ))}
               </select>
             </div>
@@ -336,12 +349,12 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                 <span className="w-7 h-7 rounded-xl bg-gold-soft border border-gold/20 text-gold flex items-center justify-center">
                   <Filter className="w-3.5 h-3.5" />
                 </span>
-                <span>অ্যাডভান্সড ফিল্টার</span>
+                <span>{isBengali ? 'অ্যাডভান্সড ফিল্টার' : 'Advanced Filters'}</span>
               </span>
               <span className="flex items-center gap-1.5">
                 {advancedFilterCount > 0 && (
                   <span className="mb-badge !px-2 !py-0.5 !text-[10px] !font-bold">
-                    {advancedFilterCount.toLocaleString('bn-BD')}টি সক্রিয়
+                    {isBengali ? `${formatNumber(advancedFilterCount)}টি সক্রিয়` : `${formatNumber(advancedFilterCount)} active`}
                   </span>
                 )}
                 <ChevronDown
@@ -354,7 +367,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
               <div className="space-y-5 pt-1">
                 {/* Age */}
                 <div>
-                  <label className="mb-label">বয়স পরিসীমা (১৮+)</label>
+                  <label className="mb-label">{isBengali ? 'বয়স পরিসীমা (১৮+)' : 'Age Range (18+)'}</label>
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="number"
@@ -362,7 +375,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                       max="80"
                       value={minAge}
                       onChange={(e) => setMinAge(e.target.value)}
-                      placeholder="নূন্যতম"
+                      placeholder={isBengali ? "নূন্যতম" : "Min"}
                       className="mb-input !text-xs"
                     />
                     <input
@@ -371,7 +384,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                       max="80"
                       value={maxAge}
                       onChange={(e) => setMaxAge(e.target.value)}
-                      placeholder="সর্বোচ্চ"
+                      placeholder={isBengali ? "সর্বোচ্চ" : "Max"}
                       className="mb-input !text-xs"
                     />
                   </div>
@@ -379,7 +392,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
                 {/* Height */}
                 <div>
-                  <label className="mb-label">উচ্চতা (সেমি)</label>
+                  <label className="mb-label">{isBengali ? 'উচ্চতা (সেমি)' : 'Height (cm)'}</label>
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="number"
@@ -387,7 +400,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                       max="250"
                       value={minHeight}
                       onChange={(e) => setMinHeight(e.target.value)}
-                      placeholder="নূন্যতম"
+                      placeholder={isBengali ? "নূন্যতম" : "Min"}
                       className="mb-input !text-xs"
                     />
                     <input
@@ -396,50 +409,54 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                       max="250"
                       value={maxHeight}
                       onChange={(e) => setMaxHeight(e.target.value)}
-                      placeholder="সর্বোচ্চ"
+                      placeholder={isBengali ? "সর্বোচ্চ" : "Max"}
                       className="mb-input !text-xs"
                     />
                   </div>
-                  <p className="text-[10px] text-ink-3 mt-1">প্রায় ৫ ফুট = ১৫২ সেমি, ৫ ফুট ৬ ইঞ্চি = ১৬৮ সেমি</p>
+                  <p className="text-[10px] text-ink-3 mt-1">
+                    {isBengali ? 'প্রায় ৫ ফুট = ১৫২ সেমি, ৫ ফুট ৬ ইঞ্চি = ১৬৮ সেমি' : 'Approx 5 ft = 152 cm, 5 ft 6 in = 168 cm'}
+                  </p>
                 </div>
 
                 {/* Occupation */}
                 <div>
-                  <label className="mb-label" htmlFor="occupation-filter">পেশা</label>
+                  <label className="mb-label" htmlFor="occupation-filter">
+                    {isBengali ? 'পেশা' : 'Profession'}
+                  </label>
                   <input
                     id="occupation-filter"
                     value={occupation}
                     onChange={e => setOccupation(e.target.value)}
                     maxLength={100}
-                    placeholder="যেমন: শিক্ষক"
+                    placeholder={isBengali ? "যেমন: শিক্ষক" : "e.g. Teacher, Engineer"}
                     className="mb-input !text-xs"
                   />
                 </div>
 
                 {/* Education */}
                 <div>
-                  <label className="mb-label">শিক্ষাগত যোগ্যতা</label>
+                  <label className="mb-label">{isBengali ? 'শিক্ষাগত যোগ্যতা' : 'Education Level'}</label>
                   <select value={education} onChange={(e) => setEducation(e.target.value)} className="mb-input !text-xs">
-                    <option value="">সকল যোগ্যতা</option>
-                    <option value="bachelors">স্নাতক / অনার্স (Bachelors)</option>
-                    <option value="masters">মাস্টার্স (Masters)</option>
-                    <option value="hsc">এইচএসসি (HSC)</option>
-                    <option value="ssc">এসএসসি (SSC)</option>
-                    <option value="diploma">ডিপ্লোমা (Diploma)</option>
-                    <option value="islamic_education">ইসলামিক শিক্ষা (কওমি/মাদরাসা)</option>
-                    <option value="phd">পিএইচডি (PhD)</option>
+                    <option value="">{isBengali ? 'সকল যোগ্যতা' : 'All Qualifications'}</option>
+                    <option value="bachelors">{isBengali ? 'স্নাতক / অনার্স (Bachelors)' : 'Bachelors / Honors'}</option>
+                    <option value="masters">{isBengali ? 'মাস্টার্স (Masters)' : 'Masters'}</option>
+                    <option value="hsc">{isBengali ? 'এইচএসসি (HSC)' : 'HSC'}</option>
+                    <option value="ssc">{isBengali ? 'এসএসসি (SSC)' : 'SSC'}</option>
+                    <option value="diploma">{isBengali ? 'ডিপ্লোমা (Diploma)' : 'Diploma'}</option>
+                    <option value="islamic_education">{isBengali ? 'ইসলামিক শিক্ষা (কওমি/মাদরাসা)' : 'Islamic Education (Qawmi/Madrasa)'}</option>
+                    <option value="phd">{isBengali ? 'পিএইচডি (PhD)' : 'PhD'}</option>
                   </select>
                 </div>
 
                 {/* Marital status */}
                 <div>
-                  <label className="mb-label">বৈবাহিক অবস্থা</label>
+                  <label className="mb-label">{isBengali ? 'বৈবাহিক অবস্থা' : 'Marital Status'}</label>
                   <select value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input !text-xs">
-                    <option value="">সকল অবস্থা</option>
-                    <option value="never_married">অবিবাহিত (Never Married)</option>
-                    <option value="divorced">ডিভোর্সড (Divorced)</option>
-                    <option value="widowed">বিধবা / বিপত্নীক (Widowed)</option>
-                    <option value="separated">বিচ্ছিন্ন (Separated)</option>
+                    <option value="">{isBengali ? 'সকল অবস্থা' : 'All Statuses'}</option>
+                    <option value="never_married">{isBengali ? 'অবিবাহিত (Never Married)' : 'Never Married'}</option>
+                    <option value="divorced">{isBengali ? 'ডিভোর্সড (Divorced)' : 'Divorced'}</option>
+                    <option value="widowed">{isBengali ? 'বিধবা / বিপত্নীক (Widowed)' : 'Widowed'}</option>
+                    <option value="separated">{isBengali ? 'বিচ্ছিন্ন (Separated)' : 'Separated'}</option>
                   </select>
                 </div>
 
@@ -451,13 +468,15 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                     onChange={(e) => setVerifiedOnly(e.target.checked)}
                     className="w-4 h-4 accent-[var(--mb-brand)] cursor-pointer"
                   />
-                  <span className="text-xs font-semibold text-ink-2">শুধু ভেরিফাইড বায়োডাটা</span>
+                  <span className="text-xs font-semibold text-ink-2">
+                    {isBengali ? 'শুধু ভেরিফাইড বায়োডাটা' : 'Verified Profiles Only'}
+                  </span>
                 </label>
               </div>
             )}
 
             <button type="submit" className="mb-btn-primary w-full">
-              ফিল্টার প্রয়োগ করুন
+              {isBengali ? 'ফিল্টার প্রয়োগ করুন' : 'Apply Filters'}
             </button>
           </form>
         </aside>
@@ -466,14 +485,16 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
         <main className="lg:col-span-3 space-y-6">
           {isLoading ? (
             <div className="py-20 flex justify-center">
-              <LoadingSpinner size="lg" label="বায়োডাটা অনুসন্ধান করা হচ্ছে..." />
+              <LoadingSpinner size="lg" label={isBengali ? "বায়োডাটা অনুসন্ধান করা হচ্ছে..." : "Searching biodatas..."} />
             </div>
           ) : isError ? (
             <div className="p-8 text-center bg-brand-soft rounded-3xl border border-brand/25">
               <AlertCircle className="w-10 h-10 text-brand mx-auto mb-2" />
-              <p className="text-sm font-bold text-brand-ink">বায়োডাটা লোড করতে সমস্যা হয়েছে।</p>
+              <p className="text-sm font-bold text-brand-ink">
+                {isBengali ? 'বায়োডাটা লোড করতে সমস্যা হয়েছে।' : 'Failed to load biodatas.'}
+              </p>
               <button type="button" onClick={() => refetch()} className="mb-btn-primary mt-4 px-4 py-2 text-xs">
-                পুনরায় চেষ্টা করুন
+                {isBengali ? 'পুনরায় চেষ্টা করুন' : 'Try again'}
               </button>
             </div>
           ) : profiles.length === 0 ? (
@@ -481,9 +502,13 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
               <div className="w-14 h-14 rounded-full bg-brand-soft text-brand flex items-center justify-center mx-auto">
                 <Search className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-base text-ink">কোনো বায়োডাটা খুঁজে পাওয়া যায়নি</h3>
+              <h3 className="font-bold text-base text-ink">
+                {isBengali ? 'কোনো বায়োডাটা খুঁজে পাওয়া যায়নি' : 'No biodatas found'}
+              </h3>
               <p className="text-xs text-ink-2 max-w-md mx-auto">
-                আপনার নির্বাচিত ফিল্টারের সাথে মিল রেখে কোনো রেকর্ড পাওয়া যায়নি। অনুগ্রহ করে ফিল্টার শিথিল করে পুনরায় চেষ্টা করুন।
+                {isBengali
+                  ? 'আপনার নির্বাচিত ফিল্টারের সাথে মিল রেখে কোনো রেকর্ড পাওয়া যায়নি। অনুগ্রহ করে ফিল্টার শিথিল করে পুনরায় চেষ্টা করুন।'
+                  : 'No profiles match your filters. Please adjust or relax your filters and try again.'}
               </p>
               <button
                 type="button"
@@ -491,7 +516,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                 className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-brand bg-brand-soft hover:bg-brand/15 rounded-xl border border-brand/25 cursor-pointer transition-colors"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>সব ফিল্টার রিসেট করুন</span>
+                <span>{isBengali ? 'সব ফিল্টার রিসেট করুন' : 'Reset all filters'}</span>
               </button>
             </div>
           ) : (
@@ -529,11 +554,21 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                     className="mb-btn-secondary !text-xs disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    পূর্ববর্তী
+                    {isBengali ? 'পূর্ববর্তী' : 'Previous'}
                   </button>
 
                   <span className="text-xs font-medium text-ink-2">
-                    পৃষ্ঠা <strong className="text-ink">{page}</strong> এর <strong className="text-ink">{meta.totalPages}</strong>
+                    {isBengali ? (
+                      <>
+                        পৃষ্ঠা <strong className="text-ink">{formatNumber(page)}</strong> এর{' '}
+                        <strong className="text-ink">{formatNumber(meta.totalPages)}</strong>
+                      </>
+                    ) : (
+                      <>
+                        Page <strong className="text-ink">{page}</strong> of{' '}
+                        <strong className="text-ink">{meta.totalPages}</strong>
+                      </>
+                    )}
                   </span>
 
                   <button
@@ -548,7 +583,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                     }}
                     className="mb-btn-secondary !text-xs disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   >
-                    পরবর্তী
+                    {isBengali ? 'পরবর্তী' : 'Next'}
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>

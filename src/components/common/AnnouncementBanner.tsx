@@ -4,7 +4,10 @@ import { Megaphone, X, Pin, AlertTriangle, Info } from 'lucide-react';
 import { adminApi } from '../../api/admin.api';
 import { AnnouncementItem } from '../../types';
 
+import { useLanguage } from '../../i18n/LanguageContext';
+
 export const AnnouncementBanner: React.FC = () => {
+  const { isBengali } = useLanguage();
   const [dismissedIds, setDismissedIds] = useState<string[]>(() => {
     try {
       const stored = sessionStorage.getItem('dismissed_announcements');
@@ -77,7 +80,8 @@ export const AnnouncementBanner: React.FC = () => {
           type="button"
           onClick={() => handleDismiss(currentAnnouncement._id)}
           className="shrink-0 p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 text-ink-3 hover:text-ink cursor-pointer transition-colors"
-          title="বাতিল করুন"
+          title={isBengali ? "নোটিশ বন্ধ করুন" : "Dismiss notice"}
+          aria-label={isBengali ? "নোটিশ বন্ধ করুন" : "Dismiss notice"}
         >
           <X className="w-4 h-4" />
         </button>

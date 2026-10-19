@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Bookmark, Trash2, ArrowRight, Heart, Search, Sparkles } from 'lucide-react';
+import { Bookmark, Trash2, Heart, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { shortlistApi } from '../api/shortlist.api';
 import { ShortlistItem, Profile } from '../types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SendInterestModal from '../components/profile/SendInterestModal';
-import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../constants/locations';
+import { getUpazilaDisplayName, TangailUpazila } from '../constants/locations';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const ShortlistPage: React.FC = () => {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isBengali, formatNumber } = useLanguage();
   const [selectedProfileForInterest, setSelectedProfileForInterest] = useState<Profile | null>(null);
 
   const { data, isLoading } = useQuery({
@@ -22,11 +23,17 @@ export const ShortlistPage: React.FC = () => {
   const removeMutation = useMutation({
     mutationFn: (profileId: string) => shortlistApi.removeFromShortlist(profileId),
     onSuccess: () => {
-      toast.success('বায়োডাটাটি শর্টলিস্ট থেকে সরানো হয়েছে');
+      toast.success(
+        isBengali
+          ? 'বায়োডাটাটি শর্টলিস্ট থেকে সরানো হয়েছে'
+          : 'Biodata removed from shortlist'
+      );
       queryClient.invalidateQueries({ queryKey: ['my-shortlist'] });
     },
     onError: () => {
-      toast.error('শর্টলিস্ট থেকে সরাতে সমস্যা হয়েছে');
+      toast.error(
+        isBengali ? 'শর্টলিস্ট থেকে সরাতে সমস্যা হয়েছে' : 'Failed to remove from shortlist'
+      );
     },
   });
 
@@ -41,33 +48,40 @@ export const ShortlistPage: React.FC = () => {
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink flex items-center gap-2.5">
             <Bookmark className="w-7 h-7 text-brand fill-brand-soft" />
-            <span>পছন্দের তালিকা (Shortlist)</span>
+            <span>{isBengali ? 'পছন্দের তালিকা (Shortlist)' : 'My Shortlist'}</span>
           </h1>
           <p className="text-sm text-ink-3 mt-1">
-            আপনার সংরক্ষিত পছন্দের পাত্র ও পাত্রীর বায়োডাটা সমূহ
+            {isBengali
+              ? 'আপনার সংরক্ষিত পছন্দের পাত্র ও পাত্রীর বায়োডাটা সমূহ'
+              : 'Your saved favorite profiles of prospective brides and grooms'}
           </p>
         </div>
 
         {profiles.length > 0 && (
           <span className="text-xs font-bold px-3 py-1 bg-brand-soft text-brand-ink rounded-full border border-brand/25 self-start sm:self-auto">
-            মোট {profiles.length} টি সংরক্ষিত বায়োডাটা
+            {isBengali
+              ? `মোট ${formatNumber(profiles.length)} টি সংরক্ষিত বায়োডাটা`
+              : `Total ${profiles.length} saved biodatas`}
           </span>
         )}
       </div>
 
       {isLoading ? (
         <div className="py-24 flex justify-center">
-          <LoadingSpinner size="lg" label="শর্টলিস্ট লোড হচ্ছে..." />
+          <LoadingSpinner size="lg" label={isBengali ? "শর্টলিস্ট লোড হচ্ছে..." : "Loading shortlist..."} />
         </div>
       ) : profiles.length === 0 ? (
         <div className="py-20 text-center mb-card rounded-3xl p-8 space-y-4 max-w-lg mx-auto">
           <div className="w-16 h-16 rounded-full bg-brand-soft text-brand flex items-center justify-center mx-auto">
             <Bookmark className="w-8 h-8" />
           </div>
-          <h3 className="text-lg font-bold text-ink">পছন্দের তালিকা খালি</h3>
+          <h3 className="text-lg font-bold text-ink">
+            {isBengali ? 'পছন্দের তালিকা খালি' : 'Your Shortlist is Empty'}
+          </h3>
           <p className="text-xs text-ink-3 leading-relaxed">
-            আপনি এখনও কোনো বায়োডাটা শর্টলিস্টে যোগ করেননি। পাত্র-পাত্রী অনুসন্ধান করে পছন্দের বায়োডাটাগুলোর
-            বুকমার্ক আইকনে ক্লিক করুন।
+            {isBengali
+              ? 'আপনি এখনও কোনো বায়োডাটা শর্টলিস্টে যোগ করেননি। পাত্র-পাত্রী অনুসন্ধান করে পছন্দের বায়োডাটাগুলোর বুকমার্ক আইকনে ক্লিক করুন।'
+              : 'You have not added any biodata to your shortlist yet. Search profiles and click the bookmark icon to save them here.'}
           </p>
           <div className="pt-2">
             <Link
@@ -75,15 +89,14 @@ export const ShortlistPage: React.FC = () => {
               className="mb-btn-primary inline-flex items-center gap-2 px-6 py-2.5 !text-xs rounded-xl"
             >
               <Search className="w-3.5 h-3.5" />
-              <span>বায়োডাটা অনুসন্ধান করুন</span>
+              <span>{isBengali ? 'বায়োডাটা অনুসন্ধান করুন' : 'Search Biodatas'}</span>
             </Link>
           </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {profiles.map((profile) => {
-            const upazilaBangla =
-              UPAZILA_DISPLAY_NAMES[profile.upazila as TangailUpazila] || profile.upazila;
+            const upazilaName = getUpazilaDisplayName(profile.upazila, isBengali);
             const targetId = profile.biodataId || profile._id;
 
             return (
@@ -101,7 +114,7 @@ export const ShortlistPage: React.FC = () => {
                       onClick={() => removeMutation.mutate(profile._id)}
                       disabled={removeMutation.isPending}
                       className="text-ink-3 hover:text-brand p-1.5 rounded-lg hover:bg-brand-soft transition-colors cursor-pointer"
-                      title="শর্টলিস্ট থেকে মুছুন"
+                      title={isBengali ? 'শর্টলিস্ট থেকে মুছুন' : 'Remove from shortlist'}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -110,26 +123,44 @@ export const ShortlistPage: React.FC = () => {
                   <div className="pt-1">
                     <h3 className="font-bold text-base text-ink">{profile.displayName}</h3>
                     <div className="flex items-center gap-2 text-xs text-brand font-semibold mt-0.5">
-                      <span>{profile.gender === 'male' ? 'পাত্র (বর)' : 'পাত্রী (কনে)'}</span>
+                      <span>
+                        {profile.gender === 'male'
+                          ? isBengali
+                            ? 'পাত্র (বর)'
+                            : 'Groom'
+                          : isBengali
+                          ? 'পাত্রী (কনে)'
+                          : 'Bride'}
+                      </span>
                       <span>•</span>
-                      <span>{profile.age ? `${profile.age} বছর` : 'প্রাপ্তবয়স্ক'}</span>
+                      <span>
+                        {profile.age
+                          ? isBengali
+                            ? `${formatNumber(profile.age)} বছর`
+                            : `${profile.age} yrs`
+                          : isBengali
+                          ? 'প্রাপ্তবয়স্ক'
+                          : 'Adult'}
+                      </span>
                     </div>
                   </div>
 
                   <div className="space-y-1.5 text-xs text-ink-2 pt-2 border-t border-line">
                     <div>
-                      <span className="text-ink-3">এলাকা: </span>
-                      <span className="font-medium text-ink">{upazilaBangla}, টাঙ্গাইল</span>
+                      <span className="text-ink-3">{isBengali ? 'এলাকা: ' : 'Area: '}</span>
+                      <span className="font-medium text-ink">
+                        {upazilaName}, {isBengali ? 'টাঙ্গাইল' : 'Tangail'}
+                      </span>
                     </div>
                     {profile.occupation && (
                       <div>
-                        <span className="text-ink-3">পেশা: </span>
+                        <span className="text-ink-3">{isBengali ? 'পেশা: ' : 'Occupation: '}</span>
                         <span className="font-medium text-ink">{profile.occupation}</span>
                       </div>
                     )}
                     {profile.education && (
                       <div>
-                        <span className="text-ink-3">শিক্ষা: </span>
+                        <span className="text-ink-3">{isBengali ? 'শিক্ষা: ' : 'Education: '}</span>
                         <span className="font-medium text-ink uppercase">{profile.education}</span>
                       </div>
                     )}
@@ -141,7 +172,7 @@ export const ShortlistPage: React.FC = () => {
                     to={`/profiles/${targetId}`}
                     className="mb-btn-secondary flex-1 !py-2 !px-3 text-center !text-xs rounded-lg"
                   >
-                    বায়োডাটা দেখুন
+                    {isBengali ? 'বায়োডাটা দেখুন' : 'View Biodata'}
                   </Link>
                   <button
                     type="button"
@@ -149,7 +180,7 @@ export const ShortlistPage: React.FC = () => {
                     className="mb-btn-primary flex items-center gap-1.5 !py-2 !px-3 !text-xs rounded-lg"
                   >
                     <Heart className="w-3.5 h-3.5 fill-current" />
-                    <span>পছন্দ</span>
+                    <span>{isBengali ? 'পছন্দ' : 'Interest'}</span>
                   </button>
                 </div>
               </div>

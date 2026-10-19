@@ -3,19 +3,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Camera,
   Trash2,
-  Eye,
-  EyeOff,
   Shield,
   Upload,
-  Check,
   Image as ImageIcon,
   Sparkles,
-  Lock
+  Lock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { profilesApi } from '../../api/profiles.api';
 import { ProfilePhoto } from '../../types';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface PhotoManagerProps {
   photos: ProfilePhoto[];
@@ -27,6 +25,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
   currentPrivacy = 'public',
 }) => {
   const queryClient = useQueryClient();
+  const { isBengali, formatNumber } = useLanguage();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [blurPhoto, setBlurPhoto] = useState(false);
@@ -45,7 +44,9 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
       blur: boolean;
     }) => profilesApi.uploadPhoto(file, isPrimary, blur),
     onSuccess: () => {
-      toast.success('ছবি সফলভাবে আপলোড করা হয়েছে');
+      toast.success(
+        isBengali ? 'ছবি সফলভাবে আপলোড করা হয়েছে' : 'Photo uploaded successfully'
+      );
       setSelectedFile(null);
       setPreviewUrl(null);
       queryClient.invalidateQueries({ queryKey: ['my-profile'] });
@@ -53,7 +54,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
     onError: (err: unknown) => {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        'ছবি আপলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
+        (isBengali ? 'ছবি আপলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।' : 'Failed to upload photo.');
       toast.error(msg);
     },
   });
@@ -62,11 +63,11 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
   const deleteMutation = useMutation({
     mutationFn: (photoKey: string) => profilesApi.deletePhoto(photoKey),
     onSuccess: () => {
-      toast.success('ছবি মুছে ফেলা হয়েছে');
+      toast.success(isBengali ? 'ছবি মুছে ফেলা হয়েছে' : 'Photo deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['my-profile'] });
     },
     onError: () => {
-      toast.error('ছবি মুছতে সমস্যা হয়েছে');
+      toast.error(isBengali ? 'ছবি মুছতে সমস্যা হয়েছে' : 'Failed to delete photo');
     },
   });
 
@@ -74,11 +75,15 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
   const privacyMutation = useMutation({
     mutationFn: (newPrivacy: string) => profilesApi.updatePhotoPrivacy(newPrivacy),
     onSuccess: () => {
-      toast.success('ছবির গোপনীয়তা সেটিংস সংরক্ষিত হয়েছে');
+      toast.success(
+        isBengali ? 'ছবির গোপনীয়তা সেটিংস সংরক্ষিত হয়েছে' : 'Privacy settings saved'
+      );
       queryClient.invalidateQueries({ queryKey: ['my-profile'] });
     },
     onError: () => {
-      toast.error('গোপনীয়তা সেটিংস সংরক্ষণ করতে সমস্যা হয়েছে');
+      toast.error(
+        isBengali ? 'গোপনীয়তা সেটিংস সংরক্ষণ করতে সমস্যা হয়েছে' : 'Failed to save privacy settings'
+      );
     },
   });
 
@@ -86,7 +91,11 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('ছবির সর্বোচ্চ সাইজ ৫ মেগাবাইট হতে পারবে');
+        toast.error(
+          isBengali
+            ? 'ছবির সর্বোচ্চ সাইজ ৫ মেগাবাইট হতে পারবে'
+            : 'Maximum image size is 5 MB'
+        );
         return;
       }
       setSelectedFile(file);
@@ -97,7 +106,9 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
   const handleUpload = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
-      toast.error('অনুগ্রহ করে একটি ছবি নির্বাচন করুন');
+      toast.error(
+        isBengali ? 'অনুগ্রহ করে একটি ছবি নির্বাচন করুন' : 'Please select an image'
+      );
       return;
     }
     uploadMutation.mutate({
@@ -119,27 +130,35 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
         <div>
           <h3 className="text-lg font-bold text-ink flex items-center gap-2">
             <Camera className="w-5 h-5 text-brand" />
-            <span>ছবি ও পর্দাশীলতা ব্যবস্থাপনা</span>
+            <span>{isBengali ? 'ছবি ও পর্দাশীলতা ব্যবস্থাপনা' : 'Photo & Privacy Settings'}</span>
           </h3>
           <p className="text-xs text-ink-3 mt-1">
-            বায়োডাটার ছবি আপলোড করুন এবং কে কে আপনার ছবি দেখতে পারবে তা নির্ধারণ করুন
+            {isBengali
+              ? 'বায়োডাটার ছবি আপলোড করুন এবং কে কে আপনার ছবি দেখতে পারবে তা নির্ধারণ করুন'
+              : 'Upload photos and control who can view them'}
           </p>
         </div>
 
         {/* Privacy Selector Dropdown */}
         <div className="flex items-center gap-2">
           <Shield className="w-4 h-4 text-ink-3 shrink-0" />
-          <label className="text-xs text-ink-2 font-semibold shrink-0">ছবির দৃশ্যমানতা:</label>
+          <label className="text-xs text-ink-2 font-semibold shrink-0">
+            {isBengali ? 'ছবির দৃশ্যমানতা:' : 'Photo Visibility:'}
+          </label>
           <select
             value={privacy}
             onChange={(e) => handlePrivacyChange(e.target.value)}
             disabled={privacyMutation.isPending}
             className="mb-input !text-xs font-semibold py-1.5 cursor-pointer"
           >
-            <option value="public">সবার জন্য উন্মুক্ত (Public)</option>
-            <option value="registered_only">শুধুমাত্র নিবন্ধিত সদস্য (Registered Only)</option>
-            <option value="on_interest_accepted">প্রস্তাব গ্রহণ করলে (On Interest Accepted)</option>
-            <option value="hidden">ছবি পুরোপুরি গোপন (Hidden)</option>
+            <option value="public">{isBengali ? 'সবার জন্য উন্মুক্ত (Public)' : 'Public'}</option>
+            <option value="registered_only">
+              {isBengali ? 'শুধুমাত্র নিবন্ধিত সদস্য (Registered Only)' : 'Registered Members Only'}
+            </option>
+            <option value="on_interest_accepted">
+              {isBengali ? 'প্রস্তাব গ্রহণ করলে (On Interest Accepted)' : 'On Interest Accepted Only'}
+            </option>
+            <option value="hidden">{isBengali ? 'ছবি পুরোপুরি গোপন (Hidden)' : 'Hidden'}</option>
           </select>
         </div>
       </div>
@@ -148,12 +167,20 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
       <div className="space-y-3">
         <h4 className="text-xs font-bold uppercase tracking-wider text-ink-3 flex items-center gap-1.5">
           <ImageIcon className="w-4 h-4" />
-          <span>সংরক্ষিত ছবিসমূহ ({photos.length})</span>
+          <span>
+            {isBengali
+              ? `সংরক্ষিত ছবিসমূহ (${formatNumber(photos.length)})`
+              : `Uploaded Photos (${photos.length})`}
+          </span>
         </h4>
 
         {photos.length === 0 ? (
           <div className="py-8 text-center bg-elev rounded-2xl border border-dashed border-line p-4">
-            <p className="text-xs text-ink-3">এখনও কোনো ছবি যোগ করা হয়নি। নিচে থেকে ছবি আপলোড করুন।</p>
+            <p className="text-xs text-ink-3">
+              {isBengali
+                ? 'এখনও কোনো ছবি যোগ করা হয়নি। নিচে থেকে ছবি আপলোড করুন।'
+                : 'No photos uploaded yet. Upload a photo below.'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -170,7 +197,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
                 >
                   <img
                     src={imageUrl}
-                    alt="বায়োডাটা ছবি"
+                    alt={isBengali ? 'বায়োডাটা ছবি' : 'Biodata photo'}
                     className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${
                       p.blurPhoto ? 'blur-md' : ''
                     }`}
@@ -180,13 +207,13 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
                   <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
                     {p.isProfilePhoto && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand text-white shadow-xs">
-                        প্রধান ছবি
+                        {isBengali ? 'প্রধান ছবি' : 'Primary'}
                       </span>
                     )}
                     {p.blurPhoto && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gold-soft text-gold border border-gold/25 backdrop-blur-xs flex items-center gap-1">
                         <Lock className="w-2.5 h-2.5" />
-                        পর্দাশীল
+                        {isBengali ? 'পর্দাশীল' : 'Purdah Blur'}
                       </span>
                     )}
                   </div>
@@ -198,7 +225,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
                       onClick={() => deleteMutation.mutate(photoKey)}
                       disabled={deleteMutation.isPending}
                       className="p-2.5 bg-brand hover:bg-brand/85 text-white rounded-xl shadow-lg transition-transform hover:scale-110 cursor-pointer"
-                      title="ছবি মুছুন"
+                      title={isBengali ? 'ছবি মুছুন' : 'Delete photo'}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -214,7 +241,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
       <form onSubmit={handleUpload} className="rounded-2xl bg-elev border border-line p-5 space-y-4">
         <h4 className="text-sm font-bold text-ink flex items-center gap-2">
           <Upload className="w-4 h-4 text-brand" />
-          <span>নতুন ছবি আপলোড করুন</span>
+          <span>{isBengali ? 'নতুন ছবি আপলোড করুন' : 'Upload New Photo'}</span>
         </h4>
 
         <div className="flex flex-col sm:flex-row items-center gap-5">
@@ -223,9 +250,15 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
             <label className="flex flex-col items-center justify-center border-2 border-dashed border-brand/40 hover:border-brand bg-card rounded-xl p-4 cursor-pointer transition-colors text-center">
               <Camera className="w-6 h-6 text-brand mb-1" />
               <span className="text-xs font-bold text-brand">
-                {selectedFile ? selectedFile.name : 'ছবি বেছে নিন (গ্যালারি বা ফাইল)'}
+                {selectedFile
+                  ? selectedFile.name
+                  : isBengali
+                  ? 'ছবি বেছে নিন (গ্যালারি বা ফাইল)'
+                  : 'Choose photo (Gallery or Files)'}
               </span>
-              <span className="text-[11px] text-ink-3 mt-0.5">JPG, PNG, WEBP (সর্বোচ্চ ৫ MB)</span>
+              <span className="text-[11px] text-ink-3 mt-0.5">
+                {isBengali ? 'JPG, PNG, WEBP (সর্বোচ্চ ৫ MB)' : 'JPG, PNG, WEBP (Max 5 MB)'}
+              </span>
               <input
                 type="file"
                 accept="image/*"
@@ -240,7 +273,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
             <div className="w-24 h-28 rounded-xl overflow-hidden border-2 border-brand/50 relative shrink-0">
               <img
                 src={previewUrl}
-                alt="প্রিভিউ"
+                alt="preview"
                 className={`w-full h-full object-cover ${blurPhoto ? 'blur-sm' : ''}`}
               />
             </div>
@@ -259,10 +292,12 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
             <div>
               <span className="font-bold text-ink flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5 text-gold" />
-                পর্দাশীল ছবি (ব্লার রাখুন)
+                {isBengali ? 'পর্দাশীল ছবি (ব্লার রাখুন)' : 'Modest Purdah Blur'}
               </span>
               <span className="text-[11px] text-ink-3 block mt-0.5">
-                ছবিটি ঝাপসা থাকবে; পাত্র-পাত্রী বা অভিভাবক সরাসরি অনুরোধ গ্রহণ করলেই শুধু স্পষ্ট দেখা যাবে।
+                {isBengali
+                  ? 'ছবিটি ঝাপসা থাকবে; পাত্র-পাত্রী বা অভিভাবক সরাসরি অনুরোধ গ্রহণ করলেই শুধু স্পষ্ট দেখা যাবে।'
+                  : 'Photo remains blurred and becomes clear only upon mutual interest acceptance.'}
               </span>
             </div>
           </label>
@@ -275,9 +310,13 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
               className="mt-0.5 rounded text-brand focus:ring-brand"
             />
             <div>
-              <span className="font-bold text-ink">প্রধান প্রোফাইল ছবি করুন</span>
+              <span className="font-bold text-ink">
+                {isBengali ? 'প্রধান প্রোফাইল ছবি করুন' : 'Set as primary photo'}
+              </span>
               <span className="text-[11px] text-ink-3 block mt-0.5">
-                বায়োডাটা কার্ড ও তালিকায় এই ছবিটি সর্বপ্রথম প্রদর্শিত হবে।
+                {isBengali
+                  ? 'বায়োডাটা কার্ড ও তালিকায় এই ছবিটি সর্বপ্রথম প্রদর্শিত হবে।'
+                  : 'This photo will be displayed on biodata search cards.'}
               </span>
             </div>
           </label>
@@ -295,7 +334,7 @@ export const PhotoManager: React.FC<PhotoManagerProps> = ({
             ) : (
               <>
                 <Upload className="w-3.5 h-3.5" />
-                <span>ছবি আপলোড সম্পন্ন করুন</span>
+                <span>{isBengali ? 'ছবি আপলোড সম্পন্ন করুন' : 'Upload Photo'}</span>
               </>
             )}
           </button>

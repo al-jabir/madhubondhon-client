@@ -3,9 +3,11 @@ import { Link, useNavigate } from "react-router";
 import { Heart, Mail, Lock, KeyRound, ArrowLeft, Eye, EyeOff, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { workflowApi, errorMessage } from "../api/workflow.api";
+import { useLanguage } from "../i18n/LanguageContext";
 
 export default function PasswordRecoveryPage() {
   const navigate = useNavigate();
+  const { isBengali } = useLanguage();
   const [email, setEmail] = useState("");
   const [challenge, setChallenge] = useState("");
   const [code, setCode] = useState("");
@@ -27,7 +29,11 @@ export default function PasswordRecoveryPage() {
         toast.success(res.message);
       } else {
         if (password !== confirm) {
-          setError("নতুন পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মেলেনি।");
+          setError(
+            isBengali
+              ? "নতুন পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মেলেনি।"
+              : "New password and confirm password do not match."
+          );
           setBusy(false);
           return;
         }
@@ -38,7 +44,11 @@ export default function PasswordRecoveryPage() {
           password,
           confirm
         );
-        toast.success("পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে। নতুন পাসওয়ার্ড দিয়ে লগইন করুন।");
+        toast.success(
+          isBengali
+            ? "পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে। নতুন পাসওয়ার্ড দিয়ে লগইন করুন।"
+            : "Password has been reset successfully. Please sign in with your new password."
+        );
         navigate("/login");
       }
     } catch (err) {
@@ -59,10 +69,12 @@ export default function PasswordRecoveryPage() {
             <Heart className="w-6 h-6 fill-current" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink">
-            পাসওয়ার্ড পুনরুদ্ধার
+            {isBengali ? "পাসওয়ার্ড পুনরুদ্ধার" : "Password Recovery"}
           </h1>
           <p className="text-xs sm:text-sm text-ink-2">
-            আপনার অ্যাকাউন্টের নিবন্ধিত ইমেইলে ভেরিফিকেশন কোড পাঠানো হবে
+            {isBengali
+              ? "আপনার অ্যাকাউন্টের নিবন্ধিত ইমেইলে ভেরিফিকেশন কোড পাঠানো হবে"
+              : "A verification security code will be sent to your registered account email"}
           </p>
         </div>
 
@@ -78,7 +90,7 @@ export default function PasswordRecoveryPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="mb-label block mb-1.5">
-                ইমেইল ঠিকানা
+                {isBengali ? "ইমেইল ঠিকানা" : "Email Address"}
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -97,12 +109,14 @@ export default function PasswordRecoveryPage() {
             {challenge && (
               <>
                 <div className="p-3 bg-gold-soft border border-gold/25 rounded-xl text-xs text-gold">
-                  ইমেইলে পাঠানো ৬ সংখ্যার কোডটি লিখুন (মেয়াদ ১০ মিনিট)।
+                  {isBengali
+                    ? "ইমেইলে পাঠানো ৬ সংখ্যার কোডটি লিখুন (মেয়াদ ১০ মিনিট)।"
+                    : "Enter the 6-digit code sent to your email (valid for 10 minutes)."}
                 </div>
 
                 <div>
                   <label className="mb-label block mb-1.5">
-                    ৬ সংখ্যার সিকিউরিটি কোড
+                    {isBengali ? "৬ সংখ্যার সিকিউরিটি কোড" : "6-Digit Security Code"}
                   </label>
                   <div className="relative">
                     <KeyRound className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -113,7 +127,7 @@ export default function PasswordRecoveryPage() {
                       maxLength={6}
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
-                      placeholder="যেমন: 123456"
+                      placeholder={isBengali ? "যেমন: 123456" : "e.g. 123456"}
                       className="mb-input w-full !text-sm !bg-elev font-mono tracking-widest pl-10 pr-4 py-2.5"
                     />
                   </div>
@@ -121,7 +135,7 @@ export default function PasswordRecoveryPage() {
 
                 <div>
                   <label className="mb-label block mb-1.5">
-                    নতুন পাসওয়ার্ড
+                    {isBengali ? "নতুন পাসওয়ার্ড" : "New Password"}
                   </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -132,25 +146,28 @@ export default function PasswordRecoveryPage() {
                       autoComplete="new-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="কমপক্ষে ৮ অক্ষর"
+                      placeholder={isBengali ? "কমপক্ষে ৮ অক্ষর" : "At least 8 characters"}
                       className="mb-input w-full !text-sm !bg-elev pl-10 pr-10 py-2.5"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink cursor-pointer"
+                      aria-label={showPassword ? (isBengali ? "পাসওয়ার্ড লুকান" : "Hide password") : (isBengali ? "পাসওয়ার্ড দেখুন" : "Show password")}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                   <p className="text-[11px] text-ink-3 mt-1">
-                    অন্তত ৮ অক্ষর, বড় ও ছোট হাতের অক্ষর এবং সংখ্যা দিন।
+                    {isBengali
+                      ? "অন্তত ৮ অক্ষর, বড় ও ছোট হাতের অক্ষর এবং সংখ্যা দিন।"
+                      : "Minimum 8 characters with letters, uppercase, and numbers."}
                   </p>
                 </div>
 
                 <div>
                   <label className="mb-label block mb-1.5">
-                    পাসওয়ার্ড নিশ্চিত করুন
+                    {isBengali ? "পাসওয়ার্ড নিশ্চিত করুন" : "Confirm Password"}
                   </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -160,13 +177,14 @@ export default function PasswordRecoveryPage() {
                       minLength={8}
                       value={confirm}
                       onChange={(e) => setConfirm(e.target.value)}
-                      placeholder="পুনরায় পাসওয়ার্ড"
+                      placeholder={isBengali ? "পুনরায় পাসওয়ার্ড" : "Re-enter password"}
                       className="mb-input w-full !text-sm !bg-elev pl-10 pr-10 py-2.5"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirm(!showConfirm)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink cursor-pointer"
+                      aria-label={showConfirm ? (isBengali ? "পাসওয়ার্ড লুকান" : "Hide password") : (isBengali ? "পাসওয়ার্ড দেখুন" : "Show password")}
                     >
                       {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -182,7 +200,9 @@ export default function PasswordRecoveryPage() {
                   }}
                   className="text-xs font-semibold text-brand hover:underline cursor-pointer"
                 >
-                  ← অন্য ইমেইল ঠিকানা বা নতুন কোড পাঠান
+                  {isBengali
+                    ? "← অন্য ইমেইল ঠিকানা বা নতুন কোড পাঠান"
+                    : "← Use different email or request a new code"}
                 </button>
               </>
             )}
@@ -193,10 +213,16 @@ export default function PasswordRecoveryPage() {
               className="mb-btn-primary w-full mt-2 py-3 px-4 text-sm disabled:opacity-50"
             >
               {busy
-                ? "অপেক্ষা করুন..."
+                ? isBengali
+                  ? "অপেক্ষা করুন..."
+                  : "Please wait..."
                 : challenge
-                ? "পাসওয়ার্ড পরিবর্তন সম্পন্ন করুন"
-                : "পুনরুদ্ধার কোড পাঠান"}
+                ? isBengali
+                  ? "পাসওয়ার্ড পরিবর্তন সম্পন্ন করুন"
+                  : "Complete Password Reset"
+                : isBengali
+                ? "পুনরুদ্ধার কোড পাঠান"
+                : "Send Recovery Code"}
             </button>
           </form>
 
@@ -206,7 +232,7 @@ export default function PasswordRecoveryPage() {
               className="inline-flex items-center gap-1.5 text-xs font-bold text-ink-2 hover:text-brand transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>লগইনে ফিরে যান</span>
+              <span>{isBengali ? "লগইনে ফিরে যান" : "Back to Login"}</span>
             </Link>
           </div>
         </div>

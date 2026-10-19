@@ -2,27 +2,35 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Coins, Sparkles, ArrowRight } from "lucide-react";
+import { Coins, ArrowRight } from "lucide-react";
 import { workflowApi, errorMessage } from "../api/workflow.api";
 import type { Guardian } from "../api/workflow.api";
 import { useAuth } from "../context/useAuth";
 import type { User } from "../types";
+import { useLanguage } from "../i18n/LanguageContext";
+
 const id = (u: string | User) => (typeof u === "string" ? u : u.id || u._id);
-const name = (u: string | User) => (typeof u === "string" ? "সদস্য" : u.name);
+
 export default function ContactsPage() {
   const { user, refreshUser } = useAuth();
   const cache = useQueryClient();
+  const { isBengali, formatNumber } = useLanguage();
   const [page, setPage] = useState(1);
   const [busy, setBusy] = useState(false);
   const [revealed, setRevealed] = useState<{
     id: string;
     guardian: Guardian;
   } | null>(null);
+
+  const name = (u: string | User) =>
+    typeof u === "string" ? (isBengali ? "সদস্য" : "Member") : u.name;
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["contact-grants", page],
     queryFn: () => workflowApi.listContacts(page),
     refetchOnWindowFocus: true,
   });
+
   async function act(fn: () => Promise<unknown>) {
     setBusy(true);
     setRevealed(null);
@@ -36,14 +44,25 @@ export default function ContactsPage() {
       setBusy(false);
     }
   }
+
+  const statusLabels: Record<string, string> = {
+    pending: isBengali ? "অপেক্ষমান" : "Pending",
+    approved: isBengali ? "অনুমোদিত" : "Approved",
+    rejected: isBengali ? "প্রত্যাখ্যাত" : "Rejected",
+    revoked: isBengali ? "প্রত্যাহৃত" : "Revoked",
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-ink">যোগাযোগের অনুমতি</h1>
+          <h1 className="text-2xl font-bold text-ink">
+            {isBengali ? "যোগাযোগের অনুমতি" : "Contact Permissions"}
+          </h1>
           <p className="text-sm text-ink-2">
-            গৃহীত আগ্রহের পর যোগাযোগের অনুরোধ পাঠানো যায়। সংশ্লিষ্ট সদস্য অনুমতি
-            দিলেই যাচাইকৃত অভিভাবকের যোগাযোগ দেখা যাবে।
+            {isBengali
+              ? "গৃহীত আগ্রহের পর যোগাযোগের অনুরোধ পাঠানো যায়। সংশ্লিষ্ট সদস্য অনুমতি দিলেই যাচাইকৃত অভিভাবকের যোগাযোগ দেখা যাবে।"
+              : "Contact requests can be sent after an interest is accepted. Guardian contact details become visible once permission is granted."}
           </p>
         </div>
 
@@ -52,35 +71,45 @@ export default function ContactsPage() {
           <div className="flex items-center gap-2">
             <Coins className="w-5 h-5 text-gold" />
             <div className="text-xs">
-              <span className="text-ink-3 block">অবশিষ্ট ক্রেডিট</span>
-              <span className="font-bold text-ink text-sm">{user?.contactCredits ?? 0} টি</span>
+              <span className="text-ink-3 block">
+                {isBengali ? "অবশিষ্ট ক্রেডিট" : "Credits Available"}
+              </span>
+              <span className="font-bold text-ink text-sm">
+                {isBengali ? formatNumber(user?.contactCredits ?? 0) : user?.contactCredits ?? 0}{" "}
+                {isBengali ? "টি" : "credits"}
+              </span>
             </div>
           </div>
           <Link
             to="/packages"
             className="ml-2 px-3 py-1.5 text-xs font-bold text-white bg-brand hover:bg-brand/90 rounded-xl transition-colors shadow-2xs flex items-center gap-1 shrink-0"
           >
-            <span>রিচার্জ করুন</span>
+            <span>{isBengali ? "রিচার্জ করুন" : "Top Up"}</span>
             <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
       </div>
 
-      <Link to="/interests" className="text-brand text-sm font-semibold">
-        ← আগ্রহ তালিকা দেখুন
+      <Link to="/interests" className="text-brand text-sm font-semibold inline-block">
+        {isBengali ? "← আগ্রহ তালিকা দেখুন" : "← View Interests List"}
       </Link>
+
       {isLoading ? (
-        <p>লোড হচ্ছে...</p>
+        <p className="text-ink-2">{isBengali ? "লোড হচ্ছে..." : "Loading..."}</p>
       ) : isError ? (
-        <p>
-          অনুরোধ লোড করা যায়নি।{" "}
-          <button onClick={() => refetch()}>আবার চেষ্টা করুন</button>
+        <p className="text-ink-2">
+          {isBengali ? "অনুরোধ লোড করা যায়নি। " : "Failed to load requests. "}
+          <button onClick={() => refetch()} className="text-brand underline font-semibold">
+            {isBengali ? "আবার চেষ্টা করুন" : "Try again"}
+          </button>
         </p>
       ) : (
         <>
           {!data?.data?.grants.length && (
             <p className="p-6 bg-card mb-card rounded-xl text-ink-2">
-              এখনও যোগাযোগের অনুরোধ নেই।
+              {isBengali
+                ? "এখনও যোগাযোগের অনুরোধ নেই।"
+                : "No contact requests yet."}
             </p>
           )}
           {data?.data?.grants.map((grant) => {
@@ -92,51 +121,44 @@ export default function ContactsPage() {
               >
                 <h2 className="font-bold text-ink">
                   {incoming
-                    ? "অনুরোধ করেছেন: " + name(grant.requester)
-                    : "অনুরোধ পাঠানো হয়েছে: " + name(grant.owner)}
+                    ? (isBengali ? "অনুরোধ করেছেন: " : "Requested by: ") + name(grant.requester)
+                    : (isBengali ? "অনুরোধ পাঠানো হয়েছে: " : "Request sent to: ") + name(grant.owner)}
                 </h2>
                 <p className="text-ink-2">
-                  অবস্থা:{" "}
-                  {
-                    {
-                      pending: "অপেক্ষমান",
-                      approved: "অনুমোদিত",
-                      rejected: "প্রত্যাখ্যাত",
-                      revoked: "প্রত্যাহৃত",
-                    }[grant.status]
-                  }
+                  {isBengali ? "অবস্থা: " : "Status: "}
+                  {statusLabels[grant.status] || grant.status}
                 </p>
                 <div className="flex gap-3 flex-wrap">
                   {incoming && grant.status === "pending" && (
                     <>
                       <button
                         disabled={busy}
-                        className="text-emerald-600 dark:text-emerald-400 font-semibold"
+                        className="text-emerald-600 dark:text-emerald-400 font-semibold cursor-pointer"
                         onClick={() =>
                           act(() =>
                             workflowApi.respondContact(grant._id, "approved"),
                           )
                         }
                       >
-                        যোগাযোগ প্রকাশের অনুমতি দিন
+                        {isBengali ? "যোগাযোগ প্রকাশের অনুমতি দিন" : "Grant Contact Permission"}
                       </button>
                       <button
                         disabled={busy}
-                        className="text-brand"
+                        className="text-brand cursor-pointer font-semibold"
                         onClick={() =>
                           act(() =>
                             workflowApi.respondContact(grant._id, "rejected"),
                           )
                         }
                       >
-                        প্রত্যাখ্যান করুন
+                        {isBengali ? "প্রত্যাখ্যান করুন" : "Decline"}
                       </button>
                     </>
                   )}
                   {!incoming && grant.status === "approved" && (
                     <button
                       disabled={busy}
-                      className="text-brand font-bold"
+                      className="text-brand font-bold cursor-pointer"
                       onClick={() =>
                         act(async () => {
                           const res = await workflowApi.revealContact(
@@ -149,20 +171,20 @@ export default function ContactsPage() {
                         })
                       }
                     >
-                      অভিভাবকের যোগাযোগ দেখুন
+                      {isBengali ? "অভিভাবকের যোগাযোগ দেখুন" : "View Guardian Contact"}
                     </button>
                   )}
                   {["pending", "approved"].includes(grant.status) && (
                     <button
                       disabled={busy}
-                      className="text-ink-3"
+                      className="text-ink-3 cursor-pointer text-xs"
                       onClick={() =>
                         act(() =>
                           workflowApi.respondContact(grant._id, "revoked"),
                         )
                       }
                     >
-                      অনুমতি/অনুরোধ প্রত্যাহার
+                      {isBengali ? "অনুমতি/অনুরোধ প্রত্যাহার" : "Revoke Permission / Request"}
                     </button>
                   )}
                 </div>
@@ -183,36 +205,38 @@ export default function ContactsPage() {
                     )}
                     <button
                       onClick={() => setRevealed(null)}
-                      className="block text-sm underline text-ink-2"
+                      className="block text-sm underline text-ink-2 cursor-pointer"
                     >
-                      লুকান
+                      {isBengali ? "লুকান" : "Hide"}
                     </button>
                   </div>
                 )}
               </article>
             );
           })}
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             <button
               disabled={page === 1}
-              className="mb-btn-secondary !px-3 !text-xs"
+              className="mb-btn-secondary !px-3 !text-xs disabled:opacity-40"
               onClick={() => {
                 setRevealed(null);
                 setPage((p) => p - 1);
               }}
             >
-              আগের পৃষ্ঠা
+              {isBengali ? "আগের পৃষ্ঠা" : "Previous"}
             </button>
-            <span className="text-ink-2">{page}</span>
+            <span className="text-ink-2 text-xs">
+              {isBengali ? formatNumber(page) : page}
+            </span>
             <button
               disabled={page >= (data?.meta?.totalPages || 1)}
-              className="mb-btn-secondary !px-3 !text-xs"
+              className="mb-btn-secondary !px-3 !text-xs disabled:opacity-40"
               onClick={() => {
                 setRevealed(null);
                 setPage((p) => p + 1);
               }}
             >
-              পরের পৃষ্ঠা
+              {isBengali ? "পরের পৃষ্ঠা" : "Next"}
             </button>
           </div>
         </>

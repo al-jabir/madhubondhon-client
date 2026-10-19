@@ -17,10 +17,12 @@ import { getApiErrorMessage } from '../api/errors';
 import { useAuth } from '../context/useAuth';
 import { Gender } from '../types';
 import DatePicker, { calculateAge } from '../components/common/DatePicker';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const { isBengali } = useLanguage();
 
   const [gender, setGender] = useState<Gender | ''>('');
   const [name, setName] = useState('');
@@ -44,35 +46,55 @@ export const RegisterPage: React.FC = () => {
     errorMessage.includes('ইতিমধ্যে') ||
     errorMessage.includes('ইতোমধ্যে') ||
     errorMessage.includes('একউন্ট আছে') ||
-    errorMessage.includes('অ্যাকাউন্ট আছে');
+    errorMessage.includes('অ্যাকাউন্ট আছে') ||
+    errorMessage.toLowerCase().includes('already exists') ||
+    errorMessage.toLowerCase().includes('already registered');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
     if (!gender) {
-      setErrorMessage('অনুগ্রহ করে পাত্র অথবা পাত্রী নির্বাচন করুন।');
+      setErrorMessage(
+        isBengali
+          ? 'অনুগ্রহ করে পাত্র অথবা পাত্রী নির্বাচন করুন।'
+          : 'Please select Groom or Bride.'
+      );
       return;
     }
 
     if (!name.trim() || !email.trim() || !dateOfBirth || !password || !confirmPassword) {
-      setErrorMessage('সবগুলো আবশ্যক তথ্য পূরণ করুন।');
+      setErrorMessage(
+        isBengali ? 'সবগুলো আবশ্যক তথ্য পূরণ করুন।' : 'Please fill in all required fields.'
+      );
       return;
     }
 
     const age = calculateAge(dateOfBirth);
     if (age < 18) {
-      setErrorMessage('আইনগত ও প্ল্যাটফর্ম নিয়মানুযায়ী নিবন্ধনের জন্য বয়স ন্যূনতম ১৮ বছর হতে হবে।');
+      setErrorMessage(
+        isBengali
+          ? 'আইনগত ও প্ল্যাটফর্ম নিয়মানুযায়ী নিবন্ধনের জন্য বয়স ন্যূনতম ১৮ বছর হতে হবে।'
+          : 'According to law and platform policy, minimum age for registration is 18 years.'
+      );
       return;
     }
 
     if (!isPasswordValid) {
-      setErrorMessage('পাসওয়ার্ডে অন্তত ৮ অক্ষর, একটি বড় হাতের অক্ষর, একটি ছোট হাতের অক্ষর এবং একটি সংখ্যা দিন।');
+      setErrorMessage(
+        isBengali
+          ? 'পাসওয়ার্ডে অন্তত ৮ অক্ষর, একটি বড় হাতের অক্ষর, একটি ছোট হাতের অক্ষর এবং একটি সংখ্যা দিন।'
+          : 'Password must have at least 8 characters, an uppercase letter, a lowercase letter, and a number.'
+      );
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage('পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মেলেনি।');
+      setErrorMessage(
+        isBengali
+          ? 'পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মেলেনি।'
+          : 'Password and confirmation password do not match.'
+      );
       return;
     }
 
@@ -87,10 +109,15 @@ export const RegisterPage: React.FC = () => {
         password,
         confirmPassword,
       });
-      toast.success('নিবন্ধন সফল হয়েছে! অনুগ্রহ করে আপনার বায়োডাটা সম্পন্ন করুন।');
+      toast.success(
+        isBengali
+          ? 'নিবন্ধন সফল হয়েছে! অনুগ্রহ করে আপনার বায়োডাটা সম্পন্ন করুন।'
+          : 'Registration successful! Please complete your biodata.'
+      );
       navigate('/my-profile');
     } catch (err: unknown) {
-      const msg = getApiErrorMessage(err, 'নিবন্ধন ব্যর্থ হয়েছে।');
+      const defaultErr = isBengali ? 'নিবন্ধন ব্যর্থ হয়েছে।' : 'Registration failed.';
+      const msg = getApiErrorMessage(err, defaultErr);
       setErrorMessage(msg);
       toast.error(msg);
     } finally {
@@ -99,10 +126,10 @@ export const RegisterPage: React.FC = () => {
   };
 
   const rules: { ok: boolean; label: string }[] = [
-    { ok: hasMinLength, label: 'কমপক্ষে ৮টি অক্ষর' },
-    { ok: hasUpper, label: 'বড় হাতের একটি অক্ষর (A-Z)' },
-    { ok: hasLower, label: 'ছোট হাতের একটি অক্ষর (a-z)' },
-    { ok: hasNumber, label: 'কমপক্ষে একটি সংখ্যা (০-৯)' },
+    { ok: hasMinLength, label: isBengali ? 'কমপক্ষে ৮টি অক্ষর' : 'At least 8 characters' },
+    { ok: hasUpper, label: isBengali ? 'বড় হাতের একটি অক্ষর (A-Z)' : 'One uppercase letter (A-Z)' },
+    { ok: hasLower, label: isBengali ? 'ছোট হাতের একটি অক্ষর (a-z)' : 'One lowercase letter (a-z)' },
+    { ok: hasNumber, label: isBengali ? 'কমপক্ষে একটি সংখ্যা (০-৯)' : 'At least one number (0-9)' },
   ];
 
   return (
@@ -114,13 +141,36 @@ export const RegisterPage: React.FC = () => {
             <Heart className="w-7 h-7 fill-current" />
           </div>
           <h3 className="text-3xl font-bold text-ink leading-snug">
-            আপনার <span className="text-brand">সুন্দর পরিচয়ের</span> যাত্রা শুরু হোক আজই
+            {isBengali ? (
+              <>
+                আপনার <span className="text-brand">সুন্দর পরিচয়ের</span> যাত্রা শুরু হোক আজই
+              </>
+            ) : (
+              <>
+                Begin your journey to a <span className="text-brand">blessed union</span> today
+              </>
+            )}
           </h3>
           <ul className="space-y-4 text-sm text-ink-2">
             {[
-              { icon: User, text: 'পরিবার দ্বারা যাচাইকৃত, সম্মানজনক ও ১০০% বিনামূল্যে নিবন্ধন' },
-              { icon: ShieldAlert, text: 'অভিভাবকের অনুমতি ছাড়া যোগাযোগের তথ্য কারো কাছে প্রকাশ হয় না' },
-              { icon: Mail, text: 'মডারেটরের নিরীক্ষার পরেই বায়োডাটা প্রকাশ পায় — ভুয়া প্রোফাইলের সুযোগ কম' },
+              {
+                icon: User,
+                text: isBengali
+                  ? 'পরিবার দ্বারা যাচাইকৃত, সম্মানজনক ও ১০০% বিনামূল্যে নিবন্ধন'
+                  : 'Family verified, respectful & 100% free registration',
+              },
+              {
+                icon: ShieldAlert,
+                text: isBengali
+                  ? 'অভিভাবকের অনুমতি ছাড়া যোগাযোগের তথ্য কারো কাছে প্রকাশ হয় না'
+                  : 'Contact details are never disclosed without guardian permission',
+              },
+              {
+                icon: Mail,
+                text: isBengali
+                  ? 'মডারেটরের নিরীক্ষার পরেই বায়োডাটা প্রকাশ পায় — ভুয়া প্রোফাইলের সুযোগ কম'
+                  : 'Biodatas published only after moderation — minimal fake profiles',
+              },
             ].map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-start gap-3">
                 <span className="mt-0.5 w-8 h-8 rounded-xl bg-brand-soft border border-brand/20 flex items-center justify-center text-brand shrink-0">
@@ -135,9 +185,13 @@ export const RegisterPage: React.FC = () => {
         {/* Right: form card */}
         <div className="w-full max-w-2xl space-y-5">
           <div className="text-center lg:text-left space-y-1.5">
-            <h2 className="text-2xl sm:text-3xl font-bold text-ink">বিনামূল্যে অ্যাকাউন্ট খুলুন</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-ink">
+              {isBengali ? 'বিনামূল্যে অ্যাকাউন্ট খুলুন' : 'Create a Free Account'}
+            </h2>
             <p className="text-xs sm:text-sm text-ink-2">
-              টাঙ্গাইলের দ্বীনি ও বিশ্বস্ত পাত্র-পাত্রীর সন্ধানে যুক্ত হোন
+              {isBengali
+                ? 'টাঙ্গাইলের দ্বীনি ও বিশ্বস্ত পাত্র-পাত্রীর সন্ধানে যুক্ত হোন'
+                : 'Join to find trusted, pious brides and grooms across Tangail'}
             </p>
           </div>
 
@@ -156,13 +210,13 @@ export const RegisterPage: React.FC = () => {
                       className="mb-btn-primary px-3 py-1.5 text-xs"
                     >
                       <LogIn className="w-3.5 h-3.5" />
-                      সরাসরি লগইন করুন
+                      {isBengali ? 'সরাসরি লগইন করুন' : 'Log in directly'}
                     </Link>
                     <Link
                       to="/forgot-password"
                       className="inline-flex items-center gap-1 text-brand hover:underline font-medium"
                     >
-                      পাসওয়ার্ড ভুলে গেছেন?
+                      {isBengali ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot password?'}
                       <ArrowRight className="w-3 h-3" />
                     </Link>
                   </div>
@@ -171,13 +225,18 @@ export const RegisterPage: React.FC = () => {
             )}
 
             <p className="mb-5 text-xs text-ink-3">
-              টাঙ্গাইলের পাত্র-পাত্রীর সন্ধানে সঠিক তথ্য প্রদান করে আপনার অ্যাকাউন্ট তৈরি করুন।
+              {isBengali
+                ? 'টাঙ্গাইলের পাত্র-পাত্রীর সন্ধানে সঠিক তথ্য প্রদান করে আপনার অ্যাকাউন্ট তৈরি করুন।'
+                : 'Provide accurate information to create your account and connect with prospective matches.'}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="mb-label">
-                  বায়োডাটার ধরন / কার জন্য নিবন্ধন করছেন? <span className="text-brand">*</span>
+                  {isBengali
+                    ? 'বায়োডাটার ধরন / কার জন্য নিবন্ধন করছেন?'
+                    : 'Biodata Type / Who are you registering for?'}{' '}
+                  <span className="text-brand">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3 mt-1">
                   <button
@@ -190,7 +249,7 @@ export const RegisterPage: React.FC = () => {
                     }`}
                   >
                     <span className="text-xl">🤵‍♂️</span>
-                    <span>আমি পাত্র</span>
+                    <span>{isBengali ? 'আমি পাত্র' : 'I am Groom'}</span>
                   </button>
                   <button
                     type="button"
@@ -202,14 +261,14 @@ export const RegisterPage: React.FC = () => {
                     }`}
                   >
                     <span className="text-xl">🧕</span>
-                    <span>আমি পাত্রী</span>
+                    <span>{isBengali ? 'আমি পাত্রী' : 'I am Bride'}</span>
                   </button>
                 </div>
               </div>
 
               <div>
                 <label className="mb-label">
-                  পূর্ণ নাম <span className="text-brand">*</span>
+                  {isBengali ? 'পূর্ণ নাম' : 'Full Name'} <span className="text-brand">*</span>
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -217,7 +276,7 @@ export const RegisterPage: React.FC = () => {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="আপনার পূর্ণ নাম লিখুন"
+                    placeholder={isBengali ? 'আপনার পূর্ণ নাম লিখুন' : 'Enter your full name'}
                     required
                     className="mb-input pl-10"
                   />
@@ -226,7 +285,7 @@ export const RegisterPage: React.FC = () => {
 
               <div>
                 <label className="mb-label">
-                  ইমেইল ঠিকানা <span className="text-brand">*</span>
+                  {isBengali ? 'ইমেইল ঠিকানা' : 'Email Address'} <span className="text-brand">*</span>
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -243,15 +302,17 @@ export const RegisterPage: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <DatePicker
-                  label="জন্ম তারিখ"
+                  label={isBengali ? 'জন্ম তারিখ' : 'Date of Birth'}
                   required
                   value={dateOfBirth}
                   onChange={(val) => setDateOfBirth(val)}
-                  placeholder="জন্ম তারিখ নির্বাচন করুন"
+                  placeholder={isBengali ? 'জন্ম তারিখ নির্বাচন করুন' : 'Select date of birth'}
                 />
 
                 <div>
-                  <label className="mb-label">মোবাইল নম্বর (ঐচ্ছিক)</label>
+                  <label className="mb-label">
+                    {isBengali ? 'মোবাইল নম্বর (ঐচ্ছিক)' : 'Mobile Number (Optional)'}
+                  </label>
                   <div className="relative">
                     <Phone className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
@@ -268,15 +329,15 @@ export const RegisterPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="mb-label">
-                    পাসওয়ার্ড <span className="text-brand">*</span>
+                    {isBengali ? 'পাসওয়ার্ড' : 'Password'} <span className="text-brand">*</span>
                   </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="কমপক্ষে ৮ অক্ষর"
+                      placeholder={isBengali ? 'কমপক্ষে ৮ অক্ষর' : 'At least 8 characters'}
                       required
                       minLength={8}
                       className="mb-input pl-10 pr-10"
@@ -285,7 +346,15 @@ export const RegisterPage: React.FC = () => {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink cursor-pointer"
-                      aria-label={showPassword ? "পাসওয়ার্ড লুকান" : "পাসওয়ার্ড দেখুন"}
+                      aria-label={
+                        showPassword
+                          ? isBengali
+                            ? 'পাসওয়ার্ড লুকান'
+                            : 'Hide password'
+                          : isBengali
+                          ? 'পাসওয়ার্ড দেখুন'
+                          : 'Show password'
+                      }
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -294,15 +363,16 @@ export const RegisterPage: React.FC = () => {
 
                 <div>
                   <label className="mb-label">
-                    নিশ্চিত করুন <span className="text-brand">*</span>
+                    {isBengali ? 'নিশ্চিত করুন' : 'Confirm Password'}{' '}
+                    <span className="text-brand">*</span>
                   </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
-                      type={showConfirmPassword ? "text" : "password"}
+                      type={showConfirmPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="পুনরায় পাসওয়ার্ড"
+                      placeholder={isBengali ? 'পুনরায় পাসওয়ার্ড' : 'Re-enter password'}
                       required
                       minLength={8}
                       className="mb-input pl-10 pr-10"
@@ -311,7 +381,15 @@ export const RegisterPage: React.FC = () => {
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink cursor-pointer"
-                      aria-label={showConfirmPassword ? "পাসওয়ার্ড লুকান" : "পাসওয়ার্ড দেখুন"}
+                      aria-label={
+                        showConfirmPassword
+                          ? isBengali
+                            ? 'পাসওয়ার্ড লুকান'
+                            : 'Hide password'
+                          : isBengali
+                          ? 'পাসওয়ার্ড দেখুন'
+                          : 'Show password'
+                      }
                     >
                       {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -322,14 +400,23 @@ export const RegisterPage: React.FC = () => {
               {/* Password requirement checklist */}
               <div className="p-4 rounded-2xl bg-elev border border-line space-y-2.5 text-xs">
                 <div className="text-[11px] font-bold text-ink-2">
-                  পাসওয়ার্ডের প্রয়োজনীয় শর্তাবলি:
+                  {isBengali ? 'পাসওয়ার্ডের প্রয়োজনীয় শর্তাবলি:' : 'Password Requirements:'}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   {rules.map(({ ok, label }) => (
-                    <div key={label} className={`flex items-center gap-1.5 transition-colors ${ok ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-ink-3'}`}>
-                      <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                        ok ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400' : 'bg-strongline text-ink-3'
-                      }`}>
+                    <div
+                      key={label}
+                      className={`flex items-center gap-1.5 transition-colors ${
+                        ok ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-ink-3'
+                      }`}
+                    >
+                      <span
+                        className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                          ok
+                            ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400'
+                            : 'bg-strongline text-ink-3'
+                        }`}
+                      >
                         ✓
                       </span>
                       <span>{label}</span>
@@ -338,28 +425,37 @@ export const RegisterPage: React.FC = () => {
                 </div>
 
                 {confirmPassword.length > 0 && (
-                  <div className={`pt-2 border-t border-line flex items-center gap-1.5 font-medium ${
-                    passwordsMatch ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand'
-                  }`}>
-                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                      passwordsMatch
-                        ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400'
-                        : 'bg-brand-soft text-brand'
-                    }`}>
+                  <div
+                    className={`pt-2 border-t border-line flex items-center gap-1.5 font-medium ${
+                      passwordsMatch ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand'
+                    }`}
+                  >
+                    <span
+                      className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                        passwordsMatch
+                          ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400'
+                          : 'bg-brand-soft text-brand'
+                      }`}
+                    >
                       {passwordsMatch ? '✓' : '✕'}
                     </span>
                     <span>
                       {passwordsMatch
-                        ? 'উভয় পাসওয়ার্ড মিলেছে'
-                        : 'পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মিলছে না'}
+                        ? isBengali
+                          ? 'উভয় পাসওয়ার্ড মিলেছে'
+                          : 'Both passwords match'
+                        : isBengali
+                        ? 'পাসওয়ার্ড এবং নিশ্চিতকরণ পাসওয়ার্ড মিলছে না'
+                        : 'Passwords do not match'}
                     </span>
                   </div>
                 )}
               </div>
 
               <div className="text-[11px] text-ink-3 pt-1 leading-relaxed">
-                নিবন্ধনের মাধ্যমে আপনি মধুবন্ধনের নিরাপত্তা নীতিমালা এবং শুধুমাত্র ১৮+ প্রাপ্তবয়স্কদের
-                আইনি বাধ্যবাধকতা মেনে নিচ্ছেন।
+                {isBengali
+                  ? 'নিবন্ধনের মাধ্যমে আপনি মধুবন্ধনের নিরাপত্তা নীতিমালা এবং শুধুমাত্র ১৮+ প্রাপ্তবয়স্কদের আইনি বাধ্যবাধকতা মেনে নিচ্ছেন।'
+                  : 'By registering, you agree to MadhuBondhon safety guidelines and legally confirm that you are at least 18 years old.'}
               </div>
 
               <button
@@ -367,14 +463,20 @@ export const RegisterPage: React.FC = () => {
                 disabled={isSubmitting}
                 className="mb-btn-primary w-full mt-2 py-3"
               >
-                {isSubmitting ? 'প্রসেসিং হচ্ছে...' : 'বিনামূল্যে অ্যাকাউন্ট তৈরি করুন'}
+                {isSubmitting
+                  ? isBengali
+                    ? 'প্রসেসিং হচ্ছে...'
+                    : 'Processing...'
+                  : isBengali
+                  ? 'বিনামূল্যে অ্যাকাউন্ট তৈরি করুন'
+                  : 'Create Free Account'}
               </button>
             </form>
 
             <div className="mt-5 pt-4 border-t border-line text-center text-xs text-ink-2">
-              পূর্বেই অ্যাকাউন্ট রয়েছে?{' '}
+              {isBengali ? 'পূর্বেই অ্যাকাউন্ট রয়েছে? ' : 'Already have an account? '}
               <Link to="/login" className="font-bold text-brand hover:text-brand-strong">
-                এখানে লগইন করুন
+                {isBengali ? 'এখানে লগইন করুন' : 'Log in here'}
               </Link>
             </div>
           </div>

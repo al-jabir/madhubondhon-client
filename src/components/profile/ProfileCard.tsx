@@ -4,11 +4,12 @@ import { MapPin, Briefcase, GraduationCap, Heart, CheckCircle2, Bookmark } from 
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Profile, Gender } from '../../types';
-import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../../constants/locations';
+import { getUpazilaDisplayName } from '../../constants/locations';
 import { shortlistApi } from '../../api/shortlist.api';
 import { profilesApi } from '../../api/profiles.api';
 import { calculateCompatibility } from '../../utils/compatibility';
 import { useAuth } from '../../context/useAuth';
+import { useLanguage } from '../../i18n/LanguageContext';
 import GenderAvatar from '../common/GenderAvatar';
 
 interface ProfileCardProps {
@@ -25,11 +26,11 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   isInitiallyShortlisted = false,
 }) => {
   const { isAuthenticated } = useAuth();
+  const { isBengali, formatNumber } = useLanguage();
   const [isShortlisted, setIsShortlisted] = useState(isInitiallyShortlisted);
   const [isBookmarking, setIsBookmarking] = useState(false);
 
-  const upazilaBangla =
-    UPAZILA_DISPLAY_NAMES[profile.upazila as TangailUpazila] || profile.upazila;
+  const upazilaName = getUpazilaDisplayName(profile.upazila, isBengali);
 
   const isMale = profile.gender === Gender.MALE;
   const targetId = profile.biodataId || (typeof profile.user === 'string' ? profile.user : profile.user?._id || profile.user?.id || profile._id);
@@ -49,7 +50,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      toast.info('বায়োডাটা শর্টলিস্ট করতে প্রথমে লগইন করুন।');
+      toast.info(isBengali ? 'বায়োডাটা শর্টলিস্ট করতে প্রথমে লগইন করুন।' : 'Please sign in to shortlist biodata.');
       return;
     }
 
@@ -58,14 +59,14 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
       if (isShortlisted) {
         await shortlistApi.removeFromShortlist(profile._id);
         setIsShortlisted(false);
-        toast.info('শর্টলিস্ট থেকে সরানো হয়েছে।');
+        toast.info(isBengali ? 'শর্টলিস্ট থেকে সরানো হয়েছে।' : 'Removed from shortlist.');
       } else {
         await shortlistApi.addToShortlist(profile._id);
         setIsShortlisted(true);
-        toast.success('পছন্দের তালিকায় যোগ করা হয়েছে!');
+        toast.success(isBengali ? 'পছন্দের তালিকায় যোগ করা হয়েছে!' : 'Added to your shortlist!');
       }
     } catch {
-      toast.error('শর্টলিস্ট আপডেট করা যায়নি।');
+      toast.error(isBengali ? 'শর্টলিস্ট আপডেট করা যায়নি।' : 'Failed to update shortlist.');
     } finally {
       setIsBookmarking(false);
     }
@@ -85,7 +86,15 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           type="button"
           onClick={handleToggleShortlist}
           disabled={isBookmarking}
-          title={isShortlisted ? 'শর্টলিস্ট থেকে সরান' : 'শর্টলিস্টে রাখুন'}
+          title={
+            isShortlisted
+              ? isBengali
+                ? 'শর্টলিস্ট থেকে সরান'
+                : 'Remove from shortlist'
+              : isBengali
+              ? 'শর্টলিস্টে রাখুন'
+              : 'Save to shortlist'
+          }
           className={`pointer-events-auto p-2 rounded-full backdrop-blur-md border shadow-sm transition-all cursor-pointer ${
             isShortlisted
               ? 'bg-brand text-white border-brand hover:bg-brand-strong'
@@ -97,8 +106,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
       </div>
 
       <div>
-        {/* Photo header — the platform never displays members' original photos;
-            every profile gets a gender-based illustrated avatar instead. */}
+        {/* Photo header */}
         <div className="relative bg-linear-to-b from-brand-soft/60 to-card pt-10 pb-6 px-6 flex flex-col items-center text-center border-b border-line">
           <div className="relative w-24 h-24 rounded-full shadow-md border-3 border-card mb-3 group-hover:scale-105 transition-transform">
             <GenderAvatar
@@ -109,18 +117,24 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           </div>
 
           <h3 className="font-bold text-lg text-ink flex items-center gap-1.5 text-center">
-            {profile.displayName || 'সম্মানিত সদস্য'}
+            {profile.displayName || (isBengali ? 'সম্মানিত সদস্য' : 'Honored Member')}
             {profile.isApproved && (
-              <span title="ভেরিফাইড বায়োডাটা">
+              <span title={isBengali ? 'ভেরিফাইড বায়োডাটা' : 'Verified Biodata'}>
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-50 dark:fill-transparent" />
               </span>
             )}
           </h3>
 
           <div className="flex items-center gap-2 mt-1.5 text-xs text-brand-ink font-semibold bg-brand-soft px-2.5 py-0.5 rounded-full border border-brand/15">
-            <span>{isMale ? 'পাত্র' : 'পাত্রী'}</span>
+            <span>{isMale ? (isBengali ? 'পাত্র' : 'Groom') : (isBengali ? 'পাত্রী' : 'Bride')}</span>
             <span className="text-brand/50">•</span>
-            <span>{profile.age ? `${profile.age} বছর` : 'প্রাপ্তবয়স্ক'}</span>
+            <span>
+              {profile.age
+                ? `${formatNumber(profile.age)} ${isBengali ? 'বছর' : 'yrs'}`
+                : isBengali
+                ? 'প্রাপ্তবয়স্ক'
+                : 'Adult'}
+            </span>
           </div>
 
           {compatibility && (
@@ -128,7 +142,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-gold bg-gold-soft border border-gold/25 px-2.5 py-0.5 rounded-full"
               title={compatibility.reasons.join(' • ')}
             >
-              <span>✨ {compatibility.score}% মিল</span>
+              <span>✨ {formatNumber(compatibility.score)}% {isBengali ? 'মিল' : 'Match'}</span>
             </div>
           )}
         </div>
@@ -137,7 +151,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         <div className="p-5 space-y-2.5 text-sm text-ink-2">
           <div className="flex items-center gap-2 text-ink font-medium">
             <MapPin className="w-4 h-4 text-brand shrink-0" />
-            <span>{upazilaBangla}, টাঙ্গাইল</span>
+            <span>{upazilaName}, {isBengali ? 'টাঙ্গাইল' : 'Tangail'}</span>
           </div>
 
           {profile.occupation && (
@@ -168,7 +182,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           to={`${detailsBasePath}/${targetId}`}
           className="flex-1 py-2 px-3 text-center text-xs font-semibold text-brand bg-card hover:bg-brand-soft border border-brand/25 rounded-lg transition-colors"
         >
-          সম্পূর্ণ বায়োডাটা
+          {isBengali ? 'সম্পূর্ণ বায়োডাটা' : 'Full Biodata'}
         </Link>
         {onSendInterest && (
           <button
@@ -177,7 +191,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold text-white bg-linear-to-r from-brand to-pink-500 hover:brightness-110 rounded-lg shadow-sm transition-all cursor-pointer"
           >
             <Heart className="w-3.5 h-3.5 fill-current" />
-            <span>পছন্দ</span>
+            <span>{isBengali ? 'পছন্দ' : 'Interest'}</span>
           </button>
         )}
       </div>

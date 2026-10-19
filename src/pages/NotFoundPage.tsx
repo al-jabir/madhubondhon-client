@@ -2,7 +2,10 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { ArrowLeft, Compass, Heart, HeartCrack, Search, Sparkles } from 'lucide-react';
 
+import { useLanguage } from '../i18n/LanguageContext';
+
 export const NotFoundPage: React.FC = () => {
+  const { isBengali } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const [biodataId, setBiodataId] = React.useState('');
@@ -25,7 +28,7 @@ export const NotFoundPage: React.FC = () => {
       />
 
       <div className="relative max-w-2xl mx-auto px-4 py-20 sm:py-28 flex flex-col items-center text-center">
-        {/* 404 hero — giant gradient ৪০৪ with broken-heart badge */}
+        {/* 404 hero — giant gradient 404 with broken-heart badge */}
         <div className="relative">
           <h1 className="text-[6.5rem] sm:text-[9rem] leading-none font-black tracking-tight bg-linear-to-r from-brand via-pink-500 to-brand bg-clip-text text-transparent select-none" dir="ltr">
             404
@@ -45,10 +48,12 @@ export const NotFoundPage: React.FC = () => {
 
         {/* Copy */}
         <h2 className="mt-4 text-xl sm:text-2xl font-extrabold text-ink">
-          এই পৃষ্ঠাটি কোথাও হারিয়ে গেছে
+          {isBengali ? 'এই পৃষ্ঠাটি কোথাও হারিয়ে গেছে' : 'This Page Could Not Be Found'}
         </h2>
         <p className="mt-2 text-sm sm:text-base text-ink-2 leading-relaxed max-w-md">
-          ভুল ঠিকানা হতে পারে, অথবা পৃষ্ঠাটি সরিয়ে নেওয়া হয়েছে। মন খারাপ করবেন না — আপনার জন্য নিশ্চয়ই কেউ একজন অপেক্ষা করছে মধুবন্ধনে।
+          {isBengali
+            ? 'ভুল ঠিকানা হতে পারে, অথবা পৃষ্ঠাটি সরিয়ে নেওয়া হয়েছে। মন খারাপ করবেন না — আপনার জন্য নিশ্চয়ই কেউ একজন অপেক্ষা করছে মধুবন্ধনে।'
+            : 'The link might be broken or the page was moved. Don’t worry — your ideal match is still waiting on MadhuBondhon.'}
         </p>
 
         {/* Requested path chip */}
@@ -71,7 +76,7 @@ export const NotFoundPage: React.FC = () => {
           className="mt-7 w-full max-w-sm"
         >
           <label htmlFor="nf-biodata-id" className="sr-only">
-            বায়োডাটা নম্বর দিয়ে খুঁজুন
+            {isBengali ? 'বায়োডাটা নম্বর দিয়ে খুঁজুন' : 'Search by biodata code'}
           </label>
           <div className="flex items-center gap-2 rounded-2xl border border-line bg-card p-1.5 shadow-sm focus-within:border-brand/50">
             <div className="pl-2 text-ink-3">
@@ -81,12 +86,12 @@ export const NotFoundPage: React.FC = () => {
               id="nf-biodata-id"
               value={biodataId}
               onChange={(event) => setBiodataId(event.target.value.toUpperCase())}
-              placeholder="বায়োডাটা নম্বর, যেমন MB-M101"
+              placeholder={isBengali ? 'বায়োডাটা নম্বর, যেমন MB-M101' : 'Biodata code, e.g. MB-M101'}
               className="min-w-0 flex-1 bg-transparent text-sm text-ink placeholder:text-ink-3 focus:outline-none"
               dir="auto"
             />
-            <button type="submit" className="mb-btn-primary !px-4 !py-2 !text-xs shrink-0">
-              খুঁজুন
+            <button type="submit" className="mb-btn-primary !px-4 !py-2 !text-xs shrink-0 cursor-pointer">
+              {isBengali ? 'খুঁজুন' : 'Search'}
             </button>
           </div>
         </form>
@@ -95,13 +100,13 @@ export const NotFoundPage: React.FC = () => {
         <div className="mt-8 pt-6 w-full max-w-sm border-t border-line flex flex-wrap items-center justify-center gap-2.5">
           <Link to="/" className="mb-btn-secondary !text-xs">
             <ArrowLeft className="w-4 h-4" />
-            <span>হোমপেজে ফিরে যান</span>
+            <span>{isBengali ? 'হোমপেজে ফিরে যান' : 'Back to Home'}</span>
           </Link>
           <Link to="/search" className="mb-btn-secondary !text-xs">
-            বায়োডাটা অনুসন্ধান
+            {isBengali ? 'বায়োডাটা অনুসন্ধান' : 'Find Biodata'}
           </Link>
           <Link to="/faq" className="mb-btn-secondary !text-xs">
-            সহায়িকা (FAQ)
+            {isBengali ? 'সহায়িকা (FAQ)' : 'FAQ & Support'}
           </Link>
         </div>
       </div>

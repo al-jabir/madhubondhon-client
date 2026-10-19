@@ -26,19 +26,21 @@ import { blocksApi } from '../api/blocks.api';
 import { shortlistApi } from '../api/shortlist.api';
 import { calculateCompatibility } from '../utils/compatibility';
 import { Gender } from '../types';
-import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../constants/locations';
+import { getUpazilaDisplayName, TangailUpazila } from '../constants/locations';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import GenderAvatar from '../components/common/GenderAvatar';
 import SendInterestModal from '../components/profile/SendInterestModal';
 import ReportModal from '../components/profile/ReportModal';
 import ConfirmationModal from '../components/common/ConfirmationModal';
 import { useAuth } from '../context/useAuth';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isAuthenticated, user: currentUser } = useAuth();
+  const { isBengali, formatNumber } = useLanguage();
 
   const [isInterestOpen, setIsInterestOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -80,7 +82,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   const handleToggleShortlist = async () => {
     if (!profile) return;
     if (!isAuthenticated) {
-      toast.info('বায়োডাটা শর্টলিস্ট করতে প্রথমে লগইন করুন।');
+      toast.info(isBengali ? 'বায়োডাটা শর্টলিস্ট করতে প্রথমে লগইন করুন।' : 'Please log in to shortlist this biodata.');
       navigate('/login');
       return;
     }
@@ -89,15 +91,15 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
       setIsShortlistBusy(true);
       if (isShortlisted) {
         await shortlistApi.removeFromShortlist(profile._id);
-        toast.info('বায়োডাটাটি শর্টলিস্ট থেকে সরানো হয়েছে।');
+        toast.info(isBengali ? 'বায়োডাটাটি শর্টলিস্ট থেকে সরানো হয়েছে।' : 'Biodata removed from shortlist.');
       } else {
         await shortlistApi.addToShortlist(profile._id);
-        toast.success('বায়োডাটাটি পছন্দের তালিকায় সংরক্ষিত হয়েছে!');
+        toast.success(isBengali ? 'বায়োডাটাটি পছন্দের তালিকায় সংরক্ষিত হয়েছে!' : 'Biodata saved to shortlist!');
       }
       queryClient.invalidateQueries({ queryKey: ['shortlist-check', profile._id] });
       queryClient.invalidateQueries({ queryKey: ['my-shortlist'] });
     } catch {
-      toast.error('শর্টলিস্ট আপডেট ব্যর্থ হয়েছে।');
+      toast.error(isBengali ? 'শর্টলিস্ট আপডেট ব্যর্থ হয়েছে।' : 'Failed to update shortlist.');
     } finally {
       setIsShortlistBusy(false);
     }
@@ -120,21 +122,30 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   const handleWhatsAppShare = () => {
     if (!profile) return;
     const currentUrl = window.location.href;
-    const bioId = profile.biodataId ? ` (বায়োডাটা কোড: ${profile.biodataId})` : '';
-    const text = `আসসালামু আলাইকুম। মধুবন্ধন টাঙ্গাইল মেট্রিমনিতে একটি উপযুক্ত বায়োডাটা${bioId}:\n\n` +
-      `• পরিচিতি: ${profile.displayName}\n` +
-      `• বয়স: ${profile.age ? `${profile.age} বছর` : 'প্রাপ্তবয়স্ক'}\n` +
-      `• এলাকা: ${upazilaBangla}, টাঙ্গাইল\n` +
-      (profile.occupation ? `• পেশা: ${profile.occupation}\n` : '') +
-      (profile.education ? `• শিক্ষা: ${profile.education.toUpperCase()}\n` : '') +
-      `\nসম্পূর্ণ বায়োডাটা দেখতে লিংকে ক্লিক করুন:\n${currentUrl}`;
+    const upName = getUpazilaDisplayName(profile.upazila, isBengali);
+    const bioId = profile.biodataId ? ` (${isBengali ? 'বায়োডাটা কোড' : 'Biodata Code'}: ${profile.biodataId})` : '';
+    const text = isBengali
+      ? `আসসালামু আলাইকুম। মধুবন্ধন টাঙ্গাইল মেট্রিমনিতে একটি উপযুক্ত বায়োডাটা${bioId}:\n\n` +
+        `• পরিচিতি: ${profile.displayName}\n` +
+        `• বয়স: ${profile.age ? `${formatNumber(profile.age)} বছর` : 'প্রাপ্তবয়স্ক'}\n` +
+        `• এলাকা: ${upName}, টাঙ্গাইল\n` +
+        (profile.occupation ? `• পেশা: ${profile.occupation}\n` : '') +
+        (profile.education ? `• শিক্ষা: ${profile.education.toUpperCase()}\n` : '') +
+        `\nসম্পূর্ণ বায়োডাটা দেখতে লিংকে ক্লিক করুন:\n${currentUrl}`
+      : `Assalamu Alaikum. Check out this matrimonial biodata on MadhuBondhon${bioId}:\n\n` +
+        `• Name: ${profile.displayName}\n` +
+        `• Age: ${profile.age ? `${profile.age} years` : 'Adult'}\n` +
+        `• Location: ${upName}, Tangail\n` +
+        (profile.occupation ? `• Occupation: ${profile.occupation}\n` : '') +
+        (profile.education ? `• Education: ${profile.education.toUpperCase()}\n` : '') +
+        `\nView complete biodata here:\n${currentUrl}`;
 
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    toast.success('বায়োডাটার লিংক কপি করা হয়েছে!');
+    toast.success(isBengali ? 'বায়োডাটার লিংক কপি করা হয়েছে!' : 'Biodata link copied to clipboard!');
   };
 
   const handleBlockUser = () => {
@@ -146,13 +157,13 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
     if (!userId) return;
     try {
       setIsBlocking(true);
-      await blocksApi.blockUser(userId, 'ইউজার দ্বারা ব্লককৃত');
-      toast.success('প্রোফাইলটি সফলভাবে ব্লক করা হয়েছে।');
+      await blocksApi.blockUser(userId, isBengali ? 'ইউজার দ্বারা ব্লককৃত' : 'Blocked by user');
+      toast.success(isBengali ? 'প্রোফাইলটি সফলভাবে ব্লক করা হয়েছে।' : 'Profile has been blocked.');
       navigate('/search');
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        'ব্লক করতে সমস্যা হয়েছে।';
+        (isBengali ? 'ব্লক করতে সমস্যা হয়েছে।' : 'Failed to block user.');
       toast.error(msg);
     } finally {
       setIsBlocking(false);
@@ -166,13 +177,17 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
         <div className="w-16 h-16 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
           <EyeOff className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold text-ink">নমুনা বায়োডাটা প্রদর্শন নিষ্ক্রিয় রয়েছে</h2>
+        <h2 className="text-xl font-bold text-ink">
+          {isBengali ? 'নমুনা বায়োডাটা প্রদর্শন নিষ্ক্রিয় রয়েছে' : 'Demo Profiles are Disabled'}
+        </h2>
         <p className="text-sm text-ink-2">
-          প্ল্যাটফর্ম অ্যাডমিনিস্ট্রেটর কর্তৃক নমুনা বায়োডাটা সাময়িকভাবে লুকানো হয়েছে। বাস্তব বায়োডাটা দেখতে মূল অনুসন্ধানে যান।
+          {isBengali
+            ? 'প্ল্যাটফর্ম অ্যাডমিনিস্ট্রেটর কর্তৃক নমুনা বায়োডাটা সাময়িকভাবে লুকানো হয়েছে। বাস্তব বায়োডাটা দেখতে মূল অনুসন্ধানে যান।'
+            : 'Demo biodatas have been temporarily disabled by the platform administrator. Browse real profiles to continue.'}
         </p>
         <div className="pt-2">
           <Link to="/search" className="mb-btn mb-btn-primary text-xs inline-flex items-center gap-2">
-            <span>বাস্তব বায়োডাটা খুঁজুন</span>
+            <span>{isBengali ? 'বাস্তব বায়োডাটা খুঁজুন' : 'Search Real Profiles'}</span>
           </Link>
         </div>
       </div>
@@ -182,7 +197,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   if (isLoading) {
     return (
       <div className="py-24 flex justify-center">
-        <LoadingSpinner size="lg" label="বায়োডাটা লোড হচ্ছে..." />
+        <LoadingSpinner size="lg" label={isBengali ? "বায়োডাটা লোড হচ্ছে..." : "Loading biodata..."} />
       </div>
     );
   }
@@ -193,14 +208,18 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
         <div className="w-16 h-16 rounded-full bg-brand-soft text-brand flex items-center justify-center mx-auto">
           <AlertTriangle className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold text-ink">বায়োডাটা প্রদর্শনে অনুপলব্ধ</h2>
+        <h2 className="text-xl font-bold text-ink">
+          {isBengali ? 'বায়োডাটা প্রদর্শনে অনুপলব্ধ' : 'Biodata Unavailable'}
+        </h2>
         <p className="text-sm text-ink-2">
-          এই বায়োডাটাটি হয়তো মুছে ফেলা হয়েছে, প্রাইভেট রাখা হয়েছে অথবা আপনাকে দেখতে অনুমতি দেয়া হয়নি।
+          {isBengali
+            ? 'এই বায়োডাটাটি হয়তো মুছে ফেলা হয়েছে, প্রাইভেট রাখা হয়েছে অথবা আপনাকে দেখতে অনুমতি দেয়া হয়নি।'
+            : 'This biodata may have been removed, set to private, or you do not have permission to view it.'}
         </p>
         <div className="pt-2">
           <Link to={demo ? '/demo' : '/search'} className="mb-btn-secondary text-xs inline-flex">
             <ArrowLeft className="w-4 h-4" />
-            <span>অনুসন্ধানে ফিরে যান</span>
+            <span>{isBengali ? 'অনুসন্ধানে ফিরে যান' : 'Back to Search'}</span>
           </Link>
         </div>
       </div>
@@ -208,8 +227,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   }
 
   const isMale = profile.gender === Gender.MALE;
-  const upazilaBangla =
-    UPAZILA_DISPLAY_NAMES[profile.upazila as TangailUpazila] || profile.upazila;
+  const upazilaBangla = getUpazilaDisplayName(profile.upazila, isBengali);
 
   const targetUserId =
     typeof profile.user === 'string' ? profile.user : profile.user?._id || profile.user?.id || profile._id;
@@ -226,9 +244,12 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 print:p-0 print:m-0 print:max-w-full">
       {demo && (
         <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold print:hidden">
-          <strong>নমুনা বায়োডাটা</strong> — এই প্রোফাইলটি কাল্পনিক, শুধু উদাহরণ দেখানোর জন্য।{' '}
+          <strong>{isBengali ? 'নমুনা বায়োডাটা' : 'Demo Profile'}</strong> —{' '}
+          {isBengali
+            ? 'এই প্রোফাইলটি কাল্পনিক, শুধু উদাহরণ দেখানোর জন্য।'
+            : 'This profile is fictional and for demonstration purposes only.'}{' '}
           <Link to="/demo" className="font-bold underline">
-            সব নমুনা দেখুন
+            {isBengali ? 'সব নমুনা দেখুন' : 'View all demo profiles'}
           </Link>
         </div>
       )}
@@ -236,10 +257,14 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
       {/* Print-only header */}
       <div className="hidden print:block border-b-2 border-brand pb-4 mb-6 text-center">
         <h1 className="text-2xl font-black text-brand">মধুবন্ধন — Tangail Matrimony</h1>
-        <p className="text-xs text-gray-600">টাঙ্গাইল জেলার পাত্র-পাত্রীর সম্পূর্ণ পারিবারিক বায়োডাটা</p>
+        <p className="text-xs text-gray-600">
+          {isBengali
+            ? 'টাঙ্গাইল জেলার পাত্র-পাত্রীর সম্পূর্ণ পারিবারিক বায়োডাটা'
+            : 'Comprehensive Matrimonial Biodata from Tangail'}
+        </p>
         {profile.biodataId && (
           <span className="inline-block mt-1 font-mono font-bold text-sm bg-gray-100 px-3 py-0.5 rounded-full border">
-            বায়োডাটা নং: {profile.biodataId}
+            {isBengali ? `বায়োডাটা নং: ${profile.biodataId}` : `Biodata ID: ${profile.biodataId}`}
           </span>
         )}
       </div>
@@ -252,7 +277,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-3 hover:text-brand transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>পূর্ববর্তী পৃষ্ঠায় ফিরুন</span>
+          <span>{isBengali ? 'পূর্ববর্তী পৃষ্ঠায় ফিরুন' : 'Back to Previous Page'}</span>
         </button>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -260,15 +285,20 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
             type="button"
             onClick={handleWhatsAppShare}
             className="mb-btn-secondary !text-xs !border-emerald-300 dark:!border-emerald-800 hover:!text-emerald-700 gap-1.5 bg-elev"
-            title="পারিবারিক আলোচনার জন্য হোয়াটসঅ্যাপে শেয়ার করুন"
+            title={isBengali ? 'পারিবারিক আলোচনার জন্য হোয়াটসঅ্যাপে শেয়ার করুন' : 'Share on WhatsApp for family discussion'}
           >
             <MessageCircle className="w-3.5 h-3.5 text-emerald-600 fill-emerald-100 dark:fill-transparent" />
-            <span>হোয়াটসঅ্যাপে শেয়ার</span>
+            <span>{isBengali ? 'হোয়াটসঅ্যাপে শেয়ার' : 'Share on WhatsApp'}</span>
           </button>
 
-          <button type="button" onClick={handleCopyLink} className="mb-btn-secondary !px-3 gap-1.5 !text-xs" title="বায়োডাটার লিংক কপি করুন">
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className="mb-btn-secondary !px-3 gap-1.5 !text-xs"
+            title={isBengali ? 'বায়োডাটার লিংক কপি করুন' : 'Copy biodata link'}
+          >
             <Copy className="w-3.5 h-3.5 text-ink-3" />
-            <span>লিংক কপি</span>
+            <span>{isBengali ? 'লিংক কপি' : 'Copy Link'}</span>
           </button>
 
           {!isOwnProfile && !demo && (
@@ -279,13 +309,26 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
               className={`mb-btn-secondary !px-3 gap-1.5 !text-xs ${isShortlisted ? '!text-brand !border-brand/50 !bg-brand-soft' : ''}`}
             >
               <Bookmark className={`w-3.5 h-3.5 ${isShortlisted ? 'fill-brand text-brand' : 'text-ink-3'}`} />
-              <span>{isShortlisted ? 'শর্টলিস্ট করা আছে' : 'শর্টলিস্টে রাখুন'}</span>
+              <span>
+                {isShortlisted
+                  ? isBengali
+                    ? 'শর্টলিস্ট করা আছে'
+                    : 'Shortlisted'
+                  : isBengali
+                  ? 'শর্টলিস্টে রাখুন'
+                  : 'Shortlist'}
+              </span>
             </button>
           )}
 
-          <button type="button" onClick={handlePrintBiodata} className="mb-btn-secondary !px-3 gap-1.5 !text-xs" title="বায়োডাটা প্রিন্ট বা PDF হিসেবে সংরক্ষণ করুন">
+          <button
+            type="button"
+            onClick={handlePrintBiodata}
+            className="mb-btn-secondary !px-3 gap-1.5 !text-xs"
+            title={isBengali ? 'বায়োডাটা প্রিন্ট বা PDF হিসেবে সংরক্ষণ করুন' : 'Print or save biodata as PDF'}
+          >
             <Printer className="w-3.5 h-3.5 text-brand" />
-            <span>প্রিন্ট / PDF</span>
+            <span>{isBengali ? 'প্রিন্ট / PDF' : 'Print / PDF'}</span>
           </button>
         </div>
       </div>
@@ -319,7 +362,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
             {profile.isApproved && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                ভেরিফাইড বায়োডাটা
+                {isBengali ? 'ভেরিফাইড বায়োডাটা' : 'Verified Biodata'}
               </span>
             )}
             {compatibility && (
@@ -328,7 +371,11 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
                 title={compatibility.reasons.join(' • ')}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{compatibility.score}% মিল ({compatibility.label})</span>
+                <span>
+                  {isBengali
+                    ? `${formatNumber(compatibility.score)}% মিল (${compatibility.label})`
+                    : `${compatibility.score}% Match (${compatibility.label})`}
+                </span>
               </span>
             )}
           </div>
@@ -336,12 +383,13 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 text-xs sm:text-sm text-ink-2 font-medium">
             <span className="flex items-center gap-1 text-brand font-bold">
               <Sparkles className="w-4 h-4" />
-              {isMale ? 'পাত্র (বর)' : 'পাত্রী (কনে)'} • {profile.age ? `${profile.age} বছর` : ''}
+              {isMale ? (isBengali ? 'পাত্র (বর)' : 'Groom') : isBengali ? 'পাত্রী (কনে)' : 'Bride'} •{' '}
+              {profile.age ? (isBengali ? `${formatNumber(profile.age)} বছর` : `${profile.age} yrs`) : ''}
             </span>
             <span className="text-ink-3">•</span>
             <span className="flex items-center gap-1">
               <MapPin className="w-4 h-4 text-brand/70" />
-              {upazilaBangla}, টাঙ্গাইল
+              {upazilaBangla}, {isBengali ? 'টাঙ্গাইল' : 'Tangail'}
             </span>
           </div>
 
@@ -364,7 +412,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
               className="mb-btn-primary flex-1 md:flex-initial py-3 px-6"
             >
               <Heart className="w-4 h-4 fill-current" />
-              <span>আগ্রহ পাঠান</span>
+              <span>{isBengali ? 'আগ্রহ পাঠান' : 'Send Interest'}</span>
             </button>
 
             {isAuthenticated && (
@@ -377,7 +425,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
                   setContactBusy(true);
                   try {
                     await workflowApi.requestContact(userId);
-                    toast.success('যোগাযোগের অনুরোধ পাঠানো হয়েছে');
+                    toast.success(isBengali ? 'যোগাযোগের অনুরোধ পাঠানো হয়েছে' : 'Contact request sent');
                     navigate('/contacts');
                   } catch (error) {
                     toast.error(errorMessage(error));
@@ -386,7 +434,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
                   }
                 }}
               >
-                অভিভাবকের যোগাযোগের অনুমতি চান
+                {isBengali ? 'অভিভাবকের যোগাযোগের অনুমতি চান' : "Request Guardian's Contact"}
               </button>
             )}
 
@@ -396,20 +444,20 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
                   type="button"
                   onClick={() => setIsReportOpen(true)}
                   className="p-2 text-xs font-medium text-gold hover:bg-gold-soft rounded-lg transition-colors cursor-pointer flex items-center gap-1"
-                  title="রিপোর্ট করুন"
+                  title={isBengali ? 'রিপোর্ট করুন' : 'Report'}
                 >
                   <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>রিপোর্ট</span>
+                  <span>{isBengali ? 'রিপোর্ট' : 'Report'}</span>
                 </button>
                 <button
                   type="button"
                   disabled={isBlocking}
                   onClick={handleBlockUser}
                   className="p-2 text-xs font-medium text-ink-3 hover:text-brand hover:bg-brand-soft rounded-lg transition-colors cursor-pointer flex items-center gap-1"
-                  title="ব্লক করুন"
+                  title={isBengali ? 'ব্লক করুন' : 'Block'}
                 >
                   <Ban className="w-3.5 h-3.5" />
-                  <span>ব্লক</span>
+                  <span>{isBengali ? 'ব্লক' : 'Block'}</span>
                 </button>
               </div>
             )}
@@ -423,10 +471,12 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
       <div className="p-4 bg-gold-soft border border-gold/25 rounded-2xl flex items-start gap-3 text-xs text-gold leading-relaxed print:mt-6">
         <Shield className="w-5 h-5 shrink-0 mt-0.5" />
         <div>
-          <strong className="block font-bold">সতর্কতামূলক পরামর্শ:</strong>
-          মধুবন্ধনে কোনো পাত্র বা পাত্রীর অভিভাবকের সম্মতি ছাড়া ব্যক্তিগত নম্বর প্রকাশ করা হয় না। উভয় পক্ষ
-          সম্মতি জানালে তবেই পারিবারিক বৈঠকে অংশগ্রহণ করুন। যে কোনো সন্দেহজনক কার্যকলাপে "রিপোর্ট" বাটন
-          ব্যবহার করুন।
+          <strong className="block font-bold">
+            {isBengali ? 'সতর্কতামূলক পরামর্শ:' : 'Safety Advisory:'}
+          </strong>
+          {isBengali
+            ? 'মধুবন্ধনে কোনো পাত্র বা পাত্রীর অভিভাবকের সম্মতি ছাড়া ব্যক্তিগত নম্বর প্রকাশ করা হয় না। উভয় পক্ষ সম্মতি জানালে তবেই পারিবারিক বৈঠকে অংশগ্রহণ করুন। যে কোনো সন্দেহজনক কার্যকলাপে "রিপোর্ট" বাটন ব্যবহার করুন।'
+            : 'Direct contact numbers are never disclosed on MadhuBondhon without guardian consent. Proceed to family meetings only after mutual consent. Please use the "Report" button if you notice anything suspicious.'}
         </div>
       </div>
 
@@ -446,9 +496,13 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
         isOpen={isBlockConfirmOpen}
         onClose={() => setIsBlockConfirmOpen(false)}
         onConfirm={confirmBlockUser}
-        title="প্রোফাইল ব্লক নিশ্চিতকরণ"
-        message={`আপনি কি সত্যিই ${profile?.displayName || 'এই ব্যবহারকারী'} এর প্রোফাইলটি ব্লক করতে চান? ব্লক করলে তার কোনো তথ্য দেখতে পাবেন না এবং তিনিও আপনার সাথে যোগাযোগ করতে পারবেন না।`}
-        confirmText="ব্লক করুন"
+        title={isBengali ? 'প্রোফাইল ব্লক নিশ্চিতকরণ' : 'Confirm Block Profile'}
+        message={
+          isBengali
+            ? `আপনি কি সত্যিই ${profile?.displayName || 'এই ব্যবহারকারী'} এর প্রোফাইলটি ব্লক করতে চান? ব্লক করলে তার কোনো তথ্য দেখতে পাবেন না এবং তিনিও আপনার সাথে যোগাযোগ করতে পারবেন না।`
+            : `Are you sure you want to block ${profile?.displayName || 'this user'}? You will not see their biodata anymore, and they will not be able to contact you.`
+        }
+        confirmText={isBengali ? 'ব্লক করুন' : 'Block'}
         variant="danger"
         isLoading={isBlocking}
       />
