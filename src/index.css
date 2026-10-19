@@ -17,12 +17,12 @@
   --mb-line-strong: #e7d0d9;   /* emphasized borders */
   --mb-ink: #2b161f;           /* primary text */
   --mb-ink-2: #5f4954;         /* secondary text */
-  --mb-ink-3: #9a868f;         /* muted text */
+  --mb-ink-3: #836d78;         /* muted text — WCAG AA (≥4.5:1) on white cards */
   --mb-brand: #e11d48;         /* brand rose */
   --mb-brand-strong: #be1039;  /* hover state */
   --mb-brand-soft: #fcedf1;    /* soft brand tint background */
   --mb-brand-ink: #a30f3e;     /* text on soft brand tint */
-  --mb-gold: #a8762b;          /* biodata-code gold accent */
+  --mb-gold: #8a621f;          /* biodata-code gold accent — WCAG AA on gold-soft */
   --mb-gold-soft: #faf3e4;
   --mb-shadow-card: 0 1px 2px rgb(84 39 55 / 0.05), 0 6px 24px -14px rgb(84 39 55 / 0.14);
   --mb-shadow-pop: 0 16px 40px -16px rgb(84 39 55 / 0.22);
@@ -55,7 +55,11 @@
 /* Expose the tokens as Tailwind color utilities:
    bg-base / bg-card / bg-elev / border-line / text-ink(2|3) / text-brand / bg-brand / bg-brand-soft / text-gold … */
 @theme inline {
-  --color-base: var(--mb-base);
+  /* NOTE: `base` COLOR token is intentionally NOT defined here.
+     A Tailwind color named `base` collides with the built-in font-size
+     utility `text-base`, turning every `sm:text-base` into a color utility
+     (page background color!) and painting dark-mode text nearly black.
+     Use the explicit utility below instead. */
   --color-card: var(--mb-card);
   --color-elev: var(--mb-elev);
   --color-line: var(--mb-line);
@@ -158,6 +162,12 @@
   }
 
   .mb-section-title { font-weight: 800; letter-spacing: -0.01em; color: var(--mb-ink); }
+}
+
+/* `bg-base` utility — declared manually because the `base` COLOR token must NOT
+   exist in @theme (it would hijack the built-in `text-base` font-size utility). */
+@layer utilities {
+  .bg-base { background-color: var(--mb-base); }
 }
 
 /* ═══════════════════ ThemeToggle (unchanged contracts) ═══════════════════ */

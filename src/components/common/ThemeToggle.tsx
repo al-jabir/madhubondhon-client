@@ -13,11 +13,8 @@ function readSavedTheme(): 'light' | 'dark' | null {
 
 function applyTheme(theme: Resolved) {
   document.documentElement.dataset.theme = theme;
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
+  // Legacy `.dark` class must never linger — it overrides data-theme in CSS.
+  document.documentElement.classList.remove('dark');
   document.documentElement.style.colorScheme = theme;
 }
 

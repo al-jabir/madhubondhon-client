@@ -175,7 +175,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                 {activeFilterCount} টি সক্রিয়
               </span>
             ) : (
-              <span className="text-xs text-ink-3 font-normal">(উপজেলা, বয়স, পেশা...)</span>
+              <span className="text-xs text-ink-2 font-normal">(উপজেলা, বয়স, পেশা...)</span>
             )}
           </div>
           <ChevronDown

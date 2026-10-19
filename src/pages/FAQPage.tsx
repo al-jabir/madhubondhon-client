@@ -153,7 +153,7 @@ export const FAQPage: React.FC = () => {
         <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
           সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)
         </h1>
-        <p className="text-sm text-gray-600 dark:text-gray-300">
+        <p className="text-sm text-ink-2">
           মধুবন্ধন টাঙ্গাইল মেট্রিমনি প্ল্যাটফর্মের ব্যবহারবিধি, শরিয়াহ নীতিমালা ও সেবা সংক্রান্ত যাবতীয় উত্তর
         </p>
 
@@ -232,7 +232,7 @@ export const FAQPage: React.FC = () => {
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer inline-flex items-center gap-1.5 ${
                 isActive
                   ? 'bg-rose-600 text-white shadow-xs shadow-rose-600/30 font-bold'
-                  : 'bg-card text-gray-700 dark:text-gray-300 border border-line hover:border-brand/40 hover:text-brand hover:bg-brand-soft/30'
+                  : 'bg-card text-ink-2 border border-line hover:border-brand/40 hover:text-brand hover:bg-brand-soft/30'
               }`}
             >
               <span>{category}</span>
@@ -309,21 +309,21 @@ export const FAQPage: React.FC = () => {
                   type="button"
                   onClick={() => toggleOpen(faq.id)}
                   className={`w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 cursor-pointer transition-colors ${
-                    isOpen ? 'bg-rose-500/10 dark:bg-rose-950/30' : 'hover:bg-rose-500/5 dark:hover:bg-gray-800/40'
+                    isOpen ? 'bg-rose-500/10 dark:bg-rose-950/30' : 'hover:bg-rose-500/5 dark:hover:bg-elev/60'
                   }`}
                   aria-expanded={isOpen}
                 >
                   <div className="space-y-1.5 pr-2">
-                    <span className="bg-rose-100 text-rose-800 border border-rose-300/80 dark:bg-rose-950/70 dark:text-rose-200 dark:border-rose-800/70 rounded-full px-2.5 py-0.5 text-[11px] font-bold inline-flex items-center">
+                    <span className="bg-rose-100 text-rose-800 border border-rose-300/80 dark:bg-rose-950/70 rounded-full px-2.5 py-0.5 text-[11px] font-bold inline-flex items-center">
                       {faq.category}
                     </span>
-                    <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white leading-snug">
+                    <h3 className="text-sm sm:text-base font-bold text-ink leading-snug">
                       {faq.question}
                     </h3>
                   </div>
 
                   <div
-                    className={`w-7 h-7 rounded-full bg-elev flex items-center justify-center text-gray-500 dark:text-gray-300 shrink-0 transition-transform duration-200 ${
+                    className={`w-7 h-7 rounded-full bg-elev flex items-center justify-center text-ink-3 shrink-0 transition-transform duration-200 ${
                       isOpen ? 'rotate-180 bg-rose-500/20 text-rose-600 dark:text-rose-400' : ''
                     }`}
                   >
@@ -332,7 +332,7 @@ export const FAQPage: React.FC = () => {
                 </button>
 
                 {isOpen && (
-                  <div className="px-4 sm:px-5 pb-5 pt-3 text-xs sm:text-sm text-gray-700 dark:text-gray-200 leading-relaxed border-t border-line bg-elev/50 dark:bg-[#161b24]/60">
+                  <div className="px-4 sm:px-5 pb-5 pt-3 text-xs sm:text-sm text-ink-2 leading-relaxed border-t border-line bg-elev/50">
                     <p className="whitespace-pre-line leading-relaxed">{faq.answer}</p>
                   </div>
                 )}

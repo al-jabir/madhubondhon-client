@@ -9,10 +9,8 @@
   } catch { /* Cookie storage may be blocked. System preference still works. */ }
   const dark = saved === 'dark' || (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-  if (dark) {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
+  /* data-theme is the single source of truth — the `.dark` class would fight
+     the CSS selectors (which treat [.dark] as dark regardless of data-theme). */
+  document.documentElement.classList.remove('dark');
   document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
 })();
