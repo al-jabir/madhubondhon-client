@@ -190,7 +190,7 @@ export const RegisterPage: React.FC = () => {
                     }`}
                   >
                     <span className="text-xl">🤵‍♂️</span>
-                    <span>আমি পাত্র (বর)</span>
+                    <span>আমি পাত্র</span>
                   </button>
                   <button
                     type="button"
@@ -202,7 +202,7 @@ export const RegisterPage: React.FC = () => {
                     }`}
                   >
                     <span className="text-xl">🧕</span>
-                    <span>আমি পাত্রী (কনে)</span>
+                    <span>আমি পাত্রী</span>
                   </button>
                 </div>
               </div>
@@ -243,7 +243,7 @@ export const RegisterPage: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <DatePicker
-                  label="জন্ম তারিখ (১৮+)"
+                  label="জন্ম তারিখ"
                   required
                   value={dateOfBirth}
                   onChange={(val) => setDateOfBirth(val)}
