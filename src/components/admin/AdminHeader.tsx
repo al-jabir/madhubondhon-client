@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
 import { UserRole } from '../../types';
+import ThemeToggle from '../common/ThemeToggle';
 
 interface AdminHeaderProps {
   onToggleSidebar?: () => void;
@@ -76,10 +77,10 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
           <div className="text-[10px] text-ink-3 font-mono leading-tight">{user?.email}</div>
         </div>
 
+        <ThemeToggle />
+
         <Link
           to="/"
-          target="_blank"
-          rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-line bg-elev hover:bg-brand-soft hover:text-brand-ink text-ink-2 transition-all cursor-pointer shadow-2xs"
           title="মূল ওয়েবসাইট দেখুন"
         >
