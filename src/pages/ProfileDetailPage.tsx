@@ -15,10 +15,12 @@ import {
   Bookmark,
   MessageCircle,
   Copy,
+  EyeOff,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getDemoProfile } from '../data/demoProfiles';
 import { profilesApi } from '../api/profiles.api';
+import { adminApi } from '../api/admin.api';
 import { workflowApi, errorMessage } from '../api/workflow.api';
 import { blocksApi } from '../api/blocks.api';
 import { shortlistApi } from '../api/shortlist.api';
@@ -45,10 +47,23 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   const [contactBusy, setContactBusy] = useState(false);
   const [isShortlistBusy, setIsShortlistBusy] = useState(false);
 
+  // Public platform settings check for demo profiles
+  const { data: publicSettingsData } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: () => adminApi.getPublicSettings(),
+    staleTime: 1000 * 10,
+    refetchOnWindowFocus: true,
+    enabled: demo,
+  });
+  const isDemoEnabled =
+    publicSettingsData?.data?.settings?.showDemoProfiles !== undefined
+      ? publicSettingsData.data.settings.showDemoProfiles !== false
+      : localStorage.getItem('mb_show_demo_profiles') !== 'false';
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ['public-profile', demo, userId, currentUser?.id || currentUser?._id || 'guest'],
     queryFn: () => demo ? getDemoProfile(userId || '') : profilesApi.getPublicProfile(userId || ''),
-    enabled: !!userId,
+    enabled: !!userId && (!demo || isDemoEnabled),
   });
 
   const profile = data?.data?.profile;
@@ -144,6 +159,25 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
       setIsBlockConfirmOpen(false);
     }
   };
+
+  if (demo && !isDemoEnabled) {
+    return (
+      <div className="max-w-2xl mx-auto my-16 p-8 mb-card text-center space-y-4">
+        <div className="w-16 h-16 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
+          <EyeOff className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-bold text-ink">নমুনা বায়োডাটা প্রদর্শন নিষ্ক্রিয় রয়েছে</h2>
+        <p className="text-sm text-ink-2">
+          প্ল্যাটফর্ম অ্যাডমিনিস্ট্রেটর কর্তৃক নমুনা বায়োডাটা সাময়িকভাবে লুকানো হয়েছে। বাস্তব বায়োডাটা দেখতে মূল অনুসন্ধানে যান।
+        </p>
+        <div className="pt-2">
+          <Link to="/search" className="mb-btn mb-btn-primary text-xs inline-flex items-center gap-2">
+            <span>বাস্তব বায়োডাটা খুঁজুন</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

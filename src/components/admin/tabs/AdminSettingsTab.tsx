@@ -72,9 +72,11 @@ export const AdminSettingsTab: React.FC = () => {
         contactCreditCost,
       }),
     onSuccess: () => {
+      localStorage.setItem('mb_show_demo_profiles', String(showDemoProfiles));
       toast.success(isBengali ? 'প্ল্যাটফর্ম সেটিংস সফলভাবে সংরক্ষিত হয়েছে।' : 'Platform settings saved successfully.');
       queryClient.invalidateQueries({ queryKey: ['admin-platform-settings'] });
       queryClient.invalidateQueries({ queryKey: ['public-settings'] });
+      queryClient.refetchQueries({ queryKey: ['public-settings'] });
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || (isBengali ? 'সেটিংস সংরক্ষণ ব্যর্থ হয়েছে।' : 'Failed to save settings.'));

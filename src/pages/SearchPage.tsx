@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router';
+import { useSearchParams, useNavigate, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Filter, RotateCcw, AlertCircle, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { Search, Filter, RotateCcw, AlertCircle, ChevronLeft, ChevronRight, ChevronDown, EyeOff, Home } from 'lucide-react';
 import { TANGAIL_UPAZILAS, UPAZILA_DISPLAY_NAMES } from '../constants/locations';
 import { searchDemoProfiles } from '../data/demoProfiles';
 import { profilesApi } from '../api/profiles.api';
@@ -61,6 +61,18 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   // Selected profile for sending interest modal
   const [selectedProfileForInterest, setSelectedProfileForInterest] = useState<Profile | null>(null);
 
+  // Public platform settings check
+  const { data: publicSettingsData } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: () => adminApi.getPublicSettings(),
+    staleTime: 1000 * 10,
+    refetchOnWindowFocus: true,
+  });
+  const isDemoEnabled =
+    publicSettingsData?.data?.settings?.showDemoProfiles !== undefined
+      ? publicSettingsData.data.settings.showDemoProfiles !== false
+      : localStorage.getItem('mb_show_demo_profiles') !== 'false';
+
   // Query API
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['search-profiles', demo, user?.id || user?._id || 'guest', biodataId, query, gender, upazila, minAge, maxAge, minHeight, maxHeight, verifiedOnly, maritalStatus, education, occupation, page],
@@ -81,6 +93,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
         page,
         limit: 9,
       }),
+    enabled: !demo || isDemoEnabled,
   });
 
   const handleApplyFilter = (e?: React.FormEvent) => {
@@ -123,34 +136,55 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
     setMobileFiltersOpen(false);
   };
 
-  // Public platform settings check
-  const { data: publicSettingsData } = useQuery({
-    queryKey: ['public-settings'],
-    queryFn: () => adminApi.getPublicSettings(),
-    staleTime: 1000 * 60 * 5,
-  });
-  const isDemoEnabled = publicSettingsData?.data?.settings?.showDemoProfiles !== false;
-
   const profiles = data?.data?.profiles || [];
   const meta = data?.meta || { total: profiles.length, totalPages: 1, page: 1, limit: 9 };
 
+  if (demo && !isDemoEnabled) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-16 sm:py-24 text-center">
+        <div className="mb-card p-8 sm:p-12 space-y-6 border border-amber-500/20 bg-linear-to-b from-card to-amber-500/5 shadow-xl">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-3xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-inner">
+            <EyeOff className="w-8 h-8 sm:w-10 sm:h-10" />
+          </div>
+
+          <div className="space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+              নমুনা বায়োডাটা সাময়িক বন্ধ
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-ink">
+              নমুনা বায়োডাটা প্রদর্শন নিষ্ক্রিয় রয়েছে
+            </h2>
+            <p className="text-xs sm:text-sm text-ink-3 max-w-md mx-auto leading-relaxed">
+              ওয়েবসাইট অ্যাডমিনিস্ট্রেটর কর্তৃক কাল্পনিক নমুনা বায়োডাটা প্রদর্শন সাময়িকভাবে বন্ধ রাখা হয়েছে। আপনি বাস্তব ও ভেরিফায়েড বায়োডাটা অন্বেষণ করতে পারেন।
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => navigate('/search')}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm bg-brand text-white hover:bg-brand/90 shadow-md shadow-brand/20 transition-all cursor-pointer"
+            >
+              <Search className="w-4 h-4" />
+              <span>আসল বায়োডাটা খুঁজুন</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm bg-card hover:bg-card-hover border border-line text-ink transition-all cursor-pointer"
+            >
+              <Home className="w-4 h-4" />
+              <span>হোমপেজে ফিরে যান</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 sm:space-y-8">
-      {demo && !isDemoEnabled && (
-        <div className="rounded-2xl bg-amber-500/15 border border-amber-500/30 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm text-amber-800 dark:text-amber-300">
-          <div>
-            <strong>নমুনা বায়োডাটা প্রদর্শন বর্তমানে নিষ্ক্রিয়:</strong> প্ল্যাটফর্ম অ্যাডমিনিস্ট্রেটর কর্তৃক নমুনা বায়োডাটা সাময়িকভাবে লুকানো হয়েছে। বাস্তব সদস্যদের বায়োডাটা অনুসন্ধান করতে নিচের বাটনে ক্লিক করুন।
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate('/search')}
-            className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-600 text-white hover:bg-amber-700 transition-colors shrink-0 cursor-pointer"
-          >
-            মূল অনুসন্ধানে যান
-          </button>
-        </div>
-      )}
-      {demo && isDemoEnabled && (
+      {demo && (
         <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold">
           <strong>নমুনা বায়োডাটা</strong> — নিচের ১২টি প্রোফাইল কাল্পনিক। ফিল্টার ও বিস্তারিত পেজ ঘুরে দেখতে পারেন।
         </div>

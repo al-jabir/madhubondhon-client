@@ -83,9 +83,13 @@ export const Navbar: React.FC = () => {
   const { data: publicSettingsData } = useQuery({
     queryKey: ['public-settings'],
     queryFn: () => adminApi.getPublicSettings(),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 10,
+    refetchOnWindowFocus: true,
   });
-  const showDemo = publicSettingsData?.data?.settings?.showDemoProfiles !== false;
+  const showDemo =
+    publicSettingsData?.data?.settings?.showDemoProfiles !== undefined
+      ? publicSettingsData.data.settings.showDemoProfiles !== false
+      : localStorage.getItem('mb_show_demo_profiles') !== 'false';
 
   const menuLinks = [
     { to: "/", icon: Home, label: t('nav.home') },

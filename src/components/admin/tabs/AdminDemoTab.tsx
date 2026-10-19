@@ -37,11 +37,19 @@ export const AdminDemoTab: React.FC = () => {
   const settings = settingsData?.data?.settings;
   const isDemoVisible = settings?.showDemoProfiles !== false; // default true
 
+  // Keep localStorage in sync with server setting
+  React.useEffect(() => {
+    if (settings?.showDemoProfiles !== undefined) {
+      localStorage.setItem('mb_show_demo_profiles', String(settings.showDemoProfiles !== false));
+    }
+  }, [settings?.showDemoProfiles]);
+
   // Mutation to toggle demo profiles
   const toggleMutation = useMutation({
     mutationFn: (newStatus: boolean) =>
       adminApi.updateSettings({ showDemoProfiles: newStatus }),
     onSuccess: (_, newStatus) => {
+      localStorage.setItem('mb_show_demo_profiles', String(newStatus));
       toast.success(
         newStatus
           ? isBengali
@@ -53,6 +61,7 @@ export const AdminDemoTab: React.FC = () => {
       );
       queryClient.invalidateQueries({ queryKey: ['admin-platform-settings'] });
       queryClient.invalidateQueries({ queryKey: ['public-settings'] });
+      queryClient.refetchQueries({ queryKey: ['public-settings'] });
     },
     onError: (err: any) => {
       toast.error(
