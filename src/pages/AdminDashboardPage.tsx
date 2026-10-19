@@ -1,6 +1,7 @@
 import MarriageStatisticsSettings from '../components/profile/MarriageStatisticsSettings';
 import ReviewQueue from "../components/profile/ReviewQueue";
 import AdminPaymentsQueue from "../components/admin/AdminPaymentsQueue";
+import AdminAnalytics from "../components/admin/AdminAnalytics";
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -26,7 +27,7 @@ export const AdminDashboardPage: React.FC = () => {
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<
-    "users" | "reports" | "audit" | "profiles" | "payments"
+    "analytics" | "users" | "reports" | "audit" | "profiles" | "payments"
   >(currentUser?.role === UserRole.MODERATOR ? "profiles" : "users");
   const [userSearch, setUserSearch] = useState("");
   const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>("");
@@ -231,6 +232,18 @@ export const AdminDashboardPage: React.FC = () => {
         </button>
         <button
           type="button"
+          onClick={() => setActiveTab("analytics")}
+          className={`flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer whitespace-nowrap ${
+            activeTab === "analytics"
+              ? "bg-card text-brand shadow-sm scale-100"
+              : "text-ink-2 hover:text-ink"
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          <span>বিশ্লেষণ</span>
+        </button>
+        <button
+          type="button"
           disabled={!isSuperAdminOrAdmin}
           onClick={() => setActiveTab("users")}
           className={`flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer disabled:opacity-40 whitespace-nowrap ${
@@ -288,6 +301,7 @@ export const AdminDashboardPage: React.FC = () => {
       </div>
 
       {activeTab === "profiles" && <ReviewQueue />}
+      {activeTab === "analytics" && <AdminAnalytics />}
       {activeTab === "payments" && <AdminPaymentsQueue />}
 
       {/* Tab 1: User Management */}

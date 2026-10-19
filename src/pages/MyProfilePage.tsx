@@ -13,6 +13,9 @@ import {
   Trash2,
   PauseCircle,
   MapPin,
+  Sparkles,
+  Plus,
+  ArrowRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { profilesApi } from '../api/profiles.api';
@@ -20,6 +23,7 @@ import { authApi } from '../api/auth.api';
 import { useAuth } from '../context/useAuth';
 import { UPAZILA_DISPLAY_NAMES, TangailUpazila } from '../constants/locations';
 import PhotoManager from '../components/profile/PhotoManager';
+import ProfileCard from '../components/profile/ProfileCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 export const MyProfilePage: React.FC = () => <><BiodataDashboard /><PublishedProfileContent /></>;
@@ -40,6 +44,25 @@ const PublishedProfileContent: React.FC = () => {
   });
 
   const profile = data?.data?.profile;
+
+  const { data: completionData } = useQuery({
+    queryKey: ['my-profile', 'completion'],
+    queryFn: () => profilesApi.getCompletion(),
+    enabled: !!profile,
+  });
+
+  const completion = completionData?.data?.completion;
+
+  const { data: recommendationsData, isLoading: isRecommendationsLoading } = useQuery({
+    queryKey: ['profile-recommendations'],
+    queryFn: () => profilesApi.getRecommendations(),
+    enabled: !!profile,
+  });
+
+  const recommendations = recommendationsData?.data?.profiles;
+
+  const completionPercent = completion?.percent ?? profile?.completionPercentage ?? 0;
+  const isProfileComplete = completionPercent >= 100;
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,22 +229,85 @@ const PublishedProfileContent: React.FC = () => {
         </div>
       </div>
 
-      {/* Completion Percentage Progress */}
-      <div className="mb-card p-6 rounded-2xl space-y-3">
-        <div className="flex items-center justify-between text-xs font-bold">
-          <span className="text-ink-2">বায়োডাটা সম্পূর্ণতার হার</span>
-          <span className="text-brand">{profile.completionPercentage || 0}% সম্পূর্ণ</span>
+      {/* Completion Meter */}
+      <div className="mb-card rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
+        {/* Circular progress ring */}
+        <div className="relative w-28 h-28 shrink-0">
+          <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+            <circle
+              cx="50"
+              cy="50"
+              r="42"
+              fill="none"
+              strokeWidth="8"
+              style={{ stroke: 'var(--mb-line)' }}
+            />
+            <circle
+              cx="50"
+              cy="50"
+              r="42"
+              fill="none"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={2 * Math.PI * 42}
+              strokeDashoffset={2 * Math.PI * 42 * (1 - completionPercent / 100)}
+              style={{ stroke: 'var(--mb-brand)' }}
+              className="transition-all duration-700"
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            {isProfileComplete ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            ) : (
+              <span className="text-xl font-black text-ink">{completionPercent}%</span>
+            )}
+            <span className="text-[10px] text-ink-3 font-bold">সম্পূর্ণ</span>
+          </div>
         </div>
-        <div className="w-full bg-elev h-2.5 rounded-full overflow-hidden">
-          <div
-            className="bg-linear-to-r from-brand to-pink-500 h-full rounded-full transition-all duration-500"
-            style={{ width: `${profile.completionPercentage || 0}%` }}
-          />
+
+        {/* Message + missing chips */}
+        <div className="flex-1 space-y-3 text-center sm:text-left">
+          {isProfileComplete ? (
+            <>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                {completionPercent}% সম্পূর্ণ
+              </span>
+              <h3 className="text-lg font-bold text-ink">
+                আপনার প্রোফাইল সম্পূর্ণ! এখন পছন্দের সঙ্গী খুঁজুন।
+              </h3>
+              <Link
+                to="/search"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-brand hover:text-brand/80"
+              >
+                <span>পছন্দের সঙ্গী খুঁজুন</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </>
+          ) : (
+            <>
+              <h3 className="text-lg font-bold text-ink">প্রোফাইল সম্পূর্ণ করুন</h3>
+              <p className="text-xs text-ink-2 leading-relaxed">
+                বাকি তথ্যগুলো যোগ করলে আপনার বায়োডাটা আরও সম্পূর্ণ ও আকর্ষণীয় হবে।
+              </p>
+              {(completion?.missing?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                  {completion!.missing.map((field) => (
+                    <button
+                      key={field.key}
+                      type="button"
+                      onClick={() => navigate('/edit-profile')}
+                      className="mb-badge cursor-pointer hover:bg-brand/15 transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>{field.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
-        <p className="text-[11px] text-ink-3">
-          যত বেশি তথ্য যুক্ত করবেন, আপনার বায়োডাটার গ্রহণযোগ্যতা ও উপযুক্ত পাত্র-পাত্রী প্রাপ্তির সম্ভাবনা
-          ততই বৃদ্ধি পাবে।
-        </p>
       </div>
 
       {/* Photo Management & Purdah Settings */}
@@ -229,6 +315,55 @@ const PublishedProfileContent: React.FC = () => {
         photos={profile.photos || []}
         currentPrivacy={profile.photoPrivacy || 'public'}
       />
+
+      {/* Recommendations For You */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="mb-section-title text-lg flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-gold" />
+            <span>আপনার জন্য পরামর্শ</span>
+          </h3>
+          <Link
+            to="/search"
+            className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:text-brand/80"
+          >
+            <span>সব দেখুন</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {isRecommendationsLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="mb-card rounded-3xl p-5 space-y-3 animate-pulse">
+                <div className="w-20 h-20 rounded-full bg-elev mx-auto" />
+                <div className="h-3.5 w-2/3 bg-elev rounded mx-auto" />
+                <div className="h-3 w-1/2 bg-elev rounded mx-auto" />
+                <div className="h-3 w-full bg-elev rounded" />
+                <div className="h-8 w-full bg-elev rounded-lg" />
+              </div>
+            ))}
+          </div>
+        ) : !recommendations || recommendations.length === 0 ? (
+          <div className="mb-card rounded-3xl p-8 text-center space-y-2.5">
+            <div className="w-12 h-12 rounded-full bg-elev flex items-center justify-center mx-auto">
+              <Sparkles className="w-5 h-5 text-ink-3" />
+            </div>
+            <p className="text-sm font-bold text-ink">
+              এখন কোনো পরামর্শ নেই — একটু পরে আবার দেখুন
+            </p>
+            <p className="text-xs text-ink-3">
+              নতুন সদস্যরা যুক্ত হলে এখানে দেখতে পাবেন। ততক্ষণ পর্যন্ত সার্চ ব্যবহার করে খুঁজে দেখুন।
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {recommendations.map((p) => (
+              <ProfileCard key={p._id} profile={p} />
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Account Settings & Security */}
       <div className="mb-card p-6 sm:p-8 rounded-3xl space-y-6">

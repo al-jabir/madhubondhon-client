@@ -49,6 +49,9 @@ export interface SearchProfilesParams {
   gender?: Gender;
   minAge?: number;
   maxAge?: number;
+  minHeight?: number;
+  maxHeight?: number;
+  verifiedOnly?: boolean;
   upazila?: string;
   education?: EducationLevel;
   maritalStatus?: MaritalStatus;
@@ -59,9 +62,28 @@ export interface SearchProfilesParams {
   limit?: number;
 }
 
+export interface ProfileCompletion {
+  percent: number;
+  missing: Array<{ key: string; label: string }>;
+}
+
 export const profilesApi = {
   async getOwnProfile() {
     const res = await apiClient.get<ApiResponse<{ profile: Profile }>>('/profiles/me');
+    return res.data;
+  },
+
+  async getCompletion() {
+    const res = await apiClient.get<ApiResponse<{ completion: ProfileCompletion }>>(
+      '/profiles/me/completion'
+    );
+    return res.data;
+  },
+
+  async getRecommendations() {
+    const res = await apiClient.get<ApiResponse<{ profiles: Profile[] }>>(
+      '/profiles/recommendations'
+    );
     return res.data;
   },
 

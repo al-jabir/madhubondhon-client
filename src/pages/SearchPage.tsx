@@ -31,26 +31,38 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const [maritalStatus, setMaritalStatus] = useState<string>(searchParams.get('maritalStatus') || '');
   const [education, setEducation] = useState<string>(searchParams.get('education') || '');
   const [occupation, setOccupation] = useState(searchParams.get('occupation') || '');
+  const [minHeight, setMinHeight] = useState<string>(searchParams.get('minHeight') || '');
+  const [maxHeight, setMaxHeight] = useState<string>(searchParams.get('maxHeight') || '');
+  const [verifiedOnly, setVerifiedOnly] = useState<boolean>(searchParams.get('verifiedOnly') === 'true');
   const [page, setPage] = useState<number>(Number(searchParams.get('page')) || 1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const hasAdvancedParam = Boolean(
+    searchParams.get('minHeight') || searchParams.get('maxHeight') || searchParams.get('verifiedOnly') ||
+    searchParams.get('education') || searchParams.get('occupation') || searchParams.get('maritalStatus') ||
+    (searchParams.get('minAge') && searchParams.get('minAge') !== '18') ||
+    (searchParams.get('maxAge') && searchParams.get('maxAge') !== '60'),
+  );
+  const [advancedOpen, setAdvancedOpen] = useState<boolean>(hasAdvancedParam);
 
-  const activeFilterCount = [
-    biodataId,
-    gender,
-    upazila,
+  const advancedFilterCount = [
     maritalStatus,
     education,
-    occupation,
+    occupation.trim(),
+    minHeight,
+    maxHeight,
+    verifiedOnly ? 'true' : '',
     minAge !== '18' ? minAge : '',
     maxAge !== '60' ? maxAge : '',
   ].filter(Boolean).length;
+
+  const activeFilterCount = [biodataId, gender, upazila].filter(Boolean).length + (advancedFilterCount > 0 ? 1 : 0);
 
   // Selected profile for sending interest modal
   const [selectedProfileForInterest, setSelectedProfileForInterest] = useState<Profile | null>(null);
 
   // Query API
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['search-profiles', demo, user?.id || user?._id || 'guest', biodataId, query, gender, upazila, minAge, maxAge, maritalStatus, education, occupation, page],
+    queryKey: ['search-profiles', demo, user?.id || user?._id || 'guest', biodataId, query, gender, upazila, minAge, maxAge, minHeight, maxHeight, verifiedOnly, maritalStatus, education, occupation, page],
     queryFn: () =>
       (demo ? searchDemoProfiles : profilesApi.searchProfiles)({
         biodataId: biodataId.trim() || undefined,
@@ -59,6 +71,9 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
         upazila: upazila || undefined,
         minAge: minAge ? Number(minAge) : undefined,
         maxAge: maxAge ? Number(maxAge) : undefined,
+        minHeight: minHeight ? Number(minHeight) : undefined,
+        maxHeight: maxHeight ? Number(maxHeight) : undefined,
+        verifiedOnly: verifiedOnly || undefined,
         maritalStatus: (maritalStatus as MaritalStatus) || undefined,
         education: (education as EducationLevel) || undefined,
         occupation: occupation.trim() || undefined,
@@ -80,6 +95,9 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
     if (maritalStatus) params.set('maritalStatus', maritalStatus);
     if (education) params.set('education', education);
     if (occupation.trim()) params.set('occupation', occupation.trim());
+    if (minHeight) params.set('minHeight', minHeight);
+    if (maxHeight) params.set('maxHeight', maxHeight);
+    if (verifiedOnly) params.set('verifiedOnly', 'true');
     params.set('page', '1');
     setPage(1);
     setSearchParams(params);
@@ -92,10 +110,14 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
     setUpazila('');
     setMinAge('18');
     setMaxAge('60');
+    setMinHeight('');
+    setMaxHeight('');
+    setVerifiedOnly(false);
     setMaritalStatus('');
     setEducation('');
     setOccupation('');
     setPage(1);
+    setAdvancedOpen(false);
     setSearchParams(new URLSearchParams());
     setMobileFiltersOpen(false);
   };
@@ -239,70 +261,135 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
               </select>
             </div>
 
-            {/* Age */}
-            <div>
-              <label className="mb-label">বয়স পরিসীমা (১৮+)</label>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  min="18"
-                  max="80"
-                  value={minAge}
-                  onChange={(e) => setMinAge(e.target.value)}
-                  placeholder="নূন্যতম"
-                  className="mb-input !text-xs"
+            {/* Advanced filters toggle */}
+            <button
+              type="button"
+              onClick={() => setAdvancedOpen(!advancedOpen)}
+              className="w-full flex items-center justify-between cursor-pointer pt-1 group"
+            >
+              <span className="font-bold text-sm text-ink flex items-center gap-2">
+                <span className="w-7 h-7 rounded-xl bg-gold-soft border border-gold/20 text-gold flex items-center justify-center">
+                  <Filter className="w-3.5 h-3.5" />
+                </span>
+                <span>অ্যাডভান্সড ফিল্টার</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                {advancedFilterCount > 0 && (
+                  <span className="mb-badge !px-2 !py-0.5 !text-[10px] !font-bold">
+                    {advancedFilterCount.toLocaleString('bn-BD')}টি সক্রিয়
+                  </span>
+                )}
+                <ChevronDown
+                  className={`w-4 h-4 text-ink-3 group-hover:text-brand transition-transform duration-200 ${advancedOpen ? 'rotate-180 text-brand' : ''}`}
                 />
-                <input
-                  type="number"
-                  min="18"
-                  max="80"
-                  value={maxAge}
-                  onChange={(e) => setMaxAge(e.target.value)}
-                  placeholder="সর্বোচ্চ"
-                  className="mb-input !text-xs"
-                />
+              </span>
+            </button>
+
+            {advancedOpen && (
+              <div className="space-y-5 pt-1">
+                {/* Age */}
+                <div>
+                  <label className="mb-label">বয়স পরিসীমা (১৮+)</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      min="18"
+                      max="80"
+                      value={minAge}
+                      onChange={(e) => setMinAge(e.target.value)}
+                      placeholder="নূন্যতম"
+                      className="mb-input !text-xs"
+                    />
+                    <input
+                      type="number"
+                      min="18"
+                      max="80"
+                      value={maxAge}
+                      onChange={(e) => setMaxAge(e.target.value)}
+                      placeholder="সর্বোচ্চ"
+                      className="mb-input !text-xs"
+                    />
+                  </div>
+                </div>
+
+                {/* Height */}
+                <div>
+                  <label className="mb-label">উচ্চতা (সেমি)</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      min="100"
+                      max="250"
+                      value={minHeight}
+                      onChange={(e) => setMinHeight(e.target.value)}
+                      placeholder="নূন্যতম"
+                      className="mb-input !text-xs"
+                    />
+                    <input
+                      type="number"
+                      min="100"
+                      max="250"
+                      value={maxHeight}
+                      onChange={(e) => setMaxHeight(e.target.value)}
+                      placeholder="সর্বোচ্চ"
+                      className="mb-input !text-xs"
+                    />
+                  </div>
+                  <p className="text-[10px] text-ink-3 mt-1">প্রায় ৫ ফুট = ১৫২ সেমি, ৫ ফুট ৬ ইঞ্চি = ১৬৮ সেমি</p>
+                </div>
+
+                {/* Occupation */}
+                <div>
+                  <label className="mb-label" htmlFor="occupation-filter">পেশা</label>
+                  <input
+                    id="occupation-filter"
+                    value={occupation}
+                    onChange={e => setOccupation(e.target.value)}
+                    maxLength={100}
+                    placeholder="যেমন: শিক্ষক"
+                    className="mb-input !text-xs"
+                  />
+                </div>
+
+                {/* Education */}
+                <div>
+                  <label className="mb-label">শিক্ষাগত যোগ্যতা</label>
+                  <select value={education} onChange={(e) => setEducation(e.target.value)} className="mb-input !text-xs">
+                    <option value="">সকল যোগ্যতা</option>
+                    <option value="bachelors">স্নাতক / অনার্স (Bachelors)</option>
+                    <option value="masters">মাস্টার্স (Masters)</option>
+                    <option value="hsc">এইচএসসি (HSC)</option>
+                    <option value="ssc">এসএসসি (SSC)</option>
+                    <option value="diploma">ডিপ্লোমা (Diploma)</option>
+                    <option value="islamic_education">ইসলামিক শিক্ষা (কওমি/মাদরাসা)</option>
+                    <option value="phd">পিএইচডি (PhD)</option>
+                  </select>
+                </div>
+
+                {/* Marital status */}
+                <div>
+                  <label className="mb-label">বৈবাহিক অবস্থা</label>
+                  <select value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input !text-xs">
+                    <option value="">সকল অবস্থা</option>
+                    <option value="never_married">অবিবাহিত (Never Married)</option>
+                    <option value="divorced">ডিভোর্সড (Divorced)</option>
+                    <option value="widowed">বিধবা / বিপত্নীক (Widowed)</option>
+                    <option value="separated">বিচ্ছিন্ন (Separated)</option>
+                  </select>
+                </div>
+
+                {/* Verified only */}
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={verifiedOnly}
+                    onChange={(e) => setVerifiedOnly(e.target.checked)}
+                    className="w-4 h-4 accent-[var(--mb-brand)] cursor-pointer"
+                  />
+                  <span className="text-xs font-semibold text-ink-2">শুধু ভেরিফাইড বায়োডাটা</span>
+                </label>
               </div>
-            </div>
-
-            {/* Marital status */}
-            <div>
-              <label className="mb-label">বৈবাহিক অবস্থা</label>
-              <select value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input !text-xs">
-                <option value="">সকল অবস্থা</option>
-                <option value="never_married">অবিবাহিত (Never Married)</option>
-                <option value="divorced">ডিভোর্সড (Divorced)</option>
-                <option value="widowed">বিধবা / বিপত্নীক (Widowed)</option>
-                <option value="separated">বিচ্ছিন্ন (Separated)</option>
-              </select>
-            </div>
-
-            {/* Occupation */}
-            <div>
-              <label className="mb-label" htmlFor="occupation-filter">পেশা</label>
-              <input
-                id="occupation-filter"
-                value={occupation}
-                onChange={e => setOccupation(e.target.value)}
-                maxLength={100}
-                placeholder="যেমন: শিক্ষক"
-                className="mb-input !text-xs"
-              />
-            </div>
-
-            {/* Education */}
-            <div>
-              <label className="mb-label">শিক্ষাগত যোগ্যতা</label>
-              <select value={education} onChange={(e) => setEducation(e.target.value)} className="mb-input !text-xs">
-                <option value="">সকল যোগ্যতা</option>
-                <option value="bachelors">স্নাতক / অনার্স (Bachelors)</option>
-                <option value="masters">মাস্টার্স (Masters)</option>
-                <option value="hsc">এইচএসসি (HSC)</option>
-                <option value="ssc">এসএসসি (SSC)</option>
-                <option value="diploma">ডিপ্লোমা (Diploma)</option>
-                <option value="islamic_education">ইসলামিক শিক্ষা (কওমি/মাদরাসা)</option>
-                <option value="phd">পিএইচডি (PhD)</option>
-              </select>
-            </div>
+            )}
 
             <button type="submit" className="mb-btn-primary w-full">
               ফিল্টার প্রয়োগ করুন

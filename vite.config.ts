@@ -12,5 +12,14 @@ export default defineConfig(({ mode }) => {
       port: Number(process.env.DEV_CLIENT_PORT || 5173),
       proxy: { '/api': { target, changeOrigin: true }, '/health': { target, changeOrigin: true } },
     },
+    build: {
+      rolldownOptions: {
+        output: {
+          // Route-level code splitting: every page lazy-loads from App.tsx,
+          // so the initial bundle stays small.
+          codeSplitting: true,
+        },
+      },
+    },
   };
 });

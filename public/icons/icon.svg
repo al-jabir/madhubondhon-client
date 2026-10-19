@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e11d48"/>
+      <stop offset="1" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="104" fill="url(#g)"/>
+  <path fill="#ffffff" d="M256 428l-31-28.4C152.6 333.7 108 293.4 108 244.5 108 203.9 139.6 172 180 172c23 0 45.1 10.7 60.4 27.9C258.3 182.7 280.4 172 303.4 172c40.4 0 72 31.9 72 72.5 0 48.9-44.6 89.2-117 155.1L256 428z"/>
+  <text x="256" y="382" font-family="'Hind Siliguri', system-ui, sans-serif" font-size="36" font-weight="700" fill="#ffffff" text-anchor="middle" opacity="0" >মধুবন্ধন</text>
+</svg>

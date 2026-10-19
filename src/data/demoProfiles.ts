@@ -41,16 +41,23 @@ export const demoProfiles: Profile[] = examples.map(([name, gender, upazila, dob
 }));
 
 export function searchDemoProfiles(params: SearchProfilesParams = {}): ApiResponse<{ profiles: Profile[] }> {
-  const matches = demoProfiles.filter(p =>
-    (!params.biodataId || (p.biodataId || '').toLocaleLowerCase().includes(params.biodataId.toLocaleLowerCase().trim())) &&
-    (!params.query || (p.displayName + ' ' + (p.occupation || '') + ' ' + (p.biodataId || '')).toLocaleLowerCase().includes(params.query.toLocaleLowerCase().trim())) &&
-    (!params.occupation || (p.occupation || '').toLocaleLowerCase().includes(params.occupation.toLocaleLowerCase())) &&
-    (!params.gender || p.gender === params.gender) &&
-    (!params.upazila || p.upazila === params.upazila) &&
-    (!params.education || p.education === params.education) &&
-    (!params.maritalStatus || p.maritalStatus === params.maritalStatus) &&
-    (!params.minAge || (p.age ?? 0) >= params.minAge) &&
-    (!params.maxAge || (p.age ?? 0) <= params.maxAge));
+  const heightCm = (h?: { feet: number; inches: number }) =>
+    h ? Math.round((h.feet * 12 + (h.inches || 0)) * 2.54) : 0;
+  const heightFilterActive = Boolean(params.minHeight || params.maxHeight);
+  const matches = demoProfiles.filter(p => {
+    const hcm = heightCm(p.height);
+    return (!params.biodataId || (p.biodataId || '').toLocaleLowerCase().includes(params.biodataId.toLocaleLowerCase().trim())) &&
+      (!params.query || (p.displayName + ' ' + (p.occupation || '') + ' ' + (p.biodataId || '')).toLocaleLowerCase().includes(params.query.toLocaleLowerCase().trim())) &&
+      (!params.occupation || (p.occupation || '').toLocaleLowerCase().includes(params.occupation.toLocaleLowerCase())) &&
+      (!params.gender || p.gender === params.gender) &&
+      (!params.upazila || p.upazila === params.upazila) &&
+      (!params.education || p.education === params.education) &&
+      (!params.maritalStatus || p.maritalStatus === params.maritalStatus) &&
+      (!params.minAge || (p.age ?? 0) >= params.minAge) &&
+      (!params.maxAge || (p.age ?? 0) <= params.maxAge) &&
+      (!heightFilterActive || (!!p.height && (!params.minHeight || hcm >= params.minHeight) && (!params.maxHeight || hcm <= params.maxHeight))) &&
+      (!params.verifiedOnly || p.isApproved);
+  });
   const page = Math.max(1, params.page || 1);
   const limit = Math.max(1, params.limit || 9);
   return { success: true, message: 'নমুনা বায়োডাটা', data: { profiles: matches.slice((page - 1) * limit, page * limit) }, meta: { page, limit, total: matches.length, totalPages: Math.ceil(matches.length / limit) } };

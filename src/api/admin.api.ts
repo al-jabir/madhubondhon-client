@@ -21,6 +21,27 @@ export interface AuditLogItem {
   createdAt: string;
 }
 
+export interface AdminAnalyticsDailyPoint {
+  date: string;
+  newUsers: number;
+  newBiodata: number;
+  interestsSent: number;
+}
+
+export interface AdminAnalyticsStatusCount {
+  status: string;
+  count: number;
+}
+
+export interface AdminAnalytics {
+  daily: AdminAnalyticsDailyPoint[];
+  biodataByStatus: AdminAnalyticsStatusCount[];
+  interestsByStatus: AdminAnalyticsStatusCount[];
+  revenue: { totalPaid: number; paidCount: number; pendingCount: number };
+  topDistricts: Array<{ name: string; count: number }>;
+  totals: { users: number; biodata: number; interests: number };
+}
+
 export const adminApi = {
   async listUsers(params?: {
     role?: UserRole;
@@ -49,6 +70,11 @@ export const adminApi = {
     const res = await apiClient.get<ApiResponse<{ stats: { users: { total: number; active: number }; profiles: { total: number }; interests: { total: number }; reports: { pending: number } } }>>('/admin/stats');
     const stats = res.data.data?.stats;
     return { ...res.data, data: stats ? { stats: { totalUsers: stats.users.total, activeUsers: stats.users.active, totalProfiles: stats.profiles.total, totalInterests: stats.interests.total, pendingReports: stats.reports.pending } } : undefined };
+  },
+
+  async getAnalytics() {
+    const res = await apiClient.get<ApiResponse<{ analytics: AdminAnalytics }>>('/admin/analytics');
+    return res.data;
   },
 
   async getAuditLogs(params?: { page?: number; limit?: number }) {
