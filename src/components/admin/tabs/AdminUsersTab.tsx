@@ -10,6 +10,7 @@ import {
   AlertCircle,
   FileText,
   MapPin,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
@@ -97,6 +98,22 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || (isBengali ? 'ভূমিকা পরিবর্তন করা যায়নি।' : 'Could not update role.'));
+    },
+  });
+
+  // Delete User State & Mutation
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+
+  const deleteMutation = useMutation({
+    mutationFn: (userId: string) => adminApi.deleteUser(userId),
+    onSuccess: () => {
+      toast.success(isBengali ? 'ইউজার অ্যাকাউন্ট সফলভাবে মুছে ফেলা হয়েছে।' : 'User account deleted successfully.');
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      setDeleteTarget(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || (isBengali ? 'ইউজার মুছে ফেলা যায়নি।' : 'Could not delete user.'));
     },
   });
 
@@ -355,6 +372,16 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
                                 {isBengali ? 'সক্রিয়' : 'Activate'}
                               </button>
                             )}
+
+                            <button
+                              type="button"
+                              onClick={() => setDeleteTarget(u)}
+                              className="px-2 py-1 text-[11px] font-bold rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 cursor-pointer transition-colors"
+                              title={isBengali ? 'ইউজার মুছুন' : 'Delete User'}
+                            >
+                              <Trash2 className="w-3.5 h-3.5 inline mr-1" />
+                              <span>{isBengali ? 'মুছুন' : 'Delete'}</span>
+                            </button>
                           </>
                         )}
                       </td>
@@ -614,6 +641,42 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
         confirmText={isBengali ? 'হ্যাঁ, পরিবর্তন করুন' : 'Confirm Change'}
         variant="warning"
         isLoading={roleMutation.isPending}
+      />
+
+      {/* Delete User Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) {
+            deleteMutation.mutate(deleteTarget.id || deleteTarget._id || '');
+          }
+        }}
+        title={isBengali ? 'ইউজার অ্যাকাউন্ট মুছে ফেলা' : 'Delete User Account'}
+        message={
+          deleteTarget ? (
+            isBengali ? (
+              <>
+                আপনি কি নিশ্চিতভাবে <strong>{deleteTarget.name || deleteTarget.email}</strong>-এর অ্যাকাউন্ট স্থায়ীভাবে মুছে ফেলতে চান?
+                <br />
+                <span className="text-red-500 font-semibold mt-1 inline-block">
+                  ⚠️ সতর্কবার্তা: ইউজারের সকল বায়োডাটা, আগ্রহ, ও তথ্য ডাটাবেজ থেকে চিরতরে মুছে যাবে।
+                </span>
+              </>
+            ) : (
+              <>
+                Are you sure you want to permanently delete the account of <strong>{deleteTarget.name || deleteTarget.email}</strong>?
+                <br />
+                <span className="text-red-500 font-semibold mt-1 inline-block">
+                  ⚠️ Warning: All their biodata, interests, and profile records will be permanently erased.
+                </span>
+              </>
+            )
+          ) : null
+        }
+        confirmText={isBengali ? 'স্থায়ীভাবে মুছুন' : 'Delete Permanently'}
+        variant="danger"
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

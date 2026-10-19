@@ -7,6 +7,7 @@ import {
   ShieldAlert,
   UserCheck,
   X,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
@@ -30,6 +31,22 @@ export const AdminTeamTab: React.FC<{ currentUserId?: string }> = ({ currentUser
     name: string;
     nextStatus: AccountStatus;
   } | null>(null);
+
+  // Delete Admin State & Mutation
+  const [deleteAdminTarget, setDeleteAdminTarget] = useState<AdminStaffUser | null>(null);
+
+  const deleteAdminMutation = useMutation({
+    mutationFn: (userId: string) => adminApi.deleteAdmin(userId),
+    onSuccess: () => {
+      toast.success(isBengali ? 'প্রশাসনিক অ্যাকাউন্ট সফলভাবে মুছে ফেলা হয়েছে।' : 'Admin account deleted successfully.');
+      queryClient.invalidateQueries({ queryKey: ['admin-team'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      setDeleteAdminTarget(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || (isBengali ? 'অ্যাকাউন্ট মুছে ফেলা যায়নি।' : 'Could not delete admin account.'));
+    },
+  });
 
   // List admins query
   const { data: teamData, isLoading } = useQuery({
@@ -197,27 +214,39 @@ export const AdminTeamTab: React.FC<{ currentUserId?: string }> = ({ currentUser
                           : (isBengali ? 'কখনো লগইন করেননি' : 'Never logged in')}
                       </td>
 
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
                         {!isSelf && !isSuper && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const next =
-                                st.accountStatus === AccountStatus.ACTIVE
-                                  ? AccountStatus.SUSPENDED
-                                  : AccountStatus.ACTIVE;
-                              setStatusConfirmTarget({
-                                userId: uid,
-                                name: st.name || st.email,
-                                nextStatus: next,
-                              });
-                            }}
-                            className="px-2.5 py-1 text-xs font-bold rounded-lg border border-line bg-elev hover:bg-card cursor-pointer"
-                          >
-                            {st.accountStatus === AccountStatus.ACTIVE
-                              ? (isBengali ? 'নিষ্ক্রিয় করুন' : 'Deactivate')
-                              : (isBengali ? 'সক্রিয় করুন' : 'Activate')}
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next =
+                                  st.accountStatus === AccountStatus.ACTIVE
+                                    ? AccountStatus.SUSPENDED
+                                    : AccountStatus.ACTIVE;
+                                setStatusConfirmTarget({
+                                  userId: uid,
+                                  name: st.name || st.email,
+                                  nextStatus: next,
+                                });
+                              }}
+                              className="px-2.5 py-1 text-xs font-bold rounded-lg border border-line bg-elev hover:bg-card cursor-pointer"
+                            >
+                              {st.accountStatus === AccountStatus.ACTIVE
+                                ? (isBengali ? 'নিষ্ক্রিয় করুন' : 'Deactivate')
+                                : (isBengali ? 'সক্রিয় করুন' : 'Activate')}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setDeleteAdminTarget(st)}
+                              className="px-2.5 py-1 text-xs font-bold rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 cursor-pointer transition-colors"
+                              title={isBengali ? 'অ্যাকাউন্ট মুছে ফেলুন' : 'Delete Account'}
+                            >
+                              <Trash2 className="w-3.5 h-3.5 inline mr-1" />
+                              <span>{isBengali ? 'মুছুন' : 'Delete'}</span>
+                            </button>
+                          </>
                         )}
                       </td>
                     </tr>
@@ -385,6 +414,42 @@ export const AdminTeamTab: React.FC<{ currentUserId?: string }> = ({ currentUser
         }
         variant={statusConfirmTarget?.nextStatus === AccountStatus.SUSPENDED ? 'danger' : 'success'}
         isLoading={statusMutation.isPending}
+      />
+
+      {/* Delete Admin Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteAdminTarget)}
+        onClose={() => setDeleteAdminTarget(null)}
+        onConfirm={() => {
+          if (deleteAdminTarget) {
+            deleteAdminMutation.mutate(deleteAdminTarget._id || deleteAdminTarget.id || '');
+          }
+        }}
+        title={isBengali ? 'প্রশাসনিক অ্যাকাউন্ট মুছে ফেলা' : 'Delete Administrative Account'}
+        message={
+          deleteAdminTarget ? (
+            isBengali ? (
+              <>
+                আপনি কি নিশ্চিতভাবে <strong>{deleteAdminTarget.name || deleteAdminTarget.email}</strong> ({deleteAdminTarget.role})-এর অ্যাকাউন্টটি মুছে ফেলতে চান?
+                <br />
+                <span className="text-red-500 font-semibold mt-1 inline-block">
+                  ⚠️ সতর্কবার্তা: এই অ্যাডমিন অ্যাকাউন্ট ও তার যাবতীয় অ্যাক্সেস চিরতরে বাতিল হয়ে যাবে।
+                </span>
+              </>
+            ) : (
+              <>
+                Are you sure you want to permanently delete the administrative account of <strong>{deleteAdminTarget.name || deleteAdminTarget.email}</strong> ({deleteAdminTarget.role})?
+                <br />
+                <span className="text-red-500 font-semibold mt-1 inline-block">
+                  ⚠️ Warning: This administrative account and all its access will be permanently revoked.
+                </span>
+              </>
+            )
+          ) : null
+        }
+        confirmText={isBengali ? 'স্থায়ীভাবে মুছুন' : 'Delete Permanently'}
+        variant="danger"
+        isLoading={deleteAdminMutation.isPending}
       />
     </div>
   );

@@ -111,6 +111,13 @@ export const adminApi = {
     return res.data;
   },
 
+  async deleteUser(userId: string, reason?: string) {
+    const res = await apiClient.delete<ApiResponse<unknown>>(`/admin/users/${userId}`, {
+      data: { reason },
+    });
+    return res.data;
+  },
+
   // ─── Admin Team (Super Admin) ──────────────────────────────────────
   async listAdmins() {
     const res = await apiClient.get<ApiResponse<{ admins: AdminStaffUser[] }>>('/admin/admins');
@@ -128,6 +135,13 @@ export const adminApi = {
     return res.data;
   },
 
+  async deleteAdmin(adminId: string, reason?: string) {
+    const res = await apiClient.delete<ApiResponse<unknown>>(`/admin/admins/${adminId}`, {
+      data: { reason },
+    });
+    return res.data;
+  },
+
   // ─── Interests Monitoring ──────────────────────────────────────────
   async listInterests(params?: { status?: string; page?: number; limit?: number }) {
     const res = await apiClient.get<ApiResponse<{ interests: AdminInterestItem[] }>>('/admin/interests', {
@@ -136,9 +150,16 @@ export const adminApi = {
     return res.data;
   },
 
-  // ─── Profile Visibility ───────────────────────────────────────────
+  // ─── Profile Visibility & Deletion ─────────────────────────────────
   async toggleProfileVisibility(profileId: string, data: { isHidden: boolean; reason?: string }) {
     const res = await apiClient.put<ApiResponse<{ profile: any }>>(`/admin/profiles/${profileId}/visibility`, data);
+    return res.data;
+  },
+
+  async deleteProfile(profileId: string, reason?: string) {
+    const res = await apiClient.delete<ApiResponse<unknown>>(`/admin/profiles/${profileId}`, {
+      data: { reason },
+    });
     return res.data;
   },
 

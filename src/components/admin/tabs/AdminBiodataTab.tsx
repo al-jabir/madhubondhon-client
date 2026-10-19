@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   MapPin,
   Briefcase,
+  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReviewQueue from '../../profile/ReviewQueue';
@@ -19,6 +20,7 @@ import { Profile } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../../../constants/locations';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import ConfirmationModal from '../../common/ConfirmationModal';
 
 export const AdminBiodataTab: React.FC = () => {
   const queryClient = useQueryClient();
@@ -34,6 +36,23 @@ export const AdminBiodataTab: React.FC = () => {
   // Profile Visibility Modal
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [visibilityReason, setVisibilityReason] = useState('');
+
+  // Delete Profile State & Mutation
+  const [deleteProfileTarget, setDeleteProfileTarget] = useState<Profile | null>(null);
+
+  const deleteProfileMutation = useMutation({
+    mutationFn: (profileId: string) => adminApi.deleteProfile(profileId),
+    onSuccess: () => {
+      toast.success(isBengali ? 'বায়োডাটা সফলভাবে মুছে ফেলা হয়েছে।' : 'Biodata deleted successfully.');
+      queryClient.invalidateQueries({ queryKey: ['admin-published-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['search-profiles'] });
+      setDeleteProfileTarget(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || (isBengali ? 'বায়োডাটা মুছে ফেলা যায়নি।' : 'Could not delete biodata.'));
+    },
+  });
 
   // Published profiles query
   const { data: searchData, isLoading: isProfilesLoading } = useQuery({
@@ -218,26 +237,38 @@ export const AdminBiodataTab: React.FC = () => {
                         : (isBengali ? 'লুকানো (Hidden)' : 'Hidden')}
                     </span>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedProfile(p);
-                        setVisibilityReason('');
-                      }}
-                      className="px-2.5 py-1 text-xs font-bold rounded-lg border border-line bg-elev hover:bg-brand-soft hover:text-brand-ink text-ink-2 transition-colors cursor-pointer"
-                    >
-                      {p.visibility === 'public' ? (
-                        <>
-                          <EyeOff className="w-3.5 h-3.5 inline mr-1" />
-                          <span>{isBengali ? 'লুকান' : 'Hide'}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="w-3.5 h-3.5 inline mr-1" />
-                          <span>{isBengali ? 'উন্মুক্ত করুন' : 'Make Public'}</span>
-                        </>
-                      )}
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProfile(p);
+                          setVisibilityReason('');
+                        }}
+                        className="px-2.5 py-1 text-xs font-bold rounded-lg border border-line bg-elev hover:bg-brand-soft hover:text-brand-ink text-ink-2 transition-colors cursor-pointer"
+                      >
+                        {p.visibility === 'public' ? (
+                          <>
+                            <EyeOff className="w-3.5 h-3.5 inline mr-1" />
+                            <span>{isBengali ? 'লুকান' : 'Hide'}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="w-3.5 h-3.5 inline mr-1" />
+                            <span>{isBengali ? 'উন্মুক্ত করুন' : 'Make Public'}</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDeleteProfileTarget(p)}
+                        className="px-2 py-1 text-xs font-bold rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-colors cursor-pointer"
+                        title={isBengali ? 'বায়োডাটা মুছে ফেলুন' : 'Delete Biodata'}
+                      >
+                        <Trash2 className="w-3.5 h-3.5 inline mr-1" />
+                        <span>{isBengali ? 'মুছুন' : 'Delete'}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -348,6 +379,42 @@ export const AdminBiodataTab: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Biodata Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteProfileTarget)}
+        onClose={() => setDeleteProfileTarget(null)}
+        onConfirm={() => {
+          if (deleteProfileTarget) {
+            deleteProfileMutation.mutate(deleteProfileTarget._id);
+          }
+        }}
+        title={isBengali ? 'বায়োডাটা স্থায়ীভাবে মুছে ফেলা' : 'Permanently Delete Biodata'}
+        message={
+          deleteProfileTarget ? (
+            isBengali ? (
+              <>
+                আপনি কি নিশ্চিতভাবে <strong>{deleteProfileTarget.displayName}</strong>-এর বায়োডাটাটি স্থায়ীভাবে মুছে ফেলতে চান?
+                <br />
+                <span className="text-red-500 font-semibold mt-1 inline-block">
+                  ⚠️ সতর্কবার্তা: বায়োডাটা ও সংশ্লিষ্ট আবেদন ডাটাবেজ থেকে চিরতরে মুছে যাবে।
+                </span>
+              </>
+            ) : (
+              <>
+                Are you sure you want to permanently delete the biodata of <strong>{deleteProfileTarget.displayName}</strong>?
+                <br />
+                <span className="text-red-500 font-semibold mt-1 inline-block">
+                  ⚠️ Warning: This biodata and its workflow applications will be permanently erased.
+                </span>
+              </>
+            )
+          ) : null
+        }
+        confirmText={isBengali ? 'স্থায়ীভাবে মুছুন' : 'Delete Permanently'}
+        variant="danger"
+        isLoading={deleteProfileMutation.isPending}
+      />
     </div>
   );
 };
