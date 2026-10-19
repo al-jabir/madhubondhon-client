@@ -295,8 +295,8 @@ export const HomePage: React.FC = () => {
       </div>
 
       {/* ─ Principles ─ */}
-      <section className="py-16 border-b border-line max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="আমাদের অঙ্গীকার">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="py-12 sm:py-16 border-b border-line max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="আমাদের অঙ্গীকার">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-stretch">
           {[
             { icon: MapPin, title: 'কাছের মানুষ, পরিচিত পরিবেশ', description: 'টাঙ্গাইলের ১২ উপজেলাকে ঘিরে জীবনসঙ্গীর সন্ধান।' },
             { icon: ShieldCheck, title: 'গোপনীয়তায় আপনার নিয়ন্ত্রণ', description: 'অনুমতি অনুযায়ী অভিভাবকের সঙ্গে যোগাযোগ ও সর্বোচ্চ নিরাপত্তা।' },
@@ -304,14 +304,14 @@ export const HomePage: React.FC = () => {
           ].map(({ icon: Icon, title, description }) => (
             <div
               key={title}
-              className="mb-card mb-card-hover flex items-start gap-4 p-5"
+              className="mb-card mb-card-hover flex items-start gap-3.5 sm:gap-4 p-4 sm:p-5 lg:p-6 h-full transition-all"
             >
-              <div className="w-12 h-12 rounded-2xl bg-brand-soft border border-brand/20 flex items-center justify-center text-brand shrink-0">
-                <Icon className="w-6 h-6 stroke-[1.7]" />
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-brand-soft border border-brand/20 flex items-center justify-center text-brand shrink-0 shadow-xs">
+                <Icon className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.7]" />
               </div>
-              <div>
-                <h3 className="text-base font-bold text-ink mb-1">{title}</h3>
-                <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">{description}</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-1.5 leading-snug">{title}</h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{description}</p>
               </div>
             </div>
           ))}
