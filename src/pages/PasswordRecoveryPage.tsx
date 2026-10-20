@@ -108,10 +108,17 @@ export default function PasswordRecoveryPage() {
 
             {challenge && (
               <>
-                <div className="p-3 bg-gold-soft border border-gold/25 rounded-xl text-xs text-gold">
-                  {isBengali
-                    ? "ইমেইলে পাঠানো ৬ সংখ্যার কোডটি লিখুন (মেয়াদ ১০ মিনিট)।"
-                    : "Enter the 6-digit code sent to your email (valid for 10 minutes)."}
+                <div className="p-3 bg-gold-soft border border-gold/25 rounded-xl text-xs text-gold space-y-1">
+                  <p className="font-semibold">
+                    {isBengali
+                      ? "ইমেইলে পাঠানো ৬ সংখ্যার সিকিউরিটি কোডটি লিখুন (মেয়াদ ১০ মিনিট)।"
+                      : "Enter the 6-digit security code sent to your email (valid for 10 minutes)."}
+                  </p>
+                  <p className="text-[11px] text-ink-3">
+                    {isBengali
+                      ? "ইনবক্সে কোড না পেলে অনুগ্রহ করে আপনার জিমেইলের Spam (স্প্যাম) অথবা Promotions ফোল্ডারও চেক করুন।"
+                      : "If not found in your Primary inbox, please also check your Spam or Promotions folder."}
+                  </p>
                 </div>
 
                 <div>
