@@ -255,8 +255,8 @@ const ApplicationOverview: React.FC<{
         ? 'আপনার বায়োডাটা সংরক্ষিত (খসড়া) অবস্থায় রয়েছে'
         : 'Your Biodata is Saved as Draft',
       desc: isBengali
-        ? "বায়োডাটার সকল প্রয়োজনীয় তথ্য ড্রাফট হিসেবে সংরক্ষিত আছে। এটি প্ল্যাটফর্মে লাইভ করতে অভিভাবক সম্মতি ও যোগাযোগ যাচাই সম্পন্ন করে 'যাচাই ও জমা' ড্যাশবোর্ড থেকে পর্যালোচনার জন্য জমা দিন।"
-        : "Your biodata details are saved as draft. Complete the 3 quick verifications (email, phone, guardian consent) and submit for moderation from the Verification tab.",
+        ? "বায়োডাটার সকল প্রয়োজনীয় তথ্য ড্রাফট হিসেবে সংরক্ষিত আছে। এটি প্ল্যাটফর্মে লাইভ করতে ইমেইল যাচাই এবং অভিভাবকের সম্মতি নিশ্চিত করে 'যাচাই ও জমা' ড্যাশবোর্ড থেকে পর্যালোচনার জন্য জমা দিন।"
+        : "Your biodata details are saved as draft. Complete email verification and guardian consent, then submit for moderation from the Verification tab.",
     },
     submitted: {
       badgeBg: 'bg-emerald-500/15',
@@ -1019,10 +1019,16 @@ const PublishedProfileOverview: React.FC<{
       icon: profile.isApproved ? CheckCircle2 : AlertCircle,
     },
     {
-      label: isBengali ? 'ইমেইল ও মোবাইল যাচাই' : 'Email & Phone Verified',
-      value: isBengali ? `${formatNumber(verifiedCount)}/২` : `${verifiedCount}/2`,
-      tone: verifiedCount === 2 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gold',
-      icon: verifiedCount === 2 ? Shield : ClipboardCheck,
+      label: isBengali ? 'ইমেইল যাচাই' : 'Email Verified',
+      value: user?.isEmailVerified
+        ? isBengali
+          ? 'যাচাইকৃত'
+          : 'Verified'
+        : isBengali
+        ? 'যাচাই বাকি'
+        : 'Pending',
+      tone: user?.isEmailVerified ? 'text-emerald-600 dark:text-emerald-400' : 'text-gold',
+      icon: user?.isEmailVerified ? CheckCircle2 : AlertCircle,
     },
     {
       label: isBengali

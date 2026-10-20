@@ -99,6 +99,13 @@ export const workflowApi = {
       )
     ).data;
   },
+  async confirmGuardianConsent() {
+    return (
+      await apiClient.post<ApiResponse<{ application: Application }>>(
+        "/biodata/me/guardian/consent",
+      )
+    ).data;
+  },
   async revokeGuardian() {
     return (
       await apiClient.post<ApiResponse<{ application: Application }>>(

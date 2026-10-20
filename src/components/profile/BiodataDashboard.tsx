@@ -11,7 +11,6 @@ import { useAuth } from "../../context/useAuth";
 import { useLanguage } from "../../i18n/LanguageContext";
 import {
   Mail,
-  Phone,
   DoorOpen,
   ClipboardCheck,
   CheckCircle2,
@@ -23,21 +22,16 @@ import {
   Sparkles,
   Clock,
   ArrowRight,
+  Shield,
+  Phone,
 } from "lucide-react";
 
 const input = "mb-input w-full";
 
-/* ─────────── Verification mini-card ─────────── */
-function VerificationCard({
-  purpose,
-  verified,
-}: {
-  purpose: "email" | "phone";
-  verified: boolean;
-}) {
+/* ─────────── Email Verification Card ─────────── */
+function EmailVerificationCard({ verified }: { verified: boolean }) {
   const { user, refreshUser } = useAuth();
   const { isBengali } = useLanguage();
-  const [phone, setPhone] = useState(user?.phone || "");
   const [challenge, setChallenge] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
@@ -45,11 +39,13 @@ function VerificationCard({
   async function request() {
     setBusy(true);
     try {
-      const res = await workflowApi.requestVerification(purpose, phone);
+      const res = await workflowApi.requestVerification("email");
       setChallenge(res.data!.challengeId);
       setCode("");
       toast.success(
-        isBengali ? "যাচাই কোড পাঠানো হয়েছে" : "Verification code sent"
+        isBengali
+          ? "আপনার ইমেইলে যাচাই কোড পাঠানো হয়েছে।"
+          : "Verification code sent to your email."
       );
     } catch (e) {
       toast.error(errorMessage(e));
@@ -61,11 +57,15 @@ function VerificationCard({
   async function confirm() {
     setBusy(true);
     try {
-      await workflowApi.confirmVerification(purpose, challenge, code);
+      await workflowApi.confirmVerification("email", challenge, code);
       await refreshUser();
       setChallenge("");
       setCode("");
-      toast.success(isBengali ? "যাচাই সম্পূর্ণ" : "Verification successful");
+      toast.success(
+        isBengali
+          ? "ইমেইল সফলভাবে যাচাই সম্পন্ন হয়েছে!"
+          : "Email verification successful!"
+      );
     } catch (e) {
       toast.error(errorMessage(e));
     } finally {
@@ -73,80 +73,82 @@ function VerificationCard({
     }
   }
 
-  const isEmail = purpose === "email";
-  const Icon = isEmail ? Mail : Phone;
-
   return (
-    <section className="rounded-2xl bg-elev border border-line p-4 sm:p-5 space-y-3">
+    <section className="rounded-2xl bg-elev border border-line p-5 space-y-3.5">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
           <div
-            className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+            className={`w-9 h-9 rounded-xl flex items-center justify-center ${
               verified
                 ? "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400"
                 : "bg-brand-soft text-brand"
             }`}
           >
-            <Icon className="w-4 h-4" />
+            <Mail className="w-4.5 h-4.5" />
           </div>
-          <h3 className="font-bold text-sm text-ink">
-            {isEmail
-              ? isBengali
-                ? "ইমেইল যাচাই"
-                : "Email Verification"
-              : isBengali
-              ? "মোবাইল যাচাই"
-              : "Phone Verification"}
-          </h3>
+          <div>
+            <h3 className="font-bold text-sm text-ink">
+              {isBengali ? "ইমেইল যাচাই" : "Email Verification"}
+            </h3>
+            <p className="text-[11px] text-ink-3">
+              {isBengali
+                ? "অ্যাকাউন্টের একমাত্র আবশ্যক যাচাইকরণ (কোনো SMS প্রয়োজন নেই)"
+                : "Primary required verification (No SMS required)"}
+            </p>
+          </div>
         </div>
         {verified ? (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-            <CheckCircle2 className="w-3 h-3" />
-            {isBengali ? "সম্পন্ন" : "Verified"}
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>{isBengali ? "যাচাইকৃত" : "Verified"}</span>
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-gold-soft text-gold border border-gold/25">
-            <CircleAlert className="w-3 h-3" />
-            {isBengali ? "বাকি আছে" : "Pending"}
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gold-soft text-gold border border-gold/25">
+            <CircleAlert className="w-3.5 h-3.5" />
+            <span>{isBengali ? "যাচাই বাকি" : "Pending"}</span>
           </span>
         )}
       </div>
 
-      {isEmail ? (
-        <p className="text-sm text-ink-2 bg-card rounded-xl px-3 py-2 border border-line">
-          {user?.email}
-        </p>
-      ) : (
-        <input
-          className={input}
-          type="tel"
-          placeholder={isBengali ? "আপনার মোবাইল নম্বর" : "Your mobile number"}
-          value={phone}
-          disabled={verified || busy}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-      )}
+      <div className="bg-card rounded-xl p-3 border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+        <div>
+          <span className="text-ink-3 mr-2">{isBengali ? "অ্যাকাউন্ট ইমেইল:" : "Account Email:"}</span>
+          <strong className="text-ink font-mono">{user?.email}</strong>
+        </div>
+        {user?.phone && (
+          <div className="text-ink-3">
+            <span className="mr-1">{isBengali ? "সংরক্ষিত মোবাইল:" : "Saved Phone:"}</span>
+            <span className="font-mono text-ink-2">{user.phone}</span>
+          </div>
+        )}
+      </div>
 
       {!verified && (
-        <>
+        <div className="space-y-3 pt-1">
+          <p className="text-xs text-ink-2 leading-relaxed">
+            {isBengali
+              ? "বায়োডাটা মডারেশন এবং ম্যাচমেকিং যোগাযোগের জন্য আপনার ইমেইলটি যাচাই করে নিন। নিচের বাটনে চাপলে আপনার ইমেইলে একটি ৬-সংখ্যার ওটিপি কোড পাঠানো হবে।"
+              : "Verify your email for biodata approval and match notifications. A 6-digit code will be sent to your email."}
+          </p>
           <button
             disabled={busy}
             onClick={request}
-            className="text-brand text-xs font-bold hover:underline disabled:opacity-40 cursor-pointer flex items-center gap-1.5"
+            className="mb-btn-secondary !text-xs py-2 px-4 rounded-xl cursor-pointer disabled:opacity-40 inline-flex items-center gap-1.5 bg-card"
           >
-            <RotateCw className={`w-3 h-3 ${busy ? "animate-spin" : ""}`} />
+            <RotateCw className={`w-3.5 h-3.5 ${busy ? "animate-spin" : ""}`} />
             <span>
               {challenge
                 ? isBengali
-                  ? "আবার কোড নিন (১ মিনিট পর)"
+                  ? "আবার কোড পাঠান (১ মিনিট পর)"
                   : "Resend Code"
                 : isBengali
-                ? "যাচাই কোড নিন"
-                : "Send Verification Code"}
+                ? "ইমেইলে যাচাই কোড পাঠান"
+                : "Send Code to Email"}
             </span>
           </button>
+
           {challenge && (
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 max-w-sm pt-1">
               <input
                 inputMode="numeric"
                 autoComplete="one-time-code"
@@ -161,11 +163,11 @@ function VerificationCard({
                 onClick={confirm}
                 className="mb-btn-primary px-4 py-2 text-xs w-full cursor-pointer disabled:opacity-50"
               >
-                {isBengali ? "যাচাই করুন" : "Verify"}
+                {isBengali ? "ইমেইল কোড যাচাই সম্পন্ন করুন" : "Confirm Email Verification"}
               </button>
             </div>
           )}
-        </>
+        </div>
       )}
     </section>
   );
@@ -183,9 +185,7 @@ export default function BiodataDashboard() {
     queryFn: workflowApi.getDraft,
   });
   const app = data?.data?.application;
-  const [challenge, setChallenge] = useState("");
-  const [code, setCode] = useState("");
-  const [consent, setConsent] = useState(false);
+  const [consentChecked, setConsentChecked] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function action(fn: () => Promise<unknown>) {
@@ -202,13 +202,12 @@ export default function BiodataDashboard() {
   }
 
   const emailVerified = !!user?.isEmailVerified;
-  const phoneVerified = !!user?.isPhoneVerified;
   const guardianConsented = !!app?.guardianConsentedAt;
   const submissible = !!(app && ["draft", "changes_requested", "rejected"].includes(app.status));
 
+  // Milestones: 1. Email Verification, 2. Guardian Consent Confirmation
   const verificationCompletedCount =
     (emailVerified ? 1 : 0) +
-    (phoneVerified ? 1 : 0) +
     (guardianConsented ? 1 : 0);
 
   const statusTone: Record<string, { bg: string; text: string; border: string }> = {
@@ -255,8 +254,8 @@ export default function BiodataDashboard() {
             </h4>
             <p className="text-xs text-ink-2 leading-relaxed">
               {isBengali
-                ? "এবার প্ল্যাটফর্মে বায়োডাটা প্রকাশের জন্য নিচের ৩টি ছোট যাচাই (ইমেইল, মোবাইল ও অভিভাবক সম্মতি) সম্পন্ন করে নিচে 'পর্যালোচনার জন্য জমা দিন' বাটনে ক্লিক করুন।"
-                : "Now complete the 3 quick verifications below (email, phone, and guardian consent) and click 'Submit for Review' at the bottom to submit for approval."}
+                ? "এবার প্ল্যাটফর্মে বায়োডাটা প্রকাশের জন্য আপনার ইমেইল যাচাই এবং অভিভাবকের সম্মতি নিশ্চিত করে নিচে 'পর্যালোচনার জন্য জমা দিন' বাটনে ক্লিক করুন (কোনো মোবাইল SMS যাচাইয়ের প্রয়োজন নেই)।"
+                : "Now verify your email and confirm guardian consent, then click 'Submit for Review' at the bottom to submit for approval (no SMS required)."}
             </p>
           </div>
         </div>
@@ -275,15 +274,15 @@ export default function BiodataDashboard() {
               </h2>
               <p className="text-xs text-ink-3 mt-0.5">
                 {isBengali
-                  ? "ইমেইল → মোবাইল → অভিভাবকের সম্মতি → পর্যালোচনায় জমা"
-                  : "Email → Phone → Guardian Consent → Review Submission"}
+                  ? "ইমেইল যাচাই → অভিভাবকের সম্মতি ঘোষণা → পর্যালোচনায় জমা"
+                  : "Email Verification → Guardian Consent Declaration → Review Submission"}
               </p>
             </div>
           </div>
 
-          {/* step counter */}
+          {/* step counter (2 steps: Email + Guardian Consent) */}
           <div className="flex items-center gap-2 shrink-0">
-            {[0, 1, 2].map((idx) => {
+            {[0, 1].map((idx) => {
               const done = idx < verificationCompletedCount;
               return (
                 <span
@@ -306,18 +305,15 @@ export default function BiodataDashboard() {
             })}
             <span className="text-[11px] font-bold text-ink-2 ml-1">
               {isBengali
-                ? `${formatNumber(verificationCompletedCount)}/৩ সম্পন্ন`
-                : `${verificationCompletedCount}/3 Completed`}
+                ? `${formatNumber(verificationCompletedCount)}/২ সম্পন্ন`
+                : `${verificationCompletedCount}/2 Completed`}
             </span>
           </div>
         </div>
       </div>
 
-      {/* ── Verification cards ── */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <VerificationCard purpose="email" verified={emailVerified} />
-        <VerificationCard purpose="phone" verified={phoneVerified} />
-      </div>
+      {/* ── Email Verification card (Primary & Only required verification) ── */}
+      <EmailVerificationCard verified={emailVerified} />
 
       {/* ── Application status ── */}
       {isLoading ? (
@@ -381,24 +377,31 @@ export default function BiodataDashboard() {
               </div>
             )}
 
-            {/* Guardian consent */}
-            <div className="rounded-2xl bg-elev border border-line p-4 sm:p-5 space-y-3">
+            {/* Guardian consent without SMS requirement */}
+            <div className="rounded-2xl bg-elev border border-line p-4 sm:p-5 space-y-3.5">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-card flex items-center justify-center border border-line">
                   <Users className="w-4 h-4 text-brand" />
                 </div>
-                <h4 className="font-bold text-sm text-ink">
-                  {isBengali ? "অভিভাবকের সম্মতি" : "Guardian Consent"}
-                </h4>
+                <div>
+                  <h4 className="font-bold text-sm text-ink">
+                    {isBengali ? "অভিভাবকের তথ্য ও সম্মতি" : "Guardian Info & Consent"}
+                  </h4>
+                  <p className="text-[11px] text-ink-3">
+                    {isBengali
+                      ? "পারিবারিক সততা ও শরীয়াহ নীতি রক্ষার্থে অভিভাবকের সম্মতি আবশ্যক"
+                      : "Guardian awareness and consent declaration is required"}
+                  </p>
+                </div>
                 {guardianConsented && (
                   <span className="ml-auto inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                     <ShieldCheck className="w-3 h-3" />
-                    {isBengali ? "যাচাই সম্পূর্ণ" : "Verified"}
+                    {isBengali ? "সম্মতি নিশ্চিতকৃত" : "Consent Confirmed"}
                   </span>
                 )}
               </div>
 
-              {app.guardian?.phone ? (
+              {app.guardian?.name && app.guardian?.phone ? (
                 <div className="bg-card rounded-xl px-3.5 py-2.5 border border-line text-sm text-ink-2 flex flex-wrap items-center gap-x-2">
                   <strong className="text-ink">{app.guardian.name}</strong>
                   <span className="text-ink-3">({app.guardian.relationship})</span>
@@ -406,87 +409,83 @@ export default function BiodataDashboard() {
                   <span className="font-mono">{app.guardian.phone}</span>
                 </div>
               ) : (
-                <p className="text-xs text-ink-2 leading-relaxed">
+                <div className="p-3 bg-amber-500/10 border border-amber-500/25 rounded-xl text-xs text-amber-800 dark:text-amber-300">
                   {isBengali
-                    ? "খসড়ায় অভিভাবকের নাম, সম্পর্ক ও মোবাইল সংরক্ষণ করুন।"
-                    : "Please provide guardian name, relationship, and mobile number in the draft."}
-                </p>
+                    ? "খসড়ায় অভিভাবকের নাম, সম্পর্ক ও মোবাইল নম্বর যোগ করতে 'খসড়া সম্পাদনা করুন' বাটনে ক্লিক করুন।"
+                    : "Please add guardian name, relationship, and phone in draft editing."}
+                </div>
               )}
 
               {guardianConsented ? (
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
-                  {isBengali
-                    ? "মোবাইল ও সম্মতি যাচাই সম্পূর্ণ ✓"
-                    : "Mobile & Guardian Consent Verified ✓"}
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-[11px] text-ink-2 leading-relaxed">
-                    {isBengali
-                      ? "অভিভাবককে উদ্দেশ্য বুঝিয়ে সম্মতি নিন। কোডটি তাঁর মোবাইলে যাবে; তিনি সম্মত হলেই কোডটি দেবেন।"
-                      : "Obtain consent from your guardian. A verification code will be sent to their mobile number."}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>
+                      {isBengali
+                        ? "অভিভাবকের সম্মতি সফলভাবে নিশ্চিত করা হয়েছে ✓"
+                        : "Guardian consent has been confirmed ✓"}
+                    </span>
                   </p>
                   <button
-                    disabled={busy || !app.guardian?.phone}
-                    className="mb-btn-secondary !text-xs py-2 px-4 rounded-xl cursor-pointer disabled:opacity-40 inline-flex items-center gap-1.5 bg-card"
+                    disabled={busy}
                     onClick={() =>
                       action(async () => {
-                        const res = await workflowApi.requestGuardian();
-                        setChallenge(res.data!.challengeId);
-                        setCode("");
+                        await workflowApi.revokeGuardian();
+                        toast.info(
+                          isBengali
+                            ? "অভিভাবকের সম্মতি প্রত্যাহার করা হয়েছে।"
+                            : "Consent declaration revoked."
+                        );
+                      })
+                    }
+                    className="text-xs font-semibold text-rose-500 hover:underline cursor-pointer"
+                  >
+                    {isBengali ? "সম্মতি প্রত্যাহার / পরিবর্তন করুন" : "Revoke / Change Consent"}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3 bg-card p-4 rounded-xl border border-line">
+                  <p className="text-xs text-ink-2 leading-relaxed">
+                    {isBengali
+                      ? "মধু বন্ধন প্ল্যাটফর্মের নৈতিক নীতি অনুযায়ী, আপনার অভিভাবক এই বায়োডাটা প্রকাশের ব্যাপারে অবগত আছেন তা নিশ্চিত করুন। কোনো SMS কোডের প্রয়োজন নেই, সরাসরি সম্মতি ঘোষণা করলেই চলবে।"
+                      : "Confirm that your guardian is aware and agrees to publishing your biodata on MadhuBondhon. No SMS verification needed."}
+                  </p>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer text-xs text-ink font-semibold select-none">
+                    <input
+                      type="checkbox"
+                      checked={consentChecked}
+                      onChange={(e) => setConsentChecked(e.target.checked)}
+                      className="mt-0.5 rounded text-brand focus:ring-brand accent-[color:var(--mb-brand)]"
+                    />
+                    <span>
+                      {isBengali
+                        ? `আমি শপথপূর্বক নিশ্চিত করছি যে আমার অভিভাবক (${app.guardian?.name || "অভিভাবক"}, সম্পর্ক: ${app.guardian?.relationship || "অভিভাবক"}) এই বায়োডাটা প্ল্যাটফর্মে প্রকাশ সম্পর্কে সম্পূর্ণ অবগত এবং তাঁর পূর্ণ সম্মতি রয়েছে।`
+                        : `I declare that my guardian (${app.guardian?.name || "Guardian"}) is fully aware and agrees to publishing this biodata on MadhuBondhon.`}
+                    </span>
+                  </label>
+
+                  <button
+                    disabled={busy || !app.guardian?.name || !app.guardian?.phone || !consentChecked}
+                    className="mb-btn-primary !text-xs py-2.5 px-5 rounded-xl cursor-pointer disabled:opacity-40 inline-flex items-center gap-1.5"
+                    onClick={() =>
+                      action(async () => {
+                        await workflowApi.confirmGuardianConsent();
+                        toast.success(
+                          isBengali
+                            ? "অভিভাবকের সম্মতি সফলভাবে নিশ্চিত হয়েছে!"
+                            : "Guardian consent confirmed successfully!"
+                        );
                       })
                     }
                   >
-                    <Phone className="w-3.5 h-3.5" />
+                    <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>
                       {isBengali
-                        ? "অভিভাবকের মোবাইলে কোড পাঠান"
-                        : "Send Code to Guardian"}
+                        ? "অভিভাবকের সম্মতি নিশ্চিত করুন"
+                        : "Confirm Guardian Consent"}
                     </span>
                   </button>
-
-                  {challenge && (
-                    <div className="space-y-2.5 pt-1">
-                      <input
-                        className={`${input} text-center tracking-[0.35em] font-mono font-bold`}
-                        maxLength={6}
-                        inputMode="numeric"
-                        placeholder={
-                          isBengali ? "অভিভাবকের সম্মতির কোড" : "Guardian Consent Code"
-                        }
-                        value={code}
-                        onChange={(e) => setCode(e.target.value)}
-                      />
-                      <label className="flex items-start gap-2 text-[11px] text-ink-2 leading-relaxed cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          className="mt-0.5 accent-[color:var(--mb-brand)]"
-                          checked={consent}
-                          onChange={(e) => setConsent(e.target.checked)}
-                        />
-                        <span>
-                          {isBengali
-                            ? "অভিভাবক তথ্য সংরক্ষণ ও অনুমতি অনুযায়ী যোগাযোগ প্রকাশে সম্মতি দিয়েছেন"
-                            : "Guardian has consented to data storage and contact release upon approval"}
-                        </span>
-                      </label>
-                      <button
-                        disabled={busy || !consent || code.length !== 6}
-                        className="mb-btn-primary px-4 py-2 text-xs cursor-pointer disabled:opacity-50"
-                        onClick={() =>
-                          action(async () => {
-                            await workflowApi.confirmGuardian(challenge, code, consent);
-                            setChallenge("");
-                            toast.success(
-                              isBengali ? "সম্মতি যাচাই হয়েছে" : "Consent confirmed"
-                            );
-                          })
-                        }
-                      >
-                        {isBengali ? "সম্মতি নিশ্চিত করুন" : "Confirm Consent"}
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -539,7 +538,7 @@ export default function BiodataDashboard() {
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>{isBengali ? "২. অভিভাবক সম্মতি" : "2. Consent"}</span>
                     </div>
-                    <p className="text-[11px] text-ink-3">{isBengali ? "যাচাইকৃত" : "Verified"}</p>
+                    <p className="text-[11px] text-ink-3">{isBengali ? "নিশ্চিতকৃত" : "Confirmed"}</p>
                   </div>
 
                   <div className="bg-emerald-500/15 p-2.5 rounded-xl border border-emerald-500/40 space-y-1">
@@ -587,13 +586,12 @@ export default function BiodataDashboard() {
                     {isBengali ? "চূড়ান্ত জমা দেওয়ার প্রয়োজনীয় ধাপ:" : "Required Steps Before Submission:"}
                   </p>
                   <p className="text-xs text-ink-2 leading-relaxed">
-                    {!emailVerified || !phoneVerified || !guardianConsented ? (
+                    {!emailVerified || !guardianConsented ? (
                       <span className="text-amber-600 dark:text-amber-400 font-semibold">
                         {isBengali ? "বাকি আছে: " : "Missing: "}
                         {[
                           !emailVerified && (isBengali ? "ইমেইল যাচাই" : "Email verification"),
-                          !phoneVerified && (isBengali ? "মোবাইল যাচাই" : "Phone verification"),
-                          !guardianConsented && (isBengali ? "অভিভাবকের ওটিপি সম্মতি" : "Guardian consent"),
+                          !guardianConsented && (isBengali ? "অভিভাবকের সম্মতি নিশ্চিতকরণ" : "Guardian consent confirmation"),
                         ]
                           .filter(Boolean)
                           .join(", ")}
@@ -601,8 +599,8 @@ export default function BiodataDashboard() {
                     ) : (
                       <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
                         {isBengali
-                          ? "সকল ৩টি যাচাই সম্পন্ন হয়েছে! এবার পর্যালোচনার জন্য জমা দিন।"
-                          : "All 3 verifications complete! You can now submit for moderation review."}
+                          ? "সকল প্রয়োজনীয় ধাপ সম্পন্ন হয়েছে! এবার পর্যালোচনার জন্য জমা দিন।"
+                          : "All required steps complete! You can now submit for moderation review."}
                       </span>
                     )}
                   </p>
@@ -611,7 +609,6 @@ export default function BiodataDashboard() {
                   disabled={
                     busy ||
                     !emailVerified ||
-                    !phoneVerified ||
                     !guardianConsented ||
                     !submissible
                   }
