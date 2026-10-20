@@ -20,16 +20,16 @@ export const GuidePage: React.FC = () => {
       step: '02',
       title: isBengali ? 'বায়োডাটা তৈরি' : 'Create Biodata',
       body: isBengali
-        ? 'ধাপে ধাপে মাল্টি-স্টেপ ফর্মে শিক্ষা, পেশা, পারিবারিক ও ধর্মীয় তথ্য পূরণ করুন; প্রয়োজনে ছবি যোগ করুন।'
+        ? 'ধাপে ধাপে মাল্টি-স্টেপ ফর্মে শিক্ষা, পেশা, পারিবারিক ও ধর্মীয় দ্বীনি তথ্য সহজে পূরণ করুন।'
         : 'Complete your detailed profile including education, profession, family background, and religious lifestyle.',
     },
     {
       icon: ShieldCheck,
       step: '03',
-      title: isBengali ? 'অভিভাবকের সম্মতি ও যাচাই' : 'Guardian Consent & Verification',
+      title: isBengali ? 'অভিভাবকের সম্মতি ও প্রকাশ' : 'Guardian Consent & Publish',
       body: isBengali
-        ? 'অভিভাবকের মোবাইলে ওটিপি যায়; সম্মতি পেলে মডারেটর বায়োডাটা যাচাই করে প্রকাশ করেন।'
-        : 'An OTP is sent to the guardian’s mobile number. Once confirmed, moderators review and publish the profile.',
+        ? 'ইমেইল যাচাই ও অভিভাবকের সম্মতি নিশ্চিত করুন; মডারেশন শেষে বায়োডাটা প্ল্যাটফর্মে প্রকাশিত হয়।'
+        : 'Verify your email and confirm guardian consent. Once approved, your biodata goes live on the platform.',
     },
     {
       icon: HeartHandshake,

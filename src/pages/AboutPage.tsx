@@ -26,8 +26,8 @@ export const AboutPage: React.FC = () => {
       icon: Users,
       title: isBengali ? 'অভিভাবকের অংশগ্রহণ' : 'Guardian Involvement',
       body: isBengali
-        ? 'ওটিপি দিয়ে অভিভাবকের অনুমোদন নেওয়া হয়; পরিবারই চূড়ান্ত সিদ্ধান্তের অংশীদার।'
-        : 'Guardian consent is verified via OTP; family is at the heart of every marital milestone.',
+        ? 'অভিভাবকের সুস্পষ্ট অনুমোদন নিশ্চিত করা হয়; পরিবারই চূড়ান্ত সিদ্ধান্তের অংশীদার।'
+        : 'Guardian consent is confirmed transparently; family is at the heart of every marital milestone.',
     },
     {
       icon: EyeOff,

@@ -58,9 +58,9 @@ const faqs: FAQItem[] = [
     questionBn: 'অভিভাবকের সম্মতি কেন বাধ্যতামূলক এবং কীভাবে যাচাই করা হয়?',
     questionEn: 'Why is guardian consent mandatory and how is it verified?',
     answerBn:
-      'ইসলামিক শরিয়াহ ও সুস্থ পারিবারিক সংস্কৃতির মূল ভিত্তি হলো অভিভাবকের সন্তুষ্টি ও সম্পৃক্ততা। মধুবন্ধনে কোনো বায়োডাটা জমা দেওয়ার পূর্বে অভিভাবকের মোবাইল নম্বরে ৬ সংখ্যার ওটিপি (OTP) পাঠিয়ে তাঁর অনুমতি নিশ্চিত করা হয়। উভয় পক্ষের অভিভাবকের সম্মতি ছাড়া কাউকে কোনো ব্যক্তিগত ফোন নম্বর প্রদান করা হয় না।',
+      'ইসলামিক শরিয়াহ ও সুস্থ পারিবারিক সংস্কৃতির মূল ভিত্তি হলো অভিভাবকের সন্তুষ্টি ও সম্পৃক্ততা। মধুবন্ধনে কোনো বায়োডাটা জমা দেওয়ার পূর্বে অভিভাবকের অনুমতি ও সম্মতি নিশ্চিত করা আবশ্যক। উভয় পক্ষের অভিভাবকের সম্মতি ছাড়া কাউকে কোনো ব্যক্তিগত ফোন নম্বর প্রদান করা হয় না।',
     answerEn:
-      'Islamic Shariah and wholesome family ethics center around guardian involvement and consent. Before any biodata is submitted or contact numbers are revealed, an SMS verification OTP is sent to the guardian’s mobile number to confirm their permission. Official guardian phone numbers are never disclosed without mutual guardian consent.',
+      'Islamic Shariah and wholesome family ethics center around guardian involvement and consent. Before any biodata is submitted or contact numbers are revealed, candidate confirms clear guardian awareness and consent. Official guardian phone numbers are never disclosed without mutual guardian consent.',
   },
   {
     id: 'direct-chat',
@@ -98,9 +98,9 @@ const faqs: FAQItem[] = [
     questionBn: 'অভিভাবকের যোগাযোগ নম্বর দেখতে ক্রেডিট কেন প্রয়োজন এবং কীভাবে কিনব?',
     questionEn: 'Why are credits required to view guardian contact info, and how do I purchase them?',
     answerBn:
-      'স্প্যামার বা অসাধু ব্যক্তিদের অনাকাঙ্ক্ষিত কল থেকে পাত্র-পাত্রীর পরিবারকে সুরক্ষিত রাখতে এবং প্ল্যাটফর্মের সার্ভার ও এসএমএস গেটওয়ে পরিচালনা করতে সামান্য সার্ভিস ক্রেডিট ফি নেওয়া হয়। নতুন নিবন্ধনে ২টি ক্রেডিট সম্পূর্ণ ফ্রি থাকে। এরপর বিকাশ বা নগদে সেন্ড মানি করে ৫, ১০ বা ২০ ক্রেডিটের সাশ্রয়ী প্যাকেজ কেনা যায়। ট্রানজেকশন আইডি (TrxID) দিলে আমাদের টিম ৫-১০ মিনিটের মধ্যে ভেরিফাই করে ক্রেডিট যোগ করে দেয়।',
+      'স্প্যামার বা অসাধু ব্যক্তিদের অনাকাঙ্ক্ষিত কল থেকে পাত্র-পাত্রীর পরিবারকে সুরক্ষিত রাখতে এবং প্ল্যাটফর্মের সার্ভার ও প্রশাসনিক মডারেশন পরিচালনা করতে সামান্য সার্ভিস ক্রেডিট ফি নেওয়া হয়। নতুন নিবন্ধনে ২টি ক্রেডিট সম্পূর্ণ ফ্রি থাকে। এরপর বিকাশ বা নগদে সেন্ড মানি করে ৫, ১০ বা ২০ ক্রেডিটের সাশ্রয়ী প্যাকেজ কেনা যায়। ট্রানজেকশন আইডি (TrxID) দিলে আমাদের টিম ৫-১০ মিনিটের মধ্যে ভেরিফাই করে ক্রেডিট যোগ করে দেয়।',
     answerEn:
-      'A nominal credit system is maintained to protect families from spammers and unsolicited calls, as well as to cover SMS gateway and verification server costs. New registrations receive 2 complimentary free credits. Additional affordable credit packs (5, 10, or 20 credits) can be acquired via bKash or Nagad Send Money. Once you submit the TrxID, our team verifies and credits your account within 5–10 minutes.',
+      'A nominal credit system is maintained to protect families from spammers and unsolicited calls, as well as to cover cloud infrastructure and moderation server costs. New registrations receive 2 complimentary free credits. Additional affordable credit packs (5, 10, or 20 credits) can be acquired via bKash or Nagad Send Money. Once you submit the TrxID, our team verifies and credits your account within 5–10 minutes.',
   },
   {
     id: 'expats-eligibility',

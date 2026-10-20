@@ -209,7 +209,13 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
   if (isLoading) return <TabLoader />;
 
   if (profile) {
-    return <PublishedProfileOverview profile={profile} onNavigateTab={onNavigateTab} />;
+    return (
+      <PublishedProfileOverview
+        profile={profile}
+        application={application}
+        onNavigateTab={onNavigateTab}
+      />
+    );
   }
 
   if (
@@ -223,6 +229,332 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
   }
 
   return <ProfileMissing onNavigateTab={onNavigateTab} />;
+};
+
+/* ═══════════════ Detailed Biodata Preview Cards (Categorized) ═══════════════ */
+interface BiodataDetailPreviewProps {
+  data: Partial<Profile> | Record<string, any>;
+  guardian?: { name?: string; relationship?: string; phone?: string };
+  guardianConsented?: boolean;
+}
+
+const BiodataDetailPreview: React.FC<BiodataDetailPreviewProps> = ({
+  data,
+  guardian,
+  guardianConsented,
+}) => {
+  const { isBengali, formatNumber } = useLanguage();
+  const age = (data as any).age || calculateAge(data.dateOfBirth);
+  const upazilaName = getUpazilaDisplayName(data.upazila, isBengali);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between px-1">
+        <h2 className="mb-section-title text-base flex items-center gap-2">
+          <LayoutDashboard className="w-4 h-4 text-brand" />
+          <span>{isBengali ? 'আপনার সংরক্ষিত বায়োডাটার তথ্যাবলী' : 'Submitted Biodata Details'}</span>
+        </h2>
+        <Link
+          to="/edit-profile"
+          className="text-xs font-bold text-brand hover:underline inline-flex items-center gap-1"
+        >
+          <Edit3 className="w-3.5 h-3.5" />
+          <span>{isBengali ? 'সম্পাদনা করুন' : 'Edit details'}</span>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* 1. Basic Info */}
+        <div className="mb-card rounded-2xl p-5 space-y-3">
+          <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+            <UserIcon className="w-4 h-4 text-brand" />
+            <span>{isBengali ? 'মৌলিক বিবরণ' : 'Basic Information'}</span>
+          </h3>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'প্রদর্শনের নাম' : 'Display Name'}</span>
+              <span className="font-semibold text-ink">{data.displayName || '—'}</span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'পাত্র / পাত্রী' : 'Gender'}</span>
+              <span className="font-semibold text-ink">
+                {data.gender === 'female'
+                  ? isBengali
+                    ? 'পাত্রী'
+                    : 'Bride'
+                  : isBengali
+                  ? 'পাত্র'
+                  : 'Groom'}
+              </span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'জন্ম তারিখ ও বয়স' : 'Birth Date & Age'}</span>
+              <span className="font-semibold text-ink">
+                {data.dateOfBirth ? formatDisplayDate(data.dateOfBirth, isBengali) : '—'}{' '}
+                {age ? `(${isBengali ? formatNumber(age) : age} ${isBengali ? 'বছর' : 'yrs'})` : ''}
+              </span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'স্থায়ী উপজেলা' : 'Permanent Upazila'}</span>
+              <span className="font-semibold text-ink">
+                {data.upazila ? `${upazilaName}, ${isBengali ? 'টাঙ্গাইল' : 'Tangail'}` : '—'}
+              </span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'বৈবাহিক অবস্থা' : 'Marital Status'}</span>
+              <span className="font-semibold text-ink">
+                {getMaritalStatusLabel(data.maritalStatus, data.gender, isBengali)}
+              </span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'উচ্চতা' : 'Height'}</span>
+              <span className="font-semibold text-ink">{formatHeight(data.height, isBengali, formatNumber)}</span>
+            </div>
+            {data.skinTone && (
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'গায়ের রং' : 'Complexion'}</span>
+                <span className="font-semibold text-ink">{data.skinTone}</span>
+              </div>
+            )}
+            {data.weight && (
+              <div className="flex justify-between py-1">
+                <span className="text-ink-3">{isBengali ? 'ওজন' : 'Weight'}</span>
+                <span className="font-semibold text-ink">
+                  {isBengali ? `${formatNumber(data.weight)} কেজি` : `${data.weight} kg`}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 2. Education & Profession */}
+        <div className="mb-card rounded-2xl p-5 space-y-3">
+          <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+            <BookOpen className="w-4 h-4 text-brand" />
+            <span>{isBengali ? 'শিক্ষা ও পেশা' : 'Education & Career'}</span>
+          </h3>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'শিক্ষাগত যোগ্যতা' : 'Education Level'}</span>
+              <span className="font-semibold text-ink">
+                {data.education ? data.education.toUpperCase() : '—'}
+              </span>
+            </div>
+            {data.educationDetail && (
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'বিস্তারিত শিক্ষা' : 'Education Details'}</span>
+                <span className="font-semibold text-ink text-right max-w-[60%]">{data.educationDetail}</span>
+              </div>
+            )}
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'পেশা' : 'Occupation'}</span>
+              <span className="font-semibold text-ink">{data.occupation || '—'}</span>
+            </div>
+            {data.lifestyle?.monthlyIncome && (
+              <div className="flex justify-between py-1">
+                <span className="text-ink-3">{isBengali ? 'মাসিক আয়' : 'Monthly Income'}</span>
+                <span className="font-semibold text-ink">{data.lifestyle.monthlyIncome}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 3. Religious Practice */}
+        <div className="mb-card rounded-2xl p-5 space-y-3">
+          <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+            <Sparkles className="w-4 h-4 text-gold" />
+            <span>{isBengali ? 'দ্বীনদারি ও ধর্মীয় অভ্যাস' : 'Religious Practice'}</span>
+          </h3>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'নিয়মিত পাঁচ ওয়াক্ত নামাজ' : 'Daily 5 Prayers'}</span>
+              <span className="font-semibold text-ink">
+                {formatYesNo(data.religiousInfo?.praysFiveTimes, isBengali)}
+              </span>
+            </div>
+            {data.gender === 'female' ? (
+              <>
+                <div className="flex justify-between py-1 border-b border-line/50">
+                  <span className="text-ink-3">{isBengali ? 'পর্দা বজায় রাখা (হিজাব/নিকাব)' : 'Hijab/Niqab'}</span>
+                  <span className="font-semibold text-ink">
+                    {data.religiousInfo?.wearsNiqab
+                      ? isBengali
+                        ? 'নিকাবসহ পর্দা'
+                        : 'Niqab with Purdah'
+                      : data.religiousInfo?.wearsHijab
+                      ? isBengali
+                        ? 'হিজাব'
+                        : 'Hijab'
+                      : isBengali
+                      ? 'সাধারণ পর্দা'
+                      : 'General Purdah'}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-line/50">
+                  <span className="text-ink-3">{isBengali ? 'গায়রে মাহরাম পর্দা' : 'Mahram Purdah'}</span>
+                  <span className="font-semibold text-ink">
+                    {formatYesNo(data.religiousInfo?.maintainsMahram, isBengali)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between py-1 border-b border-line/50">
+                  <span className="text-ink-3">{isBengali ? 'সুন্নতি দাড়ি রয়েছে' : 'Sunnah Beard'}</span>
+                  <span className="font-semibold text-ink">
+                    {formatYesNo(data.religiousInfo?.hasBeard, isBengali)}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-line/50">
+                  <span className="text-ink-3">{isBengali ? 'টাখনুর ওপর কাপড় পরা' : 'Clothes Above Ankle'}</span>
+                  <span className="font-semibold text-ink">
+                    {formatYesNo(data.religiousInfo?.clothesAboveAnkle, isBengali)}
+                  </span>
+                </div>
+              </>
+            )}
+            <div className="flex justify-between py-1">
+              <span className="text-ink-3">{isBengali ? 'কুরআন তিলাওয়াত' : 'Quran Recitation'}</span>
+              <span className="font-semibold text-ink">
+                {formatYesNo(data.religiousInfo?.canReciteQuran, isBengali)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. Family Information */}
+        <div className="mb-card rounded-2xl p-5 space-y-3">
+          <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+            <Users className="w-4 h-4 text-brand" />
+            <span>{isBengali ? 'পারিবারিক বিবরণ' : 'Family Details'}</span>
+          </h3>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'পিতার পেশা' : "Father's Occupation"}</span>
+              <span className="font-semibold text-ink">{data.familyInfo?.fatherOccupation || '—'}</span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'মাতার পেশা' : "Mother's Occupation"}</span>
+              <span className="font-semibold text-ink">{data.familyInfo?.motherOccupation || '—'}</span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'ভাই-বোনের সংখ্যা' : 'Siblings'}</span>
+              <span className="font-semibold text-ink">
+                {data.familyInfo?.siblings
+                  ? isBengali
+                    ? `${formatNumber(data.familyInfo.siblings)} জন`
+                    : `${data.familyInfo.siblings}`
+                  : '—'}
+              </span>
+            </div>
+            <div className="flex justify-between py-1">
+              <span className="text-ink-3">{isBengali ? 'পারিবারিক আর্থিক অবস্থা' : 'Financial Status'}</span>
+              <span className="font-semibold text-ink">{data.familyInfo?.financialStatus || '—'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 5. Guardian Details */}
+        {guardian && (guardian.name || guardian.phone) ? (
+          <div className="mb-card rounded-2xl p-5 space-y-3">
+            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+              <Shield className="w-4 h-4 text-emerald-600" />
+              <span>{isBengali ? 'অভিভাবকের তথ্য ও সম্মতি' : 'Guardian Info & Consent'}</span>
+            </h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'অভিভাবকের নাম' : "Guardian's Name"}</span>
+                <span className="font-semibold text-ink">{guardian.name || '—'}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'সম্পর্ক' : 'Relationship'}</span>
+                <span className="font-semibold text-ink">{guardian.relationship || '—'}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'মোবাইল নম্বর' : 'Phone'}</span>
+                <span className="font-semibold text-ink font-mono">{guardian.phone || '—'}</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-ink-3">{isBengali ? 'সম্মতি যাচাই অবস্থা' : 'Consent Status'}</span>
+                <span
+                  className={`font-bold inline-flex items-center gap-1 ${
+                    guardianConsented
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-amber-600 dark:text-amber-400'
+                  }`}
+                >
+                  {guardianConsented ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{isBengali ? 'সম্মতি নিশ্চিতকৃত' : 'Consent Confirmed'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>{isBengali ? 'যাচাই এখনো বাকি' : 'Consent Pending'}</span>
+                    </>
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {/* 6. Partner Preferences */}
+        <div className="mb-card rounded-2xl p-5 space-y-3">
+          <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+            <Heart className="w-4 h-4 text-brand" />
+            <span>{isBengali ? 'কাঙ্ক্ষিত জীবনসঙ্গী' : 'Partner Preferences'}</span>
+          </h3>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'প্রত্যাশিত বয়স' : 'Expected Age'}</span>
+              <span className="font-semibold text-ink">
+                {data.preferences?.minAge && data.preferences?.maxAge
+                  ? isBengali
+                    ? `${formatNumber(data.preferences.minAge)} - ${formatNumber(data.preferences.maxAge)} বছর`
+                    : `${data.preferences.minAge} - ${data.preferences.maxAge} yrs`
+                  : '—'}
+              </span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-line/50">
+              <span className="text-ink-3">{isBengali ? 'পছন্দের উপজেলাসমূহ' : 'Preferred Upazilas'}</span>
+              <span className="font-semibold text-ink text-right max-w-[60%]">
+                {data.preferences?.preferredUpazilas && data.preferences.preferredUpazilas.length > 0
+                  ? data.preferences.preferredUpazilas
+                      .map((u: string) => getUpazilaDisplayName(u, isBengali))
+                      .join(', ')
+                  : isBengali
+                  ? 'যেকোনো উপজেলা'
+                  : 'Any Upazila'}
+              </span>
+            </div>
+            <div className="flex justify-between py-1">
+              <span className="text-ink-3">{isBengali ? 'প্রত্যাশিত শিক্ষাগত যোগ্যতা' : 'Preferred Education'}</span>
+              <span className="font-semibold text-ink">
+                {data.preferences?.preferredEducation && data.preferences.preferredEducation.length > 0
+                  ? data.preferences.preferredEducation.map((e: string) => e.toUpperCase()).join(', ')
+                  : isBengali
+                  ? 'যেকোনো যোগ্যতা'
+                  : 'Any'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 7. About Bio */}
+      {data.bio && (
+        <div className="mb-card rounded-2xl p-5 space-y-2">
+          <h3 className="text-sm font-bold text-ink flex items-center gap-2">
+            <UserIcon className="w-4 h-4 text-brand" />
+            <span>{isBengali ? 'নিজের সম্পর্কে কিছু কথা' : 'About Candidate'}</span>
+          </h3>
+          <p className="text-xs text-ink-2 leading-relaxed whitespace-pre-line">{data.bio}</p>
+        </div>
+      )}
+    </div>
+  );
 };
 
 /* ═══════════════ Application Overview (Draft / Submitted / Under Review) ═══════════════ */
@@ -637,310 +969,11 @@ const ApplicationOverview: React.FC<{
       </div>
 
       {/* ── Detailed Biodata Preview (Categorized) ── */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between px-1">
-          <h2 className="mb-section-title text-base flex items-center gap-2">
-            <LayoutDashboard className="w-4 h-4 text-brand" />
-            <span>{isBengali ? 'আপনার সংরক্ষিত বায়োডাটার তথ্যাবলী' : 'Submitted Biodata Details'}</span>
-          </h2>
-          <Link
-            to="/edit-profile"
-            className="text-xs font-bold text-brand hover:underline inline-flex items-center gap-1"
-          >
-            <Edit3 className="w-3.5 h-3.5" />
-            <span>{isBengali ? 'সম্পাদনা করুন' : 'Edit details'}</span>
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* 1. Basic Info */}
-          <div className="mb-card rounded-2xl p-5 space-y-3">
-            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
-              <UserIcon className="w-4 h-4 text-brand" />
-              <span>{isBengali ? 'মৌলিক বিবরণ' : 'Basic Information'}</span>
-            </h3>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'প্রদর্শনের নাম' : 'Display Name'}</span>
-                <span className="font-semibold text-ink">{data.displayName || '—'}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'পাত্র / পাত্রী' : 'Gender'}</span>
-                <span className="font-semibold text-ink">
-                  {data.gender === 'female'
-                    ? isBengali
-                      ? 'পাত্রী'
-                      : 'Bride'
-                    : isBengali
-                    ? 'পাত্র'
-                    : 'Groom'}
-                </span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'জন্ম তারিখ ও বয়স' : 'Birth Date & Age'}</span>
-                <span className="font-semibold text-ink">
-                  {data.dateOfBirth ? formatDisplayDate(data.dateOfBirth, isBengali) : '—'}{' '}
-                  {age ? `(${isBengali ? formatNumber(age) : age} ${isBengali ? 'বছর' : 'yrs'})` : ''}
-                </span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'স্থায়ী উপজেলা' : 'Permanent Upazila'}</span>
-                <span className="font-semibold text-ink">
-                  {data.upazila ? `${upazilaName}, ${isBengali ? 'टाঙ্গাইল' : 'Tangail'}` : '—'}
-                </span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'বৈবাহিক অবস্থা' : 'Marital Status'}</span>
-                <span className="font-semibold text-ink">
-                  {getMaritalStatusLabel(data.maritalStatus, data.gender, isBengali)}
-                </span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'উচ্চতা' : 'Height'}</span>
-                <span className="font-semibold text-ink">{formatHeight(data.height, isBengali, formatNumber)}</span>
-              </div>
-              {data.skinTone && (
-                <div className="flex justify-between py-1 border-b border-line/50">
-                  <span className="text-ink-3">{isBengali ? 'গায়ের রং' : 'Complexion'}</span>
-                  <span className="font-semibold text-ink">{data.skinTone}</span>
-                </div>
-              )}
-              {data.weight && (
-                <div className="flex justify-between py-1">
-                  <span className="text-ink-3">{isBengali ? 'ওজন' : 'Weight'}</span>
-                  <span className="font-semibold text-ink">
-                    {isBengali ? `${formatNumber(data.weight)} কেজি` : `${data.weight} kg`}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* 2. Education & Profession */}
-          <div className="mb-card rounded-2xl p-5 space-y-3">
-            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
-              <BookOpen className="w-4 h-4 text-brand" />
-              <span>{isBengali ? 'শিক্ষা ও পেশা' : 'Education & Career'}</span>
-            </h3>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'শিক্ষাগত যোগ্যতা' : 'Education Level'}</span>
-                <span className="font-semibold text-ink">
-                  {data.education ? data.education.toUpperCase() : '—'}
-                </span>
-              </div>
-              {data.educationDetail && (
-                <div className="flex justify-between py-1 border-b border-line/50">
-                  <span className="text-ink-3">{isBengali ? 'বিস্তারিত শিক্ষা' : 'Education Details'}</span>
-                  <span className="font-semibold text-ink text-right max-w-[60%]">{data.educationDetail}</span>
-                </div>
-              )}
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'পেশা' : 'Occupation'}</span>
-                <span className="font-semibold text-ink">{data.occupation || '—'}</span>
-              </div>
-              {data.lifestyle?.monthlyIncome && (
-                <div className="flex justify-between py-1">
-                  <span className="text-ink-3">{isBengali ? 'মাসিক আয়' : 'Monthly Income'}</span>
-                  <span className="font-semibold text-ink">{data.lifestyle.monthlyIncome}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* 3. Religious Practice */}
-          <div className="mb-card rounded-2xl p-5 space-y-3">
-            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
-              <Sparkles className="w-4 h-4 text-gold" />
-              <span>{isBengali ? 'দ্বীনদারি ও ধর্মীয় অভ্যাস' : 'Religious Practice'}</span>
-            </h3>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'নিয়মিত পাঁচ ওয়াক্ত নামাজ' : 'Daily 5 Prayers'}</span>
-                <span className="font-semibold text-ink">
-                  {formatYesNo(data.religiousInfo?.praysFiveTimes, isBengali)}
-                </span>
-              </div>
-              {data.gender === 'female' ? (
-                <>
-                  <div className="flex justify-between py-1 border-b border-line/50">
-                    <span className="text-ink-3">{isBengali ? 'পর্দা বজায় রাখা (হিজাব/নিকাব)' : 'Hijab/Niqab'}</span>
-                    <span className="font-semibold text-ink">
-                      {data.religiousInfo?.wearsNiqab
-                        ? isBengali
-                          ? 'নিকাবসহ পর্দা'
-                          : 'Niqab with Purdah'
-                        : data.religiousInfo?.wearsHijab
-                        ? isBengali
-                          ? 'হিজাব'
-                          : 'Hijab'
-                        : isBengali
-                        ? 'সাধারণ পর্দা'
-                        : 'General Purdah'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-line/50">
-                    <span className="text-ink-3">{isBengali ? 'গায়রে মাহরাম পর্দা' : 'Mahram Purdah'}</span>
-                    <span className="font-semibold text-ink">
-                      {formatYesNo(data.religiousInfo?.maintainsMahram, isBengali)}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex justify-between py-1 border-b border-line/50">
-                    <span className="text-ink-3">{isBengali ? 'সুন্নতি দাড়ি রয়েছে' : 'Sunnah Beard'}</span>
-                    <span className="font-semibold text-ink">
-                      {formatYesNo(data.religiousInfo?.hasBeard, isBengali)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-line/50">
-                    <span className="text-ink-3">{isBengali ? 'টাখনুর ওপর কাপড় পরা' : 'Clothes Above Ankle'}</span>
-                    <span className="font-semibold text-ink">
-                      {formatYesNo(data.religiousInfo?.clothesAboveAnkle, isBengali)}
-                    </span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between py-1">
-                <span className="text-ink-3">{isBengali ? 'কুরআন তিলাওয়াত' : 'Quran Recitation'}</span>
-                <span className="font-semibold text-ink">
-                  {formatYesNo(data.religiousInfo?.canReciteQuran, isBengali)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* 4. Family Information */}
-          <div className="mb-card rounded-2xl p-5 space-y-3">
-            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
-              <Users className="w-4 h-4 text-brand" />
-              <span>{isBengali ? 'পারিবারিক বিবরণ' : 'Family Details'}</span>
-            </h3>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'পিতার পেশা' : "Father's Occupation"}</span>
-                <span className="font-semibold text-ink">{data.familyInfo?.fatherOccupation || '—'}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'মাতার পেশা' : "Mother's Occupation"}</span>
-                <span className="font-semibold text-ink">{data.familyInfo?.motherOccupation || '—'}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'ভাই-বোনের সংখ্যা' : 'Siblings'}</span>
-                <span className="font-semibold text-ink">
-                  {data.familyInfo?.siblings
-                    ? isBengali
-                      ? `${formatNumber(data.familyInfo.siblings)} জন`
-                      : `${data.familyInfo.siblings}`
-                    : '—'}
-                </span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-ink-3">{isBengali ? 'পারিবারিক আর্থিক অবস্থা' : 'Financial Status'}</span>
-                <span className="font-semibold text-ink">{data.familyInfo?.financialStatus || '—'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 5. Guardian Details */}
-          <div className="mb-card rounded-2xl p-5 space-y-3">
-            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
-              <Shield className="w-4 h-4 text-emerald-600" />
-              <span>{isBengali ? 'অভিভাবকের তথ্য ও সম্মতি' : 'Guardian Info & Consent'}</span>
-            </h3>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'অভিভাবকের নাম' : "Guardian's Name"}</span>
-                <span className="font-semibold text-ink">{guardian.name || '—'}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'সম্পর্ক' : 'Relationship'}</span>
-                <span className="font-semibold text-ink">{guardian.relationship || '—'}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'মোবাইল নম্বর' : 'Phone'}</span>
-                <span className="font-semibold text-ink font-mono">{guardian.phone || '—'}</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-ink-3">{isBengali ? 'সম্মতি যাচাই অবস্থা' : 'Consent Status'}</span>
-                <span
-                  className={`font-bold inline-flex items-center gap-1 ${
-                    application.guardianConsentedAt
-                      ? 'text-emerald-600 dark:text-emerald-400'
-                      : 'text-amber-600 dark:text-amber-400'
-                  }`}
-                >
-                  {application.guardianConsentedAt ? (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{isBengali ? 'ওটিপি যাচাই সম্পন্ন' : 'OTP Verified'}</span>
-                    </>
-                  ) : (
-                    <>
-                      <AlertCircle className="w-3.5 h-3.5" />
-                      <span>{isBengali ? 'যাচাই এখনো বাকি' : 'Consent Pending'}</span>
-                    </>
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* 6. Partner Preferences */}
-          <div className="mb-card rounded-2xl p-5 space-y-3">
-            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
-              <Heart className="w-4 h-4 text-brand" />
-              <span>{isBengali ? 'কাঙ্ক্ষিত জীবনসঙ্গী' : 'Partner Preferences'}</span>
-            </h3>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'প্রত্যাশিত বয়স' : 'Expected Age'}</span>
-                <span className="font-semibold text-ink">
-                  {data.preferences?.minAge && data.preferences?.maxAge
-                    ? isBengali
-                      ? `${formatNumber(data.preferences.minAge)} - ${formatNumber(data.preferences.maxAge)} বছর`
-                      : `${data.preferences.minAge} - ${data.preferences.maxAge} yrs`
-                    : '—'}
-                </span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/50">
-                <span className="text-ink-3">{isBengali ? 'পছন্দের উপজেলাসমূহ' : 'Preferred Upazilas'}</span>
-                <span className="font-semibold text-ink text-right max-w-[60%]">
-                  {data.preferences?.preferredUpazilas && data.preferences.preferredUpazilas.length > 0
-                    ? data.preferences.preferredUpazilas
-                        .map((u) => getUpazilaDisplayName(u, isBengali))
-                        .join(', ')
-                    : isBengali
-                    ? 'যেকোনো উপজেলা'
-                    : 'Any Upazila'}
-                </span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-ink-3">{isBengali ? 'প্রত্যাশিত শিক্ষাগত যোগ্যতা' : 'Preferred Education'}</span>
-                <span className="font-semibold text-ink">
-                  {data.preferences?.preferredEducation && data.preferences.preferredEducation.length > 0
-                    ? data.preferences.preferredEducation.map((e) => e.toUpperCase()).join(', ')
-                    : isBengali
-                    ? 'যেকোনো যোগ্যতা'
-                    : 'Any'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 7. About Bio */}
-        {data.bio && (
-          <div className="mb-card rounded-2xl p-5 space-y-2">
-            <h3 className="text-sm font-bold text-ink flex items-center gap-2">
-              <UserIcon className="w-4 h-4 text-brand" />
-              <span>{isBengali ? 'নিজের সম্পর্কে কিছু কথা' : 'About Candidate'}</span>
-            </h3>
-            <p className="text-xs text-ink-2 leading-relaxed whitespace-pre-line">{data.bio}</p>
-          </div>
-        )}
-      </div>
+      <BiodataDetailPreview
+        data={data}
+        guardian={guardian}
+        guardianConsented={!!application.guardianConsentedAt}
+      />
 
       {/* ── Quick Links ── */}
       <div className="space-y-4 pt-2">
@@ -977,8 +1010,9 @@ const ApplicationOverview: React.FC<{
 /* ═══════════════ Hero + stats + overview card for APPROVED profile ═══════════════ */
 const PublishedProfileOverview: React.FC<{
   profile: Profile;
+  application?: Application;
   onNavigateTab: (t: TabKey) => void;
-}> = ({ profile, onNavigateTab }) => {
+}> = ({ profile, application, onNavigateTab }) => {
   const { user } = useAuth();
   const { isBengali, formatNumber } = useLanguage();
 
@@ -1206,6 +1240,13 @@ const PublishedProfileOverview: React.FC<{
           </div>
         </div>
       </div>
+
+      {/* ── Detailed Biodata Preview (Categorized) ── */}
+      <BiodataDetailPreview
+        data={profile}
+        guardian={application?.guardian}
+        guardianConsented={!!(application?.guardianConsentedAt || profile.isApproved)}
+      />
     </div>
   );
 };
