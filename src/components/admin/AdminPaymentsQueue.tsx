@@ -21,7 +21,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 export const AdminPaymentsQueue: React.FC = () => {
   const queryClient = useQueryClient();
   const { isBengali, formatNumber } = useLanguage();
-  const [statusFilter, setStatusFilter] = useState<string>('pending');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [approveTarget, setApproveTarget] = useState<CreditTransaction | null>(null);
   const [rejectTarget, setRejectTarget] = useState<CreditTransaction | null>(null);
@@ -110,10 +110,10 @@ export const AdminPaymentsQueue: React.FC = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="mb-input !text-xs !bg-elev !border-line !rounded-xl py-2 font-semibold cursor-pointer"
             >
+              <option value="all">{isBengali ? 'সকল লেনদেন (All)' : 'All Transactions'}</option>
               <option value="pending">{isBengali ? 'অপেক্ষমান (Pending)' : 'Pending'}</option>
               <option value="completed">{isBengali ? 'অনুমোদিত (Completed)' : 'Completed'}</option>
               <option value="rejected">{isBengali ? 'বাতিল (Rejected)' : 'Rejected'}</option>
-              <option value="all">{isBengali ? 'সকল লেনদেন (All)' : 'All Transactions'}</option>
             </select>
           </div>
         </div>

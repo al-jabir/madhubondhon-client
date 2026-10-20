@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Navigate } from 'react-router';
+import React from 'react';
+import { Navigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/useAuth';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -24,9 +24,25 @@ import AdminTeamTab from '../components/admin/tabs/AdminTeamTab';
 import AdminSettingsTab from '../components/admin/tabs/AdminSettingsTab';
 import AdminAuditLogsTab from '../components/admin/tabs/AdminAuditLogsTab';
 
+const validAdminTabs: AdminTab[] = [
+  'overview',
+  'biodata',
+  'users',
+  'interests',
+  'reports',
+  'announcements',
+  'content',
+  'demo',
+  'payments',
+  'team',
+  'settings',
+  'audit',
+];
+
 export const AdminDashboardPage: React.FC = () => {
   const { user: currentUser } = useAuth();
   const { t } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const isSuperAdmin = currentUser?.role === UserRole.SUPER_ADMIN;
   const isSuperAdminOrAdmin = isSuperAdmin || currentUser?.role === UserRole.ADMIN;
@@ -38,10 +54,34 @@ export const AdminDashboardPage: React.FC = () => {
     return <Navigate to="/admin/login" replace />;
   }
 
-  // Initial tab based on role
-  const initialTab: AdminTab =
+  // Initial tab based on role and URL query param
+  const defaultTab: AdminTab =
     currentUser?.role === UserRole.MODERATOR ? 'biodata' : 'overview';
-  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
+  const tabFromUrl = searchParams.get('tab') as AdminTab | null;
+
+  let activeTab: AdminTab =
+    tabFromUrl && validAdminTabs.includes(tabFromUrl) ? tabFromUrl : defaultTab;
+
+  // Role-based privilege validation for active tab
+  if (['team', 'settings'].includes(activeTab) && !isSuperAdmin) {
+    activeTab = defaultTab;
+  } else if (
+    ['users', 'interests', 'payments', 'announcements', 'content', 'demo'].includes(activeTab) &&
+    !isSuperAdminOrAdmin
+  ) {
+    activeTab = defaultTab;
+  }
+
+  const handleSelectTab = (tab: AdminTab) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set('tab', tab);
+        return next;
+      },
+      { replace: true }
+    );
+  };
 
   // Real Stats Query (only enabled for verified administrative accounts)
   const { data: statsData } = useQuery({
@@ -65,7 +105,7 @@ export const AdminDashboardPage: React.FC = () => {
         {/* Sidebar Navigation */}
         <AdminSidebar
           activeTab={activeTab}
-          onSelectTab={setActiveTab}
+          onSelectTab={handleSelectTab}
           userRole={currentUser?.role}
           pendingBiodataCount={pendingBiodata}
           pendingReportsCount={pendingReports}
@@ -76,7 +116,7 @@ export const AdminDashboardPage: React.FC = () => {
           {activeTab === 'overview' && (
             <AdminOverviewTab
               stats={stats}
-              onNavigateTab={setActiveTab}
+              onNavigateTab={handleSelectTab}
               isSuperAdminOrAdmin={isSuperAdminOrAdmin}
             />
           )}
