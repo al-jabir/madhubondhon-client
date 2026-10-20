@@ -1,12 +1,13 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/useAuth';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { UserRole } from './types';
+import { adminApi } from './api/admin.api';
 
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
@@ -14,6 +15,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import WhatsAppSupportWidget from './components/common/WhatsAppSupportWidget';
 import AnnouncementBanner from './components/common/AnnouncementBanner';
+import MaintenanceScreen from './components/common/MaintenanceScreen';
 
 // Route-level code splitting — every page is a separate chunk, loaded on demand.
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -69,6 +71,22 @@ const AppShell: React.FC = () => {
   // The public customer website is strictly reserved for users other than super admin and admin (i.e. regular customers and unauthenticated visitors).
   if (!isLoading && isAuthenticated && isAdminOrSuperAdmin && !isAdminRoute) {
     return <Navigate to="/admin" replace />;
+  }
+
+  // Fetch dynamic public platform settings (including maintenanceMode)
+  const { data: publicSettingsData } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: () => adminApi.getPublicSettings(),
+    staleTime: 1000 * 15,
+    refetchInterval: 15000,
+  });
+
+  const settings = publicSettingsData?.data?.settings;
+  const isMaintenanceMode = Boolean(settings?.maintenanceMode);
+
+  // If Maintenance Mode is enabled, shield the public website for non-admin visitors
+  if (isMaintenanceMode && !isAdminRoute && !isAdminOrSuperAdmin) {
+    return <MaintenanceScreen settings={settings} />;
   }
 
   return (
