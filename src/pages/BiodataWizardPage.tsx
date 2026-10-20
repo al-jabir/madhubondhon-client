@@ -17,6 +17,7 @@ import {
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import DatePicker from "../components/common/DatePicker";
 import { useLanguage } from "../i18n/LanguageContext";
+import { Check, X } from "lucide-react";
 
 const inputClass = "mb-input w-full text-sm";
 
@@ -32,6 +33,56 @@ function Field({
       <span>{label}</span>
       {children}
     </label>
+  );
+}
+
+function YesNoToggle({
+  label,
+  sublabel,
+  value,
+  onChange,
+  isBengali = true,
+}: {
+  label: string;
+  sublabel?: string;
+  value?: boolean | null;
+  onChange: (val: boolean) => void;
+  isBengali?: boolean;
+}) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-card border border-line hover:border-brand/40 transition-colors">
+      <div className="min-w-0 pr-2 space-y-0.5">
+        <p className="text-sm font-semibold text-ink leading-snug">{label}</p>
+        {sublabel && <p className="text-[11.5px] text-ink-3">{sublabel}</p>}
+      </div>
+
+      <div className="flex items-center gap-1 shrink-0 self-start sm:self-center bg-elev p-1 rounded-xl border border-line">
+        <button
+          type="button"
+          onClick={() => onChange(true)}
+          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
+            value === true
+              ? "bg-brand text-white shadow-xs shadow-brand/25"
+              : "text-ink-2 hover:text-ink hover:bg-base"
+          }`}
+        >
+          <Check className="w-3.5 h-3.5" />
+          <span>{isBengali ? "হ্যাঁ" : "Yes"}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange(false)}
+          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
+            value === false
+              ? "bg-slate-700 dark:bg-slate-600 text-white shadow-xs"
+              : "text-ink-2 hover:text-ink hover:bg-base"
+          }`}
+        >
+          <X className="w-3.5 h-3.5" />
+          <span>{isBengali ? "না" : "No"}</span>
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -614,105 +665,119 @@ function Wizard({ application }: { application: Application }) {
 
                 {/* Common questions */}
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="rounded border-line text-brand focus:ring-brand/30"
-                      checked={!!data.religiousInfo?.praysFiveTimes}
-                      onChange={(e) =>
-                        update("religiousInfo", {
-                          ...data.religiousInfo,
-                          religion: "islam",
-                          praysFiveTimes: e.target.checked,
-                        })
-                      }
-                    />
-                    <span>
-                      {isBengali
-                        ? "প্রতিদিন পাঁচ ওয়াক্ত নামাজ জামায়াতে/নিয়মিত আদায় করি"
-                        : "Prays five times daily regularly"}
-                    </span>
-                  </label>
+                  <YesNoToggle
+                    label={
+                      isBengali
+                        ? "প্রতিদিন পাঁচ ওয়াক্ত নামাজ নিয়মিত আদায় করেন?"
+                        : "Prays five times daily regularly?"
+                    }
+                    sublabel={
+                      isBengali
+                        ? "নিয়মিত ওয়াক্তমত ফরজ নামাজ আদায় করা"
+                        : "Performing five daily prayers regularly"
+                    }
+                    value={data.religiousInfo?.praysFiveTimes}
+                    isBengali={isBengali}
+                    onChange={(val) =>
+                      update("religiousInfo", {
+                        ...data.religiousInfo,
+                        religion: "islam",
+                        praysFiveTimes: val,
+                      })
+                    }
+                  />
 
-                  <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="rounded border-line text-brand focus:ring-brand/30"
-                      checked={!!data.religiousInfo?.canReciteQuran}
-                      onChange={(e) =>
-                        update("religiousInfo", {
-                          ...data.religiousInfo,
-                          religion: "islam",
-                          canReciteQuran: e.target.checked,
-                        })
-                      }
-                    />
-                    <span>
-                      {isBengali
-                        ? "শুদ্ধভাবে কুরআন মাজীদ তিলাওয়াত করতে পারি"
-                        : "Can correctly recite the Holy Quran"}
-                    </span>
-                  </label>
+                  <YesNoToggle
+                    label={
+                      isBengali
+                        ? "শুদ্ধভাবে কুরআন মাজীদ তিলাওয়াত করতে পারেন?"
+                        : "Can correctly recite the Holy Quran?"
+                    }
+                    sublabel={
+                      isBengali
+                        ? "সহিহ মাখরাজ ও তাজবিদ সহকারে তিলাওয়াত"
+                        : "Reciting with proper pronunciation/tajweed"
+                    }
+                    value={data.religiousInfo?.canReciteQuran}
+                    isBengali={isBengali}
+                    onChange={(val) =>
+                      update("religiousInfo", {
+                        ...data.religiousInfo,
+                        religion: "islam",
+                        canReciteQuran: val,
+                      })
+                    }
+                  />
                 </div>
 
                 {/* Male specific */}
                 {data.gender === "male" && (
-                  <div className="space-y-4 pt-2">
-                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="rounded border-line text-brand focus:ring-brand/30"
-                        checked={!!data.religiousInfo?.hasBeard}
-                        onChange={(e) =>
-                          update("religiousInfo", {
-                            ...data.religiousInfo,
-                            religion: "islam",
-                            hasBeard: e.target.checked,
-                          })
-                        }
-                      />
-                      <span>{isBengali ? "সুন্নতি দাড়ি রয়েছে" : "Maintains a Sunnah beard"}</span>
-                    </label>
+                  <div className="space-y-3 pt-1">
+                    <YesNoToggle
+                      label={
+                        isBengali
+                          ? "সুন্নতি দাড়ি রয়েছে কি?"
+                          : "Maintains a Sunnah beard?"
+                      }
+                      sublabel={
+                        isBengali
+                          ? "রাসূলুল্লাহ (সা.)-এর সুন্নাহ মোতাবেক দাড়ি"
+                          : "Sunnah beard according to tradition"
+                      }
+                      value={data.religiousInfo?.hasBeard}
+                      isBengali={isBengali}
+                      onChange={(val) =>
+                        update("religiousInfo", {
+                          ...data.religiousInfo,
+                          religion: "islam",
+                          hasBeard: val,
+                        })
+                      }
+                    />
 
-                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="rounded border-line text-brand focus:ring-brand/30"
-                        checked={!!data.religiousInfo?.clothesAboveAnkle}
-                        onChange={(e) =>
-                          update("religiousInfo", {
-                            ...data.religiousInfo,
-                            religion: "islam",
-                            clothesAboveAnkle: e.target.checked,
-                          })
-                        }
-                      />
-                      <span>
-                        {isBengali
-                          ? "সর্বদা টাখনুর উপরে পোশাক পরিধান করি"
-                          : "Wears clothing above the ankles"}
-                      </span>
-                    </label>
+                    <YesNoToggle
+                      label={
+                        isBengali
+                          ? "সর্বদা টাখনুর উপরে পোশাক পরিধান করেন?"
+                          : "Wears clothing above the ankles?"
+                      }
+                      sublabel={
+                        isBengali
+                          ? "প্যান্ট বা পায়জামা সর্বদা টাখনুর উপরে রাখা"
+                          : "Always keeping trousers/clothes above ankles"
+                      }
+                      value={data.religiousInfo?.clothesAboveAnkle}
+                      isBengali={isBengali}
+                      onChange={(val) =>
+                        update("religiousInfo", {
+                          ...data.religiousInfo,
+                          religion: "islam",
+                          clothesAboveAnkle: val,
+                        })
+                      }
+                    />
 
-                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="rounded border-line text-brand focus:ring-brand/30"
-                        checked={!!data.lifestyle?.willKeepWifeInPurdah}
-                        onChange={(e) =>
-                          update("lifestyle", {
-                            ...data.lifestyle,
-                            smoking: !!data.lifestyle?.smoking,
-                            willKeepWifeInPurdah: e.target.checked,
-                          })
-                        }
-                      />
-                      <span>
-                        {isBengali
-                          ? "বিয়ের পর স্ত্রীকে পর্দা করার ব্যাপারে সহযোগিতা করব / পর্দায় রাখব"
-                          : "Will support and encourage wife to maintain purdah"}
-                      </span>
-                    </label>
+                    <YesNoToggle
+                      label={
+                        isBengali
+                          ? "বিয়ের পর স্ত্রীকে পর্দা করার ব্যাপারে সহযোগিতা করবেন / পর্দায় রাখবেন?"
+                          : "Will support and encourage wife to maintain purdah?"
+                      }
+                      sublabel={
+                        isBengali
+                          ? "পারিবারিক জীবনে পূর্ণাঙ্গ পর্দা বজায় রাখার অনুকূল পরিবেশ"
+                          : "Providing a supportive environment for Islamic purdah"
+                      }
+                      value={data.lifestyle?.willKeepWifeInPurdah}
+                      isBengali={isBengali}
+                      onChange={(val) =>
+                        update("lifestyle", {
+                          ...data.lifestyle,
+                          smoking: !!data.lifestyle?.smoking,
+                          willKeepWifeInPurdah: val,
+                        })
+                      }
+                    />
 
                     <Field
                       label={
@@ -749,105 +814,119 @@ function Wizard({ application }: { application: Application }) {
                       </select>
                     </Field>
 
-                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="rounded border-line text-brand focus:ring-brand/30"
-                        checked={!!data.lifestyle?.smoking}
-                        onChange={(e) =>
-                          update("lifestyle", {
-                            ...data.lifestyle,
-                            smoking: e.target.checked,
-                          })
-                        }
-                      />
-                      <span>{isBengali ? "ধূমপানের অভ্যাস রয়েছে" : "Smokes / Habits"}</span>
-                    </label>
+                    <YesNoToggle
+                      label={
+                        isBengali
+                          ? "ধূমপান বা তামাকজাত পণ্যের কোনো অভ্যাস রয়েছে কি?"
+                          : "Do you smoke or have tobacco habits?"
+                      }
+                      sublabel={
+                        isBengali
+                          ? "সিগারেট, বিড়ি, গুল, জর্দা বা অন্য কোনো তামাকের অভ্যাস"
+                          : "Smoking, vaping, or using any tobacco products"
+                      }
+                      value={data.lifestyle?.smoking}
+                      isBengali={isBengali}
+                      onChange={(val) =>
+                        update("lifestyle", {
+                          ...data.lifestyle,
+                          smoking: val,
+                        })
+                      }
+                    />
                   </div>
                 )}
 
                 {/* Female specific */}
                 {data.gender === "female" && (
-                  <div className="space-y-4 pt-2">
-                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="rounded border-line text-brand focus:ring-brand/30"
-                        checked={!!data.religiousInfo?.wearsHijab}
-                        onChange={(e) =>
-                          update("religiousInfo", {
-                            ...data.religiousInfo,
-                            religion: "islam",
-                            wearsHijab: e.target.checked,
-                          })
-                        }
-                      />
-                      <span>
-                        {isBengali
-                          ? "ঘরের বাইরে সাধারণ হিজাব বা শালীন পোশাক পরিধান করি"
-                          : "Wears Hijab / modest dress outdoors"}
-                      </span>
-                    </label>
+                  <div className="space-y-3 pt-1">
+                    <YesNoToggle
+                      label={
+                        isBengali
+                          ? "ঘরের বাইরে সাধারণ হিজাব বা শালীন পোশাক পরিধান করেন?"
+                          : "Wears Hijab / modest dress outdoors?"
+                      }
+                      sublabel={
+                        isBengali
+                          ? "মাথা ও শরীর ঢেকে শালীন মার্জিত পোশাক"
+                          : "Wearing headscarf and modest clothing in public"
+                      }
+                      value={data.religiousInfo?.wearsHijab}
+                      isBengali={isBengali}
+                      onChange={(val) =>
+                        update("religiousInfo", {
+                          ...data.religiousInfo,
+                          religion: "islam",
+                          wearsHijab: val,
+                        })
+                      }
+                    />
 
-                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="rounded border-line text-brand focus:ring-brand/30"
-                        checked={!!data.religiousInfo?.wearsNiqab}
-                        onChange={(e) =>
-                          update("religiousInfo", {
-                            ...data.religiousInfo,
-                            religion: "islam",
-                            wearsNiqab: e.target.checked,
-                          })
-                        }
-                      />
-                      <span>
-                        {isBengali
-                          ? "নিয়মিত নিকাব বা বোরকা সহকারে পূর্ণাঙ্গ পর্দা করি"
-                          : "Observes full Niqab / complete purdah regularly"}
-                      </span>
-                    </label>
+                    <YesNoToggle
+                      label={
+                        isBengali
+                          ? "নিয়মিত নিকাব বা বোরকা সহকারে পূর্ণাঙ্গ পর্দা করেন?"
+                          : "Observes full Niqab / complete purdah regularly?"
+                      }
+                      sublabel={
+                        isBengali
+                          ? "মুখমণ্ডলসহ পূর্ণাঙ্গ নিকাব ও পর্দা"
+                          : "Observing complete face veil (Niqab) and abaya/burqa"
+                      }
+                      value={data.religiousInfo?.wearsNiqab}
+                      isBengali={isBengali}
+                      onChange={(val) =>
+                        update("religiousInfo", {
+                          ...data.religiousInfo,
+                          religion: "islam",
+                          wearsNiqab: val,
+                        })
+                      }
+                    />
 
-                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="rounded border-line text-brand focus:ring-brand/30"
-                        checked={!!data.religiousInfo?.maintainsMahram}
-                        onChange={(e) =>
-                          update("religiousInfo", {
-                            ...data.religiousInfo,
-                            religion: "islam",
-                            maintainsMahram: e.target.checked,
-                          })
-                        }
-                      />
-                      <span>
-                        {isBengali
-                          ? "মাহরাম ও গায়রে-মাহরাম বিধান মেনে চলার চেষ্টা করি"
-                          : "Observes Mahram and non-Mahram boundaries"}
-                      </span>
-                    </label>
+                    <YesNoToggle
+                      label={
+                        isBengali
+                          ? "মাহরাম ও গায়রে-মাহরাম বিধান মেনে চলার চেষ্টা করেন?"
+                          : "Observes Mahram and non-Mahram boundaries?"
+                      }
+                      sublabel={
+                        isBengali
+                          ? "গায়রে-মাহরামদের সাথে অপ্রয়োজনীয় দেখা-সাক্ষাৎ ও কথা থেকে বিরত থাকা"
+                          : "Avoiding unnecessary interactions with non-mahram men"
+                      }
+                      value={data.religiousInfo?.maintainsMahram}
+                      isBengali={isBengali}
+                      onChange={(val) =>
+                        update("religiousInfo", {
+                          ...data.religiousInfo,
+                          religion: "islam",
+                          maintainsMahram: val,
+                        })
+                      }
+                    />
 
-                    <label className="flex items-center gap-2.5 text-sm font-medium text-ink-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="rounded border-line text-brand focus:ring-brand/30"
-                        checked={!!data.lifestyle?.canCook}
-                        onChange={(e) =>
-                          update("lifestyle", {
-                            ...data.lifestyle,
-                            smoking: !!data.lifestyle?.smoking,
-                            canCook: e.target.checked,
-                          })
-                        }
-                      />
-                      <span>
-                        {isBengali
-                          ? "রান্নাবান্না ও গৃহস্থালি কাজকর্ম করতে পারি"
-                          : "Skilled in cooking and household responsibilities"}
-                      </span>
-                    </label>
+                    <YesNoToggle
+                      label={
+                        isBengali
+                          ? "রান্নাবান্না ও গৃহস্থালি কাজকর্ম করতে পারেন কি?"
+                          : "Skilled in cooking and household responsibilities?"
+                      }
+                      sublabel={
+                        isBengali
+                          ? "দৈনন্দিন রান্না ও পারিবারিক গৃহস্থালির দায়িত্ব পরিচালনা"
+                          : "Cooking daily meals and managing family home"
+                      }
+                      value={data.lifestyle?.canCook}
+                      isBengali={isBengali}
+                      onChange={(val) =>
+                        update("lifestyle", {
+                          ...data.lifestyle,
+                          smoking: !!data.lifestyle?.smoking,
+                          canCook: val,
+                        })
+                      }
+                    />
 
                     <Field
                       label={
