@@ -128,7 +128,7 @@ function cleanDraft(value: unknown): unknown {
   if (value && typeof value === "object")
     return Object.fromEntries(
       Object.entries(value)
-        .filter(([, item]) => item !== "" && item !== undefined)
+        .filter(([, item]) => item !== "" && item !== undefined && item !== null)
         .map(([key, item]) => [key, cleanDraft(item)]),
     );
   return value;
@@ -186,7 +186,7 @@ function Wizard({ application }: { application: Application }) {
     try {
       const cleaned = cleanDraft(data) as DraftData;
       const cleanGuardian = Object.fromEntries(
-        Object.entries(guardian).filter(([, v]) => v !== ""),
+        Object.entries(guardian).filter(([, v]) => v !== "" && v !== undefined && v !== null),
       );
       const result = await workflowApi.saveDraft(
         revision,

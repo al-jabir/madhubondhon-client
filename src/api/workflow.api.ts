@@ -53,9 +53,44 @@ export const statusLabels: Record<ReviewStatus, string> = {
   approved: "অনুমোদিত",
   rejected: "প্রত্যাখ্যাত",
 };
-export const errorMessage = (error: unknown) =>
-  (error as { response?: { data?: { message?: string } } })?.response?.data
-    ?.message || "কাজটি সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।";
+export const errorMessage = (error: unknown): string => {
+  if (!error) return "কাজটি সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।";
+  if (typeof error === "string") return error;
+
+  const axiosError = error as {
+    response?: {
+      data?: {
+        message?: string;
+        errors?: Array<{ field?: string; message?: string }>;
+      };
+    };
+    message?: string;
+  };
+
+  const data = axiosError.response?.data;
+
+  // 1. If detailed field errors exist, display them
+  if (data?.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+    const errorDetails = data.errors
+      .map((err) => err.message)
+      .filter((msg): msg is string => Boolean(msg && msg.trim()));
+    if (errorDetails.length > 0) {
+      return [...new Set(errorDetails)].join(" • ");
+    }
+  }
+
+  // 2. If a specific message exists (not the generic validation failure), return it
+  if (data?.message && data.message !== "ভ্যালিডেশন ব্যর্থ হয়েছে।") {
+    return data.message;
+  }
+
+  // 3. Fallback when only generic validation message was returned
+  if (data?.message) {
+    return "প্রদত্ত তথ্যে ভুল রয়েছে। অনুগ্রহ করে প্রয়োজনীয় ফিল্ডগুলো সঠিকভাবে পূরণ করুন।";
+  }
+
+  return axiosError.message || "কাজটি সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।";
+};
 export const workflowApi = {
   async getDraft() {
     return (
