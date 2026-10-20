@@ -2,13 +2,13 @@ import React from 'react';
 import { Link } from 'react-router';
 import {
   Wrench,
-  ShieldAlert,
   Clock,
   Mail,
   Lock,
   Heart,
   ExternalLink,
   RefreshCw,
+  Sparkles,
 } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { PlatformSettings } from '../../types';
@@ -25,12 +25,17 @@ export const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ settings }
 
   const siteName = settings?.siteName || 'MadhuBondhon';
   const siteTagline =
-    settings?.siteTagline || (isBengali ? 'টাঙ্গাইল জেলার বিশ্বস্ত ইসলামিক ম্যাট্রিমনিয়াল প্ল্যাটফর্ম' : 'Tangail Islamic Matrimonial Platform');
+    settings?.siteTagline ||
+    (isBengali
+      ? 'টাঙ্গাইল জেলার বিশ্বস্ত ইসলামিক ম্যাট্রিমনিয়াল প্ল্যাটফর্ম'
+      : 'Tangail Islamic Matrimonial Platform');
   const supportPhone = settings?.supportWhatsApp || settings?.contactPhone || '01700000000';
   const contactEmail = settings?.contactEmail || 'support@madhubondhon.com';
 
   const cleanWhatsAppNumber = supportPhone.replace(/[^0-9]/g, '');
-  const waUrl = `https://wa.me/${cleanWhatsAppNumber.startsWith('88') ? cleanWhatsAppNumber : '88' + cleanWhatsAppNumber}?text=${encodeURIComponent(
+  const waUrl = `https://wa.me/${
+    cleanWhatsAppNumber.startsWith('88') ? cleanWhatsAppNumber : '88' + cleanWhatsAppNumber
+  }?text=${encodeURIComponent(
     isBengali
       ? 'আসসালামু আলাইকুম, মধুবন্ধন রক্ষণাবেক্ষণ চলাকালীন জরুরি প্রয়োজনে যোগাযোগ করছি।'
       : 'Hello MadhuBondhon Support, reaching out regarding maintenance mode.'
@@ -38,14 +43,14 @@ export const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ settings }
 
   return (
     <div className="min-h-screen bg-base text-ink flex flex-col justify-between selection:bg-brand selection:text-white relative overflow-hidden transition-colors">
-      {/* Background ambient radial gradients */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand/5 dark:bg-brand/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+      {/* Background ambient lighting */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] bg-brand/5 dark:bg-brand/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
 
       {/* Top Header Bar */}
       <header className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 flex items-center justify-between relative z-10">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-md shadow-brand/25">
+          <div className="w-10 h-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-md shadow-brand/20">
             <Heart className="w-5 h-5 fill-current" />
           </div>
           <div>
@@ -66,84 +71,93 @@ export const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ settings }
       </header>
 
       {/* Main Center Content */}
-      <main className="max-w-2xl w-full mx-auto px-4 sm:px-6 py-12 flex-1 flex flex-col items-center justify-center text-center relative z-10">
-        <div className="space-y-6">
-          {/* Animated maintenance emblem */}
-          <div className="relative inline-flex items-center justify-center mx-auto">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center shadow-xl shadow-amber-500/10 relative">
-              <Wrench className="w-12 h-12 sm:w-14 sm:h-14 animate-[spin_10s_linear_infinite]" />
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center shadow-md border-2 border-base">
-                <ShieldAlert className="w-4 h-4" />
+      <main className="max-w-2xl w-full mx-auto px-4 sm:px-6 py-8 flex-1 flex flex-col items-center justify-center text-center relative z-10">
+        <div className="w-full flex flex-col items-center space-y-6">
+          {/* Aesthetic Hero Emblem: Layered Minimalist Icon */}
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              {/* Outer soft ambient glow ring */}
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/25 flex items-center justify-center shadow-xl shadow-amber-500/5 backdrop-blur-xs">
+                <Wrench className="w-9 h-9 sm:w-11 sm:h-11 text-amber-600 dark:text-amber-400 stroke-[1.75]" />
               </div>
+              {/* Small accent corner indicator badge */}
+              <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-brand text-white flex items-center justify-center shadow-md border-2 border-base">
+                <Clock className="w-3.5 h-3.5" />
+              </div>
+            </div>
+
+            {/* Clean Centered Status Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/25 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span>
+                {isBengali ? 'রক্ষণাবেক্ষণ প্রক্রিয়াধীন' : 'Scheduled Maintenance in Progress'}
+              </span>
             </div>
           </div>
 
-          {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-            <span>{isBengali ? 'রক্ষণাবেক্ষণ প্রক্রিয়াধীন' : 'Scheduled Maintenance in Progress'}</span>
-          </div>
-
-          {/* Heading */}
-          <div className="space-y-3">
-            <h2 className="text-2xl sm:text-4xl font-black text-ink tracking-tight">
+          {/* Heading & Subtitle */}
+          <div className="space-y-2.5 max-w-xl">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-ink tracking-tight">
               {isBengali ? 'ওয়েবসাইট সাময়িক রক্ষণাবেক্ষণ চলছে' : 'System Under Scheduled Maintenance'}
             </h2>
-            <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-xl mx-auto">
+            <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">
               {isBengali
-                ? 'আমাদের প্ল্যাটফর্মের পারফরম্যান্স, নিরাপত্তা ও নতুন ফিচার আপগ্রেডের কাজ চলছে। খুব দ্রুতই ওয়েবসাইটটি সবার জন্য পুনরায় উন্মুক্ত করা হবে। সাময়িক অসুবিধার জন্য আমরা আন্তরিকভাবে দুঃখিত।'
-                : 'We are currently performing scheduled maintenance and performance upgrades. The platform will be back online shortly. Thank you for your patience and understanding.'}
+                ? 'আমাদের প্ল্যাটফর্মের পারফরম্যান্স ও ডেটাবেজ আপগ্রেডের জন্য সাময়িক কারিগরি কাজ চলছে। খুব শীঘ্রই সেবা পুনরায় চালু হবে। সাময়িক অসুবিধার জন্য আমরা আন্তরিকভাবে দুঃখিত।'
+                : 'We are performing scheduled maintenance and performance upgrades. The platform will be back online shortly. Thank you for your patience and understanding.'}
             </p>
           </div>
 
-          {/* Refresh hint */}
-          <div className="pt-2">
-            <button
-              onClick={() => window.location.reload()}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-elev border border-line text-ink-2 hover:text-brand hover:border-brand/40 transition-colors cursor-pointer"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>{isBengali ? 'পেজ রিফ্রেশ করে দেখুন' : 'Refresh Page'}</span>
-            </button>
-          </div>
+          {/* Refresh Page Button */}
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mb-btn-secondary !text-xs !py-2.5 !px-5 rounded-xl inline-flex items-center gap-2 cursor-pointer shadow-xs hover:border-brand/40 transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-ink-3" />
+            <span>{isBengali ? 'পেজ রিফ্রেশ করুন' : 'Refresh Page'}</span>
+          </button>
 
           {/* Quick Help Contacts Box */}
-          <div className="bg-card/80 backdrop-blur-sm border border-line rounded-2xl p-5 sm:p-6 text-left space-y-3 mt-6">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-ink-3">
-              {isBengali ? 'জরুরি প্রয়োজনে যোগাযোগ' : 'Need Urgent Assistance?'}
-            </h4>
+          <div className="w-full bg-card/70 dark:bg-card/90 backdrop-blur-md border border-line rounded-2xl p-5 sm:p-6 text-left space-y-3.5 mt-2 shadow-xs">
+            <div className="flex items-center justify-between">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-ink-3 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-brand" />
+                <span>{isBengali ? 'জরুরি প্রয়োজনে যোগাযোগ' : 'Need Urgent Assistance?'}</span>
+              </h4>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <a
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 transition-colors group"
+                className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 transition-colors group"
               >
-                <div className="w-8 h-8 rounded-lg bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <WhatsAppIcon className="w-4.5 h-4.5" />
+                <div className="w-9 h-9 rounded-xl bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <WhatsAppIcon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold flex items-center gap-1">
+                  <div className="text-xs font-bold flex items-center gap-1 text-ink">
                     <span>WhatsApp Support</span>
-                    <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                    <ExternalLink className="w-3 h-3 text-ink-3 opacity-60 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="text-[11px] text-ink-3 truncate">{supportPhone}</div>
+                  <div className="text-[11px] text-ink-3 font-mono truncate">{supportPhone}</div>
                 </div>
               </a>
 
               <a
                 href={`mailto:${contactEmail}`}
-                className="flex items-center gap-3 p-3 rounded-xl bg-brand-soft hover:bg-brand-soft/80 border border-brand/20 text-brand-ink transition-colors group"
+                className="flex items-center gap-3 p-3.5 rounded-xl bg-brand-soft/70 hover:bg-brand-soft border border-brand/20 text-brand-ink transition-colors group"
               >
-                <div className="w-8 h-8 rounded-lg bg-brand text-white flex items-center justify-center shrink-0 shadow-sm">
+                <div className="w-9 h-9 rounded-xl bg-brand text-white flex items-center justify-center shrink-0 shadow-sm">
                   <Mail className="w-4.5 h-4.5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-bold flex items-center gap-1">
+                  <div className="text-xs font-bold flex items-center gap-1 text-ink">
                     <span>{isBengali ? 'ইমেইল সহায়তা' : 'Email Support'}</span>
-                    <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                    <ExternalLink className="w-3 h-3 text-ink-3 opacity-60 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="text-[11px] text-ink-3 truncate">{contactEmail}</div>
+                  <div className="text-[11px] text-ink-3 font-mono truncate">{contactEmail}</div>
                 </div>
               </a>
             </div>
@@ -152,16 +166,16 @@ export const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ settings }
       </main>
 
       {/* Footer & Admin Gateway Link */}
-      <footer className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 border-t border-line/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-ink-3 relative z-10">
+      <footer className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-5 border-t border-line/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-ink-3 relative z-10">
         <div>
           © {new Date().getFullYear()} {siteName}. {isBengali ? 'সর্বস্বত্ব সংরক্ষিত।' : 'All rights reserved.'}
         </div>
-        <div className="flex items-center gap-1">
-          <Lock className="w-3 h-3" />
+        <div className="flex items-center gap-1.5">
+          <Lock className="w-3.5 h-3.5 text-ink-3" />
           <span>{isBengali ? 'আপনি কি প্ল্যাটফর্ম প্রশাসক?' : 'Platform Administrator?'}</span>
           <Link
             to="/admin/login"
-            className="text-brand font-bold hover:underline ml-1"
+            className="text-brand font-bold hover:underline ml-0.5"
           >
             {isBengali ? 'অ্যাডমিন লগইন' : 'Admin Login'}
           </Link>
