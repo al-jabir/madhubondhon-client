@@ -41,20 +41,19 @@ import { workflowApi, Application, ReviewStatus, statusLabels } from '../api/wor
 import { useAuth } from '../context/useAuth';
 import { getUpazilaDisplayName, TangailUpazila } from '../constants/locations';
 import { Profile, EducationLevel, MaritalStatus } from '../types';
-import PhotoManager from '../components/profile/PhotoManager';
 import ProfileCard from '../components/profile/ProfileCard';
 import GenderAvatar from '../components/common/GenderAvatar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ConfirmationModal from '../components/common/ConfirmationModal';
 import { useLanguage } from '../i18n/LanguageContext';
 
-type TabKey = 'overview' | 'photos' | 'recommendations' | 'verification' | 'settings';
+type TabKey = 'overview' | 'recommendations' | 'verification' | 'settings';
 
 export const MyProfilePage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isBengali } = useLanguage();
 
-  const validTabs: TabKey[] = ['overview', 'photos', 'recommendations', 'verification', 'settings'];
+  const validTabs: TabKey[] = ['overview', 'recommendations', 'verification', 'settings'];
   const tabFromUrl = searchParams.get('tab') as TabKey | null;
   const activeTab: TabKey = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'overview';
 
@@ -71,7 +70,6 @@ export const MyProfilePage: React.FC = () => {
 
   const tabs: Array<{ key: TabKey; label: string; icon: React.ElementType }> = [
     { key: 'overview', label: isBengali ? 'সারসংক্ষেপ' : 'Overview', icon: LayoutDashboard },
-    { key: 'photos', label: isBengali ? 'ছবি ও পর্দাশীলতা' : 'Photos & Privacy', icon: Image },
     { key: 'recommendations', label: isBengali ? 'পরামর্শ' : 'Matches', icon: Sparkles },
     { key: 'verification', label: isBengali ? 'যাচাই ও জমা' : 'Verification', icon: ClipboardCheck },
     { key: 'settings', label: isBengali ? 'অ্যাকাউন্ট সেটিংস' : 'Account Settings', icon: Settings },
@@ -109,7 +107,6 @@ export const MyProfilePage: React.FC = () => {
 
       <div className="px-4 sm:px-6 py-8 pb-16">
         {activeTab === 'overview' && <OverviewTab onNavigateTab={handleTabChange} />}
-        {activeTab === 'photos' && <PhotosTab onNavigateTab={handleTabChange} />}
         {activeTab === 'recommendations' && <RecommendationsTab onNavigateTab={handleTabChange} />}
         {activeTab === 'verification' && <BiodataDashboard />}
         {activeTab === 'settings' && <SettingsTab />}
@@ -993,12 +990,6 @@ const PublishedProfileOverview: React.FC<{
   const completionPercent = profile.completionPercentage ?? 0;
   const verifiedCount = (user?.isEmailVerified ? 1 : 0) + (user?.isPhoneVerified ? 1 : 0);
 
-  const photoPrivacyLabels: Record<string, string> = {
-    public: isBengali ? 'প্রকাশিত' : 'Public',
-    on_interest_accepted: isBengali ? 'আগ্রহ গ্রহণের পর' : 'On Interest Accepted',
-    hidden: isBengali ? 'গোপন' : 'Hidden',
-  };
-
   const stats = [
     {
       label: isBengali ? 'সম্পূর্ণতা' : 'Completion',
@@ -1029,16 +1020,6 @@ const PublishedProfileOverview: React.FC<{
         : 'Pending',
       tone: user?.isEmailVerified ? 'text-emerald-600 dark:text-emerald-400' : 'text-gold',
       icon: user?.isEmailVerified ? CheckCircle2 : AlertCircle,
-    },
-    {
-      label: isBengali
-        ? `ছবি (পর্দাশীলতা: ${photoPrivacyLabels[profile.photoPrivacy || 'public'] || 'প্রকাশিত'})`
-        : `Photos (${photoPrivacyLabels[profile.photoPrivacy || 'public'] || 'Public'})`,
-      value: isBengali
-        ? `${formatNumber((profile.photos || []).length)}টি`
-        : `${(profile.photos || []).length}`,
-      tone: 'text-brand',
-      icon: Image,
     },
   ];
 
@@ -1172,7 +1153,7 @@ const PublishedProfileOverview: React.FC<{
       </div>
 
       {/* ── Stat strip ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -1320,11 +1301,7 @@ const CompletionCard: React.FC<{ onNavigateTab?: ((t: TabKey) => void) | undefin
                     <button
                       key={field.key}
                       type="button"
-                      onClick={() =>
-                        field.key === 'photos' && onNavigateTab
-                          ? onNavigateTab('photos')
-                          : navigate('/edit-profile')
-                      }
+                      onClick={() => navigate('/edit-profile')}
                       className="mb-badge cursor-pointer hover:bg-brand/15 transition-colors"
                     >
                       <Plus className="w-3 h-3" />
@@ -1337,59 +1314,6 @@ const CompletionCard: React.FC<{ onNavigateTab?: ((t: TabKey) => void) | undefin
           )}
         </div>
       </div>
-    </div>
-  );
-};
-
-/* ═══════════════ Photos tab ═══════════════ */
-const PhotosTab: React.FC<{ onNavigateTab?: (t: TabKey) => void }> = ({ onNavigateTab }) => {
-  const { profile, application, isLoading } = useMyProfile();
-  const { isBengali } = useLanguage();
-
-  if (isLoading) return <TabLoader />;
-
-  if (!profile) {
-    if (
-      application &&
-      (application.data?.displayName ||
-        application.guardian?.name ||
-        application.status !== 'draft')
-    ) {
-      return (
-        <div className="mb-card rounded-[2rem] p-8 text-center space-y-4 max-w-xl mx-auto">
-          <div className="w-14 h-14 rounded-full bg-brand-soft text-brand flex items-center justify-center mx-auto">
-            <Image className="w-7 h-7" />
-          </div>
-          <h3 className="text-lg font-bold text-ink">
-            {isBengali ? 'বায়োডাটা অনুমোদনের পর ছবি যোগ করা যাবে' : 'Photos available after biodata approval'}
-          </h3>
-          <p className="text-xs text-ink-2 leading-relaxed">
-            {isBengali
-              ? 'আপনার বায়োডাটা বর্তমানে মডারেশন প্রক্রিয়ায় রয়েছে। বায়োডাটা অনুমোদিত হলে আপনি পর্দাশীলতা সেটিংসসহ ছবি আপলোড করতে পারবেন।'
-              : 'Your biodata is in the moderation workflow. Once approved, you can upload photos with privacy settings.'}
-          </p>
-          <div className="pt-2">
-            <button
-              type="button"
-              onClick={() => onNavigateTab?.('overview')}
-              className="mb-btn-primary py-2 px-5 text-xs rounded-xl cursor-pointer"
-            >
-              {isBengali ? 'সারসংক্ষেপে ফিরে যান' : 'Back to Overview'}
-            </button>
-          </div>
-        </div>
-      );
-    }
-    return <ProfileMissing onNavigateTab={onNavigateTab} />;
-  }
-
-  return (
-    <div className="space-y-4">
-      <h2 className="mb-section-title text-lg flex items-center gap-2 px-1">
-        <Image className="w-5 h-5 text-brand" />
-        <span>{isBengali ? 'ছবি ব্যবস্থাপনা ও পর্দাশীলতা' : 'Photo Management & Privacy'}</span>
-      </h2>
-      <PhotoManager photos={profile.photos || []} currentPrivacy={profile.photoPrivacy || 'public'} />
     </div>
   );
 };

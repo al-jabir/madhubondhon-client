@@ -31,10 +31,10 @@ export const AboutPage: React.FC = () => {
     },
     {
       icon: EyeOff,
-      title: isBengali ? 'শালীনতা' : 'Modesty & Purdah',
+      title: isBengali ? 'শালীনতা ও পর্দা' : 'Modesty & Purdah',
       body: isBengali
-        ? 'মা-বোনদের ছবি সদস্যের পছন্দে পর্দাশীলভাবে ব্লার থাকে; ব্যবহারবিধি মানা জরুরি।'
-        : 'Sisters’ photos remain respectfully blurred based on member preference and strict modest guidelines.',
+        ? 'মা-বোন ও ভাইদের সম্পূর্ণ মর্যাদা ও পর্দা রক্ষা করতে প্ল্যাটফর্মে কোনো ছবি ব্যবহৃত হয় না।'
+        : 'In accordance with modesty guidelines, profiles do not feature photographs.',
     },
     {
       icon: HeartHandshake,
@@ -93,8 +93,8 @@ export const AboutPage: React.FC = () => {
           </p>
           <p>
             {isBengali
-              ? 'এখানে মডারেটর দ্বারা যাচাই হওয়া ছাড়া কোনো বায়োডাটা প্রকাশ হয় না। অভিভাবকের মোবাইল নম্বরে ওটিপি পাঠিয়ে সম্মতি নিশ্চিত করা হয়, আর দুই পক্ষের অভিভাবক সম্মত হলেই কেবল যোগাযোগের অনুমতি তৈরি হয়। মা-বোনদের ছবির জন্য পর্দাশীল ব্লার সুবিধা রাখা হয়েছে।'
-              : 'No profile is published here without moderator verification. Guardian consent is validated through mobile OTP, and direct communication is permitted only after mutual guardian agreement. Respectful modesty blurring is provided for photos.'}
+              ? 'এখানে প্রতিটি বায়োডাটার তথ্য ও অভিভাবকের সম্মতি নিশ্চিত করে প্রকাশ করা হয়, আর দুই পক্ষের অভিভাবক সম্মত হলেই কেবল যোগাযোগের সুযোগ তৈরি হয়। মা-বোনদের পূর্ণ শালীনতা রক্ষায় ছবিমুক্ত পর্দাশীল পরিবেশ বজায় রাখা হয়েছে।'
+              : 'Each biodata is carefully verified and guardian consent is ensured before publication. Direct communication is permitted only after mutual guardian agreement. Complete modesty is maintained with a photo-free environment.'}
           </p>
         </div>
       </section>

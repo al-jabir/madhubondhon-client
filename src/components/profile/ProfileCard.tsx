@@ -25,10 +25,16 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   detailsBasePath = '/profiles',
   isInitiallyShortlisted = false,
 }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { isBengali, formatNumber } = useLanguage();
   const [isShortlisted, setIsShortlisted] = useState(isInitiallyShortlisted);
   const [isBookmarking, setIsBookmarking] = useState(false);
+
+  const isOwnProfile =
+    user &&
+    (user.id === profile.user ||
+      (typeof profile.user === 'object' &&
+        (profile.user?._id === user.id || profile.user?.id === user.id)));
 
   const upazilaName = getUpazilaDisplayName(profile.upazila, isBengali);
 
@@ -123,6 +129,11 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-50 dark:fill-transparent" />
               </span>
             )}
+            {isOwnProfile && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/15 text-brand border border-brand/30">
+                {isBengali ? 'আপনার বায়োডাটা' : 'Your Biodata'}
+              </span>
+            )}
           </h3>
 
           <div className="flex items-center gap-2 mt-1.5 text-xs text-brand-ink font-semibold bg-brand-soft px-2.5 py-0.5 rounded-full border border-brand/15">
@@ -184,7 +195,14 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         >
           {isBengali ? 'সম্পূর্ণ বায়োডাটা' : 'Full Biodata'}
         </Link>
-        {onSendInterest && (
+        {isOwnProfile ? (
+          <Link
+            to="/my-profile"
+            className="py-2 px-3 text-xs font-semibold text-brand bg-brand-soft hover:bg-brand/20 border border-brand/30 rounded-lg whitespace-nowrap"
+          >
+            {isBengali ? 'আমার প্রোফাইল' : 'My Profile'}
+          </Link>
+        ) : onSendInterest ? (
           <button
             type="button"
             onClick={() => onSendInterest(profile)}
@@ -193,7 +211,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             <Heart className="w-3.5 h-3.5 fill-current" />
             <span>{isBengali ? 'পছন্দ' : 'Interest'}</span>
           </button>
-        )}
+        ) : null}
       </div>
     </div>
   );

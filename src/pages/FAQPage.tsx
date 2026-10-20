@@ -26,7 +26,7 @@ const CATEGORIES: FAQCategory[] = [
   { key: 'all', bn: 'সবগুলো', en: 'All' },
   { key: 'basics', bn: 'মৌলিক', en: 'Basics' },
   { key: 'guardian', bn: 'অভিভাবক ও শরিয়াহ', en: 'Guardian & Shariah' },
-  { key: 'privacy', bn: 'প্রাইভেসি ও ছবি', en: 'Privacy & Photos' },
+  { key: 'privacy', bn: 'প্রাইভেসি ও পর্দাশীলতা', en: 'Privacy & Modesty' },
   { key: 'search', bn: 'বায়োডাটা অনুসন্ধান', en: 'Biodata Search' },
   { key: 'payment', bn: 'পেমেন্ট ও ক্রেডিট', en: 'Payment & Credits' },
   { key: 'safety', bn: 'নিরাপত্তা ও অন্যান্য', en: 'Safety & Others' },
@@ -75,12 +75,12 @@ const faqs: FAQItem[] = [
   {
     id: 'purdah-mode',
     categoryKey: 'privacy',
-    questionBn: 'পর্দাশীল বায়োডাটা (ব্লার মোড) এবং ছবির গোপনীয়তা কীভাবে কাজ করে?',
-    questionEn: 'How does Purdah Mode (Photo Blur) and photo privacy work?',
+    questionBn: 'বায়োডাটায় কি ছবি দেওয়া প্রয়োজন? প্ল্যাটফর্মে ছবির নীতি কী?',
+    questionEn: 'Are photos required in biodatas? What is the photo policy?',
     answerBn:
-      'আমরা মা-বোনদের পর্দার সর্বোচ্চ সম্মান করি। ছবি আপলোড করার সময় "পর্দাশীল ছবি (ব্লার রাখুন)" নির্বাচন করলে আপনার ছবিটি জনসাধারণের কাছে স্বয়ংক্রিয়ভাবে ঝাপসা দেখাবে। এছাড়া আপনি সেটিংস থেকে নির্ধারণ করতে পারবেন আপনার ছবি শুধুমাত্র নিবন্ধিত সদস্য বা যাদের প্রস্তাব আপনি অনুমোদন করবেন তারাই কেবল দেখতে পাবেন। চাইলে যেকোনো সময় ছবি সম্পূর্ণ গোপন (Hidden) রাখতে পারবেন।',
+      'না, মধুবন্ধনে কোনো ছবি আপলোড করার প্রয়োজন নেই এবং প্ল্যাটফর্মে কোনো ছবি ব্যবহৃত হয় না। ইসলামিক শরীয়াহ মোতাবেক সম্পূর্ণ পর্দা ও সামাজিক সম্মান বজায় রাখতে ছবিমুক্ত বায়োডাটা ব্যবস্থা রাখা হয়েছে। দ্বীনি গুণাবলী, চরিত্র, শিক্ষা, পেশা ও পরিবারের তথ্যের ওপর ভিত্তি করে জীবনসঙ্গী নির্ধারণ করা হয়।',
     answerEn:
-      'We hold modesty and purdah in the highest regard. When uploading photographs, enabling "Modest Photo (Keep Blurred)" automatically blurs your picture to the public. You can also configure photo visibility so only registered members or approved interests can view your photos, or keep them completely hidden at any time.',
+      'No, photographs are neither required nor supported on MadhuBondhon. In strict adherence to Islamic modesty, candidates do not upload photos. Matching is purely based on religious practice, character, education, career, and family background.',
   },
   {
     id: 'biodata-id',
@@ -274,10 +274,10 @@ export const FAQPage: React.FC = () => {
           </div>
           <div>
             <h4 className="text-xs font-bold text-gray-900 dark:text-white">
-              {isBengali ? 'পর্দাশীল ব্লার সুবিধা' : 'Purdah Blur Feature'}
+              {isBengali ? 'ছবিমুক্ত পর্দাশীল ব্যবস্থা' : '100% Modest & Photo-Free'}
             </h4>
             <p className="text-[11px] text-gray-500 dark:text-gray-400">
-              {isBengali ? 'মা-বোনদের ছবির জন্য পূর্ণ শালীনতা ও সুরক্ষা' : 'Modesty and privacy protection for photos'}
+              {isBengali ? 'সম্পূর্ণ পর্দা রক্ষা ও শরীয়াহসম্মত সম্মানজনক ম্যাচমেকিং' : 'Strict modesty and shariah-compliant matchmaking'}
             </p>
           </div>
         </div>
