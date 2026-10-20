@@ -44,10 +44,26 @@ export const AdminDemoTab: React.FC = () => {
     }
   }, [settings?.showDemoProfiles]);
 
-  // Mutation to toggle demo profiles
+  // Mutation to toggle demo profiles with optimistic update
   const toggleMutation = useMutation({
     mutationFn: (newStatus: boolean) =>
       adminApi.updateSettings({ showDemoProfiles: newStatus }),
+    onMutate: async (newStatus: boolean) => {
+      await queryClient.cancelQueries({ queryKey: ['admin-platform-settings'] });
+      const previousSettings = queryClient.getQueryData(['admin-platform-settings']);
+      queryClient.setQueryData(['admin-platform-settings'], (old: any) => ({
+        ...old,
+        data: {
+          ...old?.data,
+          settings: {
+            ...old?.data?.settings,
+            showDemoProfiles: newStatus,
+          },
+        },
+      }));
+      localStorage.setItem('mb_show_demo_profiles', String(newStatus));
+      return { previousSettings };
+    },
     onSuccess: (_, newStatus) => {
       localStorage.setItem('mb_show_demo_profiles', String(newStatus));
       toast.success(
@@ -61,9 +77,14 @@ export const AdminDemoTab: React.FC = () => {
       );
       queryClient.invalidateQueries({ queryKey: ['admin-platform-settings'] });
       queryClient.invalidateQueries({ queryKey: ['public-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['search-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['public-profile'] });
       queryClient.refetchQueries({ queryKey: ['public-settings'] });
     },
-    onError: (err: any) => {
+    onError: (err: any, _, context) => {
+      if (context?.previousSettings) {
+        queryClient.setQueryData(['admin-platform-settings'], context.previousSettings);
+      }
       toast.error(
         err.response?.data?.message ||
           (isBengali ? 'সেটিংস আপডেট ব্যর্থ হয়েছে।' : 'Failed to update settings.')
@@ -110,16 +131,52 @@ export const AdminDemoTab: React.FC = () => {
           </div>
         </div>
 
-        <Link
-          to="/demo"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-white hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all shrink-0 cursor-pointer"
-        >
-          <ExternalLink className="w-4 h-4" />
-          <span>{isBengali ? 'পাবলিক ডেমো পেজ দেখুন' : 'View Public Demo Page'}</span>
-        </Link>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            to="/search"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-elev border border-line text-ink hover:border-amber-500/50 hover:bg-amber-500/10 transition-all shrink-0 cursor-pointer"
+          >
+            <Search className="w-3.5 h-3.5 text-brand" />
+            <span>{isBengali ? 'পাবলিক সার্চ দেখুন (/search)' : 'View Public Search'}</span>
+          </Link>
+          <Link
+            to="/demo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500 text-white hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all shrink-0 cursor-pointer"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>{isBengali ? 'পাবলিক ডেমো পেজ (/demo)' : 'View Demo Page'}</span>
+          </Link>
+        </div>
       </div>
+
+      {/* Warning banner when demo is turned off */}
+      {!isDemoVisible && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs">
+          <div className="flex items-center gap-2.5 text-amber-800 dark:text-amber-300">
+            <EyeOff className="w-5 h-5 text-amber-600 shrink-0" />
+            <div>
+              <strong className="font-bold">
+                {isBengali ? 'নমুনা বায়োডাটা লাইভ ওয়েবসাইটে বর্তমানে বন্ধ আছে:' : 'Sample Profiles Currently Hidden:'}
+              </strong>{' '}
+              {isBengali
+                ? 'সাধারণ ভিজিটররা ওয়েবসাইটের কোথাও ("বায়োডাটা খুঁজুন" বা "/demo") এই ১২টি স্যাম্পল প্রোফাইল দেখতে পাচ্ছেন না।'
+                : 'Public visitors cannot see sample profiles anywhere across the public website.'}
+            </div>
+          </div>
+          <button
+            type="button"
+            disabled={toggleMutation.isPending}
+            onClick={() => toggleMutation.mutate(true)}
+            className="px-3.5 py-1.5 rounded-xl font-bold bg-amber-500 text-white hover:bg-amber-600 transition-all shrink-0 cursor-pointer shadow-xs"
+          >
+            {isBengali ? 'এখনই চালু করুন' : 'Enable Now'}
+          </button>
+        </div>
+      )}
 
       {/* Main Switch Card */}
       <div className="mb-card p-5 sm:p-6 space-y-4">
@@ -252,14 +309,34 @@ export const AdminDemoTab: React.FC = () => {
 
         <div className="mb-card p-4">
           <div className="flex items-center justify-between text-ink-3 text-xs font-semibold mb-2">
-            <span>{isBengali ? 'কভারেজ' : 'Coverage'}</span>
-            <MapPin className="w-4 h-4 text-emerald-500" />
+            <span>{isBengali ? 'লাইভ ওয়েবসাইটে অবস্থা' : 'Live Site Status'}</span>
+            {isDemoVisible ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            ) : (
+              <EyeOff className="w-4 h-4 text-amber-500" />
+            )}
           </div>
-          <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-            {isBengali ? '১০০%' : '100%'}
+          <div
+            className={`text-lg sm:text-xl font-black ${
+              isDemoVisible ? 'text-emerald-600 dark:text-emerald-400' : 'text-ink-3'
+            }`}
+          >
+            {isDemoVisible
+              ? isBengali
+                ? 'সক্রিয় (Visible)'
+                : 'Visible (Active)'
+              : isBengali
+              ? 'লুকানো (Hidden)'
+              : 'Hidden (Inactive)'}
           </div>
           <div className="text-[11px] text-ink-3 mt-1">
-            {isBengali ? 'সকল ১২টি উপজেলা কভার্ড' : 'All 12 Upazilas covered'}
+            {isDemoVisible
+              ? isBengali
+                ? 'পাবলিক সার্চে দৃশ্যমান'
+                : 'Visible in search'
+              : isBengali
+              ? 'ওয়েবসাইটে অফ রয়েছে'
+              : 'Turned off'}
           </div>
         </div>
       </div>
@@ -346,13 +423,14 @@ export const AdminDemoTab: React.FC = () => {
                 <th className="py-3 px-4">{isBengali ? 'বয়স' : 'Age'}</th>
                 <th className="py-3 px-4">{isBengali ? 'উপজেলা' : 'Upazila'}</th>
                 <th className="py-3 px-4">{isBengali ? 'পেশা ও শিক্ষা' : 'Occupation & Education'}</th>
+                <th className="py-3 px-4">{isBengali ? 'লাইভ স্ট্যাটাস' : 'Live Status'}</th>
                 <th className="py-3 px-4 text-right">{isBengali ? 'অ্যাকশন' : 'Action'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {filteredProfiles.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-ink-3">
+                  <td colSpan={7} className="py-12 text-center text-ink-3">
                     {isBengali ? 'কোনো নমুনা বায়োডাটা মেলেনি।' : 'No sample profiles matched.'}
                   </td>
                 </tr>
@@ -394,6 +472,19 @@ export const AdminDemoTab: React.FC = () => {
                       <div className="text-[11px] text-ink-3 truncate max-w-xs">
                         {p.educationDetail || p.education || '—'}
                       </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      {isDemoVisible ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {isBengali ? 'লাইভে সক্রিয়' : 'Live Active'}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-ink/10 text-ink-3 border border-line">
+                          <EyeOff className="w-3 h-3" />
+                          {isBengali ? 'লাইভে লুকানো' : 'Live Hidden'}
+                        </span>
+                      )}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <Link

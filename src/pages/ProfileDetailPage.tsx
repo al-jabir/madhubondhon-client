@@ -55,17 +55,40 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
     queryFn: () => adminApi.getPublicSettings(),
     staleTime: 1000 * 10,
     refetchOnWindowFocus: true,
-    enabled: demo,
   });
   const isDemoEnabled =
     publicSettingsData?.data?.settings?.showDemoProfiles !== undefined
       ? publicSettingsData.data.settings.showDemoProfiles !== false
       : localStorage.getItem('mb_show_demo_profiles') !== 'false';
 
+  const isDemoId = Boolean(
+    demo ||
+    userId?.startsWith('MB-M1') ||
+    userId?.startsWith('MB-F1') ||
+    userId?.startsWith('demo-')
+  );
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['public-profile', demo, userId, currentUser?.id || currentUser?._id || 'guest'],
-    queryFn: () => demo ? getDemoProfile(userId || '') : profilesApi.getPublicProfile(userId || ''),
-    enabled: !!userId && (!demo || isDemoEnabled),
+    queryKey: ['public-profile', demo, isDemoEnabled, userId, currentUser?.id || currentUser?._id || 'guest'],
+    queryFn: async () => {
+      if (demo || (isDemoId && isDemoEnabled)) {
+        return getDemoProfile(userId || '');
+      }
+
+      try {
+        return await profilesApi.getPublicProfile(userId || '');
+      } catch (err) {
+        if (isDemoEnabled) {
+          try {
+            return getDemoProfile(userId || '');
+          } catch {
+            throw err;
+          }
+        }
+        throw err;
+      }
+    },
+    enabled: !!userId,
   });
 
   const profile = data?.data?.profile;
@@ -171,7 +194,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
     }
   };
 
-  if (demo && !isDemoEnabled) {
+  if (isDemoId && !isDemoEnabled) {
     return (
       <div className="max-w-2xl mx-auto my-16 p-8 mb-card text-center space-y-4">
         <div className="w-16 h-16 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
@@ -242,14 +265,14 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 print:p-0 print:m-0 print:max-w-full">
-      {demo && (
+      {(demo || isDemoId) && (
         <div className="rounded-2xl bg-gold-soft border border-gold/25 p-4 text-sm text-gold print:hidden">
           <strong>{isBengali ? 'নমুনা বায়োডাটা' : 'Demo Profile'}</strong> —{' '}
           {isBengali
             ? 'এই প্রোফাইলটি কাল্পনিক, শুধু উদাহরণ দেখানোর জন্য।'
             : 'This profile is fictional and for demonstration purposes only.'}{' '}
-          <Link to="/demo" className="font-bold underline">
-            {isBengali ? 'সব নমুনা দেখুন' : 'View all demo profiles'}
+          <Link to="/search" className="font-bold underline">
+            {isBengali ? 'সব বায়োডাটা দেখুন' : 'View all profiles'}
           </Link>
         </div>
       )}

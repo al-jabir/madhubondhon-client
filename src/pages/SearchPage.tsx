@@ -77,9 +77,27 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
   // Query API
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['search-profiles', demo, user?.id || user?._id || 'guest', biodataId, query, gender, upazila, minAge, maxAge, minHeight, maxHeight, verifiedOnly, maritalStatus, education, occupation, page],
-    queryFn: () =>
-      (demo ? searchDemoProfiles : profilesApi.searchProfiles)({
+    queryKey: [
+      'search-profiles',
+      demo,
+      isDemoEnabled,
+      user?.id || user?._id || 'guest',
+      biodataId,
+      query,
+      gender,
+      upazila,
+      minAge,
+      maxAge,
+      minHeight,
+      maxHeight,
+      verifiedOnly,
+      maritalStatus,
+      education,
+      occupation,
+      page,
+    ],
+    queryFn: async () => {
+      const searchParams = {
         biodataId: biodataId.trim() || undefined,
         query: query.trim() || undefined,
         gender: (gender as Gender) || undefined,
@@ -94,7 +112,65 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
         occupation: occupation.trim() || undefined,
         page,
         limit: 9,
-      }),
+      };
+
+      if (demo) {
+        return searchDemoProfiles(searchParams);
+      }
+
+      // 1. Fetch real profiles from server
+      let realRes: any;
+      try {
+        realRes = await profilesApi.searchProfiles(searchParams);
+      } catch {
+        realRes = {
+          success: true,
+          data: { profiles: [] },
+          meta: { page, limit: 9, total: 0, totalPages: 1 },
+        };
+      }
+
+      // 2. If Demo Data Control is enabled, blend demo profiles matching filter
+      if (isDemoEnabled) {
+        const realProfiles: Profile[] = realRes?.data?.profiles || [];
+        const realTotal: number = realRes?.meta?.total ?? realProfiles.length;
+
+        // Fetch all matching demo profiles (unlimited limit to calculate combined pagination correctly)
+        const demoRes = searchDemoProfiles({ ...searchParams, limit: 50, page: 1 });
+        const demoMatches: Profile[] = demoRes?.data?.profiles || [];
+
+        // Exclude duplicates if real profiles have matching ID
+        const realIds = new Set(
+          realProfiles
+            .map((p) => p.biodataId || p._id)
+            .filter((id): id is string => Boolean(id))
+        );
+        const nonConflictingDemos = demoMatches.filter(
+          (dp) => !(dp.biodataId && realIds.has(dp.biodataId)) && !realIds.has(dp._id)
+        );
+
+        const combined = [...realProfiles, ...nonConflictingDemos];
+        const limit = 9;
+        const total = realTotal + nonConflictingDemos.length;
+        const totalPages = Math.max(1, Math.ceil(total / limit));
+        const paged = combined.slice((page - 1) * limit, page * limit);
+
+        return {
+          ...realRes,
+          data: {
+            profiles: paged,
+          },
+          meta: {
+            page,
+            limit,
+            total,
+            totalPages,
+          },
+        };
+      }
+
+      return realRes;
+    },
     enabled: !demo || isDemoEnabled,
   });
 
@@ -522,7 +598,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {profiles.map((profile) => (
+                {profiles.map((profile: Profile) => (
                   <ProfileCard
                     key={profile._id}
                     profile={profile}

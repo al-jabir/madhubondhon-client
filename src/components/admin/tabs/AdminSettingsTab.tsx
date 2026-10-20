@@ -76,6 +76,8 @@ export const AdminSettingsTab: React.FC = () => {
       toast.success(isBengali ? 'প্ল্যাটফর্ম সেটিংস সফলভাবে সংরক্ষিত হয়েছে।' : 'Platform settings saved successfully.');
       queryClient.invalidateQueries({ queryKey: ['admin-platform-settings'] });
       queryClient.invalidateQueries({ queryKey: ['public-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['search-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['public-profile'] });
       queryClient.refetchQueries({ queryKey: ['public-settings'] });
     },
     onError: (err: any) => {

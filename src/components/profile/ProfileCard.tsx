@@ -39,6 +39,11 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   const upazilaName = getUpazilaDisplayName(profile.upazila, isBengali);
 
   const isMale = profile.gender === Gender.MALE;
+  const isDemo = Boolean(
+    profile._id?.startsWith('demo-') ||
+    profile.biodataId?.startsWith('MB-M1') ||
+    profile.biodataId?.startsWith('MB-F1')
+  );
   const targetId = profile.biodataId || (typeof profile.user === 'string' ? profile.user : profile.user?._id || profile.user?.id || profile._id);
 
   const { data: ownProfileData } = useQuery({
@@ -54,6 +59,16 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   const handleToggleShortlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (isDemo) {
+      setIsShortlisted(!isShortlisted);
+      toast.success(
+        !isShortlisted
+          ? (isBengali ? 'নমুনা বায়োডাটাটি পছন্দের তালিকায় চিহ্নিত করা হয়েছে।' : 'Sample biodata added to shortlist.')
+          : (isBengali ? 'শর্টলিস্ট থেকে সরানো হয়েছে।' : 'Removed from shortlist.')
+      );
+      return;
+    }
 
     if (!isAuthenticated) {
       toast.info(isBengali ? 'বায়োডাটা শর্টলিস্ট করতে প্রথমে লগইন করুন।' : 'Please sign in to shortlist biodata.');
@@ -82,11 +97,18 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
     <div className="mb-card mb-card-hover overflow-hidden flex flex-col justify-between group relative p-0">
       {/* Top badges & shortlist button */}
       <div className="absolute top-3 inset-x-3 z-10 flex items-center justify-between pointer-events-none">
-        {profile.biodataId ? (
-          <span className="pointer-events-auto text-[11px] font-black tracking-wider px-2.5 py-1 rounded-full bg-[#2b161f]/85 backdrop-blur-md text-gold border border-gold/30">
-            {profile.biodataId}
-          </span>
-        ) : <span />}
+        <div className="flex items-center gap-1.5 pointer-events-auto">
+          {profile.biodataId ? (
+            <span className="text-[11px] font-black tracking-wider px-2.5 py-1 rounded-full bg-[#2b161f]/85 backdrop-blur-md text-gold border border-gold/30">
+              {profile.biodataId}
+            </span>
+          ) : <span />}
+          {isDemo && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 backdrop-blur-md text-amber-600 dark:text-amber-400 border border-amber-500/40">
+              {isBengali ? 'নমুনা' : 'Sample'}
+            </span>
+          )}
+        </div>
 
         <button
           type="button"
@@ -205,7 +227,17 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         ) : onSendInterest ? (
           <button
             type="button"
-            onClick={() => onSendInterest(profile)}
+            onClick={() => {
+              if (isDemo) {
+                toast.info(
+                  isBengali
+                    ? 'এটি একটি নমুনা বায়োডাটা। আসল ভেরিফায়েড পাত্র-পাত্রীর বায়োডাটায় পছন্দ পাঠাতে পারেন।'
+                    : 'This is a sample profile. You can send interest requests to verified member profiles.'
+                );
+                return;
+              }
+              onSendInterest(profile);
+            }}
             className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold text-white bg-linear-to-r from-brand to-pink-500 hover:brightness-110 rounded-lg shadow-sm transition-all cursor-pointer"
           >
             <Heart className="w-3.5 h-3.5 fill-current" />
