@@ -1120,8 +1120,16 @@ function Wizard({ application }: { application: Application }) {
               disabled={saving}
               onClick={async () => {
                 if (await save()) {
-                  if (step < 3) setStep((v) => v + 1);
-                  else navigate("/my-profile");
+                  if (step < 3) {
+                    setStep((v) => v + 1);
+                  } else {
+                    toast.success(
+                      isBengali
+                        ? "বায়োডাটার সকল তথ্য সংরক্ষিত হয়েছে! এবার যাচাই ও জমা সম্পন্ন করুন।"
+                        : "Biodata details saved! Now complete verification & submit."
+                    );
+                    navigate("/my-profile?tab=verification&from=wizard");
+                  }
                 }
               }}
               className="mb-btn-primary w-full sm:w-auto !px-6 !py-3 disabled:opacity-40 cursor-pointer"

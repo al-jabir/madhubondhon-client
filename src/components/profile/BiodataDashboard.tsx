@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -20,6 +20,9 @@ import {
   RotateCw,
   ShieldCheck,
   Users,
+  Sparkles,
+  Clock,
+  ArrowRight,
 } from "lucide-react";
 
 const input = "mb-input w-full";
@@ -171,6 +174,8 @@ function VerificationCard({
 /* ─────────── Dashboard ─────────── */
 export default function BiodataDashboard() {
   const cache = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const isFromWizard = searchParams.get('from') === 'wizard';
   const { user } = useAuth();
   const { isBengali, formatNumber } = useLanguage();
   const { data, isLoading, isError, refetch } = useQuery({
@@ -201,11 +206,10 @@ export default function BiodataDashboard() {
   const guardianConsented = !!app?.guardianConsentedAt;
   const submissible = !!(app && ["draft", "changes_requested", "rejected"].includes(app.status));
 
-  const stepCount =
+  const verificationCompletedCount =
     (emailVerified ? 1 : 0) +
     (phoneVerified ? 1 : 0) +
-    (guardianConsented ? 1 : 0) +
-    (app?.status === "approved" ? 1 : 0);
+    (guardianConsented ? 1 : 0);
 
   const statusTone: Record<string, { bg: string; text: string; border: string }> = {
     approved: {
@@ -237,6 +241,27 @@ export default function BiodataDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* ── Wizard completion notice ── */}
+      {isFromWizard && submissible && (
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 shadow-xs animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div className="space-y-1">
+            <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-300">
+              {isBengali
+                ? "অভিনন্দন! বায়োডাটার সকল তথ্য সংরক্ষিত হয়েছে।"
+                : "Congratulations! Your biodata details have been saved."}
+            </h4>
+            <p className="text-xs text-ink-2 leading-relaxed">
+              {isBengali
+                ? "এবার প্ল্যাটফর্মে বায়োডাটা প্রকাশের জন্য নিচের ৩টি ছোট যাচাই (ইমেইল, মোবাইল ও অভিভাবক সম্মতি) সম্পন্ন করে নিচে 'পর্যালোচনার জন্য জমা দিন' বাটনে ক্লিক করুন।"
+                : "Now complete the 3 quick verifications below (email, phone, and guardian consent) and click 'Submit for Review' at the bottom to submit for approval."}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ── Progress header ── */}
       <div className="mb-card rounded-[2rem] p-6 sm:p-7">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -258,8 +283,8 @@ export default function BiodataDashboard() {
 
           {/* step counter */}
           <div className="flex items-center gap-2 shrink-0">
-            {[false, false, false].map((_, idx) => {
-              const done = idx < stepCount;
+            {[0, 1, 2].map((idx) => {
+              const done = idx < verificationCompletedCount;
               return (
                 <span
                   key={idx}
@@ -281,8 +306,8 @@ export default function BiodataDashboard() {
             })}
             <span className="text-[11px] font-bold text-ink-2 ml-1">
               {isBengali
-                ? `${formatNumber(stepCount)}/৩ সম্পন্ন`
-                : `${stepCount}/3 Completed`}
+                ? `${formatNumber(verificationCompletedCount)}/৩ সম্পন্ন`
+                : `${verificationCompletedCount}/3 Completed`}
             </span>
           </div>
         </div>
@@ -466,36 +491,146 @@ export default function BiodataDashboard() {
               )}
             </div>
 
-            {/* submit area */}
-            <div className="rounded-2xl bg-brand-soft/60 dark:bg-brand-soft/40 border border-brand/15 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <p className="text-xs text-ink-2 leading-relaxed max-w-md">
-                {isBengali
-                  ? "জমা দিতে ইমেইল, মোবাইল, অভিভাবকের সম্মতি ও বায়োডাটার আবশ্যক তথ্য পূরণ করুন।"
-                  : "To submit, complete email, phone, and guardian verification along with required biodata fields."}
-              </p>
-              <button
-                disabled={
-                  busy ||
-                  !emailVerified ||
-                  !phoneVerified ||
-                  !guardianConsented ||
-                  !submissible
-                }
-                onClick={() =>
-                  action(async () => {
-                    await workflowApi.submit(app.revision);
-                    toast.success(
-                      isBengali
-                        ? "পর্যালোচনার জন্য জমা হয়েছে"
-                        : "Submitted for moderation review"
-                    );
-                  })
-                }
-                className="mb-btn-primary px-6 py-3 text-sm rounded-xl shrink-0 cursor-pointer disabled:opacity-50"
-              >
-                {isBengali ? "পর্যালোচনার জন্য জমা দিন" : "Submit for Review"}
-              </button>
-            </div>
+            {/* submit area / status tracker */}
+            {app.status === "submitted" || app.status === "under_review" ? (
+              <div className="rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/30 p-5 sm:p-6 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <Clock className="w-6 h-6 animate-pulse" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>{isBengali ? "পর্যালোচনা প্রক্রিয়াধীন" : "Review In Progress"}</span>
+                      </div>
+                      <h4 className="text-base font-bold text-ink">
+                        {isBengali ? "আপনার বায়োডাটা সফলভাবে জমা হয়েছে!" : "Your Biodata Has Been Submitted!"}
+                      </h4>
+                      <p className="text-xs text-ink-2 leading-relaxed max-w-xl">
+                        {isBengali
+                          ? "আপনার আবেদনটি আমাদের মডারেশন টিমের কাছে পৌঁছেছে। সাধারণত ২ থেকে ৬ ঘণ্টার মধ্যে তথ্য ও অভিভাবক সম্মতি পুঙ্খানুপুঙ্খভাবে যাচাই করে বায়োডাটা সক্রিয় করা হয়।"
+                          : "Your biodata and guardian verification have been submitted to the moderation team. Reviews are completed within 2 to 6 hours. Upon approval, your profile is published."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Link
+                    to="/edit-profile"
+                    className="mb-btn-secondary !text-xs py-2.5 px-4 rounded-xl shrink-0 inline-flex items-center gap-1.5 bg-card"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>{isBengali ? "খসড়া তথ্য সম্পাদনা" : "Edit Submitted Draft"}</span>
+                  </Link>
+                </div>
+
+                {/* 4-step progress tracker */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 border-t border-emerald-500/20 text-xs">
+                  <div className="bg-card/80 p-2.5 rounded-xl border border-emerald-500/20 space-y-1">
+                    <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{isBengali ? "১. তথ্য পূরণ" : "1. Info Entry"}</span>
+                    </div>
+                    <p className="text-[11px] text-ink-3">{isBengali ? "সম্পন্ন হয়েছে" : "Completed"}</p>
+                  </div>
+
+                  <div className="bg-card/80 p-2.5 rounded-xl border border-emerald-500/20 space-y-1">
+                    <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{isBengali ? "২. অভিভাবক সম্মতি" : "2. Consent"}</span>
+                    </div>
+                    <p className="text-[11px] text-ink-3">{isBengali ? "যাচাইকৃত" : "Verified"}</p>
+                  </div>
+
+                  <div className="bg-emerald-500/15 p-2.5 rounded-xl border border-emerald-500/40 space-y-1">
+                    <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 font-bold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>{isBengali ? "৩. মডারেশন" : "3. Moderation"}</span>
+                    </div>
+                    <p className="text-[11px] text-emerald-800 dark:text-emerald-200 font-semibold">
+                      {isBengali ? "পর্যালোচনা চলছে" : "Under Review"}
+                    </p>
+                  </div>
+
+                  <div className="bg-card/80 p-2.5 rounded-xl border border-line space-y-1 opacity-70">
+                    <div className="flex items-center gap-1.5 text-ink-3 font-bold">
+                      <span>{isBengali ? "৪. প্রকাশনা" : "4. Published"}</span>
+                    </div>
+                    <p className="text-[11px] text-ink-3">{isBengali ? "অনুমোদনের পর" : "After Approval"}</p>
+                  </div>
+                </div>
+              </div>
+            ) : app.status === "approved" ? (
+              <div className="rounded-2xl bg-emerald-500/15 border border-emerald-500/30 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-ink">
+                      {isBengali ? "আলহামদুলিল্লাহ! আপনার বায়োডাটা অনুমোদিত হয়েছে।" : "Alhamdulillah! Your Biodata is Approved."}
+                    </h4>
+                    <p className="text-xs text-ink-2 mt-0.5">
+                      {isBengali ? "আপনার বায়োডাটা এখন প্ল্যাটফর্মে সক্রিয় এবং পাত্র-পাত্রীরা অনুসন্ধান করতে পারবেন।" : "Your biodata is active on the platform and discoverable by potential matches."}
+                    </p>
+                  </div>
+                </div>
+                <Link to="/my-profile?tab=overview" className="mb-btn-primary px-5 py-2.5 text-xs rounded-xl shrink-0 inline-flex items-center gap-1.5">
+                  <span>{isBengali ? "সারসংক্ষেপ দেখুন" : "View Overview"}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-brand-soft/60 dark:bg-brand-soft/40 border border-brand/15 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1 max-w-md">
+                  <p className="text-xs font-bold text-ink">
+                    {isBengali ? "চূড়ান্ত জমা দেওয়ার প্রয়োজনীয় ধাপ:" : "Required Steps Before Submission:"}
+                  </p>
+                  <p className="text-xs text-ink-2 leading-relaxed">
+                    {!emailVerified || !phoneVerified || !guardianConsented ? (
+                      <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                        {isBengali ? "বাকি আছে: " : "Missing: "}
+                        {[
+                          !emailVerified && (isBengali ? "ইমেইল যাচাই" : "Email verification"),
+                          !phoneVerified && (isBengali ? "মোবাইল যাচাই" : "Phone verification"),
+                          !guardianConsented && (isBengali ? "অভিভাবকের ওটিপি সম্মতি" : "Guardian consent"),
+                        ]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </span>
+                    ) : (
+                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                        {isBengali
+                          ? "সকল ৩টি যাচাই সম্পন্ন হয়েছে! এবার পর্যালোচনার জন্য জমা দিন।"
+                          : "All 3 verifications complete! You can now submit for moderation review."}
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <button
+                  disabled={
+                    busy ||
+                    !emailVerified ||
+                    !phoneVerified ||
+                    !guardianConsented ||
+                    !submissible
+                  }
+                  onClick={() =>
+                    action(async () => {
+                      await workflowApi.submit(app.revision);
+                      toast.success(
+                        isBengali
+                          ? "বায়োডাটা পর্যালোচনার জন্য সফলভাবে জমা হয়েছে!"
+                          : "Biodata submitted for moderation review successfully!"
+                      );
+                    })
+                  }
+                  className="mb-btn-primary px-6 py-3 text-sm rounded-xl shrink-0 cursor-pointer disabled:opacity-40"
+                >
+                  {isBengali ? "পর্যালোচনার জন্য জমা দিন" : "Submit for Review"}
+                </button>
+              </div>
+            )}
           </section>
         )
       )}

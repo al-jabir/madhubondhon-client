@@ -1,6 +1,5 @@
-import BiodataDashboard from '../components/profile/BiodataDashboard';
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import {
   User as UserIcon,
@@ -26,12 +25,22 @@ import {
   Contact,
   Gem,
   Mail,
+  Phone,
+  Clock,
+  BookOpen,
+  Briefcase,
+  Users,
+  Check,
+  Calendar,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import BiodataDashboard from '../components/profile/BiodataDashboard';
 import { profilesApi } from '../api/profiles.api';
 import { authApi } from '../api/auth.api';
+import { workflowApi, Application, ReviewStatus, statusLabels } from '../api/workflow.api';
 import { useAuth } from '../context/useAuth';
 import { getUpazilaDisplayName, TangailUpazila } from '../constants/locations';
+import { Profile, EducationLevel, MaritalStatus } from '../types';
 import PhotoManager from '../components/profile/PhotoManager';
 import ProfileCard from '../components/profile/ProfileCard';
 import GenderAvatar from '../components/common/GenderAvatar';
@@ -42,8 +51,23 @@ import { useLanguage } from '../i18n/LanguageContext';
 type TabKey = 'overview' | 'photos' | 'recommendations' | 'verification' | 'settings';
 
 export const MyProfilePage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const [searchParams, setSearchParams] = useSearchParams();
   const { isBengali } = useLanguage();
+
+  const validTabs: TabKey[] = ['overview', 'photos', 'recommendations', 'verification', 'settings'];
+  const tabFromUrl = searchParams.get('tab') as TabKey | null;
+  const activeTab: TabKey = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'overview';
+
+  const handleTabChange = (key: TabKey) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set('tab', key);
+        return next;
+      },
+      { replace: true }
+    );
+  };
 
   const tabs: Array<{ key: TabKey; label: string; icon: React.ElementType }> = [
     { key: 'overview', label: isBengali ? 'সারসংক্ষেপ' : 'Overview', icon: LayoutDashboard },
@@ -68,7 +92,7 @@ export const MyProfilePage: React.FC = () => {
               <button
                 key={tab.key}
                 type="button"
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => handleTabChange(tab.key)}
                 className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                   active
                     ? 'bg-brand text-white shadow-md shadow-brand/25'
@@ -84,9 +108,9 @@ export const MyProfilePage: React.FC = () => {
       </div>
 
       <div className="px-4 sm:px-6 py-8 pb-16">
-        {activeTab === 'overview' && <OverviewTab onNavigateTab={setActiveTab} />}
-        {activeTab === 'photos' && <PhotosTab />}
-        {activeTab === 'recommendations' && <RecommendationsTab />}
+        {activeTab === 'overview' && <OverviewTab onNavigateTab={handleTabChange} />}
+        {activeTab === 'photos' && <PhotosTab onNavigateTab={handleTabChange} />}
+        {activeTab === 'recommendations' && <RecommendationsTab onNavigateTab={handleTabChange} />}
         {activeTab === 'verification' && <BiodataDashboard />}
         {activeTab === 'settings' && <SettingsTab />}
       </div>
@@ -94,13 +118,20 @@ export const MyProfilePage: React.FC = () => {
   );
 };
 
-/* ═══════════════ Shared profile data hook ═══════════════ */
+/* ═══════════════ Shared profile & draft data hook ═══════════════ */
 const useMyProfile = () => {
   const base = useQuery({
     queryKey: ['my-profile'],
     queryFn: () => profilesApi.getOwnProfile(),
+    retry: false,
   });
   const profile = base.data?.data?.profile;
+
+  const draftQuery = useQuery({
+    queryKey: ['biodata-draft'],
+    queryFn: () => workflowApi.getDraft(),
+  });
+  const application = draftQuery.data?.data?.application;
 
   const completion = useQuery({
     queryKey: ['my-profile', 'completion'],
@@ -109,19 +140,850 @@ const useMyProfile = () => {
   });
 
   return {
-    isLoading: base.isLoading,
+    isLoading: base.isLoading && draftQuery.isLoading,
     profile,
+    application,
     completion: completion.data?.data?.completion,
   };
 };
 
-/* ═══════════════ Hero + stats + overview card ═══════════════ */
+/* ═══════════════ Helpers ═══════════════ */
+function calculateAge(dob?: string | Date): number | null {
+  if (!dob) return null;
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age > 0 ? age : null;
+}
+
+function formatDisplayDate(dateStr?: string, isBengali = true): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return isBengali
+    ? d.toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })
+    : d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function formatHeight(
+  height?: { feet?: number; inches?: number },
+  isBengali = true,
+  formatNumber?: (n: number | string) => string
+) {
+  if (!height || !height.feet) return isBengali ? 'উল্লেখ নেই' : 'Not specified';
+  const ft = formatNumber ? formatNumber(height.feet) : height.feet;
+  const inc = formatNumber ? formatNumber(height.inches ?? 0) : height.inches ?? 0;
+  return isBengali ? `${ft} ফুট ${inc} ইঞ্চি` : `${ft}' ${inc}"`;
+}
+
+function getMaritalStatusLabel(status?: string, gender?: string, isBengali = true) {
+  if (!status) return isBengali ? 'উল্লেখ নেই' : 'Not specified';
+  switch (status) {
+    case 'never_married':
+      return isBengali ? 'অবিবাহিত' : 'Never Married';
+    case 'divorced':
+      return isBengali ? 'ডিভোর্সড' : 'Divorced';
+    case 'widowed':
+      if (gender === 'male') return isBengali ? 'বিপত্নীক' : 'Widower';
+      if (gender === 'female') return isBengali ? 'বিধবা' : 'Widow';
+      return isBengali ? 'বিধবা/বিপত্নীক' : 'Widowed';
+    case 'separated':
+      return isBengali ? 'বিচ্ছিন্ন' : 'Separated';
+    default:
+      return status;
+  }
+}
+
+function formatYesNo(val?: boolean | string, isBengali = true) {
+  if (val === true || val === 'yes' || val === 'হ্যাঁ') return isBengali ? 'হ্যাঁ' : 'Yes';
+  if (val === false || val === 'no' || val === 'না') return isBengali ? 'না' : 'No';
+  return isBengali ? 'তথ্য দেওয়া হয়নি' : 'Not provided';
+}
+
+/* ═══════════════ Overview tab switcher ═══════════════ */
 const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavigateTab }) => {
-  const { profile } = useMyProfile();
+  const { profile, application, isLoading } = useMyProfile();
+
+  if (isLoading) return <TabLoader />;
+
+  if (profile) {
+    return <PublishedProfileOverview profile={profile} onNavigateTab={onNavigateTab} />;
+  }
+
+  if (
+    application &&
+    (application.data?.displayName ||
+      application.guardian?.name ||
+      (application.data && Object.keys(application.data).length > 0) ||
+      application.status !== 'draft')
+  ) {
+    return <ApplicationOverview application={application} onNavigateTab={onNavigateTab} />;
+  }
+
+  return <ProfileMissing onNavigateTab={onNavigateTab} />;
+};
+
+/* ═══════════════ Application Overview (Draft / Submitted / Under Review) ═══════════════ */
+const ApplicationOverview: React.FC<{
+  application: Application;
+  onNavigateTab: (t: TabKey) => void;
+}> = ({ application, onNavigateTab }) => {
   const { user } = useAuth();
   const { isBengali, formatNumber } = useLanguage();
 
-  if (!profile) return <ProfileMissing />;
+  const data = application.data || {};
+  const guardian = application.guardian || {};
+  const status = application.status;
+  const age = calculateAge(data.dateOfBirth);
+  const upazilaName = getUpazilaDisplayName(data.upazila, isBengali);
+
+  const statusToneMap: Record<
+    ReviewStatus,
+    { badgeBg: string; badgeText: string; bannerBg: string; border: string; title: string; desc: string }
+  > = {
+    draft: {
+      badgeBg: 'bg-amber-500/15',
+      badgeText: 'text-amber-800 dark:text-amber-300',
+      bannerBg: 'bg-amber-500/10 dark:bg-amber-950/30',
+      border: 'border-amber-500/30',
+      title: isBengali
+        ? 'আপনার বায়োডাটা সংরক্ষিত (খসড়া) অবস্থায় রয়েছে'
+        : 'Your Biodata is Saved as Draft',
+      desc: isBengali
+        ? "বায়োডাটার সকল প্রয়োজনীয় তথ্য ড্রাফট হিসেবে সংরক্ষিত আছে। এটি প্ল্যাটফর্মে লাইভ করতে অভিভাবক সম্মতি ও যোগাযোগ যাচাই সম্পন্ন করে 'যাচাই ও জমা' ড্যাশবোর্ড থেকে পর্যালোচনার জন্য জমা দিন।"
+        : "Your biodata details are saved as draft. Complete the 3 quick verifications (email, phone, guardian consent) and submit for moderation from the Verification tab.",
+    },
+    submitted: {
+      badgeBg: 'bg-emerald-500/15',
+      badgeText: 'text-emerald-700 dark:text-emerald-300',
+      bannerBg: 'bg-emerald-500/10 dark:bg-emerald-950/30',
+      border: 'border-emerald-500/30',
+      title: isBengali
+        ? 'বায়োডাটা পর্যালোচনার জন্য জমা হয়েছে'
+        : 'Biodata Submitted for Review',
+      desc: isBengali
+        ? 'আপনার বায়োডাটা সফলভাবে আমাদের মডারেশন টিমের কাছে পৌঁছেছে। সাধারণত ২ থেকে ৬ ঘণ্টার মধ্যে তথ্য ও অভিভাবক সম্মতি যাচাই শেষে বায়োডাটা সক্রিয় করা হবে।'
+        : 'Your application has been received by our moderation team. Details and guardian consent are being verified. Review is typically completed within 2 to 6 hours.',
+    },
+    under_review: {
+      badgeBg: 'bg-blue-500/15',
+      badgeText: 'text-blue-700 dark:text-blue-300',
+      bannerBg: 'bg-blue-500/10 dark:bg-blue-950/30',
+      border: 'border-blue-500/30',
+      title: isBengali
+        ? 'বায়োডাটা পর্যালোচনা প্রক্রিয়াধীন'
+        : 'Biodata Review In Progress',
+      desc: isBengali
+        ? 'আমাদের একজন মডারেটর বর্তমানে আপনার বায়োডাটার তথ্য ও অভিভাবক সম্মতি যাচাই করছেন। যাচাই শেষ হলেই এটি প্ল্যাটফর্মে প্রকাশিত হবে।'
+        : 'A moderator is actively reviewing your biodata details and guardian verification. Once completed, your profile will be published.',
+    },
+    changes_requested: {
+      badgeBg: 'bg-rose-500/15',
+      badgeText: 'text-rose-700 dark:text-rose-300',
+      bannerBg: 'bg-rose-500/10 dark:bg-rose-950/30',
+      border: 'border-rose-500/30',
+      title: isBengali
+        ? 'বায়োডাটায় কিছু তথ্য সংশোধন প্রয়োজন'
+        : 'Changes Requested on Biodata',
+      desc: application.reviewNote
+        ? `${isBengali ? 'মডারেটরের মন্তব্য: ' : 'Moderator Note: '}${application.reviewNote}`
+        : isBengali
+        ? 'মডারেটর আপনার বায়োডাটায় কিছু তথ্য পুনরায় সংশোধনের অনুরোধ করেছেন। অনুগ্রহ করে বায়োডাটা সম্পাদনা করে পুনরায় জমা দিন।'
+        : 'Please update requested details in your biodata and resubmit for approval.',
+    },
+    approved: {
+      badgeBg: 'bg-emerald-500/15',
+      badgeText: 'text-emerald-700 dark:text-emerald-300',
+      bannerBg: 'bg-emerald-500/10 dark:bg-emerald-950/30',
+      border: 'border-emerald-500/30',
+      title: isBengali
+        ? 'আলহামদুলিল্লাহ! আপনার বায়োডাটা অনুমোদিত হয়েছে'
+        : 'Alhamdulillah! Your Biodata is Approved',
+      desc: isBengali
+        ? 'আপনার বায়োডাটা প্ল্যাটফর্মে সক্রিয় রয়েছে এবং পাত্র-পাত্রীরা অনুসন্ধান করতে পারছেন।'
+        : 'Your biodata is active on the platform and discoverable by prospective matches.',
+    },
+    rejected: {
+      badgeBg: 'bg-red-500/15',
+      badgeText: 'text-red-700 dark:text-red-300',
+      bannerBg: 'bg-red-500/10 dark:bg-red-950/30',
+      border: 'border-red-500/30',
+      title: isBengali ? 'বায়োডাটা অনুমোদিত হয়নি' : 'Biodata Not Approved',
+      desc: application.reviewNote
+        ? `${isBengali ? 'কারণ: ' : 'Reason: '}${application.reviewNote}`
+        : isBengali
+        ? 'বায়োডাটা আমাদের নিরাপত্তা ও নির্ভরযোগ্যতার নীতিমালা পূরণ করেনি।'
+        : 'The biodata did not meet platform safety and integrity standards.',
+    },
+  };
+
+  const currentTone = statusToneMap[status] || statusToneMap.draft;
+
+  const quickLinks = [
+    {
+      to: '/interests',
+      icon: Heart,
+      label: isBengali ? 'আগ্রহের তালিকা' : 'Interests',
+      desc: isBengali ? 'পাঠানো ও প্রাপ্ত' : 'Sent & Received',
+    },
+    {
+      to: '/shortlist',
+      icon: Bookmark,
+      label: isBengali ? 'পছন্দের তালিকা' : 'Shortlist',
+      desc: isBengali ? 'সংরক্ষিত পাত্র-পাত্রী' : 'Saved Profiles',
+    },
+    {
+      to: '/contacts',
+      icon: Contact,
+      label: isBengali ? 'যোগাযোগ' : 'Contacts',
+      desc: isBengali ? 'অনুরোধ ও প্রাপ্তি' : 'Requests & Grants',
+    },
+    {
+      to: '/packages',
+      icon: Gem,
+      label: isBengali ? 'প্যাকেজ' : 'Packages',
+      desc: isBengali ? 'ক্রেডিট ও মূল্য' : 'Credits & Pricing',
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* ── Status Alert Banner ── */}
+      <div
+        className={`rounded-2xl p-5 border ${currentTone.bannerBg} ${currentTone.border} flex flex-col sm:flex-row sm:items-center justify-between gap-4`}
+      >
+        <div className="flex items-start gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+            {status === 'submitted' || status === 'under_review' ? (
+              <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
+            ) : status === 'changes_requested' || status === 'rejected' ? (
+              <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            )}
+          </div>
+          <div className="space-y-1">
+            <h4 className="text-base font-bold text-ink">{currentTone.title}</h4>
+            <p className="text-xs text-ink-2 leading-relaxed max-w-2xl">{currentTone.desc}</p>
+          </div>
+        </div>
+
+        <div className="shrink-0 flex items-center gap-2">
+          {status === 'draft' ? (
+            <button
+              type="button"
+              onClick={() => onNavigateTab('verification')}
+              className="mb-btn-primary py-2.5 px-5 text-xs rounded-xl inline-flex items-center gap-1.5 cursor-pointer shadow-md shadow-brand/20 whitespace-nowrap"
+            >
+              <ClipboardCheck className="w-3.5 h-3.5" />
+              <span>{isBengali ? 'যাচাই ও জমা ড্যাশবোর্ড' : 'Verification Dashboard'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          ) : status === 'changes_requested' || status === 'rejected' ? (
+            <Link
+              to="/edit-profile"
+              className="mb-btn-primary py-2.5 px-5 text-xs rounded-xl inline-flex items-center gap-1.5 shadow-md shadow-brand/20 whitespace-nowrap"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>{isBengali ? 'বায়োডাটা সম্পাদনা করুন' : 'Edit Biodata'}</span>
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onNavigateTab('verification')}
+              className="mb-btn-secondary py-2.5 px-4 text-xs rounded-xl inline-flex items-center gap-1.5 cursor-pointer bg-card whitespace-nowrap"
+            >
+              <Clock className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{isBengali ? 'মডারেশন ট্র্যাকার' : 'Moderation Tracker'}</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Candidate Identity Hero ── */}
+      <div className="relative overflow-hidden mb-card rounded-[2rem] px-6 sm:px-8 pt-8 pb-8">
+        <div
+          className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-brand/10 blur-3xl pointer-events-none"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute -bottom-32 -left-20 w-72 h-72 rounded-full bg-pink-500/8 blur-3xl pointer-events-none"
+          aria-hidden="true"
+        />
+
+        <div className="relative flex flex-col md:flex-row md:items-center gap-6">
+          {/* Avatar with ring */}
+          <div className="relative shrink-0 mx-auto md:mx-0">
+            <div
+              className="absolute -inset-2 rounded-full bg-linear-to-br from-brand/50 via-pink-500/30 to-transparent"
+              aria-hidden="true"
+            />
+            <div className="relative rounded-full shadow-xl border-4 border-card w-28 h-28">
+              <GenderAvatar gender={data.gender || 'male'} size={112} className="w-full h-full" />
+            </div>
+          </div>
+
+          {/* Identity details */}
+          <div className="flex-1 space-y-2.5 text-center md:text-left">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
+                {data.displayName || user?.name || (isBengali ? 'বায়োডাটা প্রার্থী' : 'Candidate')}
+              </h1>
+              <span
+                className={`text-xs font-bold px-3 py-1 rounded-full border ${currentTone.badgeBg} ${currentTone.badgeText} ${currentTone.border}`}
+              >
+                {statusLabels[status] || status}
+              </span>
+            </div>
+
+            <p className="text-xs text-ink-3 flex items-center justify-center md:justify-start gap-1.5">
+              <Mail className="w-3 h-3" />
+              {user?.email}
+              {guardian.phone && (
+                <>
+                  <span className="mx-1">•</span>
+                  <Phone className="w-3 h-3" />
+                  <span>{guardian.phone}</span>
+                </>
+              )}
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-soft text-brand-ink border border-brand/20">
+                <UserIcon className="w-3.5 h-3.5" />
+                {data.gender === 'female'
+                  ? isBengali
+                    ? 'পাত্রী'
+                    : 'Bride'
+                  : isBengali
+                  ? 'পাত্র'
+                  : 'Groom'}
+              </span>
+              {data.upazila && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-elev text-ink-2 border border-line">
+                  <MapPin className="w-3.5 h-3.5 text-brand" />
+                  {upazilaName}, {isBengali ? 'টাঙ্গাইল' : 'Tangail'}
+                </span>
+              )}
+              {age ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-elev text-ink-2 border border-line">
+                  <Calendar className="w-3.5 h-3.5 text-gold" />
+                  <span>{isBengali ? `${formatNumber(age)} বছর` : `${age} yrs`}</span>
+                </span>
+              ) : null}
+              {data.occupation && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-elev text-ink-2 border border-line">
+                  <Briefcase className="w-3.5 h-3.5 text-ink-3" />
+                  <span>{data.occupation}</span>
+                </span>
+              )}
+              {data.education && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-elev text-ink-2 border border-line">
+                  <BookOpen className="w-3.5 h-3.5 text-ink-3" />
+                  <span>{data.educationDetail || data.education.toUpperCase()}</span>
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 shrink-0">
+            <Link
+              to="/edit-profile"
+              className="mb-btn-primary py-2.5 px-5 text-xs rounded-xl inline-flex items-center gap-2 shadow-lg shadow-brand/20 cursor-pointer"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>{isBengali ? 'বায়োডাটা সম্পাদনা' : 'Edit Biodata'}</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => onNavigateTab('verification')}
+              className="inline-flex items-center gap-1.5 py-2.5 px-5 text-xs font-bold text-brand bg-brand-soft hover:bg-brand/20 rounded-xl border border-brand/40 transition-all cursor-pointer"
+            >
+              <ClipboardCheck className="w-3.5 h-3.5" />
+              <span>{isBengali ? 'যাচাই ও জমা' : 'Verification & Submit'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 4-step pipeline status tracker ── */}
+      <div className="mb-card rounded-2xl p-5 space-y-3">
+        <h3 className="text-xs font-black text-ink uppercase tracking-wider flex items-center gap-2">
+          <Clock className="w-4 h-4 text-brand" />
+          <span>{isBengali ? 'বায়োডাটা প্রকাশের অগ্রগতি' : 'Publication Workflow Pipeline'}</span>
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          {/* Step 1 */}
+          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 space-y-1">
+            <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 font-bold">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{isBengali ? '১. তথ্য পূরণ' : '1. Form Entry'}</span>
+            </div>
+            <p className="text-[11px] text-ink-3">{isBengali ? 'সম্পন্ন হয়েছে' : 'Completed'}</p>
+          </div>
+
+          {/* Step 2 */}
+          <div
+            className={`p-3 rounded-xl border space-y-1 ${
+              application.guardianConsentedAt
+                ? 'bg-emerald-500/10 border-emerald-500/25'
+                : 'bg-card border-line'
+            }`}
+          >
+            <div
+              className={`flex items-center gap-1.5 font-bold ${
+                application.guardianConsentedAt
+                  ? 'text-emerald-700 dark:text-emerald-300'
+                  : 'text-ink-2'
+              }`}
+            >
+              {application.guardianConsentedAt ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              ) : (
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+              )}
+              <span>{isBengali ? '২. অভিভাবক সম্মতি' : '2. Guardian Consent'}</span>
+            </div>
+            <p className="text-[11px] text-ink-3">
+              {application.guardianConsentedAt
+                ? isBengali
+                  ? 'যাচাইকৃত'
+                  : 'Verified'
+                : isBengali
+                ? 'যাচাই বাকি'
+                : 'Pending'}
+            </p>
+          </div>
+
+          {/* Step 3 */}
+          <div
+            className={`p-3 rounded-xl border space-y-1 ${
+              status === 'submitted' || status === 'under_review'
+                ? 'bg-blue-500/10 border-blue-500/30'
+                : status === 'approved'
+                ? 'bg-emerald-500/10 border-emerald-500/25'
+                : 'bg-card border-line opacity-70'
+            }`}
+          >
+            <div
+              className={`flex items-center gap-1.5 font-bold ${
+                status === 'submitted' || status === 'under_review'
+                  ? 'text-blue-700 dark:text-blue-300'
+                  : status === 'approved'
+                  ? 'text-emerald-700 dark:text-emerald-300'
+                  : 'text-ink-3'
+              }`}
+            >
+              {status === 'approved' ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              ) : status === 'submitted' || status === 'under_review' ? (
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              ) : (
+                <Clock className="w-3.5 h-3.5" />
+              )}
+              <span>{isBengali ? '৩. মডারেশন যাচাই' : '3. Moderation'}</span>
+            </div>
+            <p className="text-[11px] text-ink-3">
+              {status === 'approved'
+                ? isBengali
+                  ? 'অনুমোদিত'
+                  : 'Approved'
+                : status === 'submitted' || status === 'under_review'
+                ? isBengali
+                  ? 'পর্যালোচনা চলছে'
+                  : 'Under Review'
+                : isBengali
+                ? 'জমার পর শুরু হবে'
+                : 'Pending submission'}
+            </p>
+          </div>
+
+          {/* Step 4 */}
+          <div
+            className={`p-3 rounded-xl border space-y-1 ${
+              status === 'approved'
+                ? 'bg-emerald-500/10 border-emerald-500/25'
+                : 'bg-card border-line opacity-60'
+            }`}
+          >
+            <div
+              className={`flex items-center gap-1.5 font-bold ${
+                status === 'approved'
+                  ? 'text-emerald-700 dark:text-emerald-300'
+                  : 'text-ink-3'
+              }`}
+            >
+              {status === 'approved' ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5" />
+              )}
+              <span>{isBengali ? '৪. প্ল্যাটফর্মে প্রকাশ' : '4. Published'}</span>
+            </div>
+            <p className="text-[11px] text-ink-3">
+              {status === 'approved'
+                ? isBengali
+                  ? 'লাইভ'
+                  : 'Live'
+                : isBengali
+                ? 'অনুমোদনের পর লাইভ হবে'
+                : 'Active upon approval'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Detailed Biodata Preview (Categorized) ── */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="mb-section-title text-base flex items-center gap-2">
+            <LayoutDashboard className="w-4 h-4 text-brand" />
+            <span>{isBengali ? 'আপনার সংরক্ষিত বায়োডাটার তথ্যাবলী' : 'Submitted Biodata Details'}</span>
+          </h2>
+          <Link
+            to="/edit-profile"
+            className="text-xs font-bold text-brand hover:underline inline-flex items-center gap-1"
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            <span>{isBengali ? 'সম্পাদনা করুন' : 'Edit details'}</span>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* 1. Basic Info */}
+          <div className="mb-card rounded-2xl p-5 space-y-3">
+            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+              <UserIcon className="w-4 h-4 text-brand" />
+              <span>{isBengali ? 'মৌলিক বিবরণ' : 'Basic Information'}</span>
+            </h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'প্রদর্শনের নাম' : 'Display Name'}</span>
+                <span className="font-semibold text-ink">{data.displayName || '—'}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'পাত্র / পাত্রী' : 'Gender'}</span>
+                <span className="font-semibold text-ink">
+                  {data.gender === 'female'
+                    ? isBengali
+                      ? 'পাত্রী'
+                      : 'Bride'
+                    : isBengali
+                    ? 'পাত্র'
+                    : 'Groom'}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'জন্ম তারিখ ও বয়স' : 'Birth Date & Age'}</span>
+                <span className="font-semibold text-ink">
+                  {data.dateOfBirth ? formatDisplayDate(data.dateOfBirth, isBengali) : '—'}{' '}
+                  {age ? `(${isBengali ? formatNumber(age) : age} ${isBengali ? 'বছর' : 'yrs'})` : ''}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'স্থায়ী উপজেলা' : 'Permanent Upazila'}</span>
+                <span className="font-semibold text-ink">
+                  {data.upazila ? `${upazilaName}, ${isBengali ? 'टाঙ্গাইল' : 'Tangail'}` : '—'}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'বৈবাহিক অবস্থা' : 'Marital Status'}</span>
+                <span className="font-semibold text-ink">
+                  {getMaritalStatusLabel(data.maritalStatus, data.gender, isBengali)}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'উচ্চতা' : 'Height'}</span>
+                <span className="font-semibold text-ink">{formatHeight(data.height, isBengali, formatNumber)}</span>
+              </div>
+              {data.skinTone && (
+                <div className="flex justify-between py-1 border-b border-line/50">
+                  <span className="text-ink-3">{isBengali ? 'গায়ের রং' : 'Complexion'}</span>
+                  <span className="font-semibold text-ink">{data.skinTone}</span>
+                </div>
+              )}
+              {data.weight && (
+                <div className="flex justify-between py-1">
+                  <span className="text-ink-3">{isBengali ? 'ওজন' : 'Weight'}</span>
+                  <span className="font-semibold text-ink">
+                    {isBengali ? `${formatNumber(data.weight)} কেজি` : `${data.weight} kg`}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 2. Education & Profession */}
+          <div className="mb-card rounded-2xl p-5 space-y-3">
+            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+              <BookOpen className="w-4 h-4 text-brand" />
+              <span>{isBengali ? 'শিক্ষা ও পেশা' : 'Education & Career'}</span>
+            </h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'শিক্ষাগত যোগ্যতা' : 'Education Level'}</span>
+                <span className="font-semibold text-ink">
+                  {data.education ? data.education.toUpperCase() : '—'}
+                </span>
+              </div>
+              {data.educationDetail && (
+                <div className="flex justify-between py-1 border-b border-line/50">
+                  <span className="text-ink-3">{isBengali ? 'বিস্তারিত শিক্ষা' : 'Education Details'}</span>
+                  <span className="font-semibold text-ink text-right max-w-[60%]">{data.educationDetail}</span>
+                </div>
+              )}
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'পেশা' : 'Occupation'}</span>
+                <span className="font-semibold text-ink">{data.occupation || '—'}</span>
+              </div>
+              {data.lifestyle?.monthlyIncome && (
+                <div className="flex justify-between py-1">
+                  <span className="text-ink-3">{isBengali ? 'মাসিক আয়' : 'Monthly Income'}</span>
+                  <span className="font-semibold text-ink">{data.lifestyle.monthlyIncome}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 3. Religious Practice */}
+          <div className="mb-card rounded-2xl p-5 space-y-3">
+            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+              <Sparkles className="w-4 h-4 text-gold" />
+              <span>{isBengali ? 'দ্বীনদারি ও ধর্মীয় অভ্যাস' : 'Religious Practice'}</span>
+            </h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'নিয়মিত পাঁচ ওয়াক্ত নামাজ' : 'Daily 5 Prayers'}</span>
+                <span className="font-semibold text-ink">
+                  {formatYesNo(data.religiousInfo?.praysFiveTimes, isBengali)}
+                </span>
+              </div>
+              {data.gender === 'female' ? (
+                <>
+                  <div className="flex justify-between py-1 border-b border-line/50">
+                    <span className="text-ink-3">{isBengali ? 'পর্দা বজায় রাখা (হিজাব/নিকাব)' : 'Hijab/Niqab'}</span>
+                    <span className="font-semibold text-ink">
+                      {data.religiousInfo?.wearsNiqab
+                        ? isBengali
+                          ? 'নিকাবসহ পর্দা'
+                          : 'Niqab with Purdah'
+                        : data.religiousInfo?.wearsHijab
+                        ? isBengali
+                          ? 'হিজাব'
+                          : 'Hijab'
+                        : isBengali
+                        ? 'সাধারণ পর্দা'
+                        : 'General Purdah'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-line/50">
+                    <span className="text-ink-3">{isBengali ? 'গায়রে মাহরাম পর্দা' : 'Mahram Purdah'}</span>
+                    <span className="font-semibold text-ink">
+                      {formatYesNo(data.religiousInfo?.maintainsMahram, isBengali)}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between py-1 border-b border-line/50">
+                    <span className="text-ink-3">{isBengali ? 'সুন্নতি দাড়ি রয়েছে' : 'Sunnah Beard'}</span>
+                    <span className="font-semibold text-ink">
+                      {formatYesNo(data.religiousInfo?.hasBeard, isBengali)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-line/50">
+                    <span className="text-ink-3">{isBengali ? 'টাখনুর ওপর কাপড় পরা' : 'Clothes Above Ankle'}</span>
+                    <span className="font-semibold text-ink">
+                      {formatYesNo(data.religiousInfo?.clothesAboveAnkle, isBengali)}
+                    </span>
+                  </div>
+                </>
+              )}
+              <div className="flex justify-between py-1">
+                <span className="text-ink-3">{isBengali ? 'কুরআন তিলাওয়াত' : 'Quran Recitation'}</span>
+                <span className="font-semibold text-ink">
+                  {formatYesNo(data.religiousInfo?.canReciteQuran, isBengali)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Family Information */}
+          <div className="mb-card rounded-2xl p-5 space-y-3">
+            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+              <Users className="w-4 h-4 text-brand" />
+              <span>{isBengali ? 'পারিবারিক বিবরণ' : 'Family Details'}</span>
+            </h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'পিতার পেশা' : "Father's Occupation"}</span>
+                <span className="font-semibold text-ink">{data.familyInfo?.fatherOccupation || '—'}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'মাতার পেশা' : "Mother's Occupation"}</span>
+                <span className="font-semibold text-ink">{data.familyInfo?.motherOccupation || '—'}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'ভাই-বোনের সংখ্যা' : 'Siblings'}</span>
+                <span className="font-semibold text-ink">
+                  {data.familyInfo?.siblings
+                    ? isBengali
+                      ? `${formatNumber(data.familyInfo.siblings)} জন`
+                      : `${data.familyInfo.siblings}`
+                    : '—'}
+                </span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-ink-3">{isBengali ? 'পারিবারিক আর্থিক অবস্থা' : 'Financial Status'}</span>
+                <span className="font-semibold text-ink">{data.familyInfo?.financialStatus || '—'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 5. Guardian Details */}
+          <div className="mb-card rounded-2xl p-5 space-y-3">
+            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+              <Shield className="w-4 h-4 text-emerald-600" />
+              <span>{isBengali ? 'অভিভাবকের তথ্য ও সম্মতি' : 'Guardian Info & Consent'}</span>
+            </h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'অভিভাবকের নাম' : "Guardian's Name"}</span>
+                <span className="font-semibold text-ink">{guardian.name || '—'}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'সম্পর্ক' : 'Relationship'}</span>
+                <span className="font-semibold text-ink">{guardian.relationship || '—'}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'মোবাইল নম্বর' : 'Phone'}</span>
+                <span className="font-semibold text-ink font-mono">{guardian.phone || '—'}</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-ink-3">{isBengali ? 'সম্মতি যাচাই অবস্থা' : 'Consent Status'}</span>
+                <span
+                  className={`font-bold inline-flex items-center gap-1 ${
+                    application.guardianConsentedAt
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-amber-600 dark:text-amber-400'
+                  }`}
+                >
+                  {application.guardianConsentedAt ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{isBengali ? 'ওটিপি যাচাই সম্পন্ন' : 'OTP Verified'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>{isBengali ? 'যাচাই এখনো বাকি' : 'Consent Pending'}</span>
+                    </>
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 6. Partner Preferences */}
+          <div className="mb-card rounded-2xl p-5 space-y-3">
+            <h3 className="text-sm font-bold text-ink flex items-center gap-2 pb-1 border-b border-line">
+              <Heart className="w-4 h-4 text-brand" />
+              <span>{isBengali ? 'কাঙ্ক্ষিত জীবনসঙ্গী' : 'Partner Preferences'}</span>
+            </h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'প্রত্যাশিত বয়স' : 'Expected Age'}</span>
+                <span className="font-semibold text-ink">
+                  {data.preferences?.minAge && data.preferences?.maxAge
+                    ? isBengali
+                      ? `${formatNumber(data.preferences.minAge)} - ${formatNumber(data.preferences.maxAge)} বছর`
+                      : `${data.preferences.minAge} - ${data.preferences.maxAge} yrs`
+                    : '—'}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-line/50">
+                <span className="text-ink-3">{isBengali ? 'পছন্দের উপজেলাসমূহ' : 'Preferred Upazilas'}</span>
+                <span className="font-semibold text-ink text-right max-w-[60%]">
+                  {data.preferences?.preferredUpazilas && data.preferences.preferredUpazilas.length > 0
+                    ? data.preferences.preferredUpazilas
+                        .map((u) => getUpazilaDisplayName(u, isBengali))
+                        .join(', ')
+                    : isBengali
+                    ? 'যেকোনো উপজেলা'
+                    : 'Any Upazila'}
+                </span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-ink-3">{isBengali ? 'প্রত্যাশিত শিক্ষাগত যোগ্যতা' : 'Preferred Education'}</span>
+                <span className="font-semibold text-ink">
+                  {data.preferences?.preferredEducation && data.preferences.preferredEducation.length > 0
+                    ? data.preferences.preferredEducation.map((e) => e.toUpperCase()).join(', ')
+                    : isBengali
+                    ? 'যেকোনো যোগ্যতা'
+                    : 'Any'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 7. About Bio */}
+        {data.bio && (
+          <div className="mb-card rounded-2xl p-5 space-y-2">
+            <h3 className="text-sm font-bold text-ink flex items-center gap-2">
+              <UserIcon className="w-4 h-4 text-brand" />
+              <span>{isBengali ? 'নিজের সম্পর্কে কিছু কথা' : 'About Candidate'}</span>
+            </h3>
+            <p className="text-xs text-ink-2 leading-relaxed whitespace-pre-line">{data.bio}</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Quick Links ── */}
+      <div className="space-y-4 pt-2">
+        <h3 className="mb-section-title text-sm flex items-center gap-2 px-1">
+          <Compass className="w-4 h-4 text-gold" />
+          <span>{isBengali ? 'দ্রুত লিংক' : 'Quick Links'}</span>
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {quickLinks.map((link) => {
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="mb-card rounded-2xl p-4 flex items-center gap-3.5 group transition-all hover:border-brand/30 hover:-translate-y-0.5 mb-card-hover"
+              >
+                <div className="w-9 h-9 shrink-0 rounded-xl bg-brand-soft text-brand flex items-center justify-center transition-transform group-hover:scale-110">
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-ink">{link.label}</p>
+                  <p className="text-[10.5px] text-ink-3">{link.desc}</p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-ink-3 group-hover:text-brand transition-colors" />
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════ Hero + stats + overview card for APPROVED profile ═══════════════ */
+const PublishedProfileOverview: React.FC<{
+  profile: Profile;
+  onNavigateTab: (t: TabKey) => void;
+}> = ({ profile, onNavigateTab }) => {
+  const { user } = useAuth();
+  const { isBengali, formatNumber } = useLanguage();
 
   const upazilaName = getUpazilaDisplayName(profile.upazila, isBengali);
 
@@ -474,12 +1336,46 @@ const CompletionCard: React.FC<{ onNavigateTab?: ((t: TabKey) => void) | undefin
 };
 
 /* ═══════════════ Photos tab ═══════════════ */
-const PhotosTab: React.FC = () => {
-  const { profile, isLoading } = useMyProfile();
+const PhotosTab: React.FC<{ onNavigateTab?: (t: TabKey) => void }> = ({ onNavigateTab }) => {
+  const { profile, application, isLoading } = useMyProfile();
   const { isBengali } = useLanguage();
 
   if (isLoading) return <TabLoader />;
-  if (!profile) return <ProfileMissing />;
+
+  if (!profile) {
+    if (
+      application &&
+      (application.data?.displayName ||
+        application.guardian?.name ||
+        application.status !== 'draft')
+    ) {
+      return (
+        <div className="mb-card rounded-[2rem] p-8 text-center space-y-4 max-w-xl mx-auto">
+          <div className="w-14 h-14 rounded-full bg-brand-soft text-brand flex items-center justify-center mx-auto">
+            <Image className="w-7 h-7" />
+          </div>
+          <h3 className="text-lg font-bold text-ink">
+            {isBengali ? 'বায়োডাটা অনুমোদনের পর ছবি যোগ করা যাবে' : 'Photos available after biodata approval'}
+          </h3>
+          <p className="text-xs text-ink-2 leading-relaxed">
+            {isBengali
+              ? 'আপনার বায়োডাটা বর্তমানে মডারেশন প্রক্রিয়ায় রয়েছে। বায়োডাটা অনুমোদিত হলে আপনি পর্দাশীলতা সেটিংসসহ ছবি আপলোড করতে পারবেন।'
+              : 'Your biodata is in the moderation workflow. Once approved, you can upload photos with privacy settings.'}
+          </p>
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => onNavigateTab?.('overview')}
+              className="mb-btn-primary py-2 px-5 text-xs rounded-xl cursor-pointer"
+            >
+              {isBengali ? 'সারসংক্ষেপে ফিরে যান' : 'Back to Overview'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return <ProfileMissing onNavigateTab={onNavigateTab} />;
+  }
 
   return (
     <div className="space-y-4">
@@ -493,8 +1389,8 @@ const PhotosTab: React.FC = () => {
 };
 
 /* ═══════════════ Recommendations tab ═══════════════ */
-const RecommendationsTab: React.FC = () => {
-  const { profile } = useMyProfile();
+const RecommendationsTab: React.FC<{ onNavigateTab?: (t: TabKey) => void }> = ({ onNavigateTab }) => {
+  const { profile, application } = useMyProfile();
   const { isBengali } = useLanguage();
   const { data: recsData, isLoading } = useQuery({
     queryKey: ['profile-recommendations'],
@@ -504,9 +1400,42 @@ const RecommendationsTab: React.FC = () => {
 
   const recommendations = recsData?.data?.profiles;
 
-  if (isLoading || (!profile && !recsData)) return <TabLoader />;
+  if (isLoading || (!profile && !recsData && !application)) return <TabLoader />;
 
-  if (!profile) return <ProfileMissing />;
+  if (!profile) {
+    if (
+      application &&
+      (application.data?.displayName ||
+        application.guardian?.name ||
+        application.status !== 'draft')
+    ) {
+      return (
+        <div className="mb-card rounded-[2rem] p-8 text-center space-y-4 max-w-xl mx-auto">
+          <div className="w-14 h-14 rounded-full bg-gold-soft text-gold flex items-center justify-center mx-auto">
+            <Sparkles className="w-7 h-7" />
+          </div>
+          <h3 className="text-lg font-bold text-ink">
+            {isBengali ? 'ম্যাচ পরামর্শ বায়োডাটা অনুমোদনের পর চালু হবে' : 'Match recommendations activate after approval'}
+          </h3>
+          <p className="text-xs text-ink-2 leading-relaxed">
+            {isBengali
+              ? 'আপনার বায়োডাটা অনুমোদিত হলে আপনার পছন্দের সাথে মিলিয়ে সেরা পাত্র-পাত্রীদের তালিকা এখানে দেখতে পাবেন।'
+              : 'Once your biodata is approved, matching profiles aligned with your partner preferences will appear here.'}
+          </p>
+          <div className="pt-2">
+            <Link
+              to="/search"
+              className="mb-btn-primary py-2 px-5 text-xs rounded-xl inline-flex items-center gap-1.5"
+            >
+              <span>{isBengali ? 'সকল পাত্র-পাত্রী খুঁজুন' : 'Search Profiles'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      );
+    }
+    return <ProfileMissing onNavigateTab={onNavigateTab} />;
+  }
 
   return (
     <div className="space-y-4">
@@ -841,7 +1770,7 @@ const TabLoader: React.FC = () => {
   );
 };
 
-const ProfileMissing: React.FC = () => {
+const ProfileMissing: React.FC<{ onNavigateTab?: (t: TabKey) => void }> = () => {
   const { isBengali } = useLanguage();
   return (
     <div className="mb-card rounded-[2rem] p-10 text-center space-y-5 max-w-2xl mx-auto">
@@ -849,17 +1778,17 @@ const ProfileMissing: React.FC = () => {
         <UserIcon className="w-7 h-7" />
       </div>
       <h2 className="text-2xl font-black text-ink">
-        {isBengali ? 'আপনার প্রকাশিত বায়োডাটা এখনও নেই' : 'You do not have a published biodata yet'}
+        {isBengali ? 'আপনার বায়োডাটা এখনও তৈরি করা হয়নি' : 'You do not have a biodata yet'}
       </h2>
       <p className="text-sm text-ink-2 max-w-md mx-auto leading-relaxed">
         {isBengali
-          ? 'টাঙ্গাইলের উপযুক্ত জীবনসঙ্গী খুঁজতে এবং অন্যদের সাথে সংযুক্ত হতে অনুগ্রহ করে আপনার বায়োডাটা সম্পন্ন করুন।'
+          ? 'টাঙ্গাইলের উপযুক্ত দ্বীনদার জীবনসঙ্গী খুঁজতে এবং পাত্র-পাত্রীদের সাথে সংযুক্ত হতে অনুগ্রহ করে আপনার বায়োডাটা সম্পন্ন করুন।'
           : 'Complete your biodata to connect with prospective brides and grooms across Tangail.'}
       </p>
       <div>
         <Link
           to="/edit-profile"
-          className="mb-btn-primary py-3 px-6 text-sm rounded-xl inline-flex items-center gap-2 cursor-pointer"
+          className="mb-btn-primary py-3 px-6 text-sm rounded-xl inline-flex items-center gap-2 cursor-pointer shadow-lg shadow-brand/20"
         >
           <Edit3 className="w-4 h-4" />
           <span>{isBengali ? 'এখনই বায়োডাটা তৈরি করুন' : 'Create Biodata Now'}</span>
