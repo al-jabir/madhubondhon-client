@@ -11,6 +11,7 @@ import {
   FileText,
   MapPin,
   Trash2,
+  Compass,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
@@ -19,6 +20,7 @@ import LoadingSpinner from '../../common/LoadingSpinner';
 import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../../../constants/locations';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import ConfirmationModal from '../../common/ConfirmationModal';
+import { User360Modal } from '../modals/User360Modal';
 
 interface AdminUsersTabProps {
   currentUserRole?: UserRole;
@@ -50,6 +52,7 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
 
   // User Detail Modal State
   const [detailUserId, setDetailUserId] = useState<string | null>(null);
+  const [user360TargetId, setUser360TargetId] = useState<string | null>(null);
 
   // Users Query
   const { data: usersData, isLoading } = useQuery({
@@ -343,6 +346,16 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
 
                       {/* Actions */}
                       <td className="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => setUser360TargetId(uid)}
+                          className="px-2 py-1 text-[11px] font-bold rounded-lg border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary cursor-pointer transition-colors"
+                          title={isBengali ? '৩৬০° টাইমলাইন ও রেকর্ড' : 'User 360 Timeline'}
+                        >
+                          <Compass className="w-3.5 h-3.5 inline mr-1" />
+                          <span>{isBengali ? '৩৬০° টাইমলাইন' : '360°'}</span>
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => setDetailUserId(uid)}
@@ -678,6 +691,13 @@ export const AdminUsersTab: React.FC<AdminUsersTabProps> = ({
         variant="danger"
         isLoading={deleteMutation.isPending}
       />
+
+      {user360TargetId && (
+        <User360Modal
+          userId={user360TargetId}
+          onClose={() => setUser360TargetId(null)}
+        />
+      )}
     </div>
   );
 };

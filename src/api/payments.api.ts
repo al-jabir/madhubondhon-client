@@ -28,10 +28,19 @@ export const paymentsApi = {
     paymentMethod: 'bkash' | 'nagad' | 'manual';
     senderPhone: string;
     trxId: string;
+    couponCode?: string;
   }) {
     const res = await apiClient.post<ApiResponse<{ transaction: CreditTransaction }>>(
       '/payments/manual-request',
       data
+    );
+    return res.data;
+  },
+
+  async validateCoupon(code: string, amountBDT: number) {
+    const res = await apiClient.post<ApiResponse<import('../types').CouponValidationResult>>(
+      '/coupons/validate',
+      { code, amountBDT }
     );
     return res.data;
   },

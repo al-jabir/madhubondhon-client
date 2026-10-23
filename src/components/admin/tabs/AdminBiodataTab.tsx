@@ -12,10 +12,12 @@ import {
   Briefcase,
   Trash2,
   Printer,
+  UserPlus,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReviewQueue from '../../profile/ReviewQueue';
 import PrintBiodataModal from '../../profile/PrintBiodataModal';
+import { AssistedBiodataModal } from '../modals/AssistedBiodataModal';
 import { profilesApi } from '../../../api/profiles.api';
 import { adminApi } from '../../../api/admin.api';
 import { Profile } from '../../../types';
@@ -42,6 +44,7 @@ export const AdminBiodataTab: React.FC = () => {
   // Delete Profile State & Mutation
   const [deleteProfileTarget, setDeleteProfileTarget] = useState<Profile | null>(null);
   const [printProfile, setPrintProfile] = useState<Profile | null>(null);
+  const [isAssistedModalOpen, setIsAssistedModalOpen] = useState(false);
 
   const deleteProfileMutation = useMutation({
     mutationFn: (profileId: string) => adminApi.deleteProfile(profileId),
@@ -120,6 +123,15 @@ export const AdminBiodataTab: React.FC = () => {
             <span>{isBengali ? 'প্রকাশিত বায়োডাটা ব্যবস্থাপনা' : 'Published Biodata Management'}</span>
           </button>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setIsAssistedModalOpen(true)}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover shadow-xs transition-all cursor-pointer self-start sm:self-auto"
+        >
+          <UserPlus className="w-4 h-4" />
+          <span>{isBengali ? '+ অফলাইন বায়োডাটা এন্ট্রি' : '+ Assisted Entry'}</span>
+        </button>
       </div>
 
       {/* Sub-tab 1: Review Queue */}
@@ -434,6 +446,13 @@ export const AdminBiodataTab: React.FC = () => {
           isOpen={!!printProfile}
           onClose={() => setPrintProfile(null)}
           profile={printProfile}
+        />
+      )}
+
+      {isAssistedModalOpen && (
+        <AssistedBiodataModal
+          isOpen={isAssistedModalOpen}
+          onClose={() => setIsAssistedModalOpen(false)}
         />
       )}
     </div>

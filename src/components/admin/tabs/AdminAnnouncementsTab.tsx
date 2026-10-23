@@ -7,6 +7,7 @@ import {
   Trash2,
   Pin,
   X,
+  Radio,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
@@ -14,12 +15,14 @@ import { AnnouncementItem } from '../../../types';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import ConfirmationModal from '../../common/ConfirmationModal';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import { BroadcastNotificationModal } from '../modals/BroadcastNotificationModal';
 
 export const AdminAnnouncementsTab: React.FC = () => {
   const queryClient = useQueryClient();
   const { isBengali } = useLanguage();
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [broadcastOpen, setBroadcastOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<AnnouncementItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AnnouncementItem | null>(null);
 
@@ -128,14 +131,25 @@ export const AdminAnnouncementsTab: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={openCreateModal}
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-brand text-white hover:bg-brand-strong cursor-pointer shadow-md shadow-brand/20 transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{isBengali ? 'নতুন ঘোষণা তৈরি করুন' : 'Create Announcement'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setBroadcastOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-purple-600 text-white hover:bg-purple-700 cursor-pointer shadow-xs transition-all"
+          >
+            <Radio className="w-3.5 h-3.5" />
+            <span>{isBengali ? 'ইনবক্স ব্রডকাস্ট' : 'Send Broadcast'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-brand text-white hover:bg-brand-strong cursor-pointer shadow-md shadow-brand/20 transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{isBengali ? 'নতুন ঘোষণা তৈরি করুন' : 'Create Announcement'}</span>
+          </button>
+        </div>
       </div>
 
       {/* List */}
@@ -394,6 +408,13 @@ export const AdminAnnouncementsTab: React.FC = () => {
         variant="danger"
         isLoading={deleteMutation.isPending}
       />
+
+      {broadcastOpen && (
+        <BroadcastNotificationModal
+          isOpen={broadcastOpen}
+          onClose={() => setBroadcastOpen(false)}
+        />
+      )}
     </div>
   );
 };

@@ -10,11 +10,14 @@ import {
   PhoneCall, 
   ShieldCheck, 
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Ticket,
+  Tag,
+  Percent
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { paymentsApi } from '../api/payments.api';
-import { CreditPackage, CreditTransaction } from '../types';
+import { CreditPackage, CreditTransaction, CouponValidationResult } from '../types';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { useAuth } from '../context/useAuth';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -29,6 +32,47 @@ export const PackagesPage: React.FC = () => {
   const [senderPhone, setSenderPhone] = useState('');
   const [trxId, setTrxId] = useState('');
   const [copiedType, setCopiedType] = useState<string | null>(null);
+
+  // Coupon states
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResult | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) {
+      toast.error(isBengali ? 'কুপন কোড প্রদান করুন' : 'Please enter a coupon code');
+      return;
+    }
+    if (!selectedPkg) {
+      toast.error(isBengali ? 'প্রথমে প্যাকেজ নির্বাচন করুন' : 'Select a package first');
+      return;
+    }
+
+    try {
+      setIsValidatingCoupon(true);
+      const res = await paymentsApi.validateCoupon(couponInput.trim(), selectedPkg.priceBDT);
+      if (res.data) {
+        setAppliedCoupon(res.data);
+        toast.success(
+          isBengali
+            ? `কুপন কোড সফলভাবে যুক্ত হয়েছে! ৳${res.data.discountAmount} ছাড় পেয়েছেন।`
+            : `Coupon applied! You got ৳${res.data.discountAmount} discount.`
+        );
+      }
+    } catch (err: any) {
+      const msg = err.response?.data?.message || (isBengali ? 'অবৈধ বা মেয়াদোত্তীর্ণ কুপন।' : 'Invalid or expired coupon.');
+      toast.error(msg);
+      setAppliedCoupon(null);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    toast.info(isBengali ? 'কুপন ছাড় সরানো হয়েছে' : 'Coupon removed');
+  };
 
   // Fetch Packages
   const { data: pkgData, isLoading: isPkgLoading } = useQuery({
@@ -54,6 +98,8 @@ export const PackagesPage: React.FC = () => {
       setSelectedPkg(null);
       setSenderPhone('');
       setTrxId('');
+      setAppliedCoupon(null);
+      setCouponInput('');
       queryClient.invalidateQueries({ queryKey: ['my-transactions'] });
       refreshUser();
     },
@@ -109,6 +155,7 @@ export const PackagesPage: React.FC = () => {
       paymentMethod,
       senderPhone: senderPhone.trim(),
       trxId: trxId.trim().toUpperCase(),
+      couponCode: appliedCoupon?.code,
     });
   };
 
@@ -279,9 +326,20 @@ export const PackagesPage: React.FC = () => {
                   {isBengali ? 'ধাপ ২: পেমেন্ট সম্পন্ন করুন' : 'Step 2: Complete Payment'}
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-ink mt-1">
-                  {selectedPkg.title} — ৳
-                  {isBengali ? formatNumber(selectedPkg.priceBDT) : selectedPkg.priceBDT} (
-                  {isBengali ? formatNumber(selectedPkg.credits) : selectedPkg.credits}{' '}
+                  {selectedPkg.title} —{' '}
+                  {appliedCoupon ? (
+                    <>
+                      <span className="line-through text-ink-3 text-base mr-1.5">
+                        ৳{isBengali ? formatNumber(selectedPkg.priceBDT) : selectedPkg.priceBDT}
+                      </span>
+                      <span className="text-emerald-600 font-extrabold">
+                        ৳{isBengali ? formatNumber(appliedCoupon.finalAmount) : appliedCoupon.finalAmount}
+                      </span>
+                    </>
+                  ) : (
+                    `৳${isBengali ? formatNumber(selectedPkg.priceBDT) : selectedPkg.priceBDT}`
+                  )}{' '}
+                  ({isBengali ? formatNumber(selectedPkg.credits) : selectedPkg.credits}{' '}
                   {isBengali ? 'ক্রেডিট' : 'credits'})
                 </h3>
               </div>
@@ -359,9 +417,21 @@ export const PackagesPage: React.FC = () => {
                     ({instructions.bkashType})
                   </span>
                   <span className="text-gold font-bold">
-                    {isBengali
-                      ? `৳${formatNumber(selectedPkg.priceBDT)} পাঠান`
-                      : `Send ৳${selectedPkg.priceBDT}`}
+                    {appliedCoupon ? (
+                      <span className="flex items-center gap-1.5">
+                        <span className="line-through text-ink-3 text-xs">
+                          ৳{isBengali ? formatNumber(selectedPkg.priceBDT) : selectedPkg.priceBDT}
+                        </span>
+                        <span>
+                          ৳{isBengali ? formatNumber(appliedCoupon.finalAmount) : appliedCoupon.finalAmount}{' '}
+                          {isBengali ? 'পাঠান' : 'Send'}
+                        </span>
+                      </span>
+                    ) : isBengali ? (
+                      `৳${formatNumber(selectedPkg.priceBDT)} পাঠান`
+                    ) : (
+                      `Send ৳${selectedPkg.priceBDT}`
+                    )}
                   </span>
                 </div>
 
@@ -431,6 +501,67 @@ export const PackagesPage: React.FC = () => {
                   onChange={(e) => setTrxId(e.target.value.toUpperCase())}
                   className="mb-input w-full uppercase font-mono"
                 />
+              </div>
+
+              {/* Promo / Coupon Box */}
+              <div className="bg-elev border border-line rounded-xl p-3.5 space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold text-ink-2">
+                  <span className="flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-brand" />
+                    {isBengali ? 'প্রোমো বা কুপন কোড আছে?' : 'Have a Promo or Coupon?'}
+                  </span>
+                  {appliedCoupon && (
+                    <span className="text-emerald-600 font-bold text-[11px]">
+                      {isBengali ? 'প্রযোজ্য হয়েছে' : 'Applied'}
+                    </span>
+                  )}
+                </div>
+
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 rounded-lg text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-emerald-700 bg-emerald-500/20 px-2 py-0.5 rounded">
+                        {appliedCoupon.code}
+                      </span>
+                      <span className="text-emerald-700 font-medium">
+                        {isBengali
+                          ? `৳${appliedCoupon.discountAmount} ছাড় পেয়েছেন!`
+                          : `৳${appliedCoupon.discountAmount} discount!`}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      className="text-rose-600 hover:text-rose-700 text-xs underline font-medium cursor-pointer"
+                    >
+                      {isBengali ? 'মুছুন' : 'Remove'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder={isBengali ? 'কুপন কোড লিখুন' : 'Enter coupon code'}
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      className="bg-card border border-line rounded-lg px-3 py-2 text-xs uppercase font-mono tracking-wider w-full focus:outline-hidden focus:border-brand"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={isValidatingCoupon || !couponInput.trim()}
+                      className="px-3 py-2 rounded-lg bg-brand text-white text-xs font-semibold hover:bg-brand/90 disabled:opacity-50 whitespace-nowrap cursor-pointer transition-all"
+                    >
+                      {isValidatingCoupon
+                        ? isBengali
+                          ? 'যাচাই হচ্ছে...'
+                          : 'Checking...'
+                        : isBengali
+                        ? 'প্রয়োগ করুন'
+                        : 'Apply'}
+                    </button>
+                  </div>
+                )}
               </div>
 
               <button

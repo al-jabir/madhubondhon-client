@@ -28,6 +28,7 @@ import AdminSuccessStoriesTab from '../components/admin/tabs/AdminSuccessStories
 import AdminSupportTab from '../components/admin/tabs/AdminSupportTab';
 import AdminAnalyticsTab from '../components/admin/tabs/AdminAnalyticsTab';
 import AdminBlacklistTab from '../components/admin/tabs/AdminBlacklistTab';
+import { AdminCouponsTab } from '../components/admin/tabs/AdminCouponsTab';
 
 const validAdminTabs: AdminTab[] = [
   'overview',
@@ -37,6 +38,7 @@ const validAdminTabs: AdminTab[] = [
   'reports',
   'payments',
   'packages',
+  'coupons',
   'support',
   'analytics',
   'stories',
@@ -149,6 +151,8 @@ export const AdminDashboardPage: React.FC = () => {
           {activeTab === 'payments' && isSuperAdminOrAdmin && <AdminPaymentsQueue />}
 
           {activeTab === 'packages' && isSuperAdminOrAdmin && <AdminPackagesTab />}
+
+          {activeTab === 'coupons' && isSuperAdminOrAdmin && <AdminCouponsTab />}
 
           {activeTab === 'support' && <AdminSupportTab />}
 

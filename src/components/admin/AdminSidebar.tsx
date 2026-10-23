@@ -19,6 +19,7 @@ import {
   BarChart3,
   Heart,
   ShieldAlert,
+  Ticket,
 } from 'lucide-react';
 import { UserRole } from '../../types';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -31,6 +32,7 @@ export type AdminTab =
   | 'reports'
   | 'payments'
   | 'packages'
+  | 'coupons'
   | 'support'
   | 'analytics'
   | 'stories'
@@ -121,6 +123,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       id: 'packages',
       label: isBengali ? 'ক্রেডিট প্যাকেজ' : 'Packages',
       icon: Coins,
+      section: 'main',
+      visible: isSuperAdminOrAdmin,
+    },
+    {
+      id: 'coupons',
+      label: isBengali ? 'কুপন ও ছাড়' : 'Coupons & Promos',
+      icon: Ticket,
       section: 'main',
       visible: isSuperAdminOrAdmin,
     },

@@ -15,6 +15,7 @@ import {
 import { AdminStats, AuditLogItem } from '../../../api/admin.api';
 import AdminAnalytics from '../AdminAnalytics';
 import MarriageStatisticsSettings from '../../profile/MarriageStatisticsSettings';
+import { SystemHealthDiagnosticsWidget } from '../SystemHealthDiagnosticsWidget';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 interface AdminOverviewTabProps {
@@ -165,6 +166,9 @@ export const AdminOverviewTab: React.FC<AdminOverviewTabProps> = ({
 
       {/* Public marriage statistics settings */}
       {isSuperAdminOrAdmin && <MarriageStatisticsSettings />}
+
+      {/* Live System Diagnostics */}
+      {isSuperAdminOrAdmin && <SystemHealthDiagnosticsWidget />}
 
       {/* Charts & Analytics */}
       <AdminAnalytics />

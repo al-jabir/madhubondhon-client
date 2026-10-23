@@ -374,3 +374,86 @@ export interface AdminStaffUser {
   lastLogin?: string;
   createdAt: string;
 }
+
+export interface CouponItem {
+  _id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  minPurchaseBDT?: number;
+  maxDiscountBDT?: number;
+  validUntil?: string;
+  usageLimit?: number;
+  usedCount: number;
+  isActive: boolean;
+  createdBy?: { _id: string; name: string; email: string };
+  createdAt: string;
+}
+
+export interface CouponValidationResult {
+  isValid: boolean;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  discountAmount: number;
+  originalAmount: number;
+  finalAmount: number;
+}
+
+export interface TimelineEvent {
+  id: string;
+  timestamp: string;
+  type: 'registration' | 'biodata' | 'payment' | 'interest' | 'contact' | 'admin';
+  title: string;
+  description: string;
+  status?: string;
+}
+
+export interface User360Data {
+  user: User;
+  profile?: any;
+  application?: any;
+  timeline: TimelineEvent[];
+  stats: {
+    credits: number;
+    transactionsCount: number;
+    interestsSentCount: number;
+    interestsReceivedCount: number;
+    contactGrantsCount: number;
+  };
+}
+
+export interface SystemHealthData {
+  server: {
+    uptimeSeconds: number;
+    uptimeFormatted: string;
+    nodeVersion: string;
+    platform: string;
+    arch: string;
+    pid: number;
+    environment: string;
+    timestamp: string;
+  };
+  memory: {
+    rssMB: number;
+    heapTotalMB: number;
+    heapUsedMB: number;
+    externalMB: number;
+  };
+  database: {
+    status: string;
+    readyState: number;
+    name: string;
+    host: string;
+    pingMs: number;
+  };
+  counts: {
+    users: number;
+    profiles: number;
+    transactions: number;
+    coupons: number;
+    auditLogs: number;
+    supportMessages: number;
+    successStories: number;
+  };
+}

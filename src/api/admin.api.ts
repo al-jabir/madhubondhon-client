@@ -374,4 +374,74 @@ export const adminApi = {
     const res = await apiClient.delete<ApiResponse<unknown>>(`/admin/blacklist/${id}`);
     return res.data;
   },
+
+  // ─── Coupons & Promo Codes ─────────────────────────────────────────
+  async listCoupons() {
+    const res = await apiClient.get<ApiResponse<{ coupons: import('../types').CouponItem[] }>>('/admin/coupons');
+    return res.data;
+  },
+
+  async createCoupon(data: {
+    code: string;
+    discountType: 'percentage' | 'fixed';
+    discountValue: number;
+    minPurchaseBDT?: number;
+    maxDiscountBDT?: number;
+    validUntil?: string;
+    usageLimit?: number;
+    isActive?: boolean;
+  }) {
+    const res = await apiClient.post<ApiResponse<{ coupon: import('../types').CouponItem }>>('/admin/coupons', data);
+    return res.data;
+  },
+
+  async updateCoupon(
+    id: string,
+    data: Partial<{
+      discountType: 'percentage' | 'fixed';
+      discountValue: number;
+      minPurchaseBDT: number;
+      maxDiscountBDT: number;
+      validUntil: string;
+      usageLimit: number;
+      isActive: boolean;
+    }>
+  ) {
+    const res = await apiClient.put<ApiResponse<{ coupon: import('../types').CouponItem }>>(`/admin/coupons/${id}`, data);
+    return res.data;
+  },
+
+  async deleteCoupon(id: string) {
+    const res = await apiClient.delete<ApiResponse<unknown>>(`/admin/coupons/${id}`);
+    return res.data;
+  },
+
+  // ─── Assisted / Offline Biodata Registration ───────────────────────
+  async createAssistedBiodata(data: any) {
+    const res = await apiClient.post<ApiResponse<{ user: User; profile: any }>>('/admin/assisted-biodata', data);
+    return res.data;
+  },
+
+  // ─── Mass Broadcast Notifications ──────────────────────────────────
+  async sendBroadcastNotification(data: {
+    target: 'all' | 'groom' | 'bride' | 'active';
+    title: string;
+    message: string;
+    link?: string;
+  }) {
+    const res = await apiClient.post<ApiResponse<{ sentCount: number }>>('/admin/broadcast', data);
+    return res.data;
+  },
+
+  // ─── User 360° Profile Inspector & Activity Timeline ───────────────
+  async getUserTimeline(userId: string) {
+    const res = await apiClient.get<ApiResponse<import('../types').User360Data>>(`/admin/users/${userId}/timeline`);
+    return res.data;
+  },
+
+  // ─── Live System Health & Performance Diagnostics ──────────────────
+  async getSystemHealth() {
+    const res = await apiClient.get<ApiResponse<import('../types').SystemHealthData>>('/admin/system-health');
+    return res.data;
+  },
 };
