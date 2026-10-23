@@ -6,6 +6,12 @@ export interface CreateProfileData {
   dateOfBirth: string;
   gender: Gender;
   upazila: string;
+  currentUpazila?: string;
+  educationMedium?: string;
+  religiousQualifications?: string[];
+  occupationCategory?: string;
+  fiqh?: string;
+  specialCategories?: string[];
   education?: EducationLevel;
   educationDetail?: string;
   occupation?: string;
@@ -56,6 +62,16 @@ export interface UpdatePreferencesData {
 }
 
 export interface SearchProfilesParams {
+  currentUpazila?: string;
+  maritalStatuses?: string;
+  occupations?: string;
+  educationMedia?: string;
+  qualifications?: string;
+  fiqhs?: string;
+  skinTones?: string;
+  financialStatuses?: string;
+  categories?: string;
+  sort?: string;
   occupation?: string;
   gender?: Gender;
   minAge?: number;

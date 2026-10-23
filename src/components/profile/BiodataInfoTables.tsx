@@ -1,9 +1,11 @@
+import { discoveryOptions } from '../../constants/discovery';
 import type { Profile } from '../../types';
 import { getUpazilaDisplayName, type TangailUpazila } from '../../constants/locations';
 import { useLanguage } from '../../i18n/LanguageContext';
 
 const labelsBn: Record<string, string> = {
   never_married: 'অবিবাহিত',
+  married: 'বিবাহিত',
   divorced: 'বিবাহবিচ্ছেদ হয়েছে',
   widowed: 'বিধবা / বিপত্নীক',
   separated: 'পৃথক বসবাস',
@@ -41,6 +43,7 @@ const labelsBn: Record<string, string> = {
 
 const labelsEn: Record<string, string> = {
   never_married: 'Never Married',
+  married: 'Married',
   divorced: 'Divorced',
   widowed: 'Widowed',
   separated: 'Separated',
@@ -122,6 +125,7 @@ export default function BiodataInfoTables({ profile: p }: { profile: Profile }) 
   const labels = isBengali ? labelsBn : labelsEn;
   const notSpecified = isBengali ? 'উল্লেখ করা হয়নি' : 'Not specified';
 
+  const optionLabel = (key:keyof typeof discoveryOptions,value?:string) => discoveryOptions[key].find(o=>o[0]===value)?.[isBengali?1:2] || notSpecified;
   const text = (value?: string) => (value ? labels[value] || value : notSpecified);
   const yesNo = (value?: boolean) =>
     value === undefined ? notSpecified : value ? (isBengali ? 'হ্যাঁ' : 'Yes') : isBengali ? 'না' : 'No';
@@ -179,6 +183,7 @@ export default function BiodataInfoTables({ profile: p }: { profile: Profile }) 
           ],
           [isBengali ? 'বৈবাহিক অবস্থা' : 'Marital Status', formatMarital(p.maritalStatus, p.gender)],
           [isBengali ? 'উপজেলা' : 'Upazila', loc(p.upazila)],
+          [isBengali ? 'বর্তমান উপজেলা' : 'Current upazila', p.currentUpazila ? loc(p.currentUpazila) : undefined],
           [isBengali ? 'জেলা' : 'District', isBengali ? 'টাঙ্গাইল' : 'Tangail'],
           [
             isBengali ? 'উচ্চতা' : 'Height',
@@ -203,6 +208,9 @@ export default function BiodataInfoTables({ profile: p }: { profile: Profile }) 
           [isBengali ? 'শিক্ষাগত যোগ্যতা' : 'Educational Qualification', text(p.education)],
           [isBengali ? 'শিক্ষার বিস্তারিত' : 'Education Details', p.educationDetail],
           [isBengali ? 'পেশা' : 'Occupation', p.occupation],
+          [isBengali ? 'পেশার ধরন' : 'Occupation category', optionLabel('occupationCategory',p.occupationCategory)],
+          [isBengali ? 'শিক্ষার মাধ্যম' : 'Education medium', optionLabel('educationMedium',p.educationMedium)],
+          [isBengali ? 'দ্বীনি যোগ্যতা' : 'Religious qualifications', p.religiousQualifications?.map(v=>optionLabel('religiousQualifications',v)).join(', ')],
           ...(p.lifestyle?.monthlyIncome
             ? ([[isBengali ? 'মাসিক আয়' : 'Monthly Income', p.lifestyle.monthlyIncome]] as Row[])
             : []),
@@ -213,6 +221,8 @@ export default function BiodataInfoTables({ profile: p }: { profile: Profile }) 
         title={isBengali ? 'ধর্মীয় তথ্য ও জীবনযাপন' : 'Religious Practice & Lifestyle'}
         notSpecifiedLabel={notSpecified}
         rows={[
+          [isBengali ? 'ফিকহ' : 'Fiqh', optionLabel('fiqh',p.fiqh)],
+          [isBengali ? 'বিশেষ ক্যাটাগরি' : 'Special categories',p.specialCategories?.map(v=>optionLabel('specialCategories',v)).join(', ')],
           [isBengali ? 'ধর্ম' : 'Religion', text(p.religiousInfo?.religion)],
           [isBengali ? 'ধর্মীয় অনুশীলন' : 'Religiousness', text(p.religiousInfo?.religiousness)],
           [isBengali ? 'পাঁচ ওয়াক্ত নামাজ পড়েন' : 'Prays 5 times daily', yesNo(p.religiousInfo?.praysFiveTimes)],

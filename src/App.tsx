@@ -73,9 +73,7 @@ const AppShell: React.FC = () => {
   // If a Super Admin or Admin is logged in, under NO circumstances should the public site be shown to them.
   // Any attempt to view public/customer routes immediately redirects them to /admin.
   // The public customer website is strictly reserved for users other than super admin and admin (i.e. regular customers and unauthenticated visitors).
-  if (!isLoading && isAuthenticated && isAdminOrSuperAdmin && !isAdminRoute) {
-    return <Navigate to="/admin" replace />;
-  }
+
 
   // Fetch dynamic public platform settings (including maintenanceMode)
   const { data: publicSettingsData } = useQuery({
@@ -84,6 +82,10 @@ const AppShell: React.FC = () => {
     staleTime: 1000 * 15,
     refetchInterval: 15000,
   });
+
+  if (!isLoading && isAuthenticated && isAdminOrSuperAdmin && !isAdminRoute) {
+    return <Navigate to="/admin" replace />;
+  }
 
   const settings = publicSettingsData?.data?.settings;
   const isMaintenanceMode = Boolean(settings?.maintenanceMode);

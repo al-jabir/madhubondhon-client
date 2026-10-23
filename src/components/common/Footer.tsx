@@ -32,7 +32,7 @@ export const Footer: React.FC = () => {
             </p>
             <div className="inline-flex items-center gap-2 text-xs text-rose-300 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>{isBengali ? '১০০% ভেরিফাইড ও গোপনীয়তা সুরক্ষাপ্রাপ্ত' : '100% Verified & Privacy Protected'}</span>
+              <span>{isBengali ? 'যোগাযোগে পারস্পরিক অনুমতি ও গোপনীয়তা' : 'Mutual permission & contact privacy'}</span>
             </div>
           </div>
 

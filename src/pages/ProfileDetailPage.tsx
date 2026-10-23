@@ -26,7 +26,7 @@ import { blocksApi } from '../api/blocks.api';
 import { shortlistApi } from '../api/shortlist.api';
 import { calculateCompatibility } from '../utils/compatibility';
 import { Gender } from '../types';
-import { getUpazilaDisplayName, TangailUpazila } from '../constants/locations';
+import { getUpazilaDisplayName } from '../constants/locations';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import GenderAvatar from '../components/common/GenderAvatar';
 import SendInterestModal from '../components/profile/SendInterestModal';
@@ -61,34 +61,12 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
       ? publicSettingsData.data.settings.showDemoProfiles !== false
       : localStorage.getItem('mb_show_demo_profiles') !== 'false';
 
-  const isDemoId = Boolean(
-    demo ||
-    userId?.startsWith('MB-M1') ||
-    userId?.startsWith('MB-F1') ||
-    userId?.startsWith('demo-')
-  );
+  const isDemoId = demo;
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['public-profile', demo, isDemoEnabled, userId, currentUser?.id || currentUser?._id || 'guest'],
-    queryFn: async () => {
-      if (demo || (isDemoId && isDemoEnabled)) {
-        return getDemoProfile(userId || '');
-      }
-
-      try {
-        return await profilesApi.getPublicProfile(userId || '');
-      } catch (err) {
-        if (isDemoEnabled) {
-          try {
-            return getDemoProfile(userId || '');
-          } catch {
-            throw err;
-          }
-        }
-        throw err;
-      }
-    },
-    enabled: !!userId,
+    queryFn: () => demo ? Promise.resolve(getDemoProfile(userId || '')) : profilesApi.getPublicProfile(userId || ''),
+    enabled: !!userId && (!demo || isDemoEnabled),
   });
 
   const profile = data?.data?.profile;
@@ -385,7 +363,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
             {profile.isApproved && (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                {isBengali ? 'ভেরিফাইড বায়োডাটা' : 'Verified Biodata'}
+                {isBengali ? 'প্রকাশিত বায়োডাটা' : 'Published Biodata'}
               </span>
             )}
             {compatibility && (

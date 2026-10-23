@@ -41,11 +41,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   const upazilaName = getUpazilaDisplayName(profile.upazila, isBengali);
 
   const isMale = profile.gender === Gender.MALE;
-  const isDemo = Boolean(
-    profile._id?.startsWith('demo-') ||
-    profile.biodataId?.startsWith('MB-M1') ||
-    profile.biodataId?.startsWith('MB-F1')
-  );
+  const isDemo = Boolean(profile._id?.startsWith('demo-'));
   const targetId = profile.biodataId || (typeof profile.user === 'string' ? profile.user : profile.user?._id || profile.user?.id || profile._id);
 
   const { data: ownProfileData } = useQuery({
@@ -149,7 +145,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
           <h3 className="font-bold text-lg text-ink flex items-center gap-1.5 text-center">
             {profile.displayName || (isBengali ? 'সম্মানিত সদস্য' : 'Honored Member')}
             {profile.isApproved && (
-              <span title={isBengali ? 'ভেরিফাইড বায়োডাটা' : 'Verified Biodata'}>
+              <span title={isBengali ? 'প্রকাশিত বায়োডাটা' : 'Published Biodata'}>
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-50 dark:fill-transparent" />
               </span>
             )}
@@ -215,7 +211,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
       {/* Action footer */}
       <div className="p-4 bg-elev border-t border-line flex items-center gap-2 rounded-b-[1.25rem]">
         <Link
-          to={`${detailsBasePath}/${targetId}`}
+          to={isDemo ? `/demo/profiles/${profile._id}` : `${detailsBasePath}/${targetId}`}
           className="flex-1 py-2 px-3 text-center text-xs font-semibold text-brand bg-card hover:bg-brand-soft border border-brand/25 rounded-lg transition-colors"
         >
           {isBengali ? 'সম্পূর্ণ বায়োডাটা' : 'Full Biodata'}

@@ -50,9 +50,7 @@ export const AdminDashboardPage: React.FC = () => {
 
   // Strict In-Component Role Protection Guard:
   // If not authenticated or role is customer/undefined, immediately redirect to admin login
-  if (!currentUser || !isAdminOrMod) {
-    return <Navigate to="/admin/login" replace />;
-  }
+
 
   // Initial tab based on role and URL query param
   const defaultTab: AdminTab =
@@ -91,6 +89,10 @@ export const AdminDashboardPage: React.FC = () => {
     refetchInterval: 30000, // Refresh every 30s
   });
 
+  if (!currentUser || !isAdminOrMod) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
   const stats = statsData?.data?.stats;
   const pendingBiodata = stats?.biodata?.pendingReview || 0;
   const pendingReports = stats?.reports?.pending || 0;
@@ -126,7 +128,7 @@ export const AdminDashboardPage: React.FC = () => {
           {activeTab === 'users' && isSuperAdminOrAdmin && (
             <AdminUsersTab
               currentUserRole={currentUser?.role}
-              currentUserId={currentUser?.id || (currentUser as any)?._id}
+              currentUserId={currentUser?.id || currentUser?._id}
             />
           )}
 
@@ -143,7 +145,7 @@ export const AdminDashboardPage: React.FC = () => {
           {activeTab === 'demo' && isSuperAdminOrAdmin && <AdminDemoTab />}
 
           {activeTab === 'team' && isSuperAdmin && (
-            <AdminTeamTab currentUserId={currentUser?.id || (currentUser as any)?._id} />
+            <AdminTeamTab currentUserId={currentUser?.id || currentUser?._id} />
           )}
 
           {activeTab === 'settings' && isSuperAdmin && <AdminSettingsTab />}

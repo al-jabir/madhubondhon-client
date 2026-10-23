@@ -1,3 +1,4 @@
+import DiscoveryProfileFields from '../components/profile/DiscoveryProfileFields';
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -234,8 +235,8 @@ function Wizard({ application }: { application: Application }) {
       </h1>
       <p className="text-sm text-ink-2">
         {isBengali
-          ? "যতটুকু পূরণ হয়েছে খসড়া হিসেবে সংরক্ষণ করুন। সম্পাদনা করলে প্রকাশিত বায়োডাটা পুনরায় অনুমোদনের অপেক্ষায় যাবে।"
-          : "Save your progress as draft anytime. Editing an approved profile will submit it for re-approval."}
+          ? "যতটুকু পূরণ হয়েছে খসড়া হিসেবে সংরক্ষণ করুন। সম্পাদনা করলে বায়োডাটা আবার জমা না দেওয়া পর্যন্ত প্রকাশিত থাকবে না।"
+          : "Save your progress as draft anytime. After editing, your biodata stays hidden until you submit it again."}
       </p>
 
       <div className="rounded-2xl bg-brand-soft border border-brand/20 p-4 text-sm text-brand-ink">
@@ -379,6 +380,7 @@ function Wizard({ application }: { application: Application }) {
                   <option value="never_married">
                     {isBengali ? "অবিবাহিত" : "Never Married"}
                   </option>
+                  <option value="married">{isBengali ? "বিবাহিত" : "Married"}</option>
                   <option value="divorced">
                     {isBengali ? "ডিভোর্সড" : "Divorced"}
                   </option>
@@ -401,6 +403,7 @@ function Wizard({ application }: { application: Application }) {
 
           {step === 1 && (
             <>
+              <DiscoveryProfileFields data={data} onChange={patch=>{setData(p=>({...p,...patch}));setDirty(true);}} />
               <Field label={isBengali ? "শিক্ষাগত যোগ্যতা" : "Educational Qualification"}>
                 <select
                   className={inputClass}

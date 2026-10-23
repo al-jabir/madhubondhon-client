@@ -14,6 +14,7 @@ export type Gender = (typeof Gender)[keyof typeof Gender];
 
 export const MaritalStatus = {
   NEVER_MARRIED: 'never_married',
+  MARRIED: 'married',
   DIVORCED: 'divorced',
   WIDOWED: 'widowed',
   SEPARATED: 'separated',
@@ -87,6 +88,12 @@ export interface Profile {
   dateOfBirth: string;
   gender: Gender;
   upazila: string;
+  currentUpazila?: string;
+  educationMedium?: string;
+  religiousQualifications?: string[];
+  occupationCategory?: string;
+  fiqh?: string;
+  specialCategories?: string[];
   education?: EducationLevel;
   educationDetail?: string;
   occupation?: string;

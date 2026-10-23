@@ -134,7 +134,7 @@ export const HomePage: React.FC = () => {
                   {
                     icon: Users,
                     t: isBengali ? 'বাস্তব ও' : 'Genuine &',
-                    s: isBengali ? 'বিশ্বস্ত সদস্য' : 'Verified Profiles',
+                    s: isBengali ? 'বিশ্বস্ত সদস্য' : 'Published Profiles',
                   },
                   {
                     icon: MapPin,
@@ -251,6 +251,7 @@ export const HomePage: React.FC = () => {
                       <Heart className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <select id="home-marital-status" value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input pl-10 text-xs sm:text-sm">
                         <option value="">{isBengali ? 'সকল অবস্থা' : 'All Statuses'}</option>
+                        <option value="married">{isBengali ? 'বিবাহিত' : 'Married'}</option>
                         <option value="never_married">{isBengali ? 'অবিবাহিত' : 'Never Married'}</option>
                         <option value="divorced">{isBengali ? 'বিবাহবিচ্ছেদ হয়েছে' : 'Divorced'}</option>
                         <option value="widowed">{isBengali ? 'বিধবা / বিপত্নীক' : 'Widowed'}</option>
@@ -338,7 +339,7 @@ export const HomePage: React.FC = () => {
             },
             {
               icon: FileCheck2,
-              title: isBengali ? 'পর্যালোচনার পর প্রকাশ' : 'Moderator Verified Profiles',
+              title: isBengali ? 'সম্মতি নিশ্চিত করে প্রকাশ' : 'Publish with guardian consent',
               description: isBengali
                 ? 'জমা দেওয়া প্রতিটি বায়োডাটা যাচাই ও নিরীক্ষা করেন মডারেটর।'
                 : 'Every submitted profile is reviewed and vetted by moderators before release.',

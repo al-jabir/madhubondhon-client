@@ -6,7 +6,7 @@ import { useAuth } from '../../context/useAuth';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { discoveryApi } from '../../api/discovery.api';
 import { getApiErrorMessage } from '../../api/errors';
-const keys=['gender','minAge','maxAge','upazila','education','maritalStatus','occupation','biodataId','query','minHeight','maxHeight','verifiedOnly'];
+import { searchFilterKeys as keys } from '../../constants/search';
 export default function SaveSearchControl(){
  const {isAuthenticated}=useAuth();const {isBengali}=useLanguage();const [params]=useSearchParams();const [name,setName]=useState('');const cache=useQueryClient();
  const save=useMutation({mutationFn:()=>discoveryApi.saveSearch(name.trim(),Object.fromEntries(keys.filter(k=>params.has(k)&&params.get(k)!=='').map(k=>[k,params.get(k)!]))),onSuccess:()=>{setName('');cache.invalidateQueries({queryKey:['saved-searches']});toast.success(isBengali?'পছন্দ সংরক্ষণ হয়েছে।':'Search saved.');},onError:e=>toast.error(getApiErrorMessage(e,'Search could not be saved.'))});

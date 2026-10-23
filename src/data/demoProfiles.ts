@@ -1,3 +1,4 @@
+import { multiSearchFields } from '../constants/search';
 import { Gender, MaritalStatus, EducationLevel, ProfileVisibility } from '../types';
 import type { Profile, ApiResponse } from '../types';
 import type { SearchProfilesParams } from '../api/profiles.api';
@@ -30,11 +31,12 @@ export const demoProfiles: Profile[] = examples.map(([name, gender, upazila, dob
   biodataId: (gender === 'male' ? 'MB-M' : 'MB-F') + (100 + index + 1),
   displayName: name, gender: gender as Gender, upazila, dateOfBirth: dob,
   age: ageOnToday(dob), education: education as EducationLevel, educationDetail: detail, occupation,
+  currentUpazila: upazila, educationMedium: index===4?'alia':'general', occupationCategory: ['teacher','engineer','freelancer','private_job','madrasa_teacher','engineer','business','teacher','other','business','private_job','teacher'][index],
   maritalStatus: index === 9 ? MaritalStatus.DIVORCED : MaritalStatus.NEVER_MARRIED,
   height: { feet: 5, inches: gender === Gender.MALE ? 8 : 3 },
   bio: 'পরিবার, পারস্পরিক সম্মান ও সুন্দর বোঝাপড়াকে গুরুত্ব দিই। টাঙ্গাইলের একজন দায়িত্বশীল জীবনসঙ্গী প্রত্যাশা করি।',
   religiousInfo: { religion: 'islam', praysFiveTimes: true, wearsHijab: gender === Gender.FEMALE, religiousness: 'practicing' },
-  familyInfo: { fatherOccupation: 'অবসরপ্রাপ্ত শিক্ষক', motherOccupation: 'গৃহিণী', siblings: 2 },
+  familyInfo: { fatherOccupation: 'অবসরপ্রাপ্ত শিক্ষক', motherOccupation: 'গৃহিণী', siblings: 2, financialStatus: 'middle' },
   preferences: { minAge: gender === Gender.MALE ? 22 : 27, maxAge: gender === Gender.MALE ? 32 : 38, preferredUpazilas: [upazila, 'tangail_sadar'] },
   photos: [], visibility: ProfileVisibility.PUBLIC, isComplete: true,
   completionPercentage: 100, isApproved: true,
@@ -42,12 +44,17 @@ export const demoProfiles: Profile[] = examples.map(([name, gender, upazila, dob
 
 export function searchDemoProfiles(params: SearchProfilesParams = {}): ApiResponse<{ profiles: Profile[] }> {
   const heightCm = (h?: { feet: number; inches: number }) =>
-    h ? Math.round((h.feet * 12 + (h.inches || 0)) * 2.54) : 0;
+    h ? (h.feet * 12 + (h.inches || 0)) * 2.54 : 0;
   const heightFilterActive = Boolean(params.minHeight || params.maxHeight);
   const matches = demoProfiles.filter(p => {
     const hcm = heightCm(p.height);
-    return (!params.biodataId || (p.biodataId || '').toLocaleLowerCase().includes(params.biodataId.toLocaleLowerCase().trim())) &&
-      (!params.query || (p.displayName + ' ' + (p.occupation || '') + ' ' + (p.biodataId || '')).toLocaleLowerCase().includes(params.query.toLocaleLowerCase().trim())) &&
+    const structuredMatch = multiSearchFields.every(f=>{
+      const requested=params[f.key]?.split(',').filter(Boolean); if(!requested?.length)return true;
+      const value=f.profile==='familyInfo.financialStatus'?p.familyInfo?.financialStatus:p[f.profile as keyof Profile];
+      return Array.isArray(value)?requested.some(v=>value.includes(v as never)):requested.includes(String(value));
+    });
+    return structuredMatch && (!params.currentUpazila || p.currentUpazila===params.currentUpazila) && (!params.biodataId || (p.biodataId || '').toLocaleLowerCase().includes(params.biodataId.toLocaleLowerCase().trim())) &&
+      (!params.query || (p.displayName + ' ' + (p.occupation || '') + ' ' + (p.biodataId || '') + ' ' + (p.education || '') + ' ' + (p.educationDetail || '')).toLocaleLowerCase().includes(params.query.toLocaleLowerCase().trim())) &&
       (!params.occupation || (p.occupation || '').toLocaleLowerCase().includes(params.occupation.toLocaleLowerCase())) &&
       (!params.gender || p.gender === params.gender) &&
       (!params.upazila || p.upazila === params.upazila) &&

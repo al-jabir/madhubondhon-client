@@ -1,3 +1,7 @@
+import AppliedSearchFilters from '../components/profile/AppliedSearchFilters';
+import DiscoveryFilters from '../components/profile/DiscoveryFilters';
+import { multiSearchFields, type MultiSearchValues } from '../constants/search';
+import { toast } from 'sonner';
 import SaveSearchControl from '../components/profile/SaveSearchControl';
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
@@ -30,9 +34,10 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const [query, setQuery] = useState<string>(searchParams.get('query') || '');
   const [gender, setGender] = useState<string>(searchParams.get('gender') || '');
   const [upazila, setUpazila] = useState<string>(searchParams.get('upazila') || '');
-  const [minAge, setMinAge] = useState<string>(searchParams.get('minAge') || '18');
-  const [maxAge, setMaxAge] = useState<string>(searchParams.get('maxAge') || '60');
-  const [maritalStatus, setMaritalStatus] = useState<string>(searchParams.get('maritalStatus') || '');
+  const [currentUpazila,setCurrentUpazila]=useState(searchParams.get('currentUpazila')||'');
+  const [extra,setExtra]=useState<MultiSearchValues>(()=>Object.fromEntries(multiSearchFields.map(f=>[f.key,searchParams.get(f.key)|| (f.key==='maritalStatuses' ? searchParams.get('maritalStatus') || '' : '')])));
+  const [minAge, setMinAge] = useState<string>(searchParams.get('minAge') || '');
+  const [maxAge, setMaxAge] = useState<string>(searchParams.get('maxAge') || '');
   const [education, setEducation] = useState<string>(searchParams.get('education') || '');
   const [occupation, setOccupation] = useState(searchParams.get('occupation') || '');
   const [minHeight, setMinHeight] = useState<string>(searchParams.get('minHeight') || '');
@@ -41,25 +46,24 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
   const [page, setPage] = useState<number>(Number(searchParams.get('page')) || 1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const hasAdvancedParam = Boolean(
+    currentUpazila || Object.values(extra).some(Boolean) ||
     searchParams.get('minHeight') || searchParams.get('maxHeight') || searchParams.get('verifiedOnly') ||
     searchParams.get('education') || searchParams.get('occupation') || searchParams.get('maritalStatus') ||
-    (searchParams.get('minAge') && searchParams.get('minAge') !== '18') ||
-    (searchParams.get('maxAge') && searchParams.get('maxAge') !== '60'),
+    searchParams.get('minAge') ||
+    searchParams.get('maxAge'),
   );
   const [advancedOpen, setAdvancedOpen] = useState<boolean>(hasAdvancedParam);
 
   const advancedFilterCount = [
-    maritalStatus,
     education,
     occupation.trim(),
     minHeight,
     maxHeight,
     verifiedOnly ? 'true' : '',
-    minAge !== '18' ? minAge : '',
-    maxAge !== '60' ? maxAge : '',
+    minAge, maxAge, currentUpazila, ...Object.values(extra),
   ].filter(Boolean).length;
 
-  const activeFilterCount = [biodataId, gender, upazila].filter(Boolean).length + (advancedFilterCount > 0 ? 1 : 0);
+  const activeFilterCount = [biodataId, gender, upazila].filter(Boolean).length + advancedFilterCount;
 
   // Selected profile for sending interest modal
   const [selectedProfileForInterest, setSelectedProfileForInterest] = useState<Profile | null>(null);
@@ -78,49 +82,27 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
   // Query API
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: [
-      'search-profiles',
-      demo,
-      isDemoEnabled,
-      user?.id || user?._id || 'guest',
-      biodataId,
-      query,
-      gender,
-      upazila,
-      minAge,
-      maxAge,
-      minHeight,
-      maxHeight,
-      verifiedOnly,
-      maritalStatus,
-      education,
-      occupation,
-      page,
-    ],
+    queryKey: ['search-profiles',demo,isDemoEnabled,user?.id || user?._id || 'guest',searchParams.toString()],
     queryFn: async () => {
-      const searchParams = {
-        biodataId: biodataId.trim() || undefined,
-        query: query.trim() || undefined,
-        gender: (gender as Gender) || undefined,
-        upazila: upazila || undefined,
-        minAge: minAge ? Number(minAge) : undefined,
-        maxAge: maxAge ? Number(maxAge) : undefined,
-        minHeight: minHeight ? Number(minHeight) : undefined,
-        maxHeight: maxHeight ? Number(maxHeight) : undefined,
-        verifiedOnly: verifiedOnly || undefined,
-        maritalStatus: (maritalStatus as MaritalStatus) || undefined,
-        education: (education as EducationLevel) || undefined,
-        occupation: occupation.trim() || undefined,
-        page,
-        limit: 9,
+      const applied = searchParams;
+      const text = (key: string) => applied.get(key)?.trim() || undefined;
+      const number = (key: string) => text(key) ? Number(text(key)) : undefined;
+      const request = {
+        ...Object.fromEntries(multiSearchFields.map(f=>[f.key,text(f.key)])),
+        currentUpazila:text('currentUpazila'),
+        biodataId:text('biodataId'),query:text('query'),gender:text('gender') as Gender | undefined,
+        upazila:text('upazila'),minAge:number('minAge'),maxAge:number('maxAge'),
+        minHeight:number('minHeight'),maxHeight:number('maxHeight'),verifiedOnly:text('verifiedOnly')==='true' || undefined,
+        maritalStatus:text('maritalStatus') as MaritalStatus | undefined,education:text('education') as EducationLevel | undefined,
+        occupation:text('occupation'),page,limit:9,
       };
 
       if (demo) {
-        return searchDemoProfiles(searchParams);
+        return searchDemoProfiles(request);
       }
 
       // 1. Fetch real profiles from server
-      const realRes = await profilesApi.searchProfiles(searchParams);
+      const realRes = await profilesApi.searchProfiles(request);
 
       // 2. If Demo Data Control is enabled, blend demo profiles matching filter
       if (isDemoEnabled) {
@@ -128,24 +110,16 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
         const realTotal: number = realRes?.meta?.total ?? realProfiles.length;
 
         // Fetch all matching demo profiles (unlimited limit to calculate combined pagination correctly)
-        const demoRes = searchDemoProfiles({ ...searchParams, limit: 50, page: 1 });
+        const demoRes = searchDemoProfiles({ ...request, limit: 50, page: 1 });
         const demoMatches: Profile[] = demoRes?.data?.profiles || [];
 
-        // Exclude duplicates if real profiles have matching ID
-        const realIds = new Set(
-          realProfiles
-            .map((p) => p.biodataId || p._id)
-            .filter((id): id is string => Boolean(id))
-        );
-        const nonConflictingDemos = demoMatches.filter(
-          (dp) => !(dp.biodataId && realIds.has(dp.biodataId)) && !realIds.has(dp._id)
-        );
-
-        const combined = [...realProfiles, ...nonConflictingDemos];
+        // Real results occupy the first slots, followed by demo results. The API
+        // already paginates real results; never slice that page a second time.
         const limit = 9;
-        const total = realTotal + nonConflictingDemos.length;
+        const total = realTotal + demoMatches.length;
         const totalPages = Math.max(1, Math.ceil(total / limit));
-        const paged = combined.slice((page - 1) * limit, page * limit);
+        const demoOffset = Math.max(0, (page - 1) * limit - realTotal);
+        const paged = [...realProfiles, ...demoMatches.slice(demoOffset, demoOffset + limit - realProfiles.length)];
 
         return {
           ...realRes,
@@ -168,6 +142,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
   const handleApplyFilter = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if ((minAge && maxAge && Number(minAge)>Number(maxAge)) || (minHeight && maxHeight && Number(minHeight)>Number(maxHeight))) { toast.error(isBengali?'সর্বনিম্ন সীমা সর্বোচ্চ সীমার বেশি হতে পারে না।':'Minimum cannot exceed maximum.'); return; }
     setMobileFiltersOpen(false);
     const params = new URLSearchParams();
     if (biodataId.trim()) params.set('biodataId', biodataId.trim().toUpperCase());
@@ -176,7 +151,8 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
     if (upazila) params.set('upazila', upazila);
     if (minAge) params.set('minAge', minAge);
     if (maxAge) params.set('maxAge', maxAge);
-    if (maritalStatus) params.set('maritalStatus', maritalStatus);
+    if (currentUpazila) params.set('currentUpazila',currentUpazila);
+    Object.entries(extra).forEach(([key,value])=>{if(value)params.set(key,value);});
     if (education) params.set('education', education);
     if (occupation.trim()) params.set('occupation', occupation.trim());
     if (minHeight) params.set('minHeight', minHeight);
@@ -192,12 +168,13 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
     setQuery('');
     setGender('');
     setUpazila('');
-    setMinAge('18');
-    setMaxAge('60');
+    setMinAge('');
+    setMaxAge('');
     setMinHeight('');
     setMaxHeight('');
     setVerifiedOnly(false);
-    setMaritalStatus('');
+    setCurrentUpazila('');
+    setExtra({});
     setEducation('');
     setOccupation('');
     setPage(1);
@@ -357,7 +334,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
         <aside className={`lg:col-span-1 ${mobileFiltersOpen ? 'block' : 'hidden lg:block'}`}>
           <form
             onSubmit={handleApplyFilter}
-            className="mb-card p-5 space-y-5 sticky top-20"
+            className="mb-card p-5 space-y-5 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto"
           >
             <div className="flex items-center justify-between border-b border-line pb-3">
               <span className="font-bold text-sm text-ink flex items-center gap-1.5">
@@ -398,7 +375,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
             {/* Upazila */}
             <div>
-              <label className="mb-label">{isBengali ? 'টাঙ্গাইলের উপজেলা' : 'Tangail Upazila'}</label>
+              <label className="mb-label">{isBengali ? 'স্থায়ী উপজেলা (টাঙ্গাইল)' : 'Permanent upazila (Tangail)'}</label>
               <select value={upazila} onChange={(e) => setUpazila(e.target.value)} className="mb-input !text-xs">
                 <option value="">{isBengali ? 'সকল উপজেলা' : 'All Upazilas'}</option>
                 {TANGAIL_UPAZILAS.map((up) => (
@@ -433,12 +410,14 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
             {advancedOpen && (
               <div className="space-y-5 pt-1">
+                <div><label className="mb-label" htmlFor="current-upazila">{isBengali?'বর্তমান উপজেলা (টাঙ্গাইল)':'Current upazila (Tangail)'}</label><select id="current-upazila" className="mb-input !text-xs" value={currentUpazila} onChange={e=>setCurrentUpazila(e.target.value)}><option value="">{isBengali?'সকল':'All'}</option>{TANGAIL_UPAZILAS.map(up=><option key={up} value={up}>{getUpazilaDisplayName(up,isBengali)}</option>)}</select></div>
                 {/* Age */}
                 <div>
                   <label className="mb-label">{isBengali ? 'বয়স পরিসীমা (১৮+)' : 'Age Range (18+)'}</label>
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="number"
+                      aria-label={isBengali?"সর্বনিম্ন বয়স":"Minimum age"}
                       min="18"
                       max="80"
                       value={minAge}
@@ -448,6 +427,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                     />
                     <input
                       type="number"
+                      aria-label={isBengali?"সর্বোচ্চ বয়স":"Maximum age"}
                       min="18"
                       max="80"
                       value={maxAge}
@@ -464,7 +444,8 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                   <div className="grid grid-cols-2 gap-2">
                     <input
                       type="number"
-                      min="100"
+                      aria-label={isBengali?"সর্বনিম্ন উচ্চতা সেমি":"Minimum height cm"}
+                      min="30"
                       max="250"
                       value={minHeight}
                       onChange={(e) => setMinHeight(e.target.value)}
@@ -473,7 +454,8 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                     />
                     <input
                       type="number"
-                      min="100"
+                      aria-label={isBengali?"সর্বোচ্চ উচ্চতা সেমি":"Maximum height cm"}
+                      min="30"
                       max="250"
                       value={maxHeight}
                       onChange={(e) => setMaxHeight(e.target.value)}
@@ -516,34 +498,13 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                   </select>
                 </div>
 
-                {/* Marital status */}
-                <div>
-                  <label className="mb-label">{isBengali ? 'বৈবাহিক অবস্থা' : 'Marital Status'}</label>
-                  <select value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input !text-xs">
-                    <option value="">{isBengali ? 'সকল অবস্থা' : 'All Statuses'}</option>
-                    <option value="never_married">{isBengali ? 'অবিবাহিত (Never Married)' : 'Never Married'}</option>
-                    <option value="divorced">{isBengali ? 'ডিভোর্সড (Divorced)' : 'Divorced'}</option>
-                    <option value="widowed">{isBengali ? 'বিধবা / বিপত্নীক (Widowed)' : 'Widowed'}</option>
-                    <option value="separated">{isBengali ? 'বিচ্ছিন্ন (Separated)' : 'Separated'}</option>
-                  </select>
-                </div>
+                <DiscoveryFilters values={extra} onChange={setExtra} />
 
-                {/* Verified only */}
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={verifiedOnly}
-                    onChange={(e) => setVerifiedOnly(e.target.checked)}
-                    className="w-4 h-4 accent-[var(--mb-brand)] cursor-pointer"
-                  />
-                  <span className="text-xs font-semibold text-ink-2">
-                    {isBengali ? 'শুধু ভেরিফাইড বায়োডাটা' : 'Verified Profiles Only'}
-                  </span>
-                </label>
+                <p className="text-xs text-ink-3">{isBengali?'শুধু প্রকাশিত বায়োডাটা দেখানো হয়। পরিচয় ও পারিবারিক তথ্য নিজে যাচাই করুন।':'Only published biodatas appear. Verify identity and family details directly.'}</p>
               </div>
             )}
 
-            <button type="submit" className="mb-btn-primary w-full">
+            <button type="submit" className="mb-btn-primary w-full lg:sticky lg:bottom-0 shadow-lg">
               {isBengali ? 'এই পছন্দে খুঁজুন' : 'Search with these choices'}
             </button>
           </form>
@@ -551,6 +512,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
         {/* Results */}
         <main className="lg:col-span-3 space-y-6">
+          <AppliedSearchFilters />
           {!demo && <SaveSearchControl />}
           {isLoading ? (
             <div className="py-20 flex justify-center">
