@@ -109,10 +109,7 @@ export const Footer: React.FC = () => {
         <div className="pt-8 border-t border-white/10 text-xs text-[#c8a9b6] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="flex items-center flex-wrap gap-x-2">
             <span>© {new Date().getFullYear()} {t('footer.copyright')}</span>
-            <span className="opacity-40">•</span>
-            <Link to="/admin/login" className="hover:text-white transition-colors opacity-60 hover:opacity-100 text-[11px]">
-              {t('footer.adminPortal')}
-            </Link>
+
           </p>
           <p className="flex items-center gap-1.5">
             {t('footer.builtWithLove')}

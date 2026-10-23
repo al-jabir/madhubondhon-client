@@ -12,7 +12,7 @@ export const GuidePage: React.FC = () => {
       step: '01',
       title: isBengali ? 'বিনামূল্যে নিবন্ধন' : 'Free Registration',
       body: isBengali
-        ? 'ইমেইল ও মোবাইল যাচাই করে অ্যাকাউন্ট তৈরি করুন। নিবন্ধন সম্পূর্ণ বিনামূল্যে — কোনো ফি নেই।'
+        ? 'ইমেইল দিয়ে অ্যাকাউন্ট তৈরি করুন। নিবন্ধন সম্পূর্ণ বিনামূল্যে — কোনো ফি নেই।'
         : 'Create your account by verifying your email. Registration is 100% free with no hidden charges.',
     },
     {
@@ -28,8 +28,8 @@ export const GuidePage: React.FC = () => {
       step: '03',
       title: isBengali ? 'অভিভাবকের সম্মতি ও প্রকাশ' : 'Guardian Consent & Publish',
       body: isBengali
-        ? 'ইমেইল যাচাই ও অভিভাবকের সম্মতি নিশ্চিত করুন; মডারেশন শেষে বায়োডাটা প্ল্যাটফর্মে প্রকাশিত হয়।'
-        : 'Verify your email and confirm guardian consent. Once approved, your biodata goes live on the platform.',
+        ? 'ইমেইল যাচাই ও অভিভাবকের সম্মতির ঘোষণা দিয়ে বায়োডাটা জমা দিন। আপনার দৃশ্যমানতার পছন্দ অনুযায়ী বায়োডাটা দেখা যাবে।'
+        : 'Verify your email, declare guardian consent and submit. Your biodata is shown according to your visibility preferences.',
     },
     {
       icon: HeartHandshake,

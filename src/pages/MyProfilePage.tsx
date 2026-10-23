@@ -16,7 +16,6 @@ import {
   Plus,
   ArrowRight,
   LayoutDashboard,
-  Image,
   Compass,
   ClipboardCheck,
   Settings,
@@ -30,17 +29,16 @@ import {
   BookOpen,
   Briefcase,
   Users,
-  Check,
   Calendar,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import BiodataDashboard from '../components/profile/BiodataDashboard';
 import { profilesApi } from '../api/profiles.api';
 import { authApi } from '../api/auth.api';
-import { workflowApi, Application, ReviewStatus, statusLabels } from '../api/workflow.api';
+import { workflowApi, Application, ReviewStatus } from '../api/workflow.api';
 import { useAuth } from '../context/useAuth';
-import { getUpazilaDisplayName, TangailUpazila } from '../constants/locations';
-import { Profile, EducationLevel, MaritalStatus } from '../types';
+import { getUpazilaDisplayName } from '../constants/locations';
+import { Profile } from '../types';
 import ProfileCard from '../components/profile/ProfileCard';
 import GenderAvatar from '../components/common/GenderAvatar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -233,7 +231,7 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
 
 /* ═══════════════ Detailed Biodata Preview Cards (Categorized) ═══════════════ */
 interface BiodataDetailPreviewProps {
-  data: Partial<Profile> | Record<string, any>;
+  data: Partial<Profile>;
   guardian?: { name?: string; relationship?: string; phone?: string };
   guardianConsented?: boolean;
 }
@@ -244,7 +242,7 @@ const BiodataDetailPreview: React.FC<BiodataDetailPreviewProps> = ({
   guardianConsented,
 }) => {
   const { isBengali, formatNumber } = useLanguage();
-  const age = (data as any).age || calculateAge(data.dateOfBirth);
+  const age = data.age || calculateAge(data.dateOfBirth);
   const upazilaName = getUpazilaDisplayName(data.upazila, isBengali);
 
   return (
@@ -584,8 +582,8 @@ const ApplicationOverview: React.FC<{
         ? 'আপনার বায়োডাটা সংরক্ষিত (খসড়া) অবস্থায় রয়েছে'
         : 'Your Biodata is Saved as Draft',
       desc: isBengali
-        ? "বায়োডাটার সকল প্রয়োজনীয় তথ্য ড্রাফট হিসেবে সংরক্ষিত আছে। এটি প্ল্যাটফর্মে লাইভ করতে ইমেইল যাচাই এবং অভিভাবকের সম্মতি নিশ্চিত করে 'যাচাই ও জমা' ড্যাশবোর্ড থেকে পর্যালোচনার জন্য জমা দিন।"
-        : "Your biodata details are saved as draft. Complete email verification and guardian consent, then submit for moderation from the Verification tab.",
+        ? "আপনার তথ্য সংরক্ষিত আছে। ইমেইল যাচাই ও অভিভাবকের সম্মতির ঘোষণা দিয়ে বায়োডাটা জমা দিন।"
+        : "Your details are saved. Verify your email, declare guardian consent and submit from the submission tab.",
     },
     submitted: {
       badgeBg: 'bg-emerald-500/15',
@@ -593,11 +591,11 @@ const ApplicationOverview: React.FC<{
       bannerBg: 'bg-emerald-500/10 dark:bg-emerald-950/30',
       border: 'border-emerald-500/30',
       title: isBengali
-        ? 'বায়োডাটা পর্যালোচনার জন্য জমা হয়েছে'
-        : 'Biodata Submitted for Review',
+        ? 'বায়োডাটা জমা হয়েছে'
+        : 'Biodata Submitted',
       desc: isBengali
-        ? 'আপনার বায়োডাটা সফলভাবে আমাদের মডারেশন টিমের কাছে পৌঁছেছে। সাধারণত ২ থেকে ৬ ঘণ্টার মধ্যে তথ্য ও অভিভাবক সম্মতি যাচাই শেষে বায়োডাটা সক্রিয় করা হবে।'
-        : 'Your application has been received by our moderation team. Details and guardian consent are being verified. Review is typically completed within 2 to 6 hours.',
+        ? 'আপনার বায়োডাটা জমা হয়েছে। পরবর্তী পরিবর্তন হলে জানানো হবে।'
+        : 'Your biodata has been submitted. You will be notified of changes.',
     },
     under_review: {
       badgeBg: 'bg-blue-500/15',
@@ -605,11 +603,11 @@ const ApplicationOverview: React.FC<{
       bannerBg: 'bg-blue-500/10 dark:bg-blue-950/30',
       border: 'border-blue-500/30',
       title: isBengali
-        ? 'বায়োডাটা পর্যালোচনা প্রক্রিয়াধীন'
-        : 'Biodata Review In Progress',
+        ? 'বায়োডাটা জমা হয়েছে'
+        : 'Biodata Submitted',
       desc: isBengali
-        ? 'আমাদের একজন মডারেটর বর্তমানে আপনার বায়োডাটার তথ্য ও অভিভাবক সম্মতি যাচাই করছেন। যাচাই শেষ হলেই এটি প্ল্যাটফর্মে প্রকাশিত হবে।'
-        : 'A moderator is actively reviewing your biodata details and guardian verification. Once completed, your profile will be published.',
+        ? 'আপনার বায়োডাটা জমা হয়েছে। প্রয়োজন হলে তথ্য সম্পাদনা করতে পারবেন।'
+        : 'Your biodata has been submitted. You can edit your information if needed.',
     },
     changes_requested: {
       badgeBg: 'bg-rose-500/15',
@@ -619,11 +617,9 @@ const ApplicationOverview: React.FC<{
       title: isBengali
         ? 'বায়োডাটায় কিছু তথ্য সংশোধন প্রয়োজন'
         : 'Changes Requested on Biodata',
-      desc: application.reviewNote
-        ? `${isBengali ? 'মডারেটরের মন্তব্য: ' : 'Moderator Note: '}${application.reviewNote}`
-        : isBengali
-        ? 'মডারেটর আপনার বায়োডাটায় কিছু তথ্য পুনরায় সংশোধনের অনুরোধ করেছেন। অনুগ্রহ করে বায়োডাটা সম্পাদনা করে পুনরায় জমা দিন।'
-        : 'Please update requested details in your biodata and resubmit for approval.',
+      desc: isBengali
+        ? 'বায়োডাটার তথ্য দেখে প্রয়োজনীয় সংশোধন করে আবার জমা দিন।'
+        : 'Check your biodata details, make the needed changes and submit again.',
     },
     approved: {
       badgeBg: 'bg-emerald-500/15',
@@ -631,8 +627,8 @@ const ApplicationOverview: React.FC<{
       bannerBg: 'bg-emerald-500/10 dark:bg-emerald-950/30',
       border: 'border-emerald-500/30',
       title: isBengali
-        ? 'আলহামদুলিল্লাহ! আপনার বায়োডাটা অনুমোদিত হয়েছে'
-        : 'Alhamdulillah! Your Biodata is Approved',
+        ? 'আলহামদুলিল্লাহ! আপনার বায়োডাটা প্রকাশিত হয়েছে'
+        : 'Alhamdulillah! Your Biodata is Published',
       desc: isBengali
         ? 'আপনার বায়োডাটা প্ল্যাটফর্মে সক্রিয় রয়েছে এবং পাত্র-পাত্রীরা অনুসন্ধান করতে পারছেন।'
         : 'Your biodata is active on the platform and discoverable by prospective matches.',
@@ -643,9 +639,7 @@ const ApplicationOverview: React.FC<{
       bannerBg: 'bg-red-500/10 dark:bg-red-950/30',
       border: 'border-red-500/30',
       title: isBengali ? 'বায়োডাটা অনুমোদিত হয়নি' : 'Biodata Not Approved',
-      desc: application.reviewNote
-        ? `${isBengali ? 'কারণ: ' : 'Reason: '}${application.reviewNote}`
-        : isBengali
+      desc: isBengali
         ? 'বায়োডাটা আমাদের নিরাপত্তা ও নির্ভরযোগ্যতার নীতিমালা পূরণ করেনি।'
         : 'The biodata did not meet platform safety and integrity standards.',
     },
@@ -728,7 +722,7 @@ const ApplicationOverview: React.FC<{
               className="mb-btn-secondary py-2.5 px-4 text-xs rounded-xl inline-flex items-center gap-1.5 cursor-pointer bg-card whitespace-nowrap"
             >
               <Clock className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{isBengali ? 'মডারেশন ট্র্যাকার' : 'Moderation Tracker'}</span>
+              <span>{isBengali ? 'জমা দেওয়ার তথ্য' : 'Submission details'}</span>
             </button>
           )}
         </div>
@@ -766,7 +760,7 @@ const ApplicationOverview: React.FC<{
               <span
                 className={`text-xs font-bold px-3 py-1 rounded-full border ${currentTone.badgeBg} ${currentTone.badgeText} ${currentTone.border}`}
               >
-                {statusLabels[status] || status}
+                {status==='draft'?(isBengali?'সংরক্ষিত':'Saved'):status==='approved'?(isBengali?'প্রকাশিত':'Published'):['changes_requested','rejected'].includes(status)?(isBengali?'সম্পাদনা প্রয়োজন':'Needs editing'):(isBengali?'জমা হয়েছে':'Submitted')}
               </span>
             </div>
 
@@ -841,133 +835,6 @@ const ApplicationOverview: React.FC<{
         </div>
       </div>
 
-      {/* ── 4-step pipeline status tracker ── */}
-      <div className="mb-card rounded-2xl p-5 space-y-3">
-        <h3 className="text-xs font-black text-ink uppercase tracking-wider flex items-center gap-2">
-          <Clock className="w-4 h-4 text-brand" />
-          <span>{isBengali ? 'বায়োডাটা প্রকাশের অগ্রগতি' : 'Publication Workflow Pipeline'}</span>
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          {/* Step 1 */}
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 space-y-1">
-            <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 font-bold">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>{isBengali ? '১. তথ্য পূরণ' : '1. Form Entry'}</span>
-            </div>
-            <p className="text-[11px] text-ink-3">{isBengali ? 'সম্পন্ন হয়েছে' : 'Completed'}</p>
-          </div>
-
-          {/* Step 2 */}
-          <div
-            className={`p-3 rounded-xl border space-y-1 ${
-              application.guardianConsentedAt
-                ? 'bg-emerald-500/10 border-emerald-500/25'
-                : 'bg-card border-line'
-            }`}
-          >
-            <div
-              className={`flex items-center gap-1.5 font-bold ${
-                application.guardianConsentedAt
-                  ? 'text-emerald-700 dark:text-emerald-300'
-                  : 'text-ink-2'
-              }`}
-            >
-              {application.guardianConsentedAt ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              ) : (
-                <span className="w-2 h-2 rounded-full bg-amber-500" />
-              )}
-              <span>{isBengali ? '২. অভিভাবক সম্মতি' : '2. Guardian Consent'}</span>
-            </div>
-            <p className="text-[11px] text-ink-3">
-              {application.guardianConsentedAt
-                ? isBengali
-                  ? 'যাচাইকৃত'
-                  : 'Verified'
-                : isBengali
-                ? 'যাচাই বাকি'
-                : 'Pending'}
-            </p>
-          </div>
-
-          {/* Step 3 */}
-          <div
-            className={`p-3 rounded-xl border space-y-1 ${
-              status === 'submitted' || status === 'under_review'
-                ? 'bg-blue-500/10 border-blue-500/30'
-                : status === 'approved'
-                ? 'bg-emerald-500/10 border-emerald-500/25'
-                : 'bg-card border-line opacity-70'
-            }`}
-          >
-            <div
-              className={`flex items-center gap-1.5 font-bold ${
-                status === 'submitted' || status === 'under_review'
-                  ? 'text-blue-700 dark:text-blue-300'
-                  : status === 'approved'
-                  ? 'text-emerald-700 dark:text-emerald-300'
-                  : 'text-ink-3'
-              }`}
-            >
-              {status === 'approved' ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              ) : status === 'submitted' || status === 'under_review' ? (
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-              ) : (
-                <Clock className="w-3.5 h-3.5" />
-              )}
-              <span>{isBengali ? '৩. মডারেশন যাচাই' : '3. Moderation'}</span>
-            </div>
-            <p className="text-[11px] text-ink-3">
-              {status === 'approved'
-                ? isBengali
-                  ? 'অনুমোদিত'
-                  : 'Approved'
-                : status === 'submitted' || status === 'under_review'
-                ? isBengali
-                  ? 'পর্যালোচনা চলছে'
-                  : 'Under Review'
-                : isBengali
-                ? 'জমার পর শুরু হবে'
-                : 'Pending submission'}
-            </p>
-          </div>
-
-          {/* Step 4 */}
-          <div
-            className={`p-3 rounded-xl border space-y-1 ${
-              status === 'approved'
-                ? 'bg-emerald-500/10 border-emerald-500/25'
-                : 'bg-card border-line opacity-60'
-            }`}
-          >
-            <div
-              className={`flex items-center gap-1.5 font-bold ${
-                status === 'approved'
-                  ? 'text-emerald-700 dark:text-emerald-300'
-                  : 'text-ink-3'
-              }`}
-            >
-              {status === 'approved' ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              ) : (
-                <Sparkles className="w-3.5 h-3.5" />
-              )}
-              <span>{isBengali ? '৪. প্ল্যাটফর্মে প্রকাশ' : '4. Published'}</span>
-            </div>
-            <p className="text-[11px] text-ink-3">
-              {status === 'approved'
-                ? isBengali
-                  ? 'লাইভ'
-                  : 'Live'
-                : isBengali
-                ? 'অনুমোদনের পর লাইভ হবে'
-                : 'Active upon approval'}
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* ── Detailed Biodata Preview (Categorized) ── */}
       <BiodataDetailPreview
         data={data}
@@ -1022,7 +889,6 @@ const PublishedProfileOverview: React.FC<{
     typeof profile.user === 'string' ? profile.user : profile.user?._id || user?.id;
 
   const completionPercent = profile.completionPercentage ?? 0;
-  const verifiedCount = (user?.isEmailVerified ? 1 : 0) + (user?.isPhoneVerified ? 1 : 0);
 
   const stats = [
     {
@@ -1032,11 +898,11 @@ const PublishedProfileOverview: React.FC<{
       icon: Sparkles,
     },
     {
-      label: isBengali ? 'প্রকাশের অবস্থা' : 'Approval Status',
+      label: isBengali ? 'প্রকাশের অবস্থা' : 'Publication',
       value: profile.isApproved
         ? isBengali
-          ? 'অনুমোদিত'
-          : 'Approved'
+          ? 'প্রকাশিত'
+          : 'Published'
         : isBengali
         ? 'অপেক্ষমান'
         : 'Pending',
@@ -1109,7 +975,7 @@ const PublishedProfileOverview: React.FC<{
               <GenderAvatar gender={profile.gender} size={112} className="w-full h-full" />
               {profile.isApproved && (
                 <span
-                  title={isBengali ? 'ভেরিফাইড বায়োডাটা' : 'Verified Biodata'}
+                  title={isBengali ? 'প্রকাশিত বায়োডাটা' : 'Published biodata'}
                   className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 border-3 border-card flex items-center justify-center"
                 >
                   <CheckCircle2 className="w-4.5 h-4.5 text-white fill-none" />
@@ -1245,16 +1111,14 @@ const PublishedProfileOverview: React.FC<{
       <BiodataDetailPreview
         data={profile}
         guardian={application?.guardian}
-        guardianConsented={!!(application?.guardianConsentedAt || profile.isApproved)}
+        guardianConsented={!!application?.guardianConsentedAt}
       />
     </div>
   );
 };
 
 /* ═══════════════ Completion card (overview) ═══════════════ */
-const CompletionCard: React.FC<{ onNavigateTab?: ((t: TabKey) => void) | undefined }> = ({
-  onNavigateTab,
-}) => {
+const CompletionCard: React.FC<{ onNavigateTab?: ((t: TabKey) => void) | undefined }> = () => {
   const { completion } = useMyProfile();
   const navigate = useNavigate();
   const { isBengali, formatNumber } = useLanguage();

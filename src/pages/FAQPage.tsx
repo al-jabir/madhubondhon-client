@@ -48,9 +48,9 @@ const faqs: FAQItem[] = [
     questionBn: 'মধুবন্ধন (Tangail Matrimony) প্ল্যাটফর্মটি কীভাবে কাজ করে?',
     questionEn: 'How does the MadhuBondhon (Tangail Matrimony) platform work?',
     answerBn:
-      'মধুবন্ধন হলো টাঙ্গাইল জেলা এবং দেশ-বিদেশে বসবাসরত টাঙ্গাইলবাসীর জন্য একটি নির্ভরযোগ্য এবং ইসলামিক মূল্যবোধসম্পন্ন পাত্র-পাত্রী খোঁজার মাধ্যম। এখানে যেকোনো প্রাপ্তবয়স্ক (১৮+) পাত্র-পাত্রী বা তাদের অভিভাবক বিনামূল্যে বায়োডাটা তৈরি করতে পারেন। মডারেটরদের দ্বারা প্রতিটি তথ্য যাচাই ও অনুমোদনের পর তা প্ল্যাটফর্মে প্রকাশিত হয়। পছন্দ হলে একে অপরকে আগ্রহ (Interest) পাঠাতে পারেন এবং অভিভাবকের সম্মতিক্রমে সরাসরি পারিবারিক যোগাযোগের ব্যবস্থা করা হয়।',
+      'মধুবন্ধন হলো টাঙ্গাইল জেলা এবং দেশ-বিদেশে বসবাসরত টাঙ্গাইলবাসীর জন্য একটি নির্ভরযোগ্য এবং ইসলামিক মূল্যবোধসম্পন্ন পাত্র-পাত্রী খোঁজার মাধ্যম। এখানে যেকোনো প্রাপ্তবয়স্ক (১৮+) পাত্র-পাত্রী বা তাদের অভিভাবক বিনামূল্যে বায়োডাটা তৈরি করতে পারেন। ইমেইল যাচাই ও অভিভাবকের সম্মতির ঘোষণা দিয়ে বায়োডাটা জমা দিতে হয়। তথ্যের সত্যতা পরিবারকে সরাসরি যাচাই করতে হবে। পছন্দ হলে একে অপরকে আগ্রহ (Interest) পাঠাতে পারেন এবং অভিভাবকের সম্মতিক্রমে সরাসরি পারিবারিক যোগাযোগের ব্যবস্থা করা হয়।',
     answerEn:
-      'MadhuBondhon is a trusted, Shariah-compliant matrimonial matchmaking platform dedicated to candidates from Tangail district, both locally and abroad. Adult candidates (18+) or their guardians can create a biodata for free. Each profile is reviewed and verified by our moderation team before publication. Members can send interests to matching candidates, and direct family communications are established upon mutual guardian consent.',
+      'MadhuBondhon is a trusted, Shariah-compliant matrimonial matchmaking platform dedicated to candidates from Tangail district, both locally and abroad. Adult candidates (18+) or their guardians can create a biodata for free. Email verification and a guardian consent declaration are needed to submit. Families must verify the information directly. Members can send interests to matching candidates, and direct family communications are established upon mutual guardian consent.',
   },
   {
     id: 'guardian-consent',
@@ -118,9 +118,9 @@ const faqs: FAQItem[] = [
     questionBn: 'বায়োডাটা জমা দেওয়ার পর অনুমোদন হতে কত সময় লাগে?',
     questionEn: 'How long does it take for a biodata to get approved after submission?',
     answerBn:
-      'আমাদের ডেডিকেটেড মডারেশন টিম প্রতিটি বায়োডাটার তথ্য, জন্মতারিখ এবং অভিভাবকের সম্মতি পুঙ্খানুপুঙ্খভাবে যাচাই করে। সাধারণত আবেদন জমা দেওয়ার ২ থেকে ৬ ঘণ্টার মধ্যে বায়োডাটা পর্যালোচনা ও অনুমোদন সম্পন্ন হয়। কোনো তথ্য সংশোধনের প্রয়োজন হলে তা "আমার প্রোফাইল" ড্যাশবোর্ডে মন্তব্যসহ জানিয়ে দেওয়া হয়।',
+      'প্রয়োজনীয় তথ্য, ইমেইল যাচাই ও অভিভাবকের সম্মতির ঘোষণা সম্পন্ন করে বায়োডাটা জমা দিন। জমা সফল হলে আপনার দৃশ্যমানতার পছন্দ অনুযায়ী বায়োডাটা দেখা যাবে। এটি পরিচয় বা পারিবারিক তথ্যের স্বাধীন যাচাই নয়; পরিবারকে সরাসরি যাচাই করতে হবে।',
     answerEn:
-      'Our dedicated moderation team thoroughly verifies submitted information, date of birth, and guardian consent. Reviews are typically completed within 2 to 6 hours. If any correction is required, clear guidance will be displayed in your "My Profile" dashboard.',
+      'Complete your required details, verify your email, declare guardian consent and submit. After successful submission, visibility follows your selected preference. This is not independent identity or family verification; verify directly with the family.',
   },
   {
     id: 'orphan-alternative-guardian',
