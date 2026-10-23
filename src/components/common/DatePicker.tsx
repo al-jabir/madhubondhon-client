@@ -1,3 +1,5 @@
+import {calculateAge} from '../../utils/dates';
+import { useLanguage } from '../../i18n/LanguageContext';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   Calendar as CalendarIcon,
@@ -40,38 +42,6 @@ const BANGLA_MONTHS = [
 
 const BANGLA_WEEKDAYS = ['শনি', 'রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র'];
 
-// English to Bangla number converter
-export const toBanglaNumber = (num: number | string): string => {
-  const banglaDigits: Record<string, string> = {
-    '0': '০',
-    '1': '১',
-    '2': '২',
-    '3': '৩',
-    '4': '৪',
-    '5': '৫',
-    '6': '৬',
-    '7': '৭',
-    '8': '৮',
-    '9': '৯',
-  };
-  return num
-    .toString()
-    .replace(/[0-9]/g, (char) => banglaDigits[char] || char);
-};
-
-export const calculateAge = (dobString: string): number => {
-  if (!dobString) return 0;
-  const dob = new Date(dobString);
-  if (isNaN(dob.getTime())) return 0;
-  const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const m = today.getMonth() - dob.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-    age--;
-  }
-  return age;
-};
-
 export const DatePicker: React.FC<DatePickerProps> = ({
   value,
   onChange,
@@ -84,8 +54,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   disabled = false,
   error,
 }) => {
+  const {isBengali,formatNumber}=useLanguage();
   const today = useMemo(() => new Date(), []);
-  const maxYear = today.getFullYear();
+  const maxYear = today.getFullYear() - minAge;
   const minYear = Math.min(1940, today.getFullYear() - maxAge);
 
   // Selected date components
@@ -96,14 +67,15 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       const year = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10) - 1;
       const day = parseInt(parts[2], 10);
-      return new Date(year, month, day);
+      const date=new Date(year, month, day);
+      return date.getFullYear()===year && date.getMonth()===month && date.getDate()===day ? date : null;
     }
     return null;
   }, [value]);
 
   // Current view in calendar (month & year)
   const [viewYear, setViewYear] = useState<number>(() => {
-    return selectedDate ? selectedDate.getFullYear() : maxYear - 23; // e.g. 23 years ago (~2003)
+    return selectedDate ? selectedDate.getFullYear() : maxYear - 5; // e.g. 23 years ago (~2003)
   });
 
   const [viewMonth, setViewMonth] = useState<number>(() => {
@@ -113,13 +85,11 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Sync view when selectedDate changes externally
-  useEffect(() => {
-    if (selectedDate) {
-      setViewYear(selectedDate.getFullYear());
-      setViewMonth(selectedDate.getMonth());
-    }
-  }, [selectedDate]);
+  function toggleCalendar(){
+    if(disabled)return;
+    if(!isOpen && selectedDate){setViewYear(selectedDate.getFullYear());setViewMonth(selectedDate.getMonth());}
+    setIsOpen(!isOpen);
+  }
 
   // Close when clicking outside
   useEffect(() => {
@@ -136,16 +106,16 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
   // Age calculation
   const currentAge = useMemo(() => calculateAge(value), [value]);
-  const isAgeValid = value ? currentAge >= minAge : true;
+  const isAgeValid = value ? !!selectedDate && currentAge >= minAge : true;
 
   // Formatted date string in Bengali
   const formattedDisplay = useMemo(() => {
     if (!selectedDate) return '';
     const day = selectedDate.getDate();
-    const month = BANGLA_MONTHS[selectedDate.getMonth()];
+    const month = isBengali ? BANGLA_MONTHS[selectedDate.getMonth()] : selectedDate.toLocaleString('en',{month:'long'});
     const year = selectedDate.getFullYear();
-    return `${toBanglaNumber(day)} ${month} ${toBanglaNumber(year)}`;
-  }, [selectedDate]);
+    return `${formatNumber(day)} ${month} ${formatNumber(year)}`;
+  }, [selectedDate, isBengali, formatNumber]);
 
   // Calendar days generation
   const daysInMonth = useMemo(() => {
@@ -195,6 +165,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if(e.currentTarget.closest("fieldset[disabled]"))return;
     onChange('');
   };
 
@@ -210,7 +181,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   // Check if a specific day is disabled (cannot select future dates)
   const isDateDisabled = (day: number) => {
     const dateToCheck = new Date(viewYear, viewMonth, day);
-    return dateToCheck > today;
+    return dateToCheck > today || calculateAge(`${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`) < minAge;
   };
 
   return (
@@ -223,7 +194,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           {value && isAgeValid && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-soft text-brand-ink text-[11px] font-bold border border-brand/30 animate-in fade-in">
               <Sparkles className="w-3 h-3 text-brand shrink-0" />
-              <span>বয়স: {toBanglaNumber(currentAge)} বছর</span>
+              <span>{isBengali?`বয়স: ${formatNumber(currentAge)} বছর`:`Age: ${currentAge} years`}</span>
             </span>
           )}
         </div>
@@ -233,12 +204,17 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       <div className="relative">
         <div
           role="button"
-          tabIndex={0}
-          onClick={() => !disabled && setIsOpen(!isOpen)}
+          aria-label={label || placeholder}
+          aria-expanded={isOpen}
+          aria-disabled={disabled}
+          aria-invalid={!isAgeValid || !!error}
+          tabIndex={disabled?-1:0}
+          onClick={e=>{if(!e.currentTarget.closest("fieldset[disabled]"))toggleCalendar();}}
           onKeyDown={(e) => {
+            if(e.currentTarget.closest('fieldset[disabled]'))return;
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              !disabled && setIsOpen(!isOpen);
+              toggleCalendar();
             }
           }}
           className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-sm transition-all cursor-pointer select-none ${
@@ -271,7 +247,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 type="button"
                 onClick={handleClear}
                 className="p-1 rounded-full text-ink-3 hover:text-brand hover:bg-brand-soft transition-colors cursor-pointer"
-                title="মুছে ফেলুন"
+                title={isBengali?"মুছে ফেলুন":"Clear date"}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -288,7 +264,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         {value && !isAgeValid && (
           <div className="flex items-center gap-1 text-[11px] text-brand mt-1 font-medium">
             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-            <span>আইনগত ও প্ল্যাটফর্ম নিয়মানুযায়ী বয়স ন্যূনতম ১৮ বছর হতে হবে।</span>
+            <span>{isBengali?`সঠিক তারিখ দিন; বয়স কমপক্ষে ${formatNumber(minAge)} বছর হতে হবে।`:`Enter a valid date; minimum age is ${minAge}.`}</span>
           </div>
         )}
 
@@ -308,7 +284,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 type="button"
                 onClick={handlePrevMonth}
                 className="p-1.5 rounded-lg text-ink-2 hover:bg-brand-soft hover:text-brand transition-colors cursor-pointer"
-                aria-label="আগের মাস"
+                aria-label={isBengali?"আগের মাস":"Previous month"}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -316,26 +292,28 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               <div className="flex items-center gap-2">
                 {/* Month Select */}
                 <select
+                  aria-label={isBengali?"মাস":"Month"}
                   value={viewMonth}
                   onChange={(e) => setViewMonth(parseInt(e.target.value, 10))}
                   className="text-xs font-bold text-ink-2 bg-elev border border-line rounded-lg px-2 py-1 focus:ring-1 focus:ring-brand cursor-pointer"
                 >
                   {BANGLA_MONTHS.map((m, idx) => (
                     <option key={m} value={idx}>
-                      {m}
+                      {isBengali?m:new Date(2000,idx,1).toLocaleString("en",{month:"long"})}
                     </option>
                   ))}
                 </select>
 
                 {/* Year Select */}
                 <select
+                  aria-label={isBengali?"বছর":"Year"}
                   value={viewYear}
                   onChange={(e) => setViewYear(parseInt(e.target.value, 10))}
                   className="text-xs font-bold text-ink-2 bg-elev border border-line rounded-lg px-2 py-1 focus:ring-1 focus:ring-brand cursor-pointer"
                 >
                   {yearsList.map((y) => (
                     <option key={y} value={y}>
-                      {toBanglaNumber(y)}
+                      {formatNumber(y)}
                     </option>
                   ))}
                 </select>
@@ -345,7 +323,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 type="button"
                 onClick={handleNextMonth}
                 className="p-1.5 rounded-lg text-ink-2 hover:bg-brand-soft hover:text-brand transition-colors cursor-pointer"
-                aria-label="পরের মাস"
+                aria-label={isBengali?"পরের মাস":"Next month"}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -353,7 +331,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
             {/* Weekdays Row */}
             <div className="grid grid-cols-7 gap-1 text-center mb-1">
-              {BANGLA_WEEKDAYS.map((wd, i) => (
+              {(isBengali?BANGLA_WEEKDAYS:["Sat","Sun","Mon","Tue","Wed","Thu","Fri"]).map((wd, i) => (
                 <div
                   key={wd}
                   className={`text-[10px] font-bold py-1 ${
@@ -397,7 +375,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                         : 'text-ink-2 hover:bg-brand-soft hover:text-brand'
                     }`}
                   >
-                    {toBanglaNumber(day)}
+                    {formatNumber(day)}
                   </button>
                 );
               })}
@@ -409,10 +387,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 {selectedDate ? (
                   <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
                     <CheckCircle2 className="w-3 h-3" />
-                    নির্বাচিত
+                    {isBengali?"নির্বাচিত":"Selected"}
                   </span>
                 ) : (
-                  'একটি তারিখ বেছে নিন'
+                  (isBengali?'একটি তারিখ বেছে নিন':'Choose a date')
                 )}
               </span>
               <button
@@ -420,7 +398,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 onClick={() => setIsOpen(false)}
                 className="text-xs font-bold text-brand hover:brightness-110 px-2 py-1 rounded-md hover:bg-brand-soft transition-colors cursor-pointer"
               >
-                সম্পন্ন
+                {isBengali?"সম্পন্ন":"Done"}
               </button>
             </div>
           </div>

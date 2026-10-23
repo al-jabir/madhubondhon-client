@@ -16,7 +16,8 @@ import { toast } from 'sonner';
 import { getApiErrorMessage } from '../api/errors';
 import { useAuth } from '../context/useAuth';
 import { Gender } from '../types';
-import DatePicker, { calculateAge } from '../components/common/DatePicker';
+import DatePicker from '../components/common/DatePicker';
+import { calculateAge } from '../utils/dates';
 import { useLanguage } from '../i18n/LanguageContext';
 
 export const RegisterPage: React.FC = () => {

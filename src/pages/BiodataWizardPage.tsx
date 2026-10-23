@@ -1,9 +1,12 @@
+import ConfirmationModal from '../components/common/ConfirmationModal';
+import {cleanDraft, normalizeDraft, draftErrors} from '../utils/biodataDraft';
+import { discoveryOptions } from '../constants/discovery';
 import DiscoveryProfileFields from '../components/profile/DiscoveryProfileFields';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { workflowApi, statusLabels, errorMessage } from "../api/workflow.api";
+import { workflowApi, errorMessage } from "../api/workflow.api";
 import type { Application, DraftData, Guardian } from "../api/workflow.api";
 import {
   Gender,
@@ -51,7 +54,7 @@ function YesNoToggle({
   isBengali?: boolean;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-card border border-line hover:border-brand/40 transition-colors">
+    <div role="group" aria-label={label} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-card border border-line hover:border-brand/40 transition-colors">
       <div className="min-w-0 pr-2 space-y-0.5">
         <p className="text-sm font-semibold text-ink leading-snug">{label}</p>
         {sublabel && <p className="text-[11.5px] text-ink-3">{sublabel}</p>}
@@ -60,6 +63,7 @@ function YesNoToggle({
       <div className="flex items-center gap-1 shrink-0 self-start sm:self-center bg-elev p-1 rounded-xl border border-line">
         <button
           type="button"
+          aria-pressed={value===true}
           onClick={() => onChange(true)}
           className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
             value === true
@@ -72,6 +76,7 @@ function YesNoToggle({
         </button>
         <button
           type="button"
+          aria-pressed={value===false}
           onClick={() => onChange(false)}
           className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer select-none ${
             value === false
@@ -124,22 +129,12 @@ export default function BiodataWizardPage() {
   );
 }
 
-function cleanDraft(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(cleanDraft);
-  if (value && typeof value === "object")
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter(([, item]) => item !== "" && item !== undefined && item !== null)
-        .map(([key, item]) => [key, cleanDraft(item)]),
-    );
-  return value;
-}
 
 function Wizard({ application }: { application: Application }) {
   const navigate = useNavigate();
   const cache = useQueryClient();
   const { isBengali } = useLanguage();
-  const [data, setData] = useState<DraftData>(application.data || {});
+  const [data, setData] = useState<DraftData>(()=>normalizeDraft(application.data || {}));
   const [guardian, setGuardian] = useState<Partial<Guardian>>(
     application.guardian || {},
   );
@@ -147,6 +142,12 @@ function Wizard({ application }: { application: Application }) {
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [errors,setErrors]=useState<string[]>([]);
+  const saveLock=useRef(false);
+  const errorsRef=useRef<HTMLDivElement>(null);
+  const [destination,setDestination]=useState<string|null>(null);
+
+  useEffect(()=>{if(errors.length)errorsRef.current?.focus();},[errors]);
 
   const stepNames = isBengali
     ? [
@@ -168,9 +169,18 @@ function Wizard({ application }: { application: Application }) {
         e.preventDefault();
       }
     };
+    const guardLink=(event:MouseEvent)=>{
+      if((!dirty && !saving)||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+      const anchor=event.target instanceof Element?event.target.closest('a'):null;
+      if(!anchor || anchor.target==='_blank' || anchor.hasAttribute('download'))return;
+      const target=new URL(anchor.href,window.location.href);
+      if(target.origin!==window.location.origin || target.href===window.location.href)return;
+      event.preventDefault();event.stopPropagation();setDestination(target.pathname+target.search+target.hash);
+    };
+    document.addEventListener('click',guardLink,true);
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [dirty]);
+  }, [dirty,saving]);
 
   function update<K extends keyof DraftData>(key: K, value: DraftData[K]) {
     setData((p) => ({ ...p, [key]: value }));
@@ -182,7 +192,13 @@ function Wizard({ application }: { application: Application }) {
     setDirty(true);
   }
 
-  async function save() {
+  async function save(complete=false) {
+    if(saveLock.current)return false;
+    const issues=draftErrors(data,guardian,isBengali,complete);
+    setErrors(issues);
+    if(issues.length){toast.error(issues[0]);return false;}
+    if(!dirty)return true;
+    saveLock.current=true;
     setSaving(true);
     try {
       const cleaned = cleanDraft(data) as DraftData;
@@ -196,6 +212,8 @@ function Wizard({ application }: { application: Application }) {
       );
       if (!result.data) throw new Error("Missing draft");
       setRevision(result.data.application.revision);
+      setData(normalizeDraft(result.data.application.data));
+      setGuardian(result.data.application.guardian || {});
       setDirty(false);
       cache.setQueryData(["biodata-draft"], result);
       cache.removeQueries({ queryKey: ["my-profile"] });
@@ -206,24 +224,16 @@ function Wizard({ application }: { application: Application }) {
       );
       return true;
     } catch (error) {
-      toast.error(errorMessage(error));
+      const message=errorMessage(error);
+      setErrors([message]);
+      toast.error(message);
       return false;
     } finally {
       setSaving(false);
+      saveLock.current=false;
     }
   }
 
-  const statusLabel =
-    isBengali
-      ? statusLabels[application.status]
-      : ({
-          draft: "Draft",
-          submitted: "Pending Review",
-          under_review: "Under Review",
-          approved: "Approved",
-          changes_requested: "Changes Requested",
-          rejected: "Rejected",
-        } as Record<string, string>)[application.status] || application.status;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 space-y-6">
@@ -238,17 +248,6 @@ function Wizard({ application }: { application: Application }) {
           ? "যতটুকু পূরণ হয়েছে খসড়া হিসেবে সংরক্ষণ করুন। সম্পাদনা করলে বায়োডাটা আবার জমা না দেওয়া পর্যন্ত প্রকাশিত থাকবে না।"
           : "Save your progress as draft anytime. After editing, your biodata stays hidden until you submit it again."}
       </p>
-
-      <div className="rounded-2xl bg-brand-soft border border-brand/20 p-4 text-sm text-brand-ink">
-        {isBengali ? "অবস্থা: " : "Status: "}
-        <strong>{statusLabel}</strong>
-        {application.reviewNote && (
-          <p className="mt-2 text-xs">
-            <strong>{isBengali ? "মডারেটরের মন্তব্য: " : "Moderator Note: "}</strong>
-            {application.reviewNote}
-          </p>
-        )}
-      </div>
 
       <ol className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {stepNames.map((name, i) => (
@@ -272,7 +271,9 @@ function Wizard({ application }: { application: Application }) {
           await save();
         }}
         className="space-y-6"
+        noValidate
       >
+        {errors.length>0 && <div ref={errorsRef} tabIndex={-1} role="alert" className="border border-brand/30 bg-brand-soft text-brand-ink rounded-xl p-4 space-y-2"><p className="font-semibold">{isBengali?"এই তথ্যগুলো ঠিক করুন":"Please correct these details"}</p><ul className="list-disc pl-5 text-sm">{errors.map(error=><li key={error}>{error}</li>)}</ul></div>}
         <fieldset disabled={saving} className="mb-card p-6 space-y-5 text-ink">
           {step === 0 && (
             <>
@@ -317,7 +318,16 @@ function Wizard({ application }: { application: Application }) {
                 <select
                   className={inputClass}
                   value={data.gender || ""}
-                  onChange={(e) => update("gender", e.target.value as Gender)}
+                  onChange={(e) => {
+                    const gender=e.target.value as Gender;
+                    setData(previous=>{
+                      const religiousInfo={...previous.religiousInfo,religion:previous.religiousInfo?.religion || 'islam'};
+                      const lifestyle={...previous.lifestyle,smoking:previous.lifestyle?.smoking || false};
+                      if(gender==='female'){delete religiousInfo.hasBeard;delete religiousInfo.clothesAboveAnkle;delete lifestyle.willKeepWifeInPurdah;delete lifestyle.livingArrangement;}
+                      if(gender==='male'){delete religiousInfo.wearsHijab;delete religiousInfo.wearsNiqab;delete religiousInfo.maintainsMahram;delete lifestyle.canCook;delete lifestyle.studyAfterMarriage;delete lifestyle.jobAfterMarriage;}
+                      return {...previous,gender,religiousInfo,lifestyle};
+                    });setDirty(true);
+                  }}
                 >
                   <option value="">{isBengali ? "নির্বাচন করুন" : "Select Option"}</option>
                   <option value="male">
@@ -415,7 +425,7 @@ function Wizard({ application }: { application: Application }) {
                   <option value="">{isBengali ? "নির্বাচন করুন" : "Select Education"}</option>
                   {Object.values(EducationLevel).map((v) => (
                     <option key={v} value={v}>
-                      {v.toUpperCase()}
+                      {({ssc:['এসএসসি','SSC'],hsc:['এইচএসসি','HSC'],diploma:['ডিপ্লোমা','Diploma'],bachelors:['স্নাতক / অনার্স','Bachelors'],masters:['স্নাতকোত্তর','Masters'],phd:['পিএইচডি','PhD'],islamic_education:['ইসলামিক শিক্ষা','Islamic education'],other:['অন্যান্য','Other']} as Record<string,string[]>)[v][isBengali?0:1]}
                     </option>
                   ))}
                 </select>
@@ -509,10 +519,11 @@ function Wizard({ application }: { application: Application }) {
                     min="0"
                     max="11"
                     className={inputClass}
+                    disabled={data.height?.feet===undefined}
                     value={data.height?.inches ?? ""}
                     onChange={(e) =>
                       update("height", {
-                        feet: data.height?.feet ?? 5,
+                        feet: data.height!.feet,
                         inches: Number(e.target.value),
                       })
                     }
@@ -651,6 +662,8 @@ function Wizard({ application }: { application: Application }) {
                 </select>
               </Field>
 
+              <Field label={isBengali?'পারিবারিক আর্থিক অবস্থা':'Family financial status'}><select className={inputClass} value={data.familyInfo?.financialStatus||''} onChange={e=>update('familyInfo',{...data.familyInfo,financialStatus:e.target.value})}><option value="">{isBengali?'উল্লেখ করতে চাই না':'Prefer not to say'}</option>{discoveryOptions.financialStatus.map(([value,bn,en])=><option key={value} value={value}>{isBengali?bn:en}</option>)}</select></Field>
+              <Field label={isBengali?'খাদ্যাভ্যাস (ঐচ্ছিক)':'Diet (optional)'}><input maxLength={50} className={inputClass} value={data.lifestyle?.diet||''} onChange={e=>update('lifestyle',{...data.lifestyle,smoking:!!data.lifestyle?.smoking,diet:e.target.value})}/></Field>
               <div className="pt-4 border-t border-line space-y-4">
                 <h3 className="text-base font-bold text-ink">
                   {data.gender === "male"
@@ -1090,6 +1103,8 @@ function Wizard({ application }: { application: Application }) {
                 </div>
               </div>
 
+              <fieldset className="space-y-3"><legend className="text-sm font-semibold text-ink mb-2">{isBengali?'সঙ্গীর পছন্দের শিক্ষাগত যোগ্যতা':'Preferred partner education'}</legend><div className="flex flex-wrap gap-3">{Object.values(EducationLevel).map(value=><label key={value} className="flex gap-2 items-center text-sm"><input type="checkbox" checked={data.preferences?.preferredEducation?.includes(value)||false} onChange={e=>update('preferences',{...data.preferences,preferredEducation:e.target.checked?[...(data.preferences?.preferredEducation||[]),value]:(data.preferences?.preferredEducation||[]).filter(v=>v!==value)})}/>{({ssc:['এসএসসি','SSC'],hsc:['এইচএসসি','HSC'],diploma:['ডিপ্লোমা','Diploma'],bachelors:['স্নাতক','Bachelors'],masters:['স্নাতকোত্তর','Masters'],phd:['পিএইচডি','PhD'],islamic_education:['ইসলামিক শিক্ষা','Islamic education'],other:['অন্যান্য','Other']} as Record<string,string[]>)[value][isBengali?0:1]}</label>)}</div></fieldset>
+              <fieldset className="space-y-3"><legend className="text-sm font-semibold text-ink mb-2">{isBengali?'সঙ্গীর পছন্দের বৈবাহিক অবস্থা':'Preferred partner marital status'}</legend><div className="flex flex-wrap gap-3">{discoveryOptions.maritalStatus.map(([value,bn,en])=><label key={value} className="flex gap-2 items-center text-sm"><input type="checkbox" checked={data.preferences?.preferredMaritalStatus?.includes(value)||false} onChange={e=>update('preferences',{...data.preferences,preferredMaritalStatus:e.target.checked?[...(data.preferences?.preferredMaritalStatus||[]),value]:(data.preferences?.preferredMaritalStatus||[]).filter(v=>v!==value)})}/>{isBengali?bn:en}</label>)}</div></fieldset>
               <Field label={isBengali ? "দৃশ্যমানতা" : "Profile Visibility"}>
                 <select
                   className={inputClass}
@@ -1201,7 +1216,7 @@ function Wizard({ application }: { application: Application }) {
               type="button"
               disabled={saving}
               onClick={async () => {
-                if (await save()) {
+                if (await save(step===3)) {
                   if (step < 3) {
                     setStep((v) => v + 1);
                   } else {
@@ -1227,6 +1242,7 @@ function Wizard({ application }: { application: Application }) {
           </div>
         </div>
       </form>
+      <ConfirmationModal isOpen={destination!==null} onClose={()=>setDestination(null)} onConfirm={async()=>{const target=destination;if(await save()){setDestination(null);if(target)navigate(target);}}} isLoading={saving} variant="primary" title={isBengali?'পরিবর্তন সংরক্ষণ করবেন?':'Save your changes?'} message={isBengali?'এই পৃষ্ঠা ছাড়ার আগে সম্পাদনা সংরক্ষণ করুন।':'Save your edits before leaving this page.'} confirmText={isBengali?'সংরক্ষণ করে বের হোন':'Save and leave'} cancelText={isBengali?'সম্পাদনা চালিয়ে যান':'Keep editing'}/>
     </div>
   );
 }
