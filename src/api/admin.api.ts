@@ -252,4 +252,126 @@ export const adminApi = {
       meta: res.data?.meta,
     };
   },
+
+  // ─── Credit Package Management ─────────────────────────────────────
+  async adminListPackages() {
+    const res = await apiClient.get<ApiResponse<{ packages: import('../types').AdminPackageItem[] }>>('/payments/admin/packages');
+    return res.data;
+  },
+
+  async adminCreatePackage(data: Partial<import('../types').AdminPackageItem>) {
+    const res = await apiClient.post<ApiResponse<{ package: import('../types').AdminPackageItem }>>('/payments/admin/packages', data);
+    return res.data;
+  },
+
+  async adminUpdatePackage(id: string, data: Partial<import('../types').AdminPackageItem>) {
+    const res = await apiClient.put<ApiResponse<{ package: import('../types').AdminPackageItem }>>(`/payments/admin/packages/${id}`, data);
+    return res.data;
+  },
+
+  async adminDeletePackage(id: string) {
+    const res = await apiClient.delete<ApiResponse<unknown>>(`/payments/admin/packages/${id}`);
+    return res.data;
+  },
+
+  async adminUpdatePaymentInstructions(data: {
+    bkashNumber?: string;
+    bkashType?: string;
+    nagadNumber?: string;
+    nagadType?: string;
+    rocketNumber?: string;
+    paymentInstructions?: string;
+  }) {
+    const res = await apiClient.put<ApiResponse<{ setting: import('../types').PlatformSettings }>>('/payments/admin/instructions', data);
+    return res.data;
+  },
+
+  // ─── Success Stories Management ───────────────────────────────────
+  async getPublicSuccessStories() {
+    const res = await apiClient.get<ApiResponse<{ stories: import('../types').SuccessStoryItem[] }>>('/success-stories');
+    return res.data;
+  },
+
+  async adminListSuccessStories() {
+    const res = await apiClient.get<ApiResponse<{ stories: import('../types').SuccessStoryItem[] }>>('/success-stories/admin');
+    return res.data;
+  },
+
+  async adminCreateSuccessStory(data: Partial<import('../types').SuccessStoryItem>) {
+    const res = await apiClient.post<ApiResponse<{ story: import('../types').SuccessStoryItem }>>('/success-stories/admin', data);
+    return res.data;
+  },
+
+  async adminUpdateSuccessStory(id: string, data: Partial<import('../types').SuccessStoryItem>) {
+    const res = await apiClient.put<ApiResponse<{ story: import('../types').SuccessStoryItem }>>(`/success-stories/admin/${id}`, data);
+    return res.data;
+  },
+
+  async adminDeleteSuccessStory(id: string) {
+    const res = await apiClient.delete<ApiResponse<unknown>>(`/success-stories/admin/${id}`);
+    return res.data;
+  },
+
+  // ─── Support Messages & Inquiries ─────────────────────────────────
+  async submitSupportMessage(data: { name: string; email: string; phone?: string; subject: string; message: string }) {
+    const res = await apiClient.post<ApiResponse<{ message: import('../types').SupportMessageItem }>>('/support/messages', data);
+    return res.data;
+  },
+
+  async adminListSupportMessages(params?: { status?: string; search?: string; page?: number; limit?: number }) {
+    const res = await apiClient.get<ApiResponse<{ messages: import('../types').SupportMessageItem[]; pendingCount?: number }>>('/support/admin/messages', {
+      params,
+    });
+    return res.data;
+  },
+
+  async adminUpdateSupportMessage(id: string, data: { status?: 'pending' | 'in_progress' | 'resolved'; adminNote?: string }) {
+    const res = await apiClient.put<ApiResponse<{ message: import('../types').SupportMessageItem }>>(`/support/admin/messages/${id}`, data);
+    return res.data;
+  },
+
+  async adminDeleteSupportMessage(id: string) {
+    const res = await apiClient.delete<ApiResponse<unknown>>(`/support/admin/messages/${id}`);
+    return res.data;
+  },
+
+  // ─── Tangail Upazila Analytics & CSV Export ────────────────────────
+  async getUpazilaAnalytics() {
+    const res = await apiClient.get<ApiResponse<{
+      upazilas: import('../types').UpazilaAnalyticsItem[];
+      summary: { totalProfiles: number; totalGrooms: number; totalBrides: number; totalApproved: number };
+    }>>('/admin/analytics/upazilas');
+    return res.data;
+  },
+
+  async exportDataCsv(type: 'users' | 'biodata' | 'transactions') {
+    const res = await apiClient.get(`/admin/export/${type}`, {
+      responseType: 'blob',
+    });
+    const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `madhubondhon-${type}-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  // ─── Fraud & Blacklist Management ──────────────────────────────────
+  async getBlacklist() {
+    const res = await apiClient.get<ApiResponse<{ blacklist: import('../types').BlacklistItem[] }>>('/admin/blacklist');
+    return res.data;
+  },
+
+  async addToBlacklist(data: { type: 'phone' | 'email'; value: string; reason: string }) {
+    const res = await apiClient.post<ApiResponse<{ item: import('../types').BlacklistItem }>>('/admin/blacklist', data);
+    return res.data;
+  },
+
+  async removeFromBlacklist(id: string) {
+    const res = await apiClient.delete<ApiResponse<unknown>>(`/admin/blacklist/${id}`);
+    return res.data;
+  },
 };

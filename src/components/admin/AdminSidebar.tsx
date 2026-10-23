@@ -14,6 +14,11 @@ import {
   Shield,
   Activity,
   Sparkles,
+  Coins,
+  Inbox,
+  BarChart3,
+  Heart,
+  ShieldAlert,
 } from 'lucide-react';
 import { UserRole } from '../../types';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -24,10 +29,15 @@ export type AdminTab =
   | 'users'
   | 'interests'
   | 'reports'
+  | 'payments'
+  | 'packages'
+  | 'support'
+  | 'analytics'
+  | 'stories'
   | 'announcements'
   | 'content'
   | 'demo'
-  | 'payments'
+  | 'blacklist'
   | 'team'
   | 'settings'
   | 'audit';
@@ -107,8 +117,36 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       section: 'main',
       visible: isSuperAdminOrAdmin,
     },
+    {
+      id: 'packages',
+      label: isBengali ? 'ক্রেডিট প্যাকেজ' : 'Packages',
+      icon: Coins,
+      section: 'main',
+      visible: isSuperAdminOrAdmin,
+    },
+    {
+      id: 'support',
+      label: isBengali ? 'সাপোর্ট ইনবক্স' : 'Support Inbox',
+      icon: Inbox,
+      section: 'main',
+      visible: true,
+    },
+    {
+      id: 'analytics',
+      label: isBengali ? 'উপজেলা অ্যানালিটিক্স' : 'Analytics & Export',
+      icon: BarChart3,
+      section: 'main',
+      visible: isSuperAdminOrAdmin,
+    },
 
     // CMS & Content
+    {
+      id: 'stories',
+      label: isBengali ? 'সফল বিবাহ' : 'Success Stories',
+      icon: Heart,
+      section: 'cms',
+      visible: isSuperAdminOrAdmin,
+    },
     {
       id: 'announcements',
       label: t('admin.tabs.announcements'),
@@ -132,6 +170,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     },
 
     // Super Admin Only
+    {
+      id: 'blacklist',
+      label: isBengali ? 'ব্ল্যাকলিস্ট' : 'Fraud Blacklist',
+      icon: ShieldAlert,
+      section: 'superadmin',
+      visible: isSuperAdminOrAdmin,
+    },
     {
       id: 'team',
       label: t('admin.tabs.team'),

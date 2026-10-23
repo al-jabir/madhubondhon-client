@@ -11,9 +11,11 @@ import {
   MapPin,
   Briefcase,
   Trash2,
+  Printer,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReviewQueue from '../../profile/ReviewQueue';
+import PrintBiodataModal from '../../profile/PrintBiodataModal';
 import { profilesApi } from '../../../api/profiles.api';
 import { adminApi } from '../../../api/admin.api';
 import { Profile } from '../../../types';
@@ -39,6 +41,7 @@ export const AdminBiodataTab: React.FC = () => {
 
   // Delete Profile State & Mutation
   const [deleteProfileTarget, setDeleteProfileTarget] = useState<Profile | null>(null);
+  const [printProfile, setPrintProfile] = useState<Profile | null>(null);
 
   const deleteProfileMutation = useMutation({
     mutationFn: (profileId: string) => adminApi.deleteProfile(profileId),
@@ -240,6 +243,16 @@ export const AdminBiodataTab: React.FC = () => {
                     <div className="flex items-center gap-1.5">
                       <button
                         type="button"
+                        onClick={() => setPrintProfile(p)}
+                        className="px-2.5 py-1 text-xs font-bold rounded-lg border border-line bg-elev hover:bg-brand-soft hover:text-brand-ink text-ink-2 transition-colors cursor-pointer inline-flex items-center gap-1"
+                        title={isBengali ? 'প্রিন্ট বা PDF সংরক্ষণ করুন' : 'Print or Save PDF'}
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>{isBengali ? 'প্রিন্ট' : 'Print'}</span>
+                      </button>
+
+                      <button
+                        type="button"
                         onClick={() => {
                           setSelectedProfile(p);
                           setVisibilityReason('');
@@ -415,6 +428,14 @@ export const AdminBiodataTab: React.FC = () => {
         variant="danger"
         isLoading={deleteProfileMutation.isPending}
       />
+
+      {printProfile && (
+        <PrintBiodataModal
+          isOpen={!!printProfile}
+          onClose={() => setPrintProfile(null)}
+          profile={printProfile}
+        />
+      )}
     </div>
   );
 };

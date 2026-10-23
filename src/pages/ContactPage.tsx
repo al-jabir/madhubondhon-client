@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router';
-import { Phone, MessageCircle, Clock, ShieldAlert, Mail, HelpCircle, MapPin } from 'lucide-react';
+import { Phone, MessageCircle, Clock, ShieldAlert, Mail, HelpCircle, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useMutation } from '@tanstack/react-query';
 import { useLanguage } from '../i18n/LanguageContext';
+import { adminApi } from '../api/admin.api';
 
 const HELPLINE_BN = '০১৭০০–০০০০০০';
 const HELPLINE_EN = '+880 1700-000000';
@@ -9,11 +12,45 @@ const PHONE_LOCAL = '+8801700000000';
 
 export const ContactPage: React.FC = () => {
   const { isBengali } = useLanguage();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+
+  const submitMutation = useMutation({
+    mutationFn: () => adminApi.submitSupportMessage({ name, email, phone, subject, message }),
+    onSuccess: () => {
+      toast.success(
+        isBengali
+          ? 'আপনার বার্তা সফলভাবে পৌঁছেছে! অ্যাডমিন টিম শীঘ্রই উত্তর দেবে।'
+          : 'Your inquiry has been sent successfully! Our team will reply shortly.'
+      );
+      setName('');
+      setEmail('');
+      setPhone('');
+      setSubject('');
+      setMessage('');
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || (isBengali ? 'বার্তা পাঠাতে সমস্যা হয়েছে।' : 'Failed to send message.'));
+    },
+  });
+
   const whatsappMsg = encodeURIComponent(
     isBengali
       ? 'আসসালামু আলাইকুম, মধুবন্ধন সাপোর্টে যোগাযোগ করতে চাই।'
       : 'Assalamu Alaikum, I would like to contact MadhuBondhon support.'
   );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !subject.trim() || !message.trim()) {
+      toast.error(isBengali ? 'দয়া করে সবগুলো আবশ্যক ঘর পূরণ করুন' : 'Please fill all required fields');
+      return;
+    }
+    submitMutation.mutate();
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-10">
@@ -132,6 +169,104 @@ export const ContactPage: React.FC = () => {
             ? 'সতর্কতা: মডারেটর কখনো আপনাকে টাকা চাইবে না। নিশ্চিত না হয়ে কারো সাথে কোনো অর্থ লেনদেন করবেন না — প্রতারণা এড়াতে সবসময় সতর্ক থাকুন।'
             : 'Advisory: MadhuBondhon moderators will never ask for unauthorized payments. Always stay cautious and avoid monetary transactions before direct family verification.'}
         </p>
+      </div>
+
+      {/* Online Contact / Inquiry Form */}
+      <div className="mb-card rounded-3xl p-6 sm:p-8 border border-line space-y-6">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-soft text-brand text-xs font-bold rounded-full">
+            <Mail className="w-3.5 h-3.5" />
+            <span>{isBengali ? 'সরাসরি বার্তা' : 'Direct Message'}</span>
+          </div>
+          <h2 className="text-xl font-black text-ink">
+            {isBengali ? 'আমাদের কাছে সরাসরি প্রশ্ন বা বার্তা পাঠান' : 'Send Us a Direct Message'}
+          </h2>
+          <p className="text-xs text-ink-3">
+            {isBengali
+              ? 'আপনার যেকোনো জিজ্ঞাসা, পরামর্শ বা সহায়তার জন্য নিচের ফর্মটি পূরণ করুন।'
+              : 'Fill out the form below and our team will get back to you promptly.'}
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="font-bold text-ink">{isBengali ? 'আপনার নাম *' : 'Your Name *'}</label>
+              <input
+                required
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={isBengali ? 'যেমন: মোহাম্মদ সাইফুল' : 'e.g. John Doe'}
+                className="mb-input w-full"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="font-bold text-ink">{isBengali ? 'ইমেইল ঠিকানা *' : 'Email Address *'}</label>
+              <input
+                required
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="mb-input w-full font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="font-bold text-ink">{isBengali ? 'মোবাইল নম্বর (ঐচ্ছিক)' : 'Phone (Optional)'}</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="017XXXXXXXX"
+                className="mb-input w-full font-mono"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="font-bold text-ink">{isBengali ? 'বার্তার বিষয় *' : 'Subject *'}</label>
+              <input
+                required
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder={isBengali ? 'যেমন: বায়োডাটা সংশোধন বা পেমেন্ট সংক্রান্ত' : 'Subject'}
+                className="mb-input w-full"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="font-bold text-ink">{isBengali ? 'আপনার বার্তা *' : 'Message *'}</label>
+            <textarea
+              required
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder={isBengali ? 'বিস্তারিত লিখুন...' : 'Write your inquiry here...'}
+              className="mb-input w-full text-xs leading-relaxed"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={submitMutation.isPending}
+            className="mb-btn-primary px-6 py-2.5 rounded-xl cursor-pointer inline-flex items-center gap-2"
+          >
+            <Send className="w-4 h-4" />
+            <span>
+              {submitMutation.isPending
+                ? isBengali
+                  ? 'পাঠানো হচ্ছে...'
+                  : 'Sending...'
+                : isBengali
+                ? 'বার্তা পাঠান'
+                : 'Send Message'}
+            </span>
+          </button>
+        </form>
       </div>
 
       {/* FAQ link */}

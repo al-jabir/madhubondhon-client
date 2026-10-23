@@ -267,8 +267,77 @@ export interface PlatformSettings {
   allowedUpazilas: string[];
   maxPhotosPerUser: number;
   contactCreditCost: number;
+  bkashNumber?: string;
+  bkashType?: string;
+  nagadNumber?: string;
+  nagadType?: string;
+  rocketNumber?: string;
+  paymentInstructions?: string;
   updatedBy?: { _id: string; name: string; email: string };
   updatedAt?: string;
+}
+
+export interface AdminPackageItem {
+  _id: string;
+  packageId: string;
+  title: string;
+  credits: number;
+  priceBDT: number;
+  savings?: string;
+  badge?: string;
+  features?: string[];
+  isActive: boolean;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface SuccessStoryItem {
+  _id: string;
+  groomName: string;
+  brideName: string;
+  groomBiodataId?: string;
+  brideBiodataId?: string;
+  marriageDate: string;
+  upazila: string;
+  story: string;
+  isPublished: boolean;
+  sortOrder: number;
+  createdBy?: { _id: string; name: string; email: string };
+  createdAt?: string;
+}
+
+export interface SupportMessageItem {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  status: 'pending' | 'in_progress' | 'resolved';
+  adminNote?: string;
+  resolvedBy?: { _id: string; name: string; email: string };
+  resolvedAt?: string;
+  createdAt: string;
+}
+
+export interface BlacklistItem {
+  _id: string;
+  type: 'phone' | 'email';
+  value: string;
+  reason: string;
+  addedBy?: { _id: string; name: string; email: string };
+  createdAt: string;
+}
+
+export interface UpazilaAnalyticsItem {
+  key: string;
+  nameBn: string;
+  total: number;
+  male: number;
+  female: number;
+  approved: number;
+  pending: number;
 }
 
 export interface AdminInterestItem {

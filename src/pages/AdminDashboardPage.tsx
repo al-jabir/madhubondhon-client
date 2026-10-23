@@ -23,6 +23,11 @@ import AdminDemoTab from '../components/admin/tabs/AdminDemoTab';
 import AdminTeamTab from '../components/admin/tabs/AdminTeamTab';
 import AdminSettingsTab from '../components/admin/tabs/AdminSettingsTab';
 import AdminAuditLogsTab from '../components/admin/tabs/AdminAuditLogsTab';
+import AdminPackagesTab from '../components/admin/tabs/AdminPackagesTab';
+import AdminSuccessStoriesTab from '../components/admin/tabs/AdminSuccessStoriesTab';
+import AdminSupportTab from '../components/admin/tabs/AdminSupportTab';
+import AdminAnalyticsTab from '../components/admin/tabs/AdminAnalyticsTab';
+import AdminBlacklistTab from '../components/admin/tabs/AdminBlacklistTab';
 
 const validAdminTabs: AdminTab[] = [
   'overview',
@@ -30,10 +35,15 @@ const validAdminTabs: AdminTab[] = [
   'users',
   'interests',
   'reports',
+  'payments',
+  'packages',
+  'support',
+  'analytics',
+  'stories',
   'announcements',
   'content',
   'demo',
-  'payments',
+  'blacklist',
   'team',
   'settings',
   'audit',
@@ -64,7 +74,7 @@ export const AdminDashboardPage: React.FC = () => {
   if (['team', 'settings'].includes(activeTab) && !isSuperAdmin) {
     activeTab = defaultTab;
   } else if (
-    ['users', 'interests', 'payments', 'announcements', 'content', 'demo'].includes(activeTab) &&
+    ['users', 'interests', 'payments', 'packages', 'analytics', 'stories', 'announcements', 'content', 'demo', 'blacklist'].includes(activeTab) &&
     !isSuperAdminOrAdmin
   ) {
     activeTab = defaultTab;
@@ -138,11 +148,21 @@ export const AdminDashboardPage: React.FC = () => {
 
           {activeTab === 'payments' && isSuperAdminOrAdmin && <AdminPaymentsQueue />}
 
+          {activeTab === 'packages' && isSuperAdminOrAdmin && <AdminPackagesTab />}
+
+          {activeTab === 'support' && <AdminSupportTab />}
+
+          {activeTab === 'analytics' && isSuperAdminOrAdmin && <AdminAnalyticsTab />}
+
+          {activeTab === 'stories' && isSuperAdminOrAdmin && <AdminSuccessStoriesTab />}
+
           {activeTab === 'announcements' && isSuperAdminOrAdmin && <AdminAnnouncementsTab />}
 
           {activeTab === 'content' && isSuperAdminOrAdmin && <AdminContentTab />}
 
           {activeTab === 'demo' && isSuperAdminOrAdmin && <AdminDemoTab />}
+
+          {activeTab === 'blacklist' && isSuperAdminOrAdmin && <AdminBlacklistTab />}
 
           {activeTab === 'team' && isSuperAdmin && (
             <AdminTeamTab currentUserId={currentUser?.id || currentUser?._id} />

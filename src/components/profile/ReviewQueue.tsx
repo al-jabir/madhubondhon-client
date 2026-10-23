@@ -31,7 +31,9 @@ import {
   Briefcase,
   Clock,
   Eye,
+  Printer,
 } from "lucide-react";
+import PrintBiodataModal from "./PrintBiodataModal";
 
 /* Bengali numeral helper for plain numbers */
 const bnDigits = (value: string | number, bn: boolean) =>
@@ -73,6 +75,7 @@ function ReviewCard({ app }: { app: Application }) {
   const { user } = useAuth();
   const { isBengali, formatNumber } = useLanguage();
   const [note, setNote] = useState("");
+  const [isPrintOpen, setIsPrintOpen] = useState(false);
 
   const statusMeta: Record<string, { label: string; cls: string; icon: ElementType }> = {
     draft: {
@@ -164,6 +167,14 @@ function ReviewCard({ app }: { app: Application }) {
                 <span>{isBengali ? "অভিভাবক অসম্পূর্ণ" : "Guardian incomplete"}</span>
               </span>
             )}
+            {/* print preview button */}
+            <button
+              onClick={() => setIsPrintOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-elev text-ink-2 hover:bg-brand-soft hover:text-brand border border-line transition-colors cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>{isBengali ? "প্রিন্ট / PDF" : "Print PDF"}</span>
+            </button>
             {/* status pill */}
             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold ${status.cls}`}>
               <StatusIcon className="w-3.5 h-3.5" />
@@ -375,6 +386,15 @@ function ReviewCard({ app }: { app: Application }) {
           </div>
         )}
       </div>
+
+      {isPrintOpen && (
+        <PrintBiodataModal
+          isOpen={isPrintOpen}
+          onClose={() => setIsPrintOpen(false)}
+          profile={app.data as any}
+          guardian={app.guardian}
+        />
+      )}
     </article>
   );
 }
