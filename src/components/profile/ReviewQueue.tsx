@@ -291,17 +291,27 @@ function ReviewCard({ app }: { app: Application }) {
           <div className="rounded-2xl bg-brand-soft/60 dark:bg-brand-soft/40 border border-brand/15 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <p className="text-xs text-ink-2 leading-relaxed max-w-md">
               {isBengali
-                ? "পর্যালোচনা শুরু করলে এটি আপনার নামে লক হয়ে যাবে — তারপর অনুমোদন, সংশোধন বা প্রত্যাখ্যান করা যাবে।"
-                : "Starting the review will lock this application under your name; then it can be approved, changed, or rejected."}
+                ? "পর্যালোচনা শুরু করলে এটি আপনার নামে লক হবে, অথবা সরাসরি যাচাই করে অনুমোদন করুন।"
+                : "Start full review to lock under your name, or directly approve."}
             </p>
-            <button
-              disabled={mutation.isPending}
-              onClick={() => mutation.mutate("under_review")}
-              className="mb-btn-primary !px-5 !py-2.5 rounded-xl cursor-pointer inline-flex items-center gap-2 shrink-0"
-            >
-              <ClipboardCheck className="w-4 h-4" />
-              <span>{isBengali ? "পর্যালোচনা শুরু করুন" : "Start Review"}</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                disabled={mutation.isPending}
+                onClick={() => mutation.mutate("approved")}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md shadow-emerald-600/20 disabled:opacity-40 cursor-pointer transition-colors"
+              >
+                <Check className="w-4 h-4" />
+                <span>{isBengali ? "সরাসরি অনুমোদন" : "Direct Approve"}</span>
+              </button>
+              <button
+                disabled={mutation.isPending}
+                onClick={() => mutation.mutate("under_review")}
+                className="mb-btn-primary !px-4 !py-2.5 rounded-xl cursor-pointer inline-flex items-center gap-2 shrink-0"
+              >
+                <ClipboardCheck className="w-4 h-4" />
+                <span>{isBengali ? "পর্যালোচনা শুরু করুন" : "Start Review"}</span>
+              </button>
+            </div>
           </div>
         ) : otherReviewer ? (
           <div className="rounded-2xl bg-elev border border-line p-4 flex items-start gap-2.5">
