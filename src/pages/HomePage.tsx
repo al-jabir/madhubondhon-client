@@ -251,8 +251,8 @@ export const HomePage: React.FC = () => {
                       <Heart className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <select id="home-marital-status" value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input pl-10 text-xs sm:text-sm">
                         <option value="">{isBengali ? 'সকল অবস্থা' : 'All Statuses'}</option>
-                        <option value="married">{isBengali ? 'বিবাহিত' : 'Married'}</option>
                         <option value="never_married">{isBengali ? 'অবিবাহিত' : 'Never Married'}</option>
+                        <option value="married">{isBengali ? 'বিবাহিত' : 'Married'}</option>
                         <option value="divorced">{isBengali ? 'বিবাহবিচ্ছেদ হয়েছে' : 'Divorced'}</option>
                         <option value="widowed">{isBengali ? 'বিধবা / বিপত্নীক' : 'Widowed'}</option>
                         <option value="separated">{isBengali ? 'পৃথক বসবাস' : 'Separated'}</option>
