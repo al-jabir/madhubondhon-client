@@ -1,3 +1,4 @@
+import { useCompare } from '../../context/CompareContext';
 import React, { useState } from 'react';
 import { Link } from 'react-router';
 import { MapPin, Briefcase, GraduationCap, Heart, CheckCircle2, Bookmark } from 'lucide-react';
@@ -26,6 +27,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   isInitiallyShortlisted = false,
 }) => {
   const { isAuthenticated, user } = useAuth();
+  const comparison = useCompare();
   const { isBengali, formatNumber } = useLanguage();
   const [isShortlisted, setIsShortlisted] = useState(isInitiallyShortlisted);
   const [isBookmarking, setIsBookmarking] = useState(false);
@@ -209,6 +211,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         </div>
       </div>
 
+      {!isDemo && <button type="button" aria-pressed={comparison.items.some(i=>i.id===String(typeof profile.user==='string'?profile.user:profile.user?._id||profile.user?.id))} onClick={()=>comparison.toggle({id:String(typeof profile.user==='string'?profile.user:profile.user?._id||profile.user?.id),label:profile.biodataId||profile.displayName})} className="mx-4 mb-3 rounded-lg border border-line p-2 text-xs text-brand hover:bg-brand-soft">{comparison.items.some(i=>i.id===String(typeof profile.user==='string'?profile.user:profile.user?._id||profile.user?.id))?(isBengali?'তুলনা থেকে সরান':'Remove from comparison'):(isBengali?'তুলনা করতে বাছাই করুন':'Select to compare')}</button>}
       {/* Action footer */}
       <div className="p-4 bg-elev border-t border-line flex items-center gap-2 rounded-b-[1.25rem]">
         <Link

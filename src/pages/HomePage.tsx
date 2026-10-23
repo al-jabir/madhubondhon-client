@@ -22,24 +22,36 @@ import {
 import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../constants/locations';
 import { useLanguage } from '../i18n/LanguageContext';
 import PublicStatistics from '../components/profile/PublicStatistics';
+import { useAuth } from '../context/useAuth';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const { isBengali, formatNumber } = useLanguage();
-  const [gender, setGender] = useState<'female' | 'male'>('female');
+  const [gender, setGender] = useState<'' | 'female' | 'male'>('');
   const [upazila, setUpazila] = useState('');
   const [maritalStatus, setMaritalStatus] = useState('');
   const [minAge, setMinAge] = useState('');
   const [maxAge, setMaxAge] = useState('');
+  const [searchError, setSearchError] = useState('');
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams({ gender });
+  const searchUrl = () => {
+    const params = new URLSearchParams();
+    if (gender) params.set('gender', gender);
     if (upazila) params.set('upazila', upazila);
     if (maritalStatus) params.set('maritalStatus', maritalStatus);
     if (minAge) params.set('minAge', minAge);
     if (maxAge) params.set('maxAge', maxAge);
-    navigate('/search?' + params.toString());
+    return '/search?' + params.toString();
+  };
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (minAge && maxAge && Number(minAge) > Number(maxAge)) {
+      setSearchError(isBengali ? 'সর্বোচ্চ বয়স সর্বনিম্ন বয়সের চেয়ে কম হতে পারবে না।' : 'Maximum age must be at least the minimum age.');
+      return;
+    }
+    setSearchError('');
+    navigate(searchUrl());
   };
 
   return (
@@ -107,12 +119,12 @@ export const HomePage: React.FC = () => {
 
               <p className="text-ink-2 text-xs sm:text-base leading-relaxed max-w-xl">
                 {isBengali
-                  ? 'পরিবার, সংস্কৃতি, মূল্যবোধ এবং টাঙ্গাইলের মানুষের জন্য নিরাপদ, বিশ্বাসযোগ্য ও সম্মানজনক একটি ম্যাট্রিমনিয়াল প্ল্যাটফর্ম।'
-                  : 'A safe, trusted, and dignified matrimonial platform tailored to the culture, values, and people of Tangail.'}
+                  ? 'টাঙ্গাইলের পাত্র-পাত্রী খুঁজুন। পছন্দ হলে আগ্রহ জানান, তারপর পরিবারের সঙ্গে কথা বলুন।'
+                  : 'Find a bride or groom in Tangail. Express interest, then connect with their family.'}
               </p>
 
               {/* Feature badges */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-1 sm:pt-2">
+              <div className="hidden sm:grid grid-cols-3 gap-3 pt-2">
                 {[
                   {
                     icon: ShieldCheck,
@@ -144,9 +156,9 @@ export const HomePage: React.FC = () => {
 
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 pt-1 sm:pt-2">
-                <Link to="/search" className="mb-btn-primary w-full sm:w-auto px-7 py-3 sm:py-3.5 text-center justify-center">
-                  <Search className="w-4 h-4 stroke-[2.5]" />
-                  <span>{isBengali ? 'বায়োডাটা খুঁজুন' : 'Find Biodata'}</span>
+                <Link to={isAuthenticated ? "/edit-profile" : "/register"} className="mb-btn-primary w-full sm:w-auto px-7 py-3 sm:py-3.5 text-center justify-center">
+                  <UserRoundPlus className="w-4 h-4 stroke-[2.5]" />
+                  <span>{isBengali ? 'নিজের বায়োডাটা তৈরি করুন' : 'Create Your Biodata'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
 
@@ -172,16 +184,16 @@ export const HomePage: React.FC = () => {
 
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-soft border border-brand/20 text-brand-ink text-[11px] font-bold mb-3">
                   <Heart className="w-3.5 h-3.5 text-brand fill-brand" />
-                  <span>{isBengali ? 'হাজারো সুন্দর পরিচয়ের প্রথম ধাপ' : 'First Step to a Meaningful Connection'}</span>
+                  <span>{isBengali ? 'শুরু করুন এখান থেকেই' : 'Start here'}</span>
                 </div>
 
                 <div className="flex items-start justify-between gap-3 mb-4 sm:mb-5">
                   <div>
                     <h2 className="text-lg sm:text-2xl font-bold text-ink tracking-tight">
-                      {isBengali ? 'আপনার জীবনসঙ্গী খুঁজছেন?' : 'Looking for a Life Partner?'}
+                      {isBengali ? 'কাকে খুঁজছেন?' : 'Who are you looking for?'}
                     </h2>
                     <p className="text-xs text-ink-3 mt-1 leading-relaxed">
-                      {isBengali ? 'সহজ কিছু তথ্য দিন, পেয়ে যান আপনার সম্ভাব্য জীবনসঙ্গী' : 'Provide basic criteria to explore compatible matches'}
+                      {isBengali ? 'পছন্দ বেছে নিন। পরের পেজে মিল থাকা বায়োডাটা দেখুন।' : 'Choose your preferences. See matching biodatas on the next page.'}
                     </p>
                   </div>
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-brand-soft border border-brand/25 text-brand flex items-center justify-center shrink-0">
@@ -193,14 +205,16 @@ export const HomePage: React.FC = () => {
                   {/* Gender selector */}
                   <div>
                     <label className="mb-label">{isBengali ? 'আমি খুঁজছি' : 'Looking For'}</label>
-                    <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
+                    <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
                       {([
-                        { value: 'female', icon: UserRound, label: isBengali ? 'পাত্রীর বায়োডাটা' : "Bride's Biodata" },
-                        { value: 'male', icon: User, label: isBengali ? 'পাত্রের বায়োডাটা' : "Groom's Biodata" },
+                        { value: '', icon: Users, label: isBengali ? 'সকল' : 'All' },
+                        { value: 'male', icon: User, label: isBengali ? 'পাত্র' : 'Groom' },
+                        { value: 'female', icon: UserRound, label: isBengali ? 'পাত্রী' : 'Bride' },
                       ] as const).map(({ value, icon: Icon, label }) => (
                         <button
                           key={value}
                           type="button"
+                          aria-pressed={gender === value}
                           onClick={() => setGender(value)}
                           className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2.5 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                             gender === value
@@ -217,10 +231,10 @@ export const HomePage: React.FC = () => {
 
                   {/* Upazila */}
                   <div>
-                    <label className="mb-label">{isBengali ? 'উপজেলা নির্বাচন করুন' : 'Select Upazila'}</label>
+                    <label className="mb-label" htmlFor="home-upazila">{isBengali ? 'কোন এলাকায়?' : 'Which area?'}</label>
                     <div className="relative">
                       <MapPin className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      <select value={upazila} onChange={(e) => setUpazila(e.target.value)} className="mb-input pl-10 text-xs sm:text-sm">
+                      <select id="home-upazila" value={upazila} onChange={(e) => setUpazila(e.target.value)} className="mb-input pl-10 text-xs sm:text-sm">
                         <option value="">{isBengali ? 'টাঙ্গাইলের সকল উপজেলা' : 'All Upazilas in Tangail'}</option>
                         {TANGAIL_UPAZILAS.map((up) => (
                           <option key={up} value={up}>{getUpazilaDisplayName(up, isBengali)}</option>
@@ -232,10 +246,10 @@ export const HomePage: React.FC = () => {
 
                   {/* Marital status */}
                   <div>
-                    <label className="mb-label">{isBengali ? 'বৈবাহিক অবস্থা' : 'Marital Status'}</label>
+                    <label className="mb-label" htmlFor="home-marital-status">{isBengali ? 'বৈবাহিক অবস্থা' : 'Marital Status'}</label>
                     <div className="relative">
                       <Heart className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      <select value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input pl-10 text-xs sm:text-sm">
+                      <select id="home-marital-status" value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input pl-10 text-xs sm:text-sm">
                         <option value="">{isBengali ? 'সকল অবস্থা' : 'All Statuses'}</option>
                         <option value="never_married">{isBengali ? 'অবিবাহিত' : 'Never Married'}</option>
                         <option value="divorced">{isBengali ? 'বিবাহবিচ্ছেদ হয়েছে' : 'Divorced'}</option>
@@ -246,13 +260,15 @@ export const HomePage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Age range */}
-                  <div>
+                  {/* Optional age preferences */}
+                  <details className="rounded-xl border border-line px-3 py-2.5">
+                    <summary className="cursor-pointer text-sm font-semibold text-ink-2 focus-visible:outline-2 focus-visible:outline-brand">{isBengali ? 'বয়স বেছে নিন (প্রয়োজনে)' : 'Choose an age range (optional)'}</summary>
+                  <div className="pt-3">
                     <label className="mb-label">{isBengali ? 'বয়স সীমা (ঐচ্ছিক)' : 'Age Range (Optional)'}</label>
                     <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
                       <div className="relative">
                         <Calendar className="w-3.5 h-3.5 text-ink-3 absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <select value={minAge} onChange={(e) => setMinAge(e.target.value)} className="mb-input pl-7 sm:pl-8 !py-2 !text-xs">
+                        <select aria-label={isBengali ? 'সর্বনিম্ন বয়স' : 'Minimum age'} value={minAge} onChange={(e) => setMinAge(e.target.value)} className="mb-input pl-7 sm:pl-8 !py-2 !text-xs">
                           <option value="">{isBengali ? 'সর্বনিম্ন বয়স' : 'Min Age'}</option>
                           {[18, 20, 22, 24, 26, 28, 30, 32, 35, 40].map((a) => (
                             <option key={a} value={a}>{formatNumber(a)} {isBengali ? 'বছর' : 'yrs'}</option>
@@ -262,7 +278,7 @@ export const HomePage: React.FC = () => {
                       </div>
                       <div className="relative">
                         <Calendar className="w-3.5 h-3.5 text-ink-3 absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <select value={maxAge} onChange={(e) => setMaxAge(e.target.value)} className="mb-input pl-7 sm:pl-8 !py-2 !text-xs">
+                        <select aria-label={isBengali ? 'সর্বোচ্চ বয়স' : 'Maximum age'} value={maxAge} onChange={(e) => setMaxAge(e.target.value)} className="mb-input pl-7 sm:pl-8 !py-2 !text-xs">
                           <option value="">{isBengali ? 'সর্বোচ্চ বয়স' : 'Max Age'}</option>
                           {[22, 25, 28, 30, 32, 35, 38, 40, 45, 50, 60].map((a) => (
                             <option key={a} value={a}>{formatNumber(a)} {isBengali ? 'বছর' : 'yrs'}</option>
@@ -273,6 +289,8 @@ export const HomePage: React.FC = () => {
                     </div>
                   </div>
 
+                  </details>
+                  {searchError && <p role="alert" className="text-sm text-brand-ink">{searchError}</p>}
                   <button type="submit" className="mb-btn-primary w-full mt-1 py-3 sm:py-3.5">
                     <Search className="w-4 h-4 stroke-[2.5]" />
                     <span>{isBengali ? 'বায়োডাটা খুঁজুন' : 'Search Biodata'}</span>
@@ -281,36 +299,17 @@ export const HomePage: React.FC = () => {
                 </form>
 
                 <Link
-                  to="/search"
+                  to={searchUrl()}
                   className="flex items-center justify-center gap-1.5 text-xs text-brand hover:text-brand-strong font-bold mt-4 transition-colors"
                 >
                   <SlidersHorizontal className="w-3.5 h-3.5" />
-                  <span>{isBengali ? 'বিস্তারিত ফিল্টার দিয়ে খুঁজুন' : 'Search with Advanced Filters'}</span>
+                  <span>{isBengali ? 'আরও পছন্দ বেছে নিন' : 'More search options'}</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* Stats bar */}
-          <div className="bg-card/85 backdrop-blur-md border border-line rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 mt-8 sm:mt-14 grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6 shadow-[var(--mb-shadow-card)]">
-            {[
-              { icon: Users, v: formatNumber('5000') + '+', l: isBengali ? 'নিবন্ধিত সদস্য' : 'Registered Members' },
-              { icon: Heart, v: formatNumber('350') + '+', l: isBengali ? 'সফল পরিচয়' : 'Successful Matches', fill: true },
-              { icon: MapPin, v: formatNumber('12') + (isBengali ? 'টি' : ''), l: isBengali ? 'টাঙ্গাইল উপজেলা' : 'Tangail Upazilas', fill: true },
-              { icon: ShieldCheck, v: '100%', l: isBengali ? 'নিরাপত্তা ও গোপনীয়তা' : 'Privacy & Security' },
-            ].map(({ icon: Icon, v, l, fill }) => (
-              <div key={l} className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-1.5 sm:gap-3.5 p-2 rounded-xl">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-brand-soft border border-brand/20 text-brand flex items-center justify-center shrink-0">
-                  <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${fill ? 'fill-brand/15' : ''}`} />
-                </div>
-                <div className="leading-tight">
-                  <div className="text-base sm:text-xl font-bold text-ink tracking-tight">{v}</div>
-                  <div className="text-[10px] sm:text-xs text-ink-3 mt-0.5">{l}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

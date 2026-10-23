@@ -1,6 +1,6 @@
 import ThemeToggle from './ThemeToggle';
 import LanguageToggle from './LanguageToggle';
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -32,12 +32,16 @@ import { UserRole } from "../../types";
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { t, formatNumber, isBengali } = useLanguage();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const location = useLocation();
+  const [mobileMenu, setMobileMenu] = useState({ path: location.pathname, open: false });
+  const [userMenu, setUserMenu] = useState({ path: location.pathname, open: false });
+  const mobileMenuOpen = mobileMenu.path === location.pathname && mobileMenu.open;
+  const userDropdownOpen = userMenu.path === location.pathname && userMenu.open;
+  const setMobileMenuOpen = (open: boolean) => setMobileMenu({ path: location.pathname, open });
+  const setUserDropdownOpen = useCallback((open: boolean) => setUserMenu({ path: location.pathname, open }), [location.pathname]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
@@ -52,12 +56,6 @@ export const Navbar: React.FC = () => {
     user?.role === UserRole.SUPER_ADMIN ||
     user?.role === UserRole.MODERATOR;
 
-  // Auto-close dropdowns on route change
-  useEffect(() => {
-    setUserDropdownOpen(false);
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
-
   // Click outside listener for user dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -69,7 +67,7 @@ export const Navbar: React.FC = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [setUserDropdownOpen]);
 
   const { data: notificationsData } = useQuery({
     queryKey: ['my-notifications-count'],
@@ -94,11 +92,14 @@ export const Navbar: React.FC = () => {
   const menuLinks = [
     { to: "/", icon: Home, label: t('nav.home') },
     { to: "/search", icon: Search, label: t('nav.search') },
-    ...(showDemo ? [{ to: "/demo", icon: Sparkles, label: t('nav.demo') }] : []),
-    { to: "/about", icon: Info, label: t('nav.about') },
-    { to: "/faq", icon: HelpCircle, label: t('nav.faq') },
     { to: "/guide", icon: Compass, label: t('nav.guide') },
-    { to: "/contact", icon: Phone, label: t('nav.contact') },
+  ];
+
+  const moreLinks = [
+    { to: '/about', icon: Info, label: t('nav.about') },
+    { to: '/faq', icon: HelpCircle, label: t('nav.faq') },
+    { to: '/contact', icon: Phone, label: t('nav.contact') },
+    ...(showDemo ? [{ to: '/demo', icon: Sparkles, label: t('nav.demo') }] : []),
   ];
 
   return (
@@ -137,6 +138,12 @@ export const Navbar: React.FC = () => {
                 <span>{label}</span>
               </Link>
             ))}
+            <details key={location.pathname} className="relative" onKeyDown={e => { if(e.key === 'Escape') { e.currentTarget.removeAttribute('open'); e.currentTarget.querySelector('summary')?.focus(); } }}>
+              <summary className="flex list-none items-center gap-1 px-3 py-2 rounded-full text-sm font-semibold text-ink-2 hover:bg-brand-soft cursor-pointer focus-visible:outline-2 focus-visible:outline-brand">{isBengali ? 'আরও' : 'More'}<ChevronDown className="w-3.5 h-3.5" /></summary>
+              <div className="absolute right-0 top-full mt-2 w-52 bg-card border border-line rounded-xl p-2 shadow-[var(--mb-shadow-pop)]">
+                {moreLinks.map(({to,icon:Icon,label}) => <Link key={to} to={to} onClick={e => e.currentTarget.closest('details')?.removeAttribute('open')} className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-ink-2 hover:bg-brand-soft"><Icon className="w-4 h-4" />{label}</Link>)}
+              </div>
+            </details>
           </nav>
 
           {/* Desktop right side */}
@@ -251,6 +258,8 @@ export const Navbar: React.FC = () => {
                         {[
                           { to: "/my-profile", icon: UserIcon, label: t('nav.myProfile') },
                           { to: "/edit-profile", icon: Settings, label: t('nav.editProfile') },
+                          { to: "/saved-searches", icon: Search, label: isBengali ? "সংরক্ষিত search" : "Saved searches" },
+                          { to: "/journey", icon: Phone, label: isBengali ? "যোগাযোগের অগ্রগতি" : "Connection progress" },
                           { to: "/interests", icon: Heart, label: t('nav.interests') },
                           { to: "/contacts", icon: Phone, label: t('nav.contacts') },
                           { to: "/packages", icon: Coins, label: t('nav.packages') },
@@ -370,7 +379,9 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="space-y-0.5">
-            {[...menuLinks, ...(isAuthenticated ? [
+            {[...menuLinks, ...moreLinks, ...(isAuthenticated ? [
+              { to: "/saved-searches", icon: Search, label: isBengali ? "সংরক্ষিত search" : "Saved searches" },
+              { to: "/journey", icon: Phone, label: isBengali ? "যোগাযোগের অগ্রগতি" : "Connection progress" },
               { to: "/shortlist", icon: Bookmark, label: isBengali ? "পছন্দের তালিকা" : "Shortlist" },
               { to: "/interests", icon: Heart, label: isBengali ? "আগ্রহ তালিকা" : "Interests" },
               { to: "/contacts", icon: Phone, label: isBengali ? "যোগাযোগের তথ্য" : "Contacts" },

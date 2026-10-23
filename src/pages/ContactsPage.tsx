@@ -90,6 +90,7 @@ export default function ContactsPage() {
         </div>
       </div>
 
+      <Link to="/journey" className="text-brand text-sm font-semibold inline-block mr-4">{isBengali?'যোগাযোগের অগ্রগতি দেখুন':'Track connection progress'}</Link>
       <Link to="/interests" className="text-brand text-sm font-semibold inline-block">
         {isBengali ? "← আগ্রহ তালিকা দেখুন" : "← View Interests List"}
       </Link>

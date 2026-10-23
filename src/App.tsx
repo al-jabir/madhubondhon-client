@@ -1,3 +1,4 @@
+import CompareProvider from './components/profile/CompareProvider';
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
@@ -22,6 +23,9 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
+const SavedSearchesPage = lazy(() => import('./pages/SavedSearchesPage'));
+const ComparePage = lazy(() => import('./pages/ComparePage'));
+const JourneyPage = lazy(() => import('./pages/JourneyPage'));
 const ProfileDetailPage = lazy(() => import('./pages/ProfileDetailPage'));
 const MyProfilePage = lazy(() => import('./pages/MyProfilePage'));
 const EditProfilePage = lazy(() => import('./pages/EditProfilePage'));
@@ -108,6 +112,9 @@ const AppShell: React.FC = () => {
             <Route path="/guide" element={<GuidePage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/compare" element={<ComparePage />} />
+            <Route path="/saved-searches" element={<ProtectedRoute><SavedSearchesPage /></ProtectedRoute>} />
+            <Route path="/journey" element={<ProtectedRoute><JourneyPage /></ProtectedRoute>} />
             <Route path="/profiles/:userId" element={<ProfileDetailPage />} />
 
             {/* Sample biodata demo routes (fictional profiles, no database needed) */}
@@ -216,7 +223,7 @@ export const App: React.FC = () => {
       <LanguageProvider>
         <AuthProvider>
           <BrowserRouter>
-            <AppShell />
+            <CompareProvider><AppShell /></CompareProvider>
           </BrowserRouter>
         </AuthProvider>
       </LanguageProvider>

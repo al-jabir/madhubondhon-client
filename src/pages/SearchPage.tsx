@@ -1,5 +1,6 @@
+import SaveSearchControl from '../components/profile/SaveSearchControl';
 import React, { useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router';
+import { useSearchParams, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Filter, RotateCcw, AlertCircle, ChevronLeft, ChevronRight, ChevronDown, EyeOff, Home } from 'lucide-react';
 import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../constants/locations';
@@ -119,16 +120,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
       }
 
       // 1. Fetch real profiles from server
-      let realRes: any;
-      try {
-        realRes = await profilesApi.searchProfiles(searchParams);
-      } catch {
-        realRes = {
-          success: true,
-          data: { profiles: [] },
-          meta: { page, limit: 9, total: 0, totalPages: 1 },
-        };
-      }
+      const realRes = await profilesApi.searchProfiles(searchParams);
 
       // 2. If Demo Data Control is enabled, blend demo profiles matching filter
       if (isDemoEnabled) {
@@ -425,7 +417,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                 <span className="w-7 h-7 rounded-xl bg-gold-soft border border-gold/20 text-gold flex items-center justify-center">
                   <Filter className="w-3.5 h-3.5" />
                 </span>
-                <span>{isBengali ? 'অ্যাডভান্সড ফিল্টার' : 'Advanced Filters'}</span>
+                <span>{isBengali ? 'আরও পছন্দ' : 'More options'}</span>
               </span>
               <span className="flex items-center gap-1.5">
                 {advancedFilterCount > 0 && (
@@ -552,13 +544,14 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
             )}
 
             <button type="submit" className="mb-btn-primary w-full">
-              {isBengali ? 'ফিল্টার প্রয়োগ করুন' : 'Apply Filters'}
+              {isBengali ? 'এই পছন্দে খুঁজুন' : 'Search with these choices'}
             </button>
           </form>
         </aside>
 
         {/* Results */}
         <main className="lg:col-span-3 space-y-6">
+          {!demo && <SaveSearchControl />}
           {isLoading ? (
             <div className="py-20 flex justify-center">
               <LoadingSpinner size="lg" label={isBengali ? "বায়োডাটা অনুসন্ধান করা হচ্ছে..." : "Searching biodatas..."} />
@@ -583,7 +576,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
               </h3>
               <p className="text-xs text-ink-2 max-w-md mx-auto">
                 {isBengali
-                  ? 'আপনার নির্বাচিত ফিল্টারের সাথে মিল রেখে কোনো রেকর্ড পাওয়া যায়নি। অনুগ্রহ করে ফিল্টার শিথিল করে পুনরায় চেষ্টা করুন।'
+                  ? 'আপনার নির্বাচিত ফিল্টারের সাথে মিল রেখে কোনো রেকর্ড পাওয়া যায়নি। অনুগ্রহ করে কিছু পছন্দ বাদ দিয়ে আবার খুঁজুন।'
                   : 'No profiles match your filters. Please adjust or relax your filters and try again.'}
               </p>
               <button
@@ -592,7 +585,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
                 className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-brand bg-brand-soft hover:bg-brand/15 rounded-xl border border-brand/25 cursor-pointer transition-colors"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>{isBengali ? 'সব ফিল্টার রিসেট করুন' : 'Reset all filters'}</span>
+                <span>{isBengali ? 'সব পছন্দ মুছে আবার খুঁজুন' : 'Reset all filters'}</span>
               </button>
             </div>
           ) : (
