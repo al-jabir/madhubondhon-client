@@ -150,17 +150,6 @@ export const Navbar: React.FC = () => {
 
             {isAuthenticated ? (
               <>
-                {/* Credits pill */}
-                <Link
-                  to="/packages"
-                  className="flex items-center gap-1 xl:gap-1.5 px-2 xl:px-3 py-1.5 rounded-full text-xs font-bold bg-gold-soft text-gold border border-gold/25 hover:border-gold/50 transition-all whitespace-nowrap"
-                  title={isBengali ? "যোগাযোগ ক্রেডিট দেখুন বা রিচার্জ করুন" : "View or recharge contact credits"}
-                >
-                  <Coins className="w-3.5 h-3.5" />
-                  <span className="hidden xl:inline">{formatNumber(user?.contactCredits ?? 0)} {t('nav.credits')}</span>
-                  <span className="xl:hidden">{formatNumber(user?.contactCredits ?? 0)}</span>
-                </Link>
-
                 {/* Notifications */}
                 <Link
                   to="/notifications"
@@ -235,10 +224,15 @@ export const Navbar: React.FC = () => {
                               ? (isBengali ? "মডারেটর" : "Moderator")
                               : (isBengali ? "সাধারণ সদস্য" : "General Member")}
                           </span>
-                          <span className="text-[11px] text-ink-3 whitespace-nowrap flex items-center gap-1">
+                          <Link
+                            to="/packages"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="text-[11px] text-gold bg-gold-soft rounded-md px-2 py-1 whitespace-nowrap flex items-center gap-1 hover:underline"
+                            title={isBengali ? "যোগাযোগ ক্রেডিট দেখুন বা রিচার্জ করুন" : "View or recharge contact credits"}
+                          >
                             <Coins className="w-3 h-3 text-gold" />
                             {formatNumber(user?.contactCredits ?? 0)} {t('nav.credits')}
-                          </span>
+                          </Link>
                         </div>
                       </div>
 
