@@ -19,6 +19,8 @@ import AnnouncementBanner from './components/common/AnnouncementBanner';
 import MaintenanceScreen from './components/common/MaintenanceScreen';
 
 // Route-level code splitting — every page is a separate chunk, loaded on demand.
+const AccountSecurityPage = lazy(() => import('./pages/AccountSecurityPage'));
+const SupportTicketsPage = lazy(() => import('./pages/SupportTicketsPage'));
 const HomePage = lazy(() => import('./pages/HomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -123,7 +125,8 @@ const AppShell: React.FC = () => {
             <Route path="/demo" element={<SearchPage demo />} />
             <Route path="/demo/profiles/:userId" element={<ProfileDetailPage demo />} />
 
-            {/* Protected User Routes */}
+            <Route path="/support-tickets" element={<ProtectedRoute><SupportTicketsPage /></ProtectedRoute>} /><Route path="/account-security" element={<ProtectedRoute><AccountSecurityPage /></ProtectedRoute>} /><Route path="/admin/security" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN,UserRole.SUPER_ADMIN,UserRole.MODERATOR]}><AccountSecurityPage /></ProtectedRoute>} />
+{/* Protected User Routes */}
             <Route
               path="/my-profile"
               element={

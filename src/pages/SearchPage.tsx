@@ -204,7 +204,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
             <p className="text-xs sm:text-sm text-ink-3 max-w-md mx-auto leading-relaxed">
               {isBengali
                 ? 'ওয়েবসাইট অ্যাডমিনিস্ট্রেটর কর্তৃক কাল্পনিক নমুনা বায়োডাটা প্রদর্শন সাময়িকভাবে বন্ধ রাখা হয়েছে। আপনি বাস্তব ও ভেরিফায়েড বায়োডাটা অন্বেষণ করতে পারেন।'
-                : 'Display of sample illustrative profiles has been turned off by administrators. You can browse authentic verified biodatas.'}
+                : 'Display of sample illustrative profiles has been turned off by administrators. You can browse published biodatas.'}
             </p>
           </div>
 

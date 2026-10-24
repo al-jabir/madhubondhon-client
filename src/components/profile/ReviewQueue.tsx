@@ -1,3 +1,4 @@
+import ReviewWork from './ReviewWork';
 import { useState } from "react";
 import type { ElementType, ReactNode } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -124,7 +125,7 @@ function ReviewCard({ app }: { app: Application }) {
   });
 
   const d = app.data;
-  const otherReviewer =
+  const otherReviewer = (app.assignedReviewer && app.assignedReviewer !== (user?.id || user?._id)) ||
     app.status === "under_review" &&
     app.reviewedBy &&
     app.reviewedBy !== (user?.id || user?._id);
@@ -182,7 +183,7 @@ function ReviewCard({ app }: { app: Application }) {
             </span>
           </div>
         </div>
-      </header>
+      </header><ReviewWork key={app._id+app.revision} app={app}/>
 
       {/* ── Body ── */}
       <div className="px-5 sm:px-6 py-5 space-y-4">

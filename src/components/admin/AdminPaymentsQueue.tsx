@@ -1,3 +1,4 @@
+import PaymentReconciliation from './PaymentReconciliation';
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -54,6 +55,7 @@ export const AdminPaymentsQueue: React.FC = () => {
       );
       queryClient.invalidateQueries({ queryKey: ['admin-transactions'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+      queryClient.invalidateQueries({queryKey:['payment-reconciliation']});
     },
     onError: (err: unknown) => {
       const msg =
@@ -74,7 +76,7 @@ export const AdminPaymentsQueue: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6"><PaymentReconciliation />
       {/* Filters and Header */}
       <div className="mb-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">

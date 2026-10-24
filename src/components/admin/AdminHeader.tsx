@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -187,7 +187,8 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
                 <div>{getRoleBadge(user?.role)}</div>
               </div>
 
-              {/* Action Links */}
+              <Link to="/admin/security" onClick={()=>setUserDropdownOpen(false)} className="block px-4 py-3 text-sm hover:bg-elev">{isBengali?'অ্যাকাউন্ট নিরাপত্তা ও 2FA':'Account security & 2FA'}</Link>
+{/* Action Links */}
               <div className="py-1.5 px-1.5 space-y-0.5 text-xs">
                 <button
                   type="button"

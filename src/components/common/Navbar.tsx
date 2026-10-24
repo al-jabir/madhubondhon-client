@@ -259,7 +259,9 @@ export const Navbar: React.FC = () => {
                           { to: "/my-profile", icon: UserIcon, label: t('nav.myProfile') },
                           { to: "/edit-profile", icon: Settings, label: t('nav.editProfile') },
                           { to: "/saved-searches", icon: Search, label: isBengali ? "সংরক্ষিত search" : "Saved searches" },
-                          { to: "/journey", icon: Phone, label: isBengali ? "যোগাযোগের অগ্রগতি" : "Connection progress" },
+                          { to: "/support-tickets", icon: Phone, label: isBengali ? "আমার সাপোর্ট" : "My support tickets" },
+{ to: "/account-security", icon: Search, label: isBengali ? "অ্যাকাউন্ট নিরাপত্তা" : "Account security" },
+{ to: "/journey", icon: Phone, label: isBengali ? "যোগাযোগের অগ্রগতি" : "Connection progress" },
                           { to: "/interests", icon: Heart, label: t('nav.interests') },
                           { to: "/contacts", icon: Phone, label: t('nav.contacts') },
                           { to: "/packages", icon: Coins, label: t('nav.packages') },
@@ -381,7 +383,9 @@ export const Navbar: React.FC = () => {
           <div className="space-y-0.5">
             {[...menuLinks, ...moreLinks, ...(isAuthenticated ? [
               { to: "/saved-searches", icon: Search, label: isBengali ? "সংরক্ষিত search" : "Saved searches" },
-              { to: "/journey", icon: Phone, label: isBengali ? "যোগাযোগের অগ্রগতি" : "Connection progress" },
+              { to: "/support-tickets", icon: Phone, label: isBengali ? "আমার সাপোর্ট" : "My support tickets" },
+{ to: "/account-security", icon: Search, label: isBengali ? "অ্যাকাউন্ট নিরাপত্তা" : "Account security" },
+{ to: "/journey", icon: Phone, label: isBengali ? "যোগাযোগের অগ্রগতি" : "Connection progress" },
               { to: "/shortlist", icon: Bookmark, label: isBengali ? "পছন্দের তালিকা" : "Shortlist" },
               { to: "/interests", icon: Heart, label: isBengali ? "আগ্রহ তালিকা" : "Interests" },
               { to: "/contacts", icon: Phone, label: isBengali ? "যোগাযোগের তথ্য" : "Contacts" },

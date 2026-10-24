@@ -90,7 +90,7 @@ const faqs: FAQItem[] = [
     answerBn:
       'প্রতিটি প্রকাশিত বায়োডাটার জন্য একটি অনন্য কোড তৈরি হয় (পাত্রদের জন্য MB-M... এবং পাত্রীদের জন্য MB-F...)। সার্চ পেজের উপরে বায়োডাটা কোড বক্সে সরাসরি এই কোডটি লিখে সার্চ বাটনে ক্লিক করলে নির্দিষ্ট সেই পাত্র বা পাত্রীর সম্পূর্ণ তথ্য মুহূর্তে দেখা যাবে। অভিভাবকরা আত্মীয়-স্বজনের সাথে আলোচনার সময় নাম বা ছবি না দিয়ে শুধুমাত্র এই কোডটি শেয়ার করতে পারেন।',
     answerEn:
-      'Each published biodata receives a unique code (MB-M... for grooms and MB-F... for brides). You can enter this code directly into the search bar at the top of the search page to immediately view that candidate’s full verified profile. Families can share this code with relatives to discuss proposals without exposing private contact info.',
+      'Each published biodata receives a unique code (MB-M... for grooms and MB-F... for brides). You can enter this code directly into the search bar at the top of the search page to immediately view that candidate’s published biodata. Families can share this code with relatives to discuss proposals without exposing private contact info.',
   },
   {
     id: 'credits-payment',
@@ -128,9 +128,9 @@ const faqs: FAQItem[] = [
     questionBn: 'বাবা-মা জীবিত না থাকলে অভিভাবক হিসেবে কার নম্বর দেওয়া যাবে?',
     questionEn: 'Who can be nominated as guardian if parents are deceased?',
     answerBn:
-      'বাবা জীবিত না থাকলে বড় ভাই, চাচা, মামা, দাদা, নানা বা আইনগত/পারিবারিক যেকোনো বিশ্বস্ত নিকটাত্মীয়কে অভিভাবক হিসেবে মনোনীত করা যাবে। বায়োডাটা পূরণ করার সময় সম্পর্ক নির্বাচন করে তাঁর ফোন নম্বরে ওটিপি ভেরিফিকেশন সম্পন্ন করলেই চলবে।',
+      'বাবা জীবিত না থাকলে বড় ভাই, চাচা, মামা, দাদা, নানা বা আইনগত/পারিবারিক যেকোনো বিশ্বস্ত নিকটাত্মীয়কে অভিভাবক হিসেবে মনোনীত করা যাবে। বায়োডাটা পূরণ করার সময় সম্পর্ক ও মোবাইল নম্বর দিন এবং তাঁর অনুমতি নিয়ে সম্মতির ঘোষণা সংরক্ষণ করুন।',
     answerEn:
-      'If parents are deceased, an elder brother, uncle (paternal or maternal), grandfather, or any trusted close family relative can be nominated as the legal guardian. Simply select the relationship when completing the biodata and complete their mobile OTP verification.',
+      'If parents are deceased, an elder brother, uncle (paternal or maternal), grandfather, or any trusted close family relative can be nominated as the legal guardian. Enter their relationship and mobile number, obtain their permission and save the consent declaration.',
   },
   {
     id: 'marriage-complete',
@@ -148,9 +148,9 @@ const faqs: FAQItem[] = [
     questionBn: 'কোনো সন্দেহজনক বা মিথ্যা তথ্যযুক্ত বায়োডাটা দেখলে কী করব?',
     questionEn: 'What should I do if I find a suspicious or inaccurate biodata?',
     answerBn:
-      'প্রতিটি বায়োডাটার নিচে একটি লাল "রিপোর্ট" (Report) বাটন রয়েছে। আপনি উপযুক্ত কারণ ও বিবরণ লিখে অভিযোগ দাখিল করলে আমাদের অ্যাডমিন টিম তাৎক্ষণিকভাবে বিষয়টি তদন্ত করে বায়োডাটাটি বাতিল ও সেই অ্যাকাউন্টটি স্থায়ীভাবে নিষিদ্ধ (Ban) করবে।',
+      'প্রতিটি বায়োডাটার নিচে একটি লাল "রিপোর্ট" (Report) বাটন রয়েছে। আপনি উপযুক্ত কারণ ও বিবরণ লিখে অভিযোগ দাখিল করলে আমাদের টিম অভিযোগটি পর্যালোচনা করে প্রমাণ ও নীতিমালা অনুযায়ী ব্যবস্থা নিতে পারবে।',
     answerEn:
-      'Every biodata includes a "Report" button at the bottom. By submitting a report with specific details, our administrative team will immediately investigate, hide the profile, and permanently ban any fraudulent account.',
+      'Every biodata includes a "Report" button at the bottom. By submitting a report with specific details, our team can review the report and take action based on the evidence and platform policy.',
   },
   {
     id: 'registration-cost',

@@ -5,7 +5,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (data: { email: string; password: string }) => Promise<User>;
+  login: (data: { email: string; password: string; secondFactor?: string }) => Promise<User>;
   register: (data: {
     name: string;
     email: string;

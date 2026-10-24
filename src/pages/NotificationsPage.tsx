@@ -1,3 +1,4 @@
+import {Link} from 'react-router';
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, CheckCheck, CheckCircle2, Heart, ShieldAlert } from 'lucide-react';
@@ -14,6 +15,7 @@ export const NotificationsPage: React.FC = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => notificationsApi.getNotifications(),
+    refetchInterval:60000,
   });
 
   const markAllMutation = useMutation({
@@ -55,7 +57,8 @@ export const NotificationsPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-      {/* Header */}
+      <Link className="text-brand underline text-sm" to="/account-security">{isBengali?'বিজ্ঞপ্তির পছন্দ':'Notification preferences'}</Link>
+{/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink flex items-center gap-2.5">
@@ -130,7 +133,7 @@ export const NotificationsPage: React.FC = () => {
                     })}
                   </span>
                 </div>
-                <p className="text-xs text-ink-2 leading-relaxed">{n.message}</p>
+                <p className="text-xs text-ink-2 leading-relaxed">{n.message}</p>{n.data?.url && /^\/(?:search\?|support-tickets(?:$|\?))/.test(n.data.url) && <Link className="inline-block text-xs text-brand underline py-2" to={n.data.url}>{isBengali?'দেখুন':'View details'}</Link>}
               </div>
 
               {!n.isRead && (

@@ -10,10 +10,10 @@ export const AboutPage: React.FC = () => {
   const values = [
     {
       icon: ShieldCheck,
-      title: isBengali ? 'মডারেটর যাচাই' : 'Moderator Verification',
+      title: isBengali ? 'প্রকাশ ও নিরাপত্তা' : 'Publication & safety',
       body: isBengali
-        ? 'সম্পূর্ণ বায়োডাটা মডারেটরের নজরে থাকে; অসম্পূর্ণ বা সন্দেহজনক তথ্য প্রকাশ পায় না।'
-        : 'Every profile is reviewed by human moderators; incomplete or suspicious profiles are never published.',
+        ? 'জমা দেওয়ার আগে প্রয়োজনীয় তথ্য ও ইমেইল যাচাই লাগে। সন্দেহজনক বায়োডাটা রিপোর্ট করতে পারবেন; তথ্য পরিবারকে সরাসরি যাচাই করতে হবে।'
+        : 'Required details and email verification are needed before submission. Report suspicious biodatas and verify information directly with the family.',
     },
     {
       icon: Lock,
@@ -26,8 +26,8 @@ export const AboutPage: React.FC = () => {
       icon: Users,
       title: isBengali ? 'অভিভাবকের অংশগ্রহণ' : 'Guardian Involvement',
       body: isBengali
-        ? 'অভিভাবকের সুস্পষ্ট অনুমোদন নিশ্চিত করা হয়; পরিবারই চূড়ান্ত সিদ্ধান্তের অংশীদার।'
-        : 'Guardian consent is confirmed transparently; family is at the heart of every marital milestone.',
+        ? 'সদস্য অভিভাবকের সম্মতির ঘোষণা দেন। এটি অভিভাবকের স্বাধীন পরিচয় যাচাই নয়; পরিবার সরাসরি বিষয়টি নিশ্চিত করবে।'
+        : 'Members declare guardian consent. This is not independent guardian identity verification; confirm directly with the family.',
     },
     {
       icon: EyeOff,
@@ -93,8 +93,8 @@ export const AboutPage: React.FC = () => {
           </p>
           <p>
             {isBengali
-              ? 'এখানে প্রতিটি বায়োডাটার তথ্য ও অভিভাবকের সম্মতি নিশ্চিত করে প্রকাশ করা হয়, আর দুই পক্ষের অভিভাবক সম্মত হলেই কেবল যোগাযোগের সুযোগ তৈরি হয়। মা-বোনদের পূর্ণ শালীনতা রক্ষায় ছবিমুক্ত পর্দাশীল পরিবেশ বজায় রাখা হয়েছে।'
-              : 'Each biodata is carefully verified and guardian consent is ensured before publication. Direct communication is permitted only after mutual guardian agreement. Complete modesty is maintained with a photo-free environment.'}
+              ? 'এখানে প্রয়োজনীয় তথ্য, ইমেইল যাচাই ও অভিভাবকের সম্মতির ঘোষণা দিয়ে বায়োডাটা জমা দেওয়া হয়, আর দুই পক্ষের অভিভাবক সম্মত হলেই কেবল যোগাযোগের সুযোগ তৈরি হয়। মা-বোনদের পূর্ণ শালীনতা রক্ষায় ছবিমুক্ত পর্দাশীল পরিবেশ বজায় রাখা হয়েছে।'
+              : 'Biodatas are submitted with required details, email verification and a guardian consent declaration. Direct communication is permitted only after mutual guardian agreement. Complete modesty is maintained with a photo-free environment.'}
           </p>
         </div>
       </section>
@@ -133,8 +133,8 @@ export const AboutPage: React.FC = () => {
           </h3>
           <p className="text-sm text-white/90 max-w-xl mx-auto">
             {isBengali
-              ? 'বিনামূল্যে নিবন্ধন করুন, যাচাইকৃত পাত্র-পাত্রীর সন্ধানে দ্বীনি পরিবেশে যুক্ত হোন।'
-              : 'Register for free and connect with verified brides and grooms in a halal, family-friendly environment.'}
+              ? 'বিনামূল্যে নিবন্ধন করুন, উপযুক্ত পাত্র-পাত্রীর সন্ধানে দ্বীনি পরিবেশে যুক্ত হোন।'
+              : 'Register for free and connect with prospective brides and grooms in a halal, family-friendly environment.'}
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-1">
             <Link to="/register" className="bg-white text-brand font-bold text-xs px-6 py-3 rounded-full hover:bg-brand-soft transition-colors">

@@ -212,6 +212,7 @@ export interface Interest {
 }
 
 export interface Notification {
+  data?:{url?:string;category?:string};
   _id: string;
   recipient: string;
   type: string;
@@ -333,6 +334,8 @@ export interface SuccessStoryItem {
 }
 
 export interface SupportMessageItem {
+ user?:string;
+ replies?:Array<{role:'customer'|'staff';message:string;createdAt:string}>;
   _id: string;
   name: string;
   email: string;

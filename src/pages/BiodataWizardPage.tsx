@@ -1194,7 +1194,7 @@ function Wizard({ application }: { application: Application }) {
             type="button"
             disabled={saving || step === 0}
             onClick={() => setStep((v) => v - 1)}
-            className="mb-btn-secondary w-full sm:w-auto !px-5 !py-3 disabled:opacity-40 cursor-pointer"
+            className="mb-btn-secondary w-full sm:w-auto px-5! py-3! disabled:opacity-40 cursor-pointer"
           >
             {isBengali ? "← আগের ধাপ" : "← Previous Step"}
           </button>
@@ -1202,7 +1202,7 @@ function Wizard({ application }: { application: Application }) {
             <button
               type="submit"
               disabled={saving}
-              className="mb-btn-secondary w-full sm:w-auto !px-5 !py-3 disabled:opacity-40 cursor-pointer"
+              className="mb-btn-secondary w-full sm:w-auto px-5! py-3! disabled:opacity-40 cursor-pointer"
             >
               {saving
                 ? isBengali
@@ -1229,7 +1229,7 @@ function Wizard({ application }: { application: Application }) {
                   }
                 }
               }}
-              className="mb-btn-primary w-full sm:w-auto !px-6 !py-3 disabled:opacity-40 cursor-pointer"
+              className="mb-btn-primary w-full sm:w-auto px-6! py-3! disabled:opacity-40 cursor-pointer"
             >
               {step < 3
                 ? isBengali

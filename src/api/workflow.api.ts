@@ -36,6 +36,8 @@ export interface Application {
   revision: number;
   reviewNote?: string;
   reviewedBy?: string;
+  assignedReviewer?:string;
+  reviewChecklist?:Record<string,boolean>;
   submittedAt?: string;
 }
 export interface ContactGrant {

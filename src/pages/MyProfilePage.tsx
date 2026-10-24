@@ -73,7 +73,7 @@ export const MyProfilePage: React.FC = () => {
   const tabs: Array<{ key: TabKey; label: string; icon: React.ElementType }> = [
     { key: 'overview', label: isBengali ? 'সারসংক্ষেপ' : 'Overview', icon: LayoutDashboard },
     { key: 'recommendations', label: isBengali ? 'পরামর্শ' : 'Matches', icon: Sparkles },
-    { key: 'verification', label: isBengali ? 'যাচাই ও জমা' : 'Verification', icon: ClipboardCheck },
+    { key: 'verification', label: isBengali ? 'বায়োডাটা জমা দিন' : 'Submit Biodata', icon: ClipboardCheck },
     { key: 'settings', label: isBengali ? 'অ্যাকাউন্ট সেটিংস' : 'Account Settings', icon: Settings },
   ];
 
@@ -139,7 +139,7 @@ const useMyProfile = () => {
   });
 
   return {
-    isLoading: base.isLoading && draftQuery.isLoading,
+    isLoading: base.isLoading || draftQuery.isLoading,
     profile,
     application,
     completion: completion.data?.data?.completion,
@@ -183,6 +183,8 @@ function formatHeight(
 function getMaritalStatusLabel(status?: string, gender?: string, isBengali = true) {
   if (!status) return isBengali ? 'উল্লেখ নেই' : 'Not specified';
   switch (status) {
+    case 'married':
+      return isBengali ? 'বিবাহিত' : 'Married';
     case 'never_married':
       return isBengali ? 'অবিবাহিত' : 'Never Married';
     case 'divorced':
@@ -210,7 +212,7 @@ const OverviewTab: React.FC<{ onNavigateTab: (t: TabKey) => void }> = ({ onNavig
 
   if (isLoading) return <TabLoader />;
 
-  if (profile) {
+  if (profile && (!application || (profile.isApproved && !['changes_requested','rejected'].includes(application.status)))) {
     return (
       <PublishedProfileOverview
         profile={profile}
@@ -477,7 +479,7 @@ const BiodataDetailPreview: React.FC<BiodataDetailPreviewProps> = ({
                 <span className="font-semibold text-ink font-mono">{guardian.phone || '—'}</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-ink-3">{isBengali ? 'সম্মতি যাচাই অবস্থা' : 'Consent Status'}</span>
+                <span className="text-ink-3">{isBengali ? 'সম্মতির ঘোষণা' : 'Consent declaration'}</span>
                 <span
                   className={`font-bold inline-flex items-center gap-1 ${
                     guardianConsented
@@ -488,12 +490,12 @@ const BiodataDetailPreview: React.FC<BiodataDetailPreviewProps> = ({
                   {guardianConsented ? (
                     <>
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{isBengali ? 'সম্মতি নিশ্চিতকৃত' : 'Consent Confirmed'}</span>
+                      <span>{isBengali ? 'ঘোষণা সংরক্ষিত' : 'Declaration saved'}</span>
                     </>
                   ) : (
                     <>
                       <AlertCircle className="w-3.5 h-3.5" />
-                      <span>{isBengali ? 'যাচাই এখনো বাকি' : 'Consent Pending'}</span>
+                      <span>{isBengali ? 'ঘোষণা বাকি' : 'Declaration needed'}</span>
                     </>
                   )}
                 </span>
@@ -910,11 +912,9 @@ const PublishedProfileOverview: React.FC<{
       icon: Sparkles,
     },
     {
-      label: isBengali ? 'প্রকাশের অবস্থা' : 'Publication',
+      label: isBengali ? 'দৃশ্যমানতা' : 'Visibility',
       value: profile.isApproved
-        ? isBengali
-          ? 'প্রকাশিত'
-          : 'Published'
+        ? profile.visibility==='private' ? (isBengali?'ব্যক্তিগত':'Private') : profile.visibility==='registered_only' ? (isBengali?'শুধু সদস্য':'Members only') : (isBengali?'সবার জন্য':'Public')
         : isBengali
         ? 'অপেক্ষমান'
         : 'Pending',
@@ -987,7 +987,7 @@ const PublishedProfileOverview: React.FC<{
               <GenderAvatar gender={profile.gender} size={112} className="w-full h-full" />
               {profile.isApproved && (
                 <span
-                  title={isBengali ? 'প্রকাশিত বায়োডাটা' : 'Published biodata'}
+                  title={profile.visibility==='private'?(isBengali?'ব্যক্তিগত বায়োডাটা':'Private biodata'):profile.visibility==='registered_only'?(isBengali?'শুধু সদস্যদের জন্য':'Members only'):(isBengali?'প্রকাশিত বায়োডাটা':'Published biodata')}
                   className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 border-3 border-card flex items-center justify-center"
                 >
                   <CheckCircle2 className="w-4.5 h-4.5 text-white fill-none" />

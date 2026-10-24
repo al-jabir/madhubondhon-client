@@ -1,3 +1,5 @@
+import {useAuth} from '../../../context/useAuth';
+import TicketReply from '../TicketReply';
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -22,6 +24,8 @@ import ConfirmationModal from '../../common/ConfirmationModal';
 
 export const AdminSupportTab: React.FC = () => {
   const queryClient = useQueryClient();
+  const {user}=useAuth();
+  const canManage=user?.role==='admin'||user?.role==='super_admin';
   const { isBengali, formatNumber } = useLanguage();
 
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -268,7 +272,8 @@ export const AdminSupportTab: React.FC = () => {
               </div>
             </div>
 
-            {/* Admin Note & Resolution */}
+            <TicketReply key={selectedMessage._id} ticket={selectedMessage} onSent={()=>setSelectedMessage(null)}/>
+{canManage && <> {/* Admin Note & Resolution */}
             <div className="space-y-3 pt-2 border-t border-line">
               <label className="text-xs font-bold text-ink flex items-center gap-1.5">
                 <MessageSquare className="w-3.5 h-3.5 text-brand" />
@@ -337,7 +342,7 @@ export const AdminSupportTab: React.FC = () => {
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
-            </div>
+            </div></>}
           </div>
         )}
       </div>

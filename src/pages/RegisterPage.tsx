@@ -158,7 +158,7 @@ export const RegisterPage: React.FC = () => {
                 icon: User,
                 text: isBengali
                   ? 'পরিবার দ্বারা যাচাইকৃত, সম্মানজনক ও ১০০% বিনামূল্যে নিবন্ধন'
-                  : 'Family verified, respectful & 100% free registration',
+                  : 'Family involvement, respectful & free registration',
               },
               {
                 icon: ShieldAlert,
@@ -169,8 +169,8 @@ export const RegisterPage: React.FC = () => {
               {
                 icon: Mail,
                 text: isBengali
-                  ? 'মডারেটরের নিরীক্ষার পরেই বায়োডাটা প্রকাশ পায় — ভুয়া প্রোফাইলের সুযোগ কম'
-                  : 'Biodatas published only after moderation — minimal fake profiles',
+                  ? 'ইমেইল যাচাই ও অভিভাবকের সম্মতির ঘোষণা দিয়ে বায়োডাটা জমা দিন'
+                  : 'Submit after email verification and a guardian consent declaration',
               },
             ].map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-start gap-3">

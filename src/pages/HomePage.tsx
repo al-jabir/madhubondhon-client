@@ -341,8 +341,8 @@ export const HomePage: React.FC = () => {
               icon: FileCheck2,
               title: isBengali ? 'সম্মতি নিশ্চিত করে প্রকাশ' : 'Publish with guardian consent',
               description: isBengali
-                ? 'জমা দেওয়া প্রতিটি বায়োডাটা যাচাই ও নিরীক্ষা করেন মডারেটর।'
-                : 'Every submitted profile is reviewed and vetted by moderators before release.',
+                ? 'ইমেইল যাচাই ও অভিভাবকের সম্মতির ঘোষণা দিয়ে বায়োডাটা জমা দিন।'
+                : 'Submit with required details, email verification and a guardian consent declaration.',
             },
           ].map(({ icon: Icon, title, description }) => (
             <div
