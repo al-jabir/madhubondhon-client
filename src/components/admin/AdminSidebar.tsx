@@ -121,28 +121,28 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     },
     {
       id: 'packages',
-      label: isBengali ? 'ক্রেডিট প্যাকেজ' : 'Packages',
+      label: t('admin.tabs.packages'),
       icon: Coins,
       section: 'main',
       visible: isSuperAdminOrAdmin,
     },
     {
       id: 'coupons',
-      label: isBengali ? 'কুপন ও ছাড়' : 'Coupons & Promos',
+      label: t('admin.tabs.coupons'),
       icon: Ticket,
       section: 'main',
       visible: isSuperAdminOrAdmin,
     },
     {
       id: 'support',
-      label: isBengali ? 'সাপোর্ট ইনবক্স' : 'Support Inbox',
+      label: t('admin.tabs.support'),
       icon: Inbox,
       section: 'main',
       visible: true,
     },
     {
       id: 'analytics',
-      label: isBengali ? 'উপজেলা অ্যানালিটিক্স' : 'Analytics & Export',
+      label: t('admin.tabs.analytics'),
       icon: BarChart3,
       section: 'main',
       visible: isSuperAdminOrAdmin,
@@ -151,7 +151,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     // CMS & Content
     {
       id: 'stories',
-      label: isBengali ? 'সফল বিবাহ' : 'Success Stories',
+      label: t('admin.tabs.stories'),
       icon: Heart,
       section: 'cms',
       visible: isSuperAdminOrAdmin,
@@ -181,7 +181,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     // Super Admin Only
     {
       id: 'blacklist',
-      label: isBengali ? 'ব্ল্যাকলিস্ট' : 'Fraud Blacklist',
+      label: t('admin.tabs.blacklist'),
       icon: ShieldAlert,
       section: 'superadmin',
       visible: isSuperAdminOrAdmin,

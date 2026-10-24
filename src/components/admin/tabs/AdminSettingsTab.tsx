@@ -413,16 +413,22 @@ export const AdminSettingsTab: React.FC = () => {
                   <span>{isBengali ? 'মোবাইল ব্যাংকিং অ্যাকাউন্ট ও পেমেন্ট নির্দেশিকা' : 'Mobile Banking Accounts & Instructions'}</span>
                 </h3>
                 <p className="text-xs text-ink-3 mt-1">
-                  প্যাকেজ ক্রয়ের সময় ব্যবহারকারীদের প্রদর্শিত bKash, Nagad এবং Rocket পেমেন্ট নম্বরসমূহ
+                  {isBengali
+                    ? 'প্যাকেজ ক্রয়ের সময় ব্যবহারকারীদের প্রদর্শিত bKash, Nagad এবং Rocket পেমেন্ট নম্বরসমূহ'
+                    : 'bKash, Nagad, and Rocket numbers shown to users during credit package purchase'}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {/* bKash */}
                 <div className="bg-elev border border-line p-4 rounded-xl space-y-3">
-                  <span className="font-bold text-xs text-pink-600 block">বিকাশ (bKash) কনফিগারেশন</span>
+                  <span className="font-bold text-xs text-pink-600 block">
+                    {isBengali ? 'বিকাশ (bKash) কনফিগারেশন' : 'bKash Configuration'}
+                  </span>
                   <div>
-                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">বিকাশ মোবাইল নম্বর</label>
+                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">
+                      {isBengali ? 'বিকাশ মোবাইল নম্বর' : 'bKash Account Number'}
+                    </label>
                     <input
                       type="text"
                       value={bkashNumber}
@@ -432,12 +438,14 @@ export const AdminSettingsTab: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">অ্যাকাউন্টের ধরন</label>
+                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">
+                      {isBengali ? 'অ্যাকাউন্টের ধরন' : 'Account Type'}
+                    </label>
                     <input
                       type="text"
                       value={bkashType}
                       onChange={(e) => setBkashType(e.target.value)}
-                      placeholder="Send Money / Personal"
+                      placeholder={isBengali ? 'Send Money / Personal' : 'Send Money / Personal'}
                       className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-purple-600"
                     />
                   </div>
@@ -445,9 +453,13 @@ export const AdminSettingsTab: React.FC = () => {
 
                 {/* Nagad */}
                 <div className="bg-elev border border-line p-4 rounded-xl space-y-3">
-                  <span className="font-bold text-xs text-amber-600 block">নগদ (Nagad) কনফিগারেশন</span>
+                  <span className="font-bold text-xs text-amber-600 block">
+                    {isBengali ? 'নগদ (Nagad) কনফিগারেশন' : 'Nagad Configuration'}
+                  </span>
                   <div>
-                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">নগদ মোবাইল নম্বর</label>
+                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">
+                      {isBengali ? 'নগদ মোবাইল নম্বর' : 'Nagad Account Number'}
+                    </label>
                     <input
                       type="text"
                       value={nagadNumber}
@@ -457,12 +469,14 @@ export const AdminSettingsTab: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">অ্যাকাউন্টের ধরন</label>
+                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">
+                      {isBengali ? 'অ্যাকাউন্টের ধরন' : 'Account Type'}
+                    </label>
                     <input
                       type="text"
                       value={nagadType}
                       onChange={(e) => setNagadType(e.target.value)}
-                      placeholder="Send Money / Personal"
+                      placeholder={isBengali ? 'Send Money / Personal' : 'Send Money / Personal'}
                       className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-purple-600"
                     />
                   </div>
@@ -470,9 +484,13 @@ export const AdminSettingsTab: React.FC = () => {
 
                 {/* Rocket */}
                 <div className="bg-elev border border-line p-4 rounded-xl space-y-3">
-                  <span className="font-bold text-xs text-purple-600 block">রকেট (Rocket) কনফিগারেশন</span>
+                  <span className="font-bold text-xs text-purple-600 block">
+                    {isBengali ? 'রকেট (Rocket) কনফিগারেশন' : 'Rocket Configuration'}
+                  </span>
                   <div>
-                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">রকেট মোবাইল নম্বর</label>
+                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">
+                      {isBengali ? 'রকেট মোবাইল নম্বর' : 'Rocket Account Number'}
+                    </label>
                     <input
                       type="text"
                       value={rocketNumber}
@@ -482,12 +500,14 @@ export const AdminSettingsTab: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">অ্যাকাউন্টের ধরন</label>
+                    <label className="block text-[11px] font-semibold text-ink-2 mb-1">
+                      {isBengali ? 'অ্যাকাউন্টের ধরন' : 'Account Type'}
+                    </label>
                     <input
                       type="text"
                       value={rocketType}
                       onChange={(e) => setRocketType(e.target.value)}
-                      placeholder="Send Money / Personal"
+                      placeholder={isBengali ? 'Send Money / Personal' : 'Send Money / Personal'}
                       className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-purple-600"
                     />
                   </div>
@@ -496,7 +516,9 @@ export const AdminSettingsTab: React.FC = () => {
 
               <div>
                 <label className="block font-bold text-ink text-xs mb-1.5">
-                  ব্যবহারকারীদের জন্য পেমেন্ট নির্দেশিকা টেক্সট (Payment Note & Instructions):
+                  {isBengali
+                    ? 'ব্যবহারকারীদের জন্য পেমেন্ট নির্দেশিকা টেক্সট (Payment Note & Instructions):'
+                    : 'Payment Instructions & Note for Users:'}
                 </label>
                 <textarea
                   rows={3}
@@ -633,7 +655,9 @@ export const AdminSettingsTab: React.FC = () => {
                       className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs font-mono focus:outline-hidden focus:border-purple-600"
                     />
                     <span className="text-[10px] text-ink-3 mt-0.5 block">
-                      নতুন ইউজার যোগ দিলে অ্যাকাউন্ট খোলার সাথে সাথে এই পরিমাণ ক্রেডিট উপহার পাবে।
+                      {isBengali
+                        ? 'নতুন ইউজার যোগ দিলে অ্যাকাউন্ট খোলার সাথে সাথে এই পরিমাণ ক্রেডিট উপহার পাবে।'
+                        : 'New users will receive this amount of free contact credits upon registration.'}
                     </span>
                   </div>
 
@@ -649,7 +673,9 @@ export const AdminSettingsTab: React.FC = () => {
                       className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs font-mono focus:outline-hidden focus:border-purple-600"
                     />
                     <span className="text-[10px] text-ink-3 mt-0.5 block">
-                      স্প্যামিং ঠেকাতে একজন সাধারণ ইউজার দিনে সর্বোচ্চ কতটি আগ্রহ পাঠাতে পারবে।
+                      {isBengali
+                        ? 'স্প্যামিং ঠেকাতে একজন সাধারণ ইউজার দিনে সর্বোচ্চ কতটি আগ্রহ পাঠাতে পারবে।'
+                        : 'Anti-spam limit for maximum interest requests a user can send per day.'}
                     </span>
                   </div>
 
@@ -694,7 +720,9 @@ export const AdminSettingsTab: React.FC = () => {
                     <span>{isBengali ? 'সাইট মেইনটেন্যান্স মোড (Maintenance Mode)' : 'Site Maintenance Mode'}</span>
                   </div>
                   <p className="text-xs text-ink-3">
-                    চালু থাকলে অ্যাডমিন ব্যতীত সাধারণ ভিজিটররা সাইট ব্রাউজ করতে পারবেন না এবং সাময়িক রক্ষণাবেক্ষণ বার্তা দেখবেন।
+                    {isBengali
+                      ? 'চালু থাকলে অ্যাডমিন ব্যতীত সাধারণ ভিজিটররা সাইট ব্রাউজ করতে পারবেন না এবং সাময়িক রক্ষণাবেক্ষণ বার্তা দেখবেন।'
+                      : 'When enabled, general visitors will see a maintenance notice and cannot browse profiles.'}
                   </p>
                 </div>
 
@@ -719,7 +747,7 @@ export const AdminSettingsTab: React.FC = () => {
                   rows={4}
                   value={maintenanceNotice}
                   onChange={(e) => setMaintenanceNotice(e.target.value)}
-                  placeholder="ওয়েবসাইটের নিরাপত্তা ও পারফরম্যান্স উন্নয়নের কাজ চলছে..."
+                  placeholder={isBengali ? 'ওয়েবসাইটের নিরাপত্তা ও পারফরম্যান্স উন্নয়নের কাজ চলছে...' : 'Scheduled maintenance is underway...'}
                   className="w-full bg-base border border-line rounded-xl p-3 text-xs focus:outline-hidden focus:border-red-500 leading-relaxed"
                 />
               </div>
@@ -735,7 +763,9 @@ export const AdminSettingsTab: React.FC = () => {
                   <span>{isBengali ? 'সার্চ ইঞ্জিন অপ্টিমাইজেশন (SEO) ও মেটাডাটা' : 'Search Engine Optimization (SEO)'}</span>
                 </h3>
                 <p className="text-xs text-ink-3 mt-1">
-                  গুগল এবং অন্যান্য সার্চ ইঞ্জিনের ফলাফলে প্রদর্শনের জন্য মেটা টাইটেল, ডেসক্রিপশন ও কীওয়ার্ডস
+                  {isBengali
+                    ? 'গুগল এবং অন্যান্য সার্চ ইঞ্জিনের ফলাফলে প্রদর্শনের জন্য মেটা টাইটেল, ডেসক্রিপশন ও কীওয়ার্ডস'
+                    : 'Meta titles, descriptions, and keywords displayed on search engine result pages'}
                 </p>
               </div>
 
@@ -748,7 +778,7 @@ export const AdminSettingsTab: React.FC = () => {
                     type="text"
                     value={metaTitle}
                     onChange={(e) => setMetaTitle(e.target.value)}
-                    placeholder="মধুবন্ধন — টাঙ্গাইল জেলার বিশ্বস্ত বৈবাহিক প্ল্যাটফর্ম"
+                    placeholder={isBengali ? 'মধুবন্ধন — টাঙ্গাইল জেলার বিশ্বস্ত বৈবাহিক প্ল্যাটফর্ম' : 'MadhuBondhon — Tangail Matrimony'}
                     className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-purple-600"
                   />
                 </div>
@@ -761,7 +791,7 @@ export const AdminSettingsTab: React.FC = () => {
                     rows={3}
                     value={metaDescription}
                     onChange={(e) => setMetaDescription(e.target.value)}
-                    placeholder="টাঙ্গাইল জেলার মুসলিম পাত্র-পাত্রীদের শরীয়াহ সম্মত নিরাপদ বৈবাহিক মাধ্যম..."
+                    placeholder={isBengali ? 'টাঙ্গাইল জেলার মুসলিম পাত্র-পাত্রীদের শরীয়াহ সম্মত নিরাপদ বৈবাহিক মাধ্যম...' : 'Safe, trusted Shariah-compliant matrimonial service for Tangail...'}
                     className="w-full bg-base border border-line rounded-xl p-3 text-xs focus:outline-hidden focus:border-purple-600 leading-relaxed"
                   />
                 </div>
@@ -774,7 +804,7 @@ export const AdminSettingsTab: React.FC = () => {
                     type="text"
                     value={metaKeywords}
                     onChange={(e) => setMetaKeywords(e.target.value)}
-                    placeholder="টাঙ্গাইল ম্যাট্রিমনি, মুসলিম বিবাহ, বায়োডাটা, টাঙ্গাইল পাত্র পাত্রী"
+                    placeholder={isBengali ? 'টাঙ্গাইল ম্যাট্রিমনি, মুসলিম বিবাহ, বায়োডাটা, টাঙ্গাইল পাত্র পাত্রী' : 'Tangail matrimony, Muslim marriage, biodata'}
                     className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-purple-600"
                   />
                 </div>
@@ -791,7 +821,9 @@ export const AdminSettingsTab: React.FC = () => {
                   <span>{isBengali ? 'অ্যাডমিন টিম ইমেইল ও পুশ অ্যালার্ট' : 'Admin Email & Push Alerts'}</span>
                 </h3>
                 <p className="text-xs text-ink-3 mt-1">
-                  প্ল্যাটফর্মে জরুরি কার্যক্রম সংঘটিত হলে অ্যাডমিন টিমকে অবহিত করার নিয়মাবলী
+                  {isBengali
+                    ? 'প্ল্যাটফর্মে জরুরি কার্যক্রম সংঘটিত হলে অ্যাডমিন টিমকে অবহিত করার নিয়মাবলী'
+                    : 'Configure notifications and alerts sent to the administrative team upon events'}
                 </p>
               </div>
 

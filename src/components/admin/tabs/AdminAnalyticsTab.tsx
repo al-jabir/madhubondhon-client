@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { adminApi } from '../../../api/admin.api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { UpazilaAnalyticsItem } from '../../../types';
+import { getUpazilaDisplayName } from '../../../constants/locations';
 
 export const AdminAnalyticsTab: React.FC = () => {
   const { isBengali, formatNumber } = useLanguage();
@@ -216,7 +217,7 @@ export const AdminAnalyticsTab: React.FC = () => {
                 className="mb-card rounded-2xl p-4 border border-line hover:border-brand/30 transition-all space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-bold text-ink">{u.nameBn}</h4>
+                  <h4 className="text-sm font-bold text-ink">{getUpazilaDisplayName(u.key, isBengali) || u.nameBn}</h4>
                   <span className="text-xs font-black text-brand font-mono bg-brand-soft px-2 py-0.5 rounded-full">
                     {isBengali ? formatNumber(u.total) : u.total}
                   </span>

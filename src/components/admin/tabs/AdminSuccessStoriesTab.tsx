@@ -174,8 +174,8 @@ export const AdminSuccessStoriesTab: React.FC = () => {
 
                 {(item.groomBiodataId || item.brideBiodataId) && (
                   <div className="flex gap-2 text-[10.5px] font-mono text-ink-3">
-                    {item.groomBiodataId && <span>পাত্র: {item.groomBiodataId}</span>}
-                    {item.brideBiodataId && <span>পাত্রী: {item.brideBiodataId}</span>}
+                    {item.groomBiodataId && <span>{isBengali ? 'পাত্র:' : 'Groom:'} {item.groomBiodataId}</span>}
+                    {item.brideBiodataId && <span>{isBengali ? 'পাত্রী:' : 'Bride:'} {item.brideBiodataId}</span>}
                   </div>
                 )}
               </div>
