@@ -30,9 +30,13 @@ import {
   Briefcase,
   Users,
   Calendar,
+  Printer,
+  TrendingUp,
+  Send,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import BiodataDashboard from '../components/profile/BiodataDashboard';
+import PrintableBiodataModal from '../components/profile/PrintableBiodataModal';
 import { profilesApi } from '../api/profiles.api';
 import { authApi } from '../api/auth.api';
 import { workflowApi, Application, ReviewStatus } from '../api/workflow.api';
@@ -882,6 +886,14 @@ const PublishedProfileOverview: React.FC<{
 }> = ({ profile, application, onNavigateTab }) => {
   const { user } = useAuth();
   const { isBengali, formatNumber } = useLanguage();
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+
+  const { data: insightsData } = useQuery({
+    queryKey: ['my-profile-insights'],
+    queryFn: () => profilesApi.getProfileInsights(),
+    staleTime: 1000 * 30,
+  });
+  const insights = insightsData?.data?.insights;
 
   const upazilaName = getUpazilaDisplayName(profile.upazila, isBengali);
 
@@ -1032,6 +1044,15 @@ const PublishedProfileOverview: React.FC<{
 
           {/* Actions */}
           <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsPrintModalOpen(true)}
+              className="inline-flex items-center gap-1.5 py-2.5 px-4 text-xs font-bold text-ink-2 bg-elev hover:text-brand hover:bg-brand-soft rounded-xl border border-line transition-all hover:scale-[1.02] cursor-pointer"
+              title={isBengali ? 'বায়োডাটা PDF ডাউনলোড বা প্রিন্ট করুন' : 'Download or Print Biodata PDF'}
+            >
+              <Printer className="w-3.5 h-3.5 text-brand" />
+              <span>{isBengali ? 'বায়োডাটা PDF / প্রিন্ট' : 'Biodata PDF / Print'}</span>
+            </button>
             <Link
               to="/edit-profile"
               className="mb-btn-primary py-2.5 px-5 text-xs rounded-xl inline-flex items-center gap-2 shadow-lg shadow-brand/20"
@@ -1070,6 +1091,131 @@ const PublishedProfileOverview: React.FC<{
             </div>
           );
         })}
+      </div>
+
+      {/* ── Biodata Activity & Real-Time Insights Widget ── */}
+      <div className="mb-card rounded-[2rem] p-6 sm:p-7 space-y-5 border-brand/20 bg-linear-to-br from-card via-card to-brand-soft/20">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-brand-soft text-brand flex items-center justify-center border border-brand/30">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-ink flex items-center gap-2">
+                <span>{isBengali ? 'বায়োডাটা এক্টিভিটি ও ইনসাইটস' : 'Biodata Activity & Insights'}</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                  {isBengali ? 'লাইভ আপডেট' : 'Live Updates'}
+                </span>
+              </h3>
+              <p className="text-xs text-ink-3">
+                {isBengali
+                  ? 'আপনার বায়োডাটার পরিচিতি, দর্শক সংখ্যা এবং আগ্রহের সর্বশেষ পরিসংখ্যান'
+                  : 'Real-time metrics on profile visibility, shortlists, and incoming proposals'}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsPrintModalOpen(true)}
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-brand bg-brand-soft hover:bg-brand/20 border border-brand/30 transition-colors cursor-pointer"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>{isBengali ? 'অফিসিয়াল PDF প্রিন্ট' : 'Official PDF Print'}</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+          <div className="p-4 rounded-2xl bg-card border border-line flex flex-col justify-between space-y-2 hover:border-indigo-500/40 transition-colors">
+            <div className="flex items-center justify-between text-ink-3">
+              <span className="text-xs font-semibold">{isBengali ? 'প্রোফাইল ভিউ' : 'Profile Views'}</span>
+              <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                <Eye className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <span className="text-2xl font-black text-ink">
+                {formatNumber(insights?.viewCount ?? profile.viewCount ?? 0)}
+              </span>
+              <p className="text-[10px] text-ink-3 font-medium mt-0.5">
+                {isBengali ? 'অন্যান্য ব্যবহারকারীর দর্শন' : 'Unique candidate visits'}
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-card border border-line flex flex-col justify-between space-y-2 hover:border-amber-500/40 transition-colors">
+            <div className="flex items-center justify-between text-ink-3">
+              <span className="text-xs font-semibold">{isBengali ? 'পছন্দের তালিকায়' : 'Shortlisted'}</span>
+              <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                <Bookmark className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <span className="text-2xl font-black text-ink">
+                {formatNumber(insights?.shortlistedCount ?? 0)}
+              </span>
+              <p className="text-[10px] text-ink-3 font-medium mt-0.5">
+                {isBengali ? 'সংরক্ষিত করেছেন' : 'Saved to favorites'}
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-card border border-line flex flex-col justify-between space-y-2 hover:border-pink-500/40 transition-colors">
+            <div className="flex items-center justify-between text-ink-3">
+              <span className="text-xs font-semibold">{isBengali ? 'প্রাপ্ত প্রস্তাব' : 'Proposals In'}</span>
+              <div className="w-7 h-7 rounded-lg bg-pink-500/10 text-pink-500 flex items-center justify-center">
+                <Heart className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <span className="text-2xl font-black text-brand">
+                {formatNumber(insights?.interestsReceivedCount ?? 0)}
+              </span>
+              <p className="text-[10px] text-ink-3 font-medium mt-0.5">
+                {isBengali ? 'বিয়ের আগ্রহ প্রকাশ' : 'Received interest'}
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-card border border-line flex flex-col justify-between space-y-2 hover:border-emerald-500/40 transition-colors">
+            <div className="flex items-center justify-between text-ink-3">
+              <span className="text-xs font-semibold">{isBengali ? 'প্রেরিত প্রস্তাব' : 'Proposals Sent'}</span>
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                <Send className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <span className="text-2xl font-black text-ink">
+                {formatNumber(insights?.interestsSentCount ?? 0)}
+              </span>
+              <p className="text-[10px] text-ink-3 font-medium mt-0.5">
+                {isBengali ? 'আপনি আগ্রহ পাঠিয়েছেন' : 'Reachable biodatas'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Shariah Tips / Guidance Bar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-elev/70 border border-line text-xs">
+          <div className="flex items-center gap-2 text-ink-2">
+            <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>
+              {completionPercent < 100
+                ? isBengali
+                  ? 'পরামর্শ: বায়োডাটা ১০০% সম্পূর্ণ করলে ৩ গুণ বেশি পাত্র-পাত্রী আপনার প্রোফাইল পরিদর্শন করবে।'
+                  : 'Tip: 100% completed biodatas receive 3x more views and proposals.'
+                : isBengali
+                ? 'পবিত্রতা ও নিরাপত্তা: আপনার ফোন ও ইমেইল নম্বর অভিভাবকের অনুমতি ব্যতীত কাউকে সরাসরি দেখানো হয় না।'
+                : "Privacy guarantee: Guardian contact details are never disclosed without your family's consent."}
+            </span>
+          </div>
+          <Link
+            to="/interests"
+            className="text-brand font-bold hover:underline shrink-0 inline-flex items-center gap-1"
+          >
+            <span>{isBengali ? 'প্রস্তাবগুলো দেখুন' : 'View proposals'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
 
       {/* ── Overview: completion + quick links ── */}
@@ -1112,6 +1258,12 @@ const PublishedProfileOverview: React.FC<{
         data={profile}
         guardian={application?.guardian}
         guardianConsented={!!application?.guardianConsentedAt}
+      />
+
+      <PrintableBiodataModal
+        profile={profile}
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
       />
     </div>
   );

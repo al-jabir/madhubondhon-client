@@ -107,6 +107,13 @@ export const profilesApi = {
     return res.data;
   },
 
+  async getProfileInsights() {
+    const res = await apiClient.get<ApiResponse<{ insights: import('../types').ProfileInsights }>>(
+      '/profiles/me/insights'
+    );
+    return res.data;
+  },
+
   async getRecommendations() {
     const res = await apiClient.get<ApiResponse<{ profiles: Profile[] }>>(
       '/profiles/recommendations'

@@ -1,4 +1,5 @@
 import BiodataInfoTables from '../components/profile/BiodataInfoTables';
+import PrintableBiodataModal from '../components/profile/PrintableBiodataModal';
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -48,6 +49,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   const [isBlockConfirmOpen, setIsBlockConfirmOpen] = useState(false);
   const [contactBusy, setContactBusy] = useState(false);
   const [isShortlistBusy, setIsShortlistBusy] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   // Public platform settings check for demo profiles
   const { data: publicSettingsData } = useQuery({
@@ -107,7 +109,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   };
 
   const handlePrintBiodata = () => {
-    window.print();
+    setIsPrintModalOpen(true);
   };
 
   // Fetch logged-in user's own profile to compute compatibility
@@ -118,7 +120,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
   });
 
   const myProfile = ownProfileData?.data?.profile;
-  const compatibility = calculateCompatibility(myProfile, profile);
+  const compatibility = calculateCompatibility(myProfile, profile, isBengali);
 
   const handleWhatsAppShare = () => {
     if (!profile) return;
@@ -466,6 +468,123 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
         )}
       </div>
 
+      {/* Compatibility Match Analysis Card */}
+      {!demo && !isOwnProfile && (
+        <>
+          {isAuthenticated && myProfile && compatibility ? (
+            <div className="mb-card rounded-2xl p-6 border-gold/30 bg-gold-soft/30 space-y-4 print:hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gold/20 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gold/15 text-gold flex items-center justify-center border border-gold/30 shrink-0">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-ink flex flex-wrap items-center gap-2">
+                      <span>{isBengali ? 'দ্বীনি ও পারিবারিক সামঞ্জস্যতা স্কোর' : 'Islamic & Matrimonial Compatibility'}</span>
+                      <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-gold/20 text-gold border border-gold/40">
+                        {compatibility.label}
+                      </span>
+                    </h3>
+                    <p className="text-xs text-ink-3">
+                      {isBengali
+                        ? 'আপনার প্রোফাইলের পছন্দ ও তথ্যের সাথে এই বায়োডাটার বিশ্লেষণ'
+                        : "Analysis based on your profile's preferences and attributes"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <span className="text-3xl font-black text-gold">
+                    {formatNumber(compatibility.score)}%
+                  </span>
+                  <span className="text-xs font-semibold text-ink-3">
+                    {isBengali ? 'সামঞ্জস্য' : 'Match'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress bar */}
+              <div className="w-full bg-elev h-2.5 rounded-full overflow-hidden border border-line">
+                <div
+                  className="h-full bg-linear-to-r from-brand via-pink-500 to-gold rounded-full transition-all duration-700"
+                  style={{ width: `${compatibility.score}%` }}
+                />
+              </div>
+
+              {/* Category Breakdown */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-1">
+                {Object.entries(compatibility.categories).map(([key, cat]) => (
+                  <div
+                    key={key}
+                    className="p-3 rounded-xl bg-card border border-line/70 flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                      <span className="text-[11px] font-semibold text-ink-2 truncate">
+                        {cat.name}
+                      </span>
+                      {cat.matched && (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      )}
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs font-bold text-ink">
+                        {formatNumber(cat.score)} / {formatNumber(cat.max)}
+                      </span>
+                      <span className="text-[10px] text-ink-3 font-medium">
+                        {Math.round((cat.score / cat.max) * 100)}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Matched reasons */}
+              {compatibility.reasons.length > 0 && (
+                <div className="pt-2">
+                  <p className="text-xs font-bold text-ink mb-2">
+                    {isBengali ? 'মূল সামঞ্জস্যপূর্ণ দিকগুলো:' : 'Key Matching Highlights:'}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {compatibility.reasons.map((reason, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-lg bg-card text-ink-2 border border-line"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>{reason}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : !isAuthenticated ? (
+            <div className="mb-card rounded-2xl p-4 sm:p-5 border-dashed border-gold/30 bg-gold-soft/20 flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gold/15 text-gold flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-ink">
+                    {isBengali ? 'আপনার সাথে সামঞ্জস্যতা স্কোর দেখতে চান?' : 'Want to see your compatibility score?'}
+                  </h4>
+                  <p className="text-xs text-ink-3">
+                    {isBengali
+                      ? 'লগইন করলে আপনার পছন্দের সাথে পাত্র/পাত্রীর ইসলামিক মূল্যবোধ ও অবস্থানের সামঞ্জস্য স্বয়ংক্রিয়ভাবে দেখানো হবে।'
+                      : 'Log in to see dynamic Shariah and lifestyle compatibility tailored to your profile.'}
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/login"
+                className="mb-btn-primary !text-xs whitespace-nowrap shrink-0"
+              >
+                {isBengali ? 'লগইন করে দেখুন' : 'Login to View'}
+              </Link>
+            </div>
+          ) : null}
+        </>
+      )}
+
       <BiodataInfoTables profile={profile} />
 
       {/* Safety notice */}
@@ -506,6 +625,11 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
         confirmText={isBengali ? 'ব্লক করুন' : 'Block'}
         variant="danger"
         isLoading={isBlocking}
+      />
+      <PrintableBiodataModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        profile={profile}
       />
     </div>
   );

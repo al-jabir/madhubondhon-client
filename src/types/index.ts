@@ -142,9 +142,20 @@ export interface Profile {
   visibility: ProfileVisibility;
   isComplete: boolean;
   completionPercentage: number;
+  viewCount?: number;
   isApproved: boolean;
   age?: number;
   createdAt?: string;
+}
+
+export interface ProfileInsights {
+  viewCount: number;
+  shortlistedCount: number;
+  interestsReceivedCount: number;
+  interestsSentCount: number;
+  completionPercentage: number;
+  isApproved: boolean;
+  visibility: ProfileVisibility;
 }
 
 export interface ShortlistItem {
