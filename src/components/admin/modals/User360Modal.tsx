@@ -1,32 +1,33 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  X,
   Compass,
+  X,
   UserCheck,
+  FileText,
   CreditCard,
   HeartHandshake,
-  Calendar,
   Phone,
-  ShieldCheck,
   Clock,
-  Sparkles,
-  FileText,
-  Lock,
-  History,
-  CheckCircle2,
-  AlertCircle,
-  Coins,
+  ShieldCheck,
 } from 'lucide-react';
-import { adminApi } from '../../../api/admin.api';
-import { User360Data, TimelineEvent } from '../../../types';
-import LoadingSpinner from '../../common/LoadingSpinner';
+import { adminApi, AuditLogItem } from '../../../api/admin.api';
 import { getUpazilaDisplayName } from '../../../constants/locations';
+import LoadingSpinner from '../../common/LoadingSpinner';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 interface User360ModalProps {
   userId: string | null;
   onClose: () => void;
+}
+
+interface TimelineEvent {
+  id: string;
+  type: 'registration' | 'biodata' | 'payment' | 'interest' | 'contact' | 'admin';
+  title: string;
+  description: string;
+  timestamp: string;
+  status?: string;
 }
 
 export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) => {
@@ -35,13 +36,13 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-user-360', userId],
-    enabled: !!userId,
+    enabled: Boolean(userId),
     queryFn: () => (userId ? adminApi.getUserTimeline(userId) : null),
   });
 
   if (!userId) return null;
 
-  const payload: User360Data | undefined = data?.data;
+  const payload = data?.data;
   const user = payload?.user;
   const profile = payload?.profile;
   const application = payload?.application;
@@ -84,13 +85,15 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
             </span>
             <div>
               <h2 className="text-lg font-bold text-ink flex items-center gap-2">
-                <span>{user?.name || 'ব্যবহারকারী'}</span>
+                <span>{user?.name || (isBengali ? 'ব্যবহারকারী' : 'User')}</span>
                 <span className="text-xs px-2 py-0.5 rounded-md bg-primary/10 text-primary font-bold">
-                  ৩৬০° প্রোফাইল ও টাইমলাইন
+                  {isBengali ? '৩৬০° প্রোফাইল ও টাইমলাইন' : '360° Profile & Timeline'}
                 </span>
               </h2>
               <p className="text-xs text-ink-3 mt-0.5">
-                সদস্যের নিবন্ধন থেকে বর্তমান পর্যন্ত সম্পূর্ণ কার্যকলাপ ও বৈবাহিক রেকর্ড
+                {isBengali
+                  ? 'সদস্যের নিবন্ধন থেকে বর্তমান পর্যন্ত সম্পূর্ণ কার্যকলাপ ও বৈবাহিক রেকর্ড'
+                  : 'Complete activity lifecycle, marital records and transaction timeline'}
               </p>
             </div>
           </div>
@@ -104,42 +107,57 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
 
         {isLoading ? (
           <div className="py-20 flex justify-center">
-            <LoadingSpinner size="lg" label="৩৬০° রেকর্ড লোড হচ্ছে..." />
+            <LoadingSpinner
+              size="lg"
+              label={isBengali ? '৩৬০° রেকর্ড লোড হচ্ছে...' : 'Loading 360° records...'}
+            />
           </div>
         ) : !payload || !user ? (
           <div className="py-12 text-center text-ink-3 text-sm">
-            ব্যবহারকারীর বিস্তারিত তথ্য পাওয়া যায়নি।
+            {isBengali
+              ? 'ব্যবহারকারীর বিস্তারিত তথ্য পাওয়া যায়নি।'
+              : 'User details could not be found.'}
           </div>
         ) : (
           <div className="space-y-6 text-sm">
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               <div className="bg-elev border border-line p-3 rounded-xl text-center">
-                <span className="text-[11px] text-ink-3 block">যোগাযোগ ক্রেডিট</span>
+                <span className="text-[11px] text-ink-3 block">
+                  {isBengali ? 'যোগাযোগ ক্রেডিট' : 'Contact Credits'}
+                </span>
                 <span className="text-lg font-bold text-primary mt-0.5 block">
                   {formatNumber(stats.credits)}
                 </span>
               </div>
               <div className="bg-elev border border-line p-3 rounded-xl text-center">
-                <span className="text-[11px] text-ink-3 block">মোট লেনদেন</span>
+                <span className="text-[11px] text-ink-3 block">
+                  {isBengali ? 'মোট লেনদেন' : 'Total Transactions'}
+                </span>
                 <span className="text-lg font-bold text-ink mt-0.5 block">
                   {formatNumber(stats.transactionsCount)}
                 </span>
               </div>
               <div className="bg-elev border border-line p-3 rounded-xl text-center">
-                <span className="text-[11px] text-ink-3 block">আগ্রহ প্রেরণ</span>
+                <span className="text-[11px] text-ink-3 block">
+                  {isBengali ? 'আগ্রহ প্রেরণ' : 'Interests Sent'}
+                </span>
                 <span className="text-lg font-bold text-rose-500 mt-0.5 block">
                   {formatNumber(stats.interestsSentCount)}
                 </span>
               </div>
               <div className="bg-elev border border-line p-3 rounded-xl text-center">
-                <span className="text-[11px] text-ink-3 block">আগ্রহ প্রাপ্তি</span>
+                <span className="text-[11px] text-ink-3 block">
+                  {isBengali ? 'আগ্রহ প্রাপ্তি' : 'Interests Received'}
+                </span>
                 <span className="text-lg font-bold text-emerald-600 mt-0.5 block">
                   {formatNumber(stats.interestsReceivedCount)}
                 </span>
               </div>
               <div className="bg-elev border border-line p-3 rounded-xl text-center col-span-2 sm:col-span-1">
-                <span className="text-[11px] text-ink-3 block">যোগাযোগ আনলক</span>
+                <span className="text-[11px] text-ink-3 block">
+                  {isBengali ? 'যোগাযোগ আনলক' : 'Contacts Unlocked'}
+                </span>
                 <span className="text-lg font-bold text-purple-600 mt-0.5 block">
                   {formatNumber(stats.contactGrantsCount)}
                 </span>
@@ -159,10 +177,13 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
                   </span>
                 </div>
                 <div className="text-ink-3 flex flex-wrap gap-x-4 gap-y-1 font-mono">
-                  <span>ইমেইল: {user.email}</span>
-                  <span>ফোন: {user.phone || 'যুক্ত নেই'}</span>
+                  <span>{isBengali ? 'ইমেইল:' : 'Email:'} {user.email}</span>
                   <span>
-                    নিবন্ধন:{' '}
+                    {isBengali ? 'ফোন:' : 'Phone:'}{' '}
+                    {user.phone || (isBengali ? 'যুক্ত নেই' : 'Not added')}
+                  </span>
+                  <span>
+                    {isBengali ? 'নিবন্ধন:' : 'Joined:'}{' '}
                     {user.createdAt
                       ? new Date(user.createdAt).toLocaleDateString(isBengali ? 'bn-BD' : 'en-US')
                       : '—'}
@@ -172,12 +193,20 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
 
               {profile?.biodataId && (
                 <div className="text-right sm:border-l sm:border-line sm:pl-4">
-                  <span className="text-[10px] text-ink-3 block">বায়োডাটা কোড</span>
+                  <span className="text-[10px] text-ink-3 block">
+                    {isBengali ? 'বায়োডাটা কোড' : 'Biodata ID'}
+                  </span>
                   <span className="font-mono font-bold text-sm text-primary">
                     {profile.biodataId}
                   </span>
                   <span className="text-[10px] text-emerald-600 block mt-0.5 font-medium">
-                    {profile.isApproved ? 'অনুমোদিত ও সক্রিয়' : 'অপেক্ষমান'}
+                    {profile.isApproved
+                      ? isBengali
+                        ? 'অনুমোদিত ও সক্রিয়'
+                        : 'Approved & Active'
+                      : isBengali
+                      ? 'অপেক্ষমান'
+                      : 'Pending Approval'}
                   </span>
                 </div>
               )}
@@ -194,7 +223,7 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
                     : 'text-ink-3 hover:text-ink'
                 }`}
               >
-                অ্যাক্টিভিটি টাইমলাইন ({timeline.length})
+                {isBengali ? 'অ্যাক্টিভিটি টাইমলাইন' : 'Activity Timeline'} ({timeline.length})
               </button>
               <button
                 type="button"
@@ -205,7 +234,7 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
                     : 'text-ink-3 hover:text-ink'
                 }`}
               >
-                বায়োডাটা বিস্তারিত
+                {isBengali ? 'বায়োডাটা বিস্তারিত' : 'Biodata Details'}
               </button>
               <button
                 type="button"
@@ -216,7 +245,7 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
                     : 'text-ink-3 hover:text-ink'
                 }`}
               >
-                অভিভাবকের সম্মতি ও তথ্য
+                {isBengali ? 'অভিভাবকের সম্মতি ও তথ্য' : 'Guardian Details & Consent'}
               </button>
             </div>
 
@@ -225,7 +254,9 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
               <div className="space-y-3">
                 {timeline.length === 0 ? (
                   <div className="py-8 text-center text-ink-3 text-xs">
-                    কোনো অ্যাক্টিভিটি ইভেন্ট পাওয়া যায়নি।
+                    {isBengali
+                      ? 'কোনো অ্যাক্টিভিটি ইভেন্ট পাওয়া যায়নি।'
+                      : 'No activity events recorded yet.'}
                   </div>
                 ) : (
                   <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-line">
@@ -246,7 +277,7 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
                           <p className="text-ink-2 leading-relaxed">{evt.description}</p>
                           {evt.status && (
                             <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded bg-muted font-mono text-ink-3 capitalize">
-                              স্ট্যাটাস: {evt.status}
+                              {isBengali ? 'স্ট্যাটাস:' : 'Status:'} {evt.status}
                             </span>
                           )}
                         </div>
@@ -264,64 +295,72 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
                   <div className="bg-elev border border-line rounded-xl p-4 text-xs space-y-3">
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       <div>
-                        <span className="text-ink-3">লিঙ্গ:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'লিঙ্গ:' : 'Gender:'}</span>{' '}
                         <strong className="text-ink">
-                          {profile.gender === 'male' ? 'পাত্র' : 'পাত্রী'}
+                          {profile.gender === 'male'
+                            ? isBengali
+                              ? 'পাত্র'
+                              : 'Groom'
+                            : isBengali
+                            ? 'পাত্রী'
+                            : 'Bride'}
                         </strong>
                       </div>
                       <div>
-                        <span className="text-ink-3">উপজেলা:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'উপজেলা:' : 'Upazila:'}</span>{' '}
                         <strong className="text-ink">
                           {getUpazilaDisplayName(profile.upazila, isBengali)}
                         </strong>
                       </div>
                       <div>
-                        <span className="text-ink-3">বৈবাহিক অবস্থা:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'বৈবাহিক অবস্থা:' : 'Marital Status:'}</span>{' '}
                         <strong className="text-ink">{profile.maritalStatus}</strong>
                       </div>
                       <div>
-                        <span className="text-ink-3">উচ্চতা:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'উচ্চতা:' : 'Height:'}</span>{' '}
                         <strong className="text-ink">
                           {profile.height?.feet || 5}' {profile.height?.inches || 0}"
                         </strong>
                       </div>
                       <div>
-                        <span className="text-ink-3">পেশা:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'পেশা:' : 'Occupation:'}</span>{' '}
                         <strong className="text-ink">{profile.occupation || '—'}</strong>
                       </div>
                       <div>
-                        <span className="text-ink-3">শিক্ষা:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'শিক্ষা:' : 'Education:'}</span>{' '}
                         <strong className="text-ink">{profile.education || '—'}</strong>
                       </div>
                     </div>
 
                     {profile.religiousInfo && (
                       <div className="pt-2 border-t border-line space-y-1">
-                        <span className="font-bold text-ink block">দ্বীনি তথ্য:</span>
+                        <span className="font-bold text-ink block">
+                          {isBengali ? 'দ্বীনি তথ্য:' : 'Religious Info:'}
+                        </span>
                         <div className="flex flex-wrap gap-2 text-[11px] text-ink-2">
                           {profile.religiousInfo.praysFiveTimes && (
                             <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600">
-                              ✓ ৫ ওয়াক্ত নামাজি
+                              ✓ {isBengali ? '৫ ওয়াক্ত নামাজি' : '5 Times Prayers'}
                             </span>
                           )}
                           {profile.religiousInfo.canReciteQuran && (
                             <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600">
-                              ✓ কুরআন পাঠ
+                              ✓ {isBengali ? 'কুরআন পাঠ' : 'Quran Recitation'}
                             </span>
                           )}
                           {profile.religiousInfo.wearsHijab && (
                             <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600">
-                              ✓ পর্দা / হিজাব
+                              ✓ {isBengali ? 'পর্দা / হিজাব' : 'Hijab / Niqab'}
                             </span>
                           )}
                           {profile.religiousInfo.hasBeard && (
                             <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600">
-                              ✓ সুন্নত দাড়ি
+                              ✓ {isBengali ? 'সুন্নত দাড়ি' : 'Sunnah Beard'}
                             </span>
                           )}
                           {profile.religiousInfo.maintainsMahram && (
                             <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600">
-                              ✓ মাহরাম মেনে চলেন
+                              ✓ {isBengali ? 'মাহরাম মেনে চলেন' : 'Maintains Mahram'}
                             </span>
                           )}
                         </div>
@@ -330,14 +369,18 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
 
                     {profile.bio && (
                       <div className="pt-2 border-t border-line">
-                        <span className="font-bold text-ink block mb-0.5">জীবনবৃত্তান্ত ও প্রত্যাশা:</span>
+                        <span className="font-bold text-ink block mb-0.5">
+                          {isBengali ? 'জীবনবৃত্তান্ত ও প্রত্যাশা:' : 'Bio & Expectations:'}
+                        </span>
                         <p className="text-ink-3 leading-relaxed">{profile.bio}</p>
                       </div>
                     )}
                   </div>
                 ) : (
                   <p className="text-ink-3 italic text-center py-6">
-                    এই ইউজারের কোনো বায়োডাটা প্রোফাইল নেই।
+                    {isBengali
+                      ? 'এই ইউজারের কোনো বায়োডাটা প্রোফাইল নেই।'
+                      : 'This user does not have a registered biodata profile.'}
                   </p>
                 )}
               </div>
@@ -350,46 +393,50 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
                   <div className="bg-elev border border-line rounded-xl p-4 text-xs space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <span className="text-ink-3">অভিভাবকের নাম:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'অভিভাবকের নাম:' : "Guardian's Name:"}</span>{' '}
                         <strong className="text-ink">{application.guardian.name}</strong>
                       </div>
                       <div>
-                        <span className="text-ink-3">সম্পর্ক:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'সম্পর্ক:' : 'Relationship:'}</span>{' '}
                         <strong className="text-ink">
                           {application.guardian.relationship}
                         </strong>
                       </div>
                       <div>
-                        <span className="text-ink-3">মোবাইল নম্বর:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'মোবাইল নম্বর:' : 'Mobile Number:'}</span>{' '}
                         <strong className="text-ink font-mono">
                           {application.guardian.phone}
                         </strong>
                       </div>
                       <div>
-                        <span className="text-ink-3">ইমেইল:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'ইমেইল:' : 'Email:'}</span>{' '}
                         <strong className="text-ink font-mono">
                           {application.guardian.email || '—'}
                         </strong>
                       </div>
                       <div>
-                        <span className="text-ink-3">সম্মতি প্রদানের সময়:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'সম্মতি প্রদানের সময়:' : 'Consent Recorded At:'}</span>{' '}
                         <strong className="text-ink">
                           {application.guardianConsentedAt
-                            ? new Date(application.guardianConsentedAt).toLocaleString()
-                            : 'সরাসরি যাচাইকৃত'}
+                            ? new Date(application.guardianConsentedAt).toLocaleString(
+                                isBengali ? 'bn-BD' : 'en-US'
+                              )
+                            : isBengali ? 'সরাসরি যাচাইকৃত' : 'Directly Verified'}
                         </strong>
                       </div>
                       <div>
-                        <span className="text-ink-3">পর্যালোচক অ্যাডমিন:</span>{' '}
+                        <span className="text-ink-3">{isBengali ? 'পর্যালোচক অ্যাডমিন:' : 'Reviewed By:'}</span>{' '}
                         <strong className="text-ink">
-                          {application.reviewedBy?.name || 'অ্যাডমিন টিম'}
+                          {application.reviewedBy?.name || (isBengali ? 'অ্যাডমিন টিম' : 'Admin Team')}
                         </strong>
                       </div>
                     </div>
                   </div>
                 ) : (
                   <p className="text-ink-3 italic text-center py-6">
-                    কোনো অভিভাবকের বিবরণ সংরক্ষিত নেই।
+                    {isBengali
+                      ? 'কোনো অভিভাবকের বিবরণ সংরক্ষিত নেই।'
+                      : 'No guardian information recorded.'}
                   </p>
                 )}
               </div>
@@ -400,4 +447,5 @@ export const User360Modal: React.FC<User360ModalProps> = ({ userId, onClose }) =
     </div>
   );
 };
+
 export default User360Modal;

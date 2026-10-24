@@ -196,13 +196,15 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
           <div className="space-y-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
-              নমুনা বায়োডাটা সাময়িক বন্ধ
+              {isBengali ? 'নমুনা বায়োডাটা সাময়িক বন্ধ' : 'Sample Profiles Inactive'}
             </span>
             <h2 className="text-xl sm:text-2xl font-black text-ink">
-              নমুনা বায়োডাটা প্রদর্শন নিষ্ক্রিয় রয়েছে
+              {isBengali ? 'নমুনা বায়োডাটা প্রদর্শন নিষ্ক্রিয় রয়েছে' : 'Sample Biodata Display Disabled'}
             </h2>
             <p className="text-xs sm:text-sm text-ink-3 max-w-md mx-auto leading-relaxed">
-              ওয়েবসাইট অ্যাডমিনিস্ট্রেটর কর্তৃক কাল্পনিক নমুনা বায়োডাটা প্রদর্শন সাময়িকভাবে বন্ধ রাখা হয়েছে। আপনি বাস্তব ও ভেরিফায়েড বায়োডাটা অন্বেষণ করতে পারেন।
+              {isBengali
+                ? 'ওয়েবসাইট অ্যাডমিনিস্ট্রেটর কর্তৃক কাল্পনিক নমুনা বায়োডাটা প্রদর্শন সাময়িকভাবে বন্ধ রাখা হয়েছে। আপনি বাস্তব ও ভেরিফায়েড বায়োডাটা অন্বেষণ করতে পারেন।'
+                : 'Display of sample illustrative profiles has been turned off by administrators. You can browse authentic verified biodatas.'}
             </p>
           </div>
 
@@ -213,7 +215,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm bg-brand text-white hover:bg-brand/90 shadow-md shadow-brand/20 transition-all cursor-pointer"
             >
               <Search className="w-4 h-4" />
-              <span>আসল বায়োডাটা খুঁজুন</span>
+              <span>{isBengali ? 'আসল বায়োডাটা খুঁজুন' : 'Find Real Biodatas'}</span>
             </button>
             <button
               type="button"
@@ -221,7 +223,7 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm bg-card hover:bg-card-hover border border-line text-ink transition-all cursor-pointer"
             >
               <Home className="w-4 h-4" />
-              <span>হোমপেজে ফিরে যান</span>
+              <span>{isBengali ? 'হোমপেজে ফিরে যান' : 'Back to Home'}</span>
             </button>
           </div>
         </div>
