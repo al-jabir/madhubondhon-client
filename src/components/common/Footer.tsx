@@ -1,11 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router';
-import { Heart, ShieldCheck, MapPin, PhoneCall, ArrowRight } from 'lucide-react';
+import { Heart, ShieldCheck, MapPin, PhoneCall, ArrowRight, Share2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../../constants/locations';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { adminApi } from '../../api/admin.api';
 
 export const Footer: React.FC = () => {
   const { t, isBengali, formatNumber } = useLanguage();
+
+  const { data: settingsData } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: () => adminApi.getPublicSettings(),
+    staleTime: 60000,
+  });
+  const settings = settingsData?.data?.settings;
+
   return (
     <footer className="bg-[#2b161f] text-[#e9d3db] pt-10 sm:pt-14 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,9 +108,16 @@ export const Footer: React.FC = () => {
               <p className="font-semibold text-white">
                 {isBengali ? 'জরুরি যোগাযোগ ও সাপোর্ট:' : 'Emergency Contact & Support:'}
               </p>
-              <p className="text-rose-300 font-mono">support@madhubondhon.com</p>
+              <p className="text-rose-300 font-mono">
+                {settings?.contactEmail || 'support@madhubondhon.com'}
+              </p>
+              {settings?.contactPhone && (
+                <p className="text-[#e9d3db] font-mono text-[11px]">
+                  {settings.contactPhone}
+                </p>
+              )}
               <p className="text-[#c8a9b6]">
-                {isBengali ? 'টাঙ্গাইল সদর, টাঙ্গাইল, বাংলাদেশ' : 'Tangail Sadar, Tangail, Bangladesh'}
+                {settings?.officeAddress || (isBengali ? 'টাঙ্গাইল সদর, টাঙ্গাইল, বাংলাদেশ' : 'Tangail Sadar, Tangail, Bangladesh')}
               </p>
             </div>
           </div>

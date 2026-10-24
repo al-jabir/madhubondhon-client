@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router';
 import { Phone, MessageCircle, Clock, ShieldAlert, Mail, HelpCircle, MapPin, Send, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useLanguage } from '../i18n/LanguageContext';
 import { adminApi } from '../api/admin.api';
 
@@ -17,6 +17,18 @@ export const ContactPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+
+  const { data: settingsData } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: () => adminApi.getPublicSettings(),
+    staleTime: 60000,
+  });
+  const settings = settingsData?.data?.settings;
+
+  const phoneDisplay = settings?.contactPhone || (isBengali ? HELPLINE_BN : HELPLINE_EN);
+  const whatsappNumber = (settings?.supportWhatsApp || PHONE_LOCAL).replace(/\D/g, '');
+  const officeAddr = settings?.officeAddress || (isBengali ? 'ভিক্টোরিয়া রোড, টাঙ্গাইল সদর' : 'Tangail Sadar, Tangail');
+  const supportMail = settings?.contactEmail || 'staff@madhubondhon.com';
 
   const submitMutation = useMutation({
     mutationFn: () => adminApi.submitSupportMessage({ name, email, phone, subject, message }),
@@ -87,12 +99,12 @@ export const ContactPage: React.FC = () => {
           <div className="rounded-2xl bg-elev border border-line p-4 text-center space-y-1.5">
             <p className="text-ink-3 text-[11px] font-semibold">{isBengali ? 'নম্বর' : 'Number'}</p>
             <p className="text-lg font-black text-ink tracking-wide" dir="ltr">
-              {isBengali ? HELPLINE_BN : HELPLINE_EN}
+              {phoneDisplay}
             </p>
           </div>
           <div className="flex flex-col gap-2">
             <a
-              href={`https://api.whatsapp.com/send?phone=${PHONE_LOCAL.replace(/\D/g, '')}&text=${whatsappMsg}`}
+              href={`https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${whatsappMsg}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 transition-colors"
@@ -101,7 +113,7 @@ export const ContactPage: React.FC = () => {
               <span>{isBengali ? 'WhatsApp-এ কথা বলুন' : 'Chat on WhatsApp'}</span>
             </a>
             <a
-              href={`tel:${PHONE_LOCAL}`}
+              href={`tel:${phoneDisplay}`}
               className="mb-btn-secondary w-full justify-center"
             >
               <Phone className="w-4 h-4" />
@@ -150,12 +162,12 @@ export const ContactPage: React.FC = () => {
             <li>
               {isBengali ? 'প্রশাসনিক জিজ্ঞাসা: ' : 'Official queries: '}
               <span className="font-mono text-ink" dir="ltr">
-                staff@madhubondhon.com
+                {supportMail}
               </span>
             </li>
             <li className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 shrink-0 text-ink-3" />
-              <span>{isBengali ? 'টাঙ্গাইল সদর, টাঙ্গাইল ১৯০০' : 'Tangail Sadar, Tangail 1900'}</span>
+              <span>{officeAddr}</span>
             </li>
           </ul>
         </div>
