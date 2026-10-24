@@ -9,12 +9,11 @@ import { UserRole } from "../types";
 
 export const LoginPage: React.FC = () => {
   const { user, isAuthenticated, isLoading, login } = useAuth();
-  const { t, isBengali } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [email, setEmail] = useState("");
-  const [secondFactor, setSecondFactor] = useState('');
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,7 +50,7 @@ export const LoginPage: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      const loggedInUser = await login({ email: email.trim(), password, secondFactor: secondFactor.trim() || undefined });
+      const loggedInUser = await login({ email: email.trim(), password });
       toast.success(t('auth.loginSuccess'));
 
       const isAdminRole =
@@ -134,7 +133,6 @@ export const LoginPage: React.FC = () => {
                 </button>
               </div>
             </div>
-<label className="block text-sm">{isBengali?'Authenticator / recovery code (ঐচ্ছিক)':'Authenticator / recovery code (optional)'}<input className="mb-input mt-2" value={secondFactor} onChange={e=>setSecondFactor(e.target.value)} autoComplete="one-time-code" maxLength={32} placeholder={isBengali?'শুধু 2FA চালু থাকলে দিন':'Only if 2FA is enabled'} /></label>
 
             <button
               type="submit"

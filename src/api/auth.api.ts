@@ -18,7 +18,7 @@ export const authApi = {
     return res.data;
   },
 
-  async login(data: { email: string; password: string; secondFactor?: string }) {
+  async login(data: { email: string; password: string }) {
     const res = await apiClient.post<ApiResponse<{ user: User; accessToken: string; refreshToken: string }>>(
       '/auth/login',
       data,

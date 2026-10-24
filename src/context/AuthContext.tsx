@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, [refreshUser]);
 
-  const login = async (data: { email: string; password: string; secondFactor?: string }): Promise<User> => {
+  const login = async (data: { email: string; password: string }): Promise<User> => {
     const res = await authApi.login(data);
     if (res.data?.accessToken && res.data.refreshToken && res.data.user) {
       localStorage.setItem('accessToken', res.data.accessToken);
