@@ -6,12 +6,12 @@ import {
   ShieldCheck,
   Heart,
   Phone,
-  UserCheck,
   Sparkles,
 } from 'lucide-react';
 import { adminApi } from '../../../api/admin.api';
 import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../../../constants/locations';
 import { toast } from 'sonner';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 interface AssistedBiodataModalProps {
   isOpen: boolean;
@@ -20,6 +20,7 @@ interface AssistedBiodataModalProps {
 
 export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOpen, onClose }) => {
   const queryClient = useQueryClient();
+  const { isBengali } = useLanguage();
 
   // Form states
   const [candidateName, setCandidateName] = useState('');
@@ -35,7 +36,7 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
 
   // Guardian info
   const [guardianName, setGuardianName] = useState('');
-  const [guardianRelationship, setGuardianRelationship] = useState('পিতা');
+  const [guardianRelationship, setGuardianRelationship] = useState('father');
   const [guardianPhone, setGuardianPhone] = useState('');
   const [guardianEmail, setGuardianEmail] = useState('');
 
@@ -64,7 +65,16 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
         educationDetail,
         occupation,
         guardianName,
-        guardianRelationship,
+        guardianRelationship:
+          guardianRelationship === 'father'
+            ? 'পিতা'
+            : guardianRelationship === 'mother'
+            ? 'মাতা'
+            : guardianRelationship === 'brother'
+            ? 'বড় ভাই'
+            : guardianRelationship === 'uncle'
+            ? 'চাচা / মামা'
+            : 'আইনগত অভিভাবক',
         guardianPhone,
         guardianEmail,
         praysFiveTimes,
@@ -78,13 +88,20 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
     },
     onSuccess: (res) => {
       const bioId = res.data?.profile?.biodataId || 'MB';
-      toast.success(`বায়োডাটা (${bioId}) সফলভাবে সিস্টেমে যুক্ত ও প্রকাশিত হয়েছে!`);
+      toast.success(
+        isBengali
+          ? `বায়োডাটা (${bioId}) সফলভাবে সিস্টেমে যুক্ত ও প্রকাশিত হয়েছে!`
+          : `Biodata (${bioId}) created and published successfully!`
+      );
       queryClient.invalidateQueries({ queryKey: ['admin-published-profiles'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       onClose();
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'বায়োডাটা এন্ট্রি করতে সমস্যা হয়েছে।');
+      toast.error(
+        err.response?.data?.message ||
+          (isBengali ? 'বায়োডাটা এন্ট্রি করতে সমস্যা হয়েছে।' : 'Failed to create assisted biodata.')
+      );
     },
   });
 
@@ -93,11 +110,15 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!candidateName.trim()) {
-      toast.error('প্রার্থীর নাম আবশ্যক');
+      toast.error(isBengali ? 'প্রার্থীর নাম আবশ্যক' : 'Candidate name is required');
       return;
     }
     if (!guardianPhone.trim() || guardianPhone.length < 11) {
-      toast.error('অভিভাবকের সঠিক ১১ ডিজিট মোবাইল নম্বর প্রদান করুন');
+      toast.error(
+        isBengali
+          ? 'অভিভাবকের সঠিক ১১ ডিজিট মোবাইল নম্বর প্রদান করুন'
+          : 'Please provide a valid 11-digit guardian phone number'
+      );
       return;
     }
     createMutation.mutate();
@@ -113,9 +134,15 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
               <UserPlus className="w-5 h-5" />
             </span>
             <div>
-              <h2 className="text-lg font-bold text-ink">অফলাইন / অভিভাবক অ্যাসিস্টেড বায়োডাটা এন্ট্রি</h2>
+              <h2 className="text-lg font-bold text-ink">
+                {isBengali
+                  ? 'অফলাইন / অভিভাবক অ্যাসিস্টেড বায়োডাটা এন্ট্রি'
+                  : 'Offline / Assisted Biodata Entry'}
+              </h2>
               <p className="text-xs text-ink-3">
-                বয়োবৃদ্ধ বা স্মার্টফোন ব্যবহারে অনভ্যস্ত অভিভাবকদের পক্ষে অ্যাডমিন টিম কর্তৃক সরাসরি বায়োডাটা নিবন্ধন
+                {isBengali
+                  ? 'বয়োবৃদ্ধ বা স্মার্টফোন ব্যবহারে অনভ্যস্ত অভিভাবকদের পক্ষে অ্যাডমিন টিম কর্তৃক সরাসরি বায়োডাটা নিবন্ধন'
+                  : 'Direct profile entry on behalf of elders and guardians assisted by the admin team'}
               </p>
             </div>
           </div>
@@ -128,35 +155,42 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
           {/* Section 1: Candidate Basic Info */}
           <div className="space-y-3">
             <h3 className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
-              <Heart className="w-4 h-4" /> প্রার্থীর মৌলিক তথ্য
+              <Heart className="w-4 h-4" />{' '}
+              <span>{isBengali ? 'প্রার্থীর মৌলিক তথ্য' : 'Candidate Basic Information'}</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">প্রার্থীর নাম *</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'প্রার্থীর নাম *' : "Candidate's Name *"}
+                </label>
                 <input
                   type="text"
                   required
                   value={candidateName}
                   onChange={(e) => setCandidateName(e.target.value)}
-                  placeholder="যেমন: মুহাম্মদ আবদুল্লাহ"
+                  placeholder={isBengali ? 'যেমন: মুহাম্মদ আবদুল্লাহ' : 'e.g. Muhammad Abdullah'}
                   className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">বায়োডাটার ধরন *</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'বায়োডাটার ধরন *' : 'Biodata Type *'}
+                </label>
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value as any)}
                   className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
                 >
-                  <option value="male">পাত্রের বায়োডাটা (Groom)</option>
-                  <option value="female">পাত্রীর বায়োডাটা (Bride)</option>
+                  <option value="male">{isBengali ? 'পাত্রের বায়োডাটা (Groom)' : "Groom's Biodata (Male)"}</option>
+                  <option value="female">{isBengali ? 'পাত্রীর বায়োডাটা (Bride)' : "Bride's Biodata (Female)"}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">জন্ম তারিখ *</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'জন্ম তারিখ *' : 'Date of Birth *'}
+                </label>
                 <input
                   type="date"
                   required
@@ -169,7 +203,9 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">উপজেলা (টাঙ্গাইল) *</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'উপজেলা (টাঙ্গাইল) *' : 'Upazila (Tangail) *'}
+                </label>
                 <select
                   value={upazila}
                   onChange={(e) => setUpazila(e.target.value)}
@@ -177,27 +213,31 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
                 >
                   {TANGAIL_UPAZILAS.map((u) => (
                     <option key={u} value={u}>
-                      {getUpazilaDisplayName(u)}
+                      {getUpazilaDisplayName(u, isBengali)}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">বৈবাহিক অবস্থা</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'বৈবাহিক অবস্থা' : 'Marital Status'}
+                </label>
                 <select
                   value={maritalStatus}
                   onChange={(e) => setMaritalStatus(e.target.value)}
                   className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
                 >
-                  <option value="never_married">অবিবাহিত</option>
-                  <option value="divorced">ডিভোর্সড</option>
-                  <option value="widowed">বিধবা / বিপত্নীক</option>
+                  <option value="never_married">{isBengali ? 'অবিবাহিত' : 'Never Married'}</option>
+                  <option value="divorced">{isBengali ? 'ডিভোর্সড' : 'Divorced'}</option>
+                  <option value="widowed">{isBengali ? 'বিধবা / বিপত্নীক' : 'Widowed'}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">উচ্চতা</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'উচ্চতা' : 'Height'}
+                </label>
                 <div className="grid grid-cols-2 gap-1.5">
                   <select
                     value={heightFeet}
@@ -206,7 +246,7 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
                   >
                     {[4, 5, 6, 7].map((f) => (
                       <option key={f} value={f}>
-                        {f} ফুট
+                        {f} {isBengali ? 'ফুট' : 'ft'}
                       </option>
                     ))}
                   </select>
@@ -217,7 +257,7 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
                   >
                     {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => (
                       <option key={i} value={i}>
-                        {i} ইঞ্চি
+                        {i} {isBengali ? 'ইঞ্চি' : 'in'}
                       </option>
                     ))}
                   </select>
@@ -227,29 +267,33 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">শিক্ষাগত যোগ্যতা</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'শিক্ষাগত যোগ্যতা' : 'Educational Qualification'}
+                </label>
                 <select
                   value={education}
                   onChange={(e) => setEducation(e.target.value)}
                   className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
                 >
-                  <option value="ssc">এসএসসি / দাখিল</option>
-                  <option value="hsc">এইচএসসি / আলিম</option>
-                  <option value="diploma">ডিপ্লোমা</option>
-                  <option value="bachelors">স্নাতক / অনার্স / ফাজিল</option>
-                  <option value="masters">মাস্টার্স / কামিল</option>
-                  <option value="islamic_education">কওমি মাদ্রাসা (দাওরায়ে হাদিস)</option>
-                  <option value="other">অন্যান্য</option>
+                  <option value="ssc">{isBengali ? 'এসএসসি / দাখিল' : 'SSC / Dakhil'}</option>
+                  <option value="hsc">{isBengali ? 'এইচএসসি / আলিম' : 'HSC / Alim'}</option>
+                  <option value="diploma">{isBengali ? 'ডিপ্লোমা' : 'Diploma'}</option>
+                  <option value="bachelors">{isBengali ? 'স্নাতক / অনার্স / ফাজিল' : 'Bachelors / Fazil'}</option>
+                  <option value="masters">{isBengali ? 'মাস্টার্স / কামিল' : 'Masters / Kamil'}</option>
+                  <option value="islamic_education">{isBengali ? 'কওমি মাদ্রাসা (দাওরায়ে হাদিস)' : 'Qawmi Madrasah (Dawra)'}</option>
+                  <option value="other">{isBengali ? 'অন্যান্য' : 'Other'}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">পেশা ও কর্মক্ষেত্র</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'পেশা ও কর্মক্ষেত্র' : 'Occupation'}
+                </label>
                 <input
                   type="text"
                   value={occupation}
                   onChange={(e) => setOccupation(e.target.value)}
-                  placeholder="যেমন: সফটওয়্যার ইঞ্জিনিয়ার / ব্যবসায়ী / শিক্ষক"
+                  placeholder={isBengali ? 'যেমন: সফটওয়্যার ইঞ্জিনিয়ার / ব্যবসায়ী / শিক্ষক' : 'e.g. Software Engineer / Businessman / Teacher'}
                   className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
                 />
               </div>
@@ -259,38 +303,45 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
           {/* Section 2: Guardian Info */}
           <div className="space-y-3 pt-3 border-t border-line">
             <h3 className="text-xs font-bold text-amber-600 uppercase tracking-wider flex items-center gap-1.5">
-              <Phone className="w-4 h-4" /> অভিভাবকের তথ্য (যাচাইকৃত)
+              <Phone className="w-4 h-4" />{' '}
+              <span>{isBengali ? 'অভিভাবকের তথ্য (যাচাইকৃত)' : 'Verified Guardian Information'}</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">অভিভাবকের নাম *</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'অভিভাবকের নাম *' : "Guardian's Name *"}
+                </label>
                 <input
                   type="text"
                   required
                   value={guardianName}
                   onChange={(e) => setGuardianName(e.target.value)}
-                  placeholder="যেমন: হাজী মোঃ রফিকুল ইসলাম"
+                  placeholder={isBengali ? 'যেমন: হাজী মোঃ রফিকুল ইসলাম' : 'e.g. Md. Rafiqul Islam'}
                   className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">সম্পর্ক *</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'সম্পর্ক *' : 'Relationship *'}
+                </label>
                 <select
                   value={guardianRelationship}
                   onChange={(e) => setGuardianRelationship(e.target.value)}
                   className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
                 >
-                  <option value="পিতা">পিতা</option>
-                  <option value="মাতা">মাতা</option>
-                  <option value="ভাই">বড় ভাই</option>
-                  <option value="চাচা">চাচা / মামা</option>
-                  <option value="অভিভাবক">আইনগত অভিভাবক</option>
+                  <option value="father">{isBengali ? 'পিতা' : 'Father'}</option>
+                  <option value="mother">{isBengali ? 'মাতা' : 'Mother'}</option>
+                  <option value="brother">{isBengali ? 'বড় ভাই' : 'Elder Brother'}</option>
+                  <option value="uncle">{isBengali ? 'চাচা / মামা' : 'Uncle'}</option>
+                  <option value="guardian">{isBengali ? 'আইনগত অভিভাবক' : 'Legal Guardian'}</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">অভিভাবকের মোবাইল *</label>
+                <label className="block text-xs font-semibold text-ink-2 mb-1">
+                  {isBengali ? 'অভিভাবকের মোবাইল *' : "Guardian's Mobile *"}
+                </label>
                 <input
                   type="text"
                   required
@@ -306,7 +357,8 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
           {/* Section 3: Religious Practice */}
           <div className="space-y-3 pt-3 border-t border-line">
             <h3 className="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4" /> দ্বীনি ও ইসলামিক তথ্য
+              <ShieldCheck className="w-4 h-4" />{' '}
+              <span>{isBengali ? 'দ্বীনি ও ইসলামিক তথ্য' : 'Religious & Islamic Details'}</span>
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-muted/40 p-3 rounded-xl border border-line">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -316,7 +368,9 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
                   onChange={(e) => setPraysFiveTimes(e.target.checked)}
                   className="rounded text-primary focus:ring-primary w-4 h-4"
                 />
-                <span className="text-xs text-ink">৫ ওয়াক্ত নামাজি</span>
+                <span className="text-xs text-ink">
+                  {isBengali ? '৫ ওয়াক্ত নামাজি' : '5 Times Prayers'}
+                </span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -326,7 +380,9 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
                   onChange={(e) => setCanReciteQuran(e.target.checked)}
                   className="rounded text-primary focus:ring-primary w-4 h-4"
                 />
-                <span className="text-xs text-ink">সহীহ কুরআন পাঠ</span>
+                <span className="text-xs text-ink">
+                  {isBengali ? 'সহীহ কুরআন পাঠ' : 'Quran Recitation'}
+                </span>
               </label>
 
               {gender === 'female' ? (
@@ -337,7 +393,9 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
                     onChange={(e) => setWearsHijab(e.target.checked)}
                     className="rounded text-primary focus:ring-primary w-4 h-4"
                   />
-                  <span className="text-xs text-ink">পর্দা / হিজাব করেন</span>
+                  <span className="text-xs text-ink">
+                    {isBengali ? 'পর্দা / হিজাব করেন' : 'Wears Hijab / Niqab'}
+                  </span>
                 </label>
               ) : (
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -347,7 +405,9 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
                     onChange={(e) => setHasBeard(e.target.checked)}
                     className="rounded text-primary focus:ring-primary w-4 h-4"
                   />
-                  <span className="text-xs text-ink">সুন্নত দাড়ি আছে</span>
+                  <span className="text-xs text-ink">
+                    {isBengali ? 'সুন্নত দাড়ি আছে' : 'Has Sunnah Beard'}
+                  </span>
                 </label>
               )}
 
@@ -358,7 +418,9 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
                   onChange={(e) => setMaintainsMahram(e.target.checked)}
                   className="rounded text-primary focus:ring-primary w-4 h-4"
                 />
-                <span className="text-xs text-ink">মাহরাম রক্ষা করেন</span>
+                <span className="text-xs text-ink">
+                  {isBengali ? 'মাহরাম রক্ষা করেন' : 'Maintains Mahram'}
+                </span>
               </label>
             </div>
           </div>
@@ -366,13 +428,18 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
           {/* Section 4: Partner Expectations */}
           <div className="space-y-3 pt-3 border-t border-line">
             <h3 className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-primary" /> জীবনসঙ্গী সম্পর্কে প্রত্যাশা ও অতিরিক্ত বিবরণ
+              <Sparkles className="w-4 h-4 text-primary" />{' '}
+              <span>{isBengali ? 'জীবনসঙ্গী সম্পর্কে প্রত্যাশা ও অতিরিক্ত বিবরণ' : 'Partner Expectations & Details'}</span>
             </h3>
             <textarea
               rows={2}
               value={partnerExpectations}
               onChange={(e) => setPartnerExpectations(e.target.value)}
-              placeholder="যেমন: ধার্মিক, সৎ, নামাজি এবং ভদ্র পরিবারের পাত্র/পাত্রী প্রত্যাশা..."
+              placeholder={
+                isBengali
+                  ? 'যেমন: ধার্মিক, সৎ, নামাজি এবং ভদ্র পরিবারের পাত্র/পাত্রী প্রত্যাশা...'
+                  : 'e.g. Practicing Muslim, pious, honest and from a respectable family...'
+              }
               className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
             />
           </div>
@@ -382,16 +449,18 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-ink-3 hover:text-ink hover:bg-muted text-xs font-semibold"
+              className="px-4 py-2 rounded-xl text-ink-3 hover:text-ink hover:bg-muted text-xs font-semibold cursor-pointer"
             >
-              বাতিল
+              {isBengali ? 'বাতিল' : 'Cancel'}
             </button>
             <button
               type="submit"
               disabled={createMutation.isPending}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover disabled:opacity-50 shadow-sm transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover disabled:opacity-50 shadow-sm transition-all cursor-pointer"
             >
-              {createMutation.isPending ? 'নিবন্ধন ও প্রকাশ হচ্ছে...' : 'বায়োডাটা তৈরি ও অনুমোদন করুন'}
+              {createMutation.isPending
+                ? (isBengali ? 'নিবন্ধন ও প্রকাশ হচ্ছে...' : 'Registering & Publishing...')
+                : (isBengali ? 'বায়োডাটা তৈরি ও অনুমোদন করুন' : 'Create & Publish Biodata')}
             </button>
           </div>
         </form>
@@ -399,4 +468,5 @@ export const AssistedBiodataModal: React.FC<AssistedBiodataModalProps> = ({ isOp
     </div>
   );
 };
+
 export default AssistedBiodataModal;

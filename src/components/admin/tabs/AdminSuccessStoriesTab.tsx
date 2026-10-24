@@ -47,7 +47,7 @@ export const AdminSuccessStoriesTab: React.FC = () => {
       setEditingStory(null);
     },
     onError: (err: any) => {
-      toast.error(err?.response?.data?.message || 'সংরক্ষণ ব্যর্থ হয়েছে।');
+      toast.error(err?.response?.data?.message || (isBengali ? 'সংরক্ষণ ব্যর্থ হয়েছে।' : 'Failed to save.'));
     },
   });
 
@@ -59,7 +59,7 @@ export const AdminSuccessStoriesTab: React.FC = () => {
       setDeleteId(null);
     },
     onError: (err: any) => {
-      toast.error(err?.response?.data?.message || 'সমস্যা হয়েছে।');
+      toast.error(err?.response?.data?.message || (isBengali ? 'সমস্যা হয়েছে।' : 'An error occurred.'));
     },
   });
 

@@ -9,10 +9,10 @@ import {
   Heart,
   Link as LinkIcon,
   AlertCircle,
-  Bell,
 } from 'lucide-react';
 import { adminApi } from '../../../api/admin.api';
 import { toast } from 'sonner';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 interface BroadcastNotificationModalProps {
   isOpen: boolean;
@@ -23,6 +23,7 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
   isOpen,
   onClose,
 }) => {
+  const { isBengali, formatNumber } = useLanguage();
   const [target, setTarget] = useState<'all' | 'groom' | 'bride' | 'active'>('all');
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
@@ -38,14 +39,21 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
       }),
     onSuccess: (res) => {
       const count = res.data?.sentCount || 0;
-      toast.success(`সফলভাবে ${count} জন ব্যবহারকারীর ইনবক্সে নোটিফিকেশন পৌঁছে গেছে!`);
+      toast.success(
+        isBengali
+          ? `সফলভাবে ${formatNumber(count)} জন ব্যবহারকারীর ইনবক্সে নোটিফিকেশন পৌঁছে গেছে!`
+          : `Broadcast notification successfully delivered to ${formatNumber(count)} users!`
+      );
       setTitle('');
       setMessage('');
       setLink('');
       onClose();
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'ব্রডকাস্ট পাঠাতে সমস্যা হয়েছে।');
+      toast.error(
+        err.response?.data?.message ||
+          (isBengali ? 'ব্রডকাস্ট পাঠাতে সমস্যা হয়েছে।' : 'Failed to send broadcast.')
+      );
     },
   });
 
@@ -54,7 +62,11 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !message.trim()) {
-      toast.error('শিরোনাম ও বার্তা উভয়ই আবশ্যক');
+      toast.error(
+        isBengali
+          ? 'শিরোনাম ও বার্তা উভয়ই আবশ্যক'
+          : 'Both title and message are required'
+      );
       return;
     }
     broadcastMutation.mutate();
@@ -70,13 +82,17 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
               <Radio className="w-5 h-5" />
             </span>
             <div>
-              <h2 className="text-base font-bold text-ink">ম্যাস ব্রডকাস্ট নোটিফিকেশন পাঠান</h2>
+              <h2 className="text-base font-bold text-ink">
+                {isBengali ? 'ম্যাস ব্রডকাস্ট নোটিফিকেশন পাঠান' : 'Send Mass Broadcast Notification'}
+              </h2>
               <p className="text-xs text-ink-3">
-                এক ক্লিকে সকল বা নির্দিষ্ট ক্যাটাগরির ইউজারদের ইনবক্সে সরাসরি নোটিফিকেশন পাঠান
+                {isBengali
+                  ? 'এক ক্লিকে সকল বা নির্দিষ্ট ক্যাটাগরির ইউজারদের ইনবক্সে সরাসরি নোটিফিকেশন পাঠান'
+                  : 'Instantly notify all or target groups of users in their inboxes'}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg text-ink-3 hover:text-ink hover:bg-muted">
+          <button onClick={onClose} className="p-1 rounded-lg text-ink-3 hover:text-ink hover:bg-muted cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -85,14 +101,34 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
           {/* Target Audience */}
           <div>
             <label className="block text-xs font-semibold text-ink-2 mb-1.5">
-              প্রাপক নির্বাচন (Target Audience) *
+              {isBengali ? 'প্রাপক নির্বাচন (Target Audience) *' : 'Select Target Audience *'}
             </label>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: 'all', label: 'সকল সদস্য', desc: 'সকল সক্রিয় অ্যাকাউন্ট', icon: Users },
-                { id: 'groom', label: 'শুধুমাত্র পাত্র', desc: 'সকল পাত্রের বায়োডাটা', icon: Heart },
-                { id: 'bride', label: 'শুধুমাত্র পাত্রী', desc: 'সকল পাত্রীর বায়োডাটা', icon: Heart },
-                { id: 'active', label: 'সক্রিয় সদস্যবৃন্দ', desc: 'যাচাইকৃত ইউজার', icon: UserCheck },
+                {
+                  id: 'all',
+                  label: isBengali ? 'সকল সদস্য' : 'All Members',
+                  desc: isBengali ? 'সকল সক্রিয় অ্যাকাউন্ট' : 'All accounts',
+                  icon: Users,
+                },
+                {
+                  id: 'groom',
+                  label: isBengali ? 'শুধুমাত্র পাত্র' : 'Grooms Only',
+                  desc: isBengali ? 'সকল পাত্রের বায়োডাটা' : 'All groom biodatas',
+                  icon: Heart,
+                },
+                {
+                  id: 'bride',
+                  label: isBengali ? 'শুধুমাত্র পাত্রী' : 'Brides Only',
+                  desc: isBengali ? 'সকল পাত্রীর বায়োডাটা' : 'All bride biodatas',
+                  icon: Heart,
+                },
+                {
+                  id: 'active',
+                  label: isBengali ? 'সক্রিয় সদস্যবৃন্দ' : 'Active Verified',
+                  desc: isBengali ? 'যাচাইকৃত ইউজার' : 'Verified members',
+                  icon: UserCheck,
+                },
               ].map((opt) => {
                 const Icon = opt.icon;
                 const isSelected = target === opt.id;
@@ -121,14 +157,18 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
           {/* Title */}
           <div>
             <label className="block text-xs font-semibold text-ink-2 mb-1">
-              নোটিফিকেশন শিরোনাম *
+              {isBengali ? 'নোটিফিকেশন শিরোনাম *' : 'Notification Title *'}
             </label>
             <input
               type="text"
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="যেমন: বিশেষ অফার! সকল প্যাকেজে ২০% ছাড় চলছে"
+              placeholder={
+                isBengali
+                  ? 'যেমন: বিশেষ অফার! সকল প্যাকেজে ২০% ছাড় চলছে'
+                  : 'e.g. Special Offer: 20% off on all credit packages!'
+              }
               className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
             />
           </div>
@@ -136,14 +176,18 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
           {/* Message */}
           <div>
             <label className="block text-xs font-semibold text-ink-2 mb-1">
-              বিস্তারিত বার্তা *
+              {isBengali ? 'বিস্তারিত বার্তা *' : 'Detailed Message *'}
             </label>
             <textarea
               rows={3}
               required
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="সদস্যদের জন্য আপনার বার্তা লিখুন..."
+              placeholder={
+                isBengali
+                  ? 'সদস্যদের জন্য আপনার বার্তা লিখুন...'
+                  : 'Type your message to members...'
+              }
               className="w-full bg-base border border-line rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
             />
           </div>
@@ -151,7 +195,7 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
           {/* Action Link */}
           <div>
             <label className="block text-xs font-semibold text-ink-2 mb-1">
-              নেভিগেশন লিঙ্ক (ঐচ্ছিক)
+              {isBengali ? 'নেভিগেশন লিঙ্ক (ঐচ্ছিক)' : 'Navigation URL (Optional)'}
             </label>
             <div className="flex items-center gap-2 bg-base border border-line rounded-xl px-3 py-2">
               <LinkIcon className="w-3.5 h-3.5 text-ink-3" />
@@ -159,17 +203,19 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
                 type="text"
                 value={link}
                 onChange={(e) => setLink(e.target.value)}
-                placeholder="/packages বা /announcements"
+                placeholder="/packages or /announcements"
                 className="w-full bg-transparent text-xs focus:outline-hidden"
               />
             </div>
           </div>
 
           {/* Warning */}
-          <div className="bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl text-xs text-amber-700 flex items-start gap-2">
+          <div className="bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl text-xs text-amber-700 dark:text-amber-400 flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
             <span>
-              সতর্কতা: এই বার্তাটি নির্বাচিত সকল ইউজারের ব্যক্তিগত ইনবক্সে তাৎক্ষণিক নোটিফিকেশন হিসেবে পৌঁছে যাবে।
+              {isBengali
+                ? 'সতর্কতা: এই বার্তাটি নির্বাচিত সকল ইউজারের ব্যক্তিগত ইনবক্সে তাৎক্ষণিক নোটিফিকেশন হিসেবে পৌঁছে যাবে।'
+                : 'Notice: This message will be instantly sent as an in-app inbox notification to all selected users.'}
             </span>
           </div>
 
@@ -178,17 +224,19 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-ink-3 hover:text-ink hover:bg-muted text-xs font-semibold"
+              className="px-4 py-2 rounded-xl text-ink-3 hover:text-ink hover:bg-muted text-xs font-semibold cursor-pointer"
             >
-              বাতিল
+              {isBengali ? 'বাতিল' : 'Cancel'}
             </button>
             <button
               type="submit"
               disabled={broadcastMutation.isPending || !title.trim() || !message.trim()}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover disabled:opacity-50 shadow-sm transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover disabled:opacity-50 shadow-sm transition-all cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
-              {broadcastMutation.isPending ? 'পাঠানো হচ্ছে...' : 'ব্রডকাস্ট প্রেরণ করুন'}
+              {broadcastMutation.isPending
+                ? isBengali ? 'পাঠানো হচ্ছে...' : 'Sending...'
+                : isBengali ? 'ব্রডকাস্ট প্রেরণ করুন' : 'Send Broadcast'}
             </button>
           </div>
         </form>
@@ -196,4 +244,5 @@ export const BroadcastNotificationModal: React.FC<BroadcastNotificationModalProp
     </div>
   );
 };
+
 export default BroadcastNotificationModal;

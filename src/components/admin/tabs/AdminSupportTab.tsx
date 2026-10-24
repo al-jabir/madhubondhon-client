@@ -52,7 +52,7 @@ export const AdminSupportTab: React.FC = () => {
         setSelectedMessage(null);
       }
     },
-    onError: () => toast.error('সমস্যা হয়েছে।'),
+    onError: () => toast.error(isBengali ? 'সমস্যা হয়েছে।' : 'An error occurred.'),
   });
 
   const deleteMutation = useMutation({
@@ -63,7 +63,7 @@ export const AdminSupportTab: React.FC = () => {
       setDeleteId(null);
       if (selectedMessage?._id === deleteId) setSelectedMessage(null);
     },
-    onError: () => toast.error('সমস্যা হয়েছে।'),
+    onError: () => toast.error(isBengali ? 'সমস্যা হয়েছে।' : 'An error occurred.'),
   });
 
   const getStatusBadge = (status: string) => {

@@ -6,10 +6,6 @@ import {
   Database,
   Cpu,
   RefreshCw,
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
-  HardDrive,
   Layers,
 } from 'lucide-react';
 import { adminApi } from '../../api/admin.api';
@@ -56,7 +52,7 @@ export const SystemHealthDiagnosticsWidget: React.FC = () => {
           onClick={() => refetch()}
           disabled={isFetching}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line bg-elev hover:bg-card text-xs font-semibold text-ink-2 hover:text-ink transition-colors cursor-pointer disabled:opacity-50"
-          title="রিফ্রেশ করুন"
+          title={isBengali ? 'রিফ্রেশ করুন' : 'Refresh metrics'}
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin text-primary' : ''}`} />
           <span className="hidden sm:inline">{isBengali ? 'রিফ্রেশ' : 'Refresh'}</span>
@@ -65,11 +61,11 @@ export const SystemHealthDiagnosticsWidget: React.FC = () => {
 
       {isLoading ? (
         <div className="py-8 text-center text-xs text-ink-3">
-          মেট্রিক্স লোড হচ্ছে...
+          {isBengali ? 'মেট্রিক্স লোড হচ্ছে...' : 'Loading system metrics...'}
         </div>
       ) : !health ? (
         <div className="py-6 text-center text-xs text-rose-500">
-          সিস্টেম মেট্রিক্স পাওয়া যায়নি
+          {isBengali ? 'সিস্টেম মেট্রিক্স পাওয়া যায়নি' : 'System metrics unavailable'}
         </div>
       ) : (
         <div className="space-y-4">
@@ -80,7 +76,7 @@ export const SystemHealthDiagnosticsWidget: React.FC = () => {
               <div className="flex items-center justify-between text-ink-3">
                 <span className="flex items-center gap-1.5 font-semibold text-ink">
                   <Server className="w-3.5 h-3.5 text-blue-500" />
-                  সার্ভার আপটাইম
+                  {isBengali ? 'সার্ভার আপটাইম' : 'Server Uptime'}
                 </span>
                 <span className="font-mono text-[10px] bg-blue-500/10 text-blue-600 px-1.5 py-0.5 rounded">
                   {health.server.nodeVersion}
@@ -90,7 +86,9 @@ export const SystemHealthDiagnosticsWidget: React.FC = () => {
                 {health.server.uptimeFormatted}
               </div>
               <div className="text-[11px] text-ink-3 flex items-center justify-between">
-                <span>পরিবেশ: {health.server.environment}</span>
+                <span>
+                  {isBengali ? 'পরিবেশ:' : 'Environment:'} {health.server.environment}
+                </span>
                 <span>PID: {health.server.pid}</span>
               </div>
             </div>
@@ -100,16 +98,16 @@ export const SystemHealthDiagnosticsWidget: React.FC = () => {
               <div className="flex items-center justify-between text-ink-3">
                 <span className="flex items-center gap-1.5 font-semibold text-ink">
                   <Cpu className="w-3.5 h-3.5 text-amber-500" />
-                  হিপ মেমরি ব্যবহার
+                  {isBengali ? 'হিপ মেমরি ব্যবহার' : 'Heap Memory Usage'}
                 </span>
                 <span className="font-mono text-[10px] bg-amber-500/10 text-amber-600 px-1.5 py-0.5 rounded font-bold">
-                  {memoryPercent}%
+                  {formatNumber(memoryPercent)}%
                 </span>
               </div>
               <div className="font-mono font-bold text-lg text-ink">
-                {health.memory.heapUsedMB} MB{' '}
+                {formatNumber(health.memory.heapUsedMB)} MB{' '}
                 <span className="text-xs text-ink-3 font-normal">
-                  / {health.memory.heapTotalMB} MB
+                  / {formatNumber(health.memory.heapTotalMB)} MB
                 </span>
               </div>
               {/* Progress bar */}
@@ -122,8 +120,8 @@ export const SystemHealthDiagnosticsWidget: React.FC = () => {
                 />
               </div>
               <div className="text-[10px] text-ink-3 flex justify-between">
-                <span>RSS: {health.memory.rssMB} MB</span>
-                <span>External: {health.memory.externalMB} MB</span>
+                <span>RSS: {formatNumber(health.memory.rssMB)} MB</span>
+                <span>External: {formatNumber(health.memory.externalMB)} MB</span>
               </div>
             </div>
 
@@ -132,7 +130,7 @@ export const SystemHealthDiagnosticsWidget: React.FC = () => {
               <div className="flex items-center justify-between text-ink-3">
                 <span className="flex items-center gap-1.5 font-semibold text-ink">
                   <Database className="w-3.5 h-3.5 text-emerald-500" />
-                  MongoDB সংযোগ
+                  {isBengali ? 'MongoDB সংযোগ' : 'MongoDB Connection'}
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
@@ -142,19 +140,25 @@ export const SystemHealthDiagnosticsWidget: React.FC = () => {
                   }`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                  {health.database.status === 'connected' ? 'সক্রিয়' : 'বিচ্ছিন্ন'}
+                  {health.database.status === 'connected'
+                    ? isBengali
+                      ? 'সক্রিয়'
+                      : 'Connected'
+                    : isBengali
+                    ? 'বিচ্ছিন্ন'
+                    : 'Disconnected'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="font-mono font-bold text-lg text-ink">
-                  {health.database.pingMs >= 0 ? `${health.database.pingMs} ms` : '—'}
+                  {health.database.pingMs >= 0 ? `${formatNumber(health.database.pingMs)} ms` : '—'}
                 </div>
                 <span className="text-[10px] text-ink-3 font-mono">
                   DB: {health.database.name}
                 </span>
               </div>
               <div className="text-[10px] text-ink-3 truncate">
-                হোস্ট: {health.database.host}
+                {isBengali ? 'হোস্ট:' : 'Host:'} {health.database.host}
               </div>
             </div>
           </div>
@@ -163,15 +167,35 @@ export const SystemHealthDiagnosticsWidget: React.FC = () => {
           <div className="bg-muted/30 border border-line p-3 rounded-xl flex items-center justify-between gap-2 overflow-x-auto text-xs">
             <div className="flex items-center gap-1.5 text-ink-3 shrink-0">
               <Layers className="w-3.5 h-3.5 text-primary" />
-              <span className="font-semibold text-ink">রেকর্ড সংখ্যা:</span>
+              <span className="font-semibold text-ink">
+                {isBengali ? 'রেকর্ড সংখ্যা:' : 'Record Counts:'}
+              </span>
             </div>
             <div className="flex items-center gap-4 text-ink-3 text-[11px] shrink-0 font-mono">
-              <span>ইউজার: <strong className="text-ink">{formatNumber(health.counts.users)}</strong></span>
-              <span>বায়োডাটা: <strong className="text-ink">{formatNumber(health.counts.profiles)}</strong></span>
-              <span>পেমেন্ট: <strong className="text-ink">{formatNumber(health.counts.transactions)}</strong></span>
-              <span>কুপন: <strong className="text-ink">{formatNumber(health.counts.coupons)}</strong></span>
-              <span>অডিট লগ: <strong className="text-ink">{formatNumber(health.counts.auditLogs)}</strong></span>
-              <span>সাপোর্ট মেসেজ: <strong className="text-ink">{formatNumber(health.counts.supportMessages)}</strong></span>
+              <span>
+                {isBengali ? 'ইউজার:' : 'Users:'}{' '}
+                <strong className="text-ink">{formatNumber(health.counts.users)}</strong>
+              </span>
+              <span>
+                {isBengali ? 'বায়োডাটা:' : 'Biodata:'}{' '}
+                <strong className="text-ink">{formatNumber(health.counts.profiles)}</strong>
+              </span>
+              <span>
+                {isBengali ? 'পেমেন্ট:' : 'Payments:'}{' '}
+                <strong className="text-ink">{formatNumber(health.counts.transactions)}</strong>
+              </span>
+              <span>
+                {isBengali ? 'কুপন:' : 'Coupons:'}{' '}
+                <strong className="text-ink">{formatNumber(health.counts.coupons)}</strong>
+              </span>
+              <span>
+                {isBengali ? 'অডিট লগ:' : 'Audit Logs:'}{' '}
+                <strong className="text-ink">{formatNumber(health.counts.auditLogs)}</strong>
+              </span>
+              <span>
+                {isBengali ? 'সাপোর্ট মেসেজ:' : 'Support Messages:'}{' '}
+                <strong className="text-ink">{formatNumber(health.counts.supportMessages)}</strong>
+              </span>
             </div>
           </div>
         </div>
@@ -179,4 +203,5 @@ export const SystemHealthDiagnosticsWidget: React.FC = () => {
     </div>
   );
 };
+
 export default SystemHealthDiagnosticsWidget;
