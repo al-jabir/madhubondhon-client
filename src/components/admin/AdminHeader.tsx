@@ -92,11 +92,11 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
       case UserRole.SUPER_ADMIN:
         return 'from-purple-600 to-indigo-600';
       case UserRole.ADMIN:
-        return 'from-brand to-pink-500';
+        return 'from-brand to-emerald-700';
       case UserRole.MODERATOR:
         return 'from-amber-500 to-amber-600';
       default:
-        return 'from-brand to-pink-500';
+        return 'from-brand to-emerald-700';
     }
   };
 
@@ -107,7 +107,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = () => {
     <header className="sticky top-0 z-30 bg-card/90 backdrop-blur-md border-b border-line px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 transition-colors">
       {/* Brand & Title */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-linear-to-tr from-brand to-pink-500 flex items-center justify-center text-white shadow-md shadow-brand/20 shrink-0">
+        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-linear-to-tr from-brand to-emerald-700 flex items-center justify-center text-white shadow-md shadow-brand/20 shrink-0">
           <Sparkles className="w-4 h-4" />
         </div>
         <div className="min-w-0">

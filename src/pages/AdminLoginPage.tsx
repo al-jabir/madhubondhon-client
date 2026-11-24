@@ -120,7 +120,7 @@ export const AdminLoginPage: React.FC = () => {
           {/* Header & Emblem */}
           <div className="text-center space-y-3">
             <div className="relative inline-flex items-center justify-center">
-              <div className="w-16 h-16 rounded-2xl bg-linear-to-tr from-purple-600 via-brand to-pink-500 text-white flex items-center justify-center shadow-xl shadow-brand/25 ring-4 ring-card">
+              <div className="w-16 h-16 rounded-2xl bg-linear-to-tr from-slate-800 via-brand to-emerald-700 text-white flex items-center justify-center shadow-xl shadow-brand/25 ring-4 ring-card">
                 <ShieldCheck className="w-8 h-8" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-card border-2 border-brand/40 flex items-center justify-center text-brand">
@@ -217,7 +217,7 @@ export const AdminLoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-2 py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-linear-to-r from-brand via-purple-600 to-pink-600 hover:opacity-95 shadow-lg shadow-brand/25 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full mt-2 py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-linear-to-r from-brand via-emerald-700 to-teal-800 hover:opacity-95 shadow-lg shadow-brand/25 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <span>{t('admin.verifyingAuth')}</span>

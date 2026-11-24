@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import {
-  Heart,
+  HeartHandshake,
   Lock,
   Mail,
   User,
@@ -138,8 +138,8 @@ export const RegisterPage: React.FC = () => {
       <div className="max-w-6xl mx-auto flex items-start justify-center gap-12 xl:gap-16">
         {/* Left: brand pitch */}
         <div className="hidden lg:block max-w-md pt-10 space-y-8">
-          <div className="inline-flex w-14 h-14 rounded-2xl bg-linear-to-br from-brand to-pink-500 items-center justify-center text-white shadow-lg shadow-brand/30">
-            <Heart className="w-7 h-7 fill-current" />
+          <div className="inline-flex w-14 h-14 rounded-2xl bg-linear-to-br from-brand to-emerald-700 items-center justify-center text-white shadow-lg shadow-brand/25">
+            <HeartHandshake className="w-7 h-7 text-emerald-100" />
           </div>
           <h3 className="text-3xl font-bold text-ink leading-snug">
             {isBengali ? (

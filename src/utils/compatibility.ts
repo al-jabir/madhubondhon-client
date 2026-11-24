@@ -93,7 +93,7 @@ export function calculateCompatibility(
   totalScore += ageScore;
 
   // 3. Upazila / Location (20 pts)
-  let locScore = 12;
+  let locScore: number;
   let locMatched = false;
   if (prefs.preferredUpazilas && prefs.preferredUpazilas.length > 0) {
     if (prefs.preferredUpazilas.includes(candidate.upazila)) {
@@ -116,7 +116,7 @@ export function calculateCompatibility(
   totalScore += locScore;
 
   // 4. Education Compatibility (20 pts)
-  let eduScore = 12;
+  let eduScore: number;
   let eduMatched = false;
   if (prefs.preferredEducation && prefs.preferredEducation.length > 0) {
     if (candidate.education && prefs.preferredEducation.includes(candidate.education)) {

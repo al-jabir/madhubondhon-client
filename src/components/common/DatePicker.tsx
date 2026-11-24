@@ -371,7 +371,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                       disabledDate
                         ? 'text-ink-3 cursor-not-allowed opacity-40'
                         : isSelected
-                        ? 'bg-linear-to-tr from-brand to-pink-500 text-white font-bold shadow-md scale-105'
+                        ? 'bg-linear-to-tr from-brand to-emerald-700 text-white font-bold shadow-md scale-105'
                         : 'text-ink-2 hover:bg-brand-soft hover:text-brand'
                     }`}
                   >

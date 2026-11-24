@@ -162,17 +162,17 @@ export const PackagesPage: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
       {/* Header & Balance Banner */}
-      <div className="bg-linear-to-r from-brand to-pink-500 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-brand/20 relative overflow-hidden">
+      <div className="bg-linear-to-r from-brand to-emerald-800 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-brand/20 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold text-rose-100">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold text-emerald-100">
               <Sparkles className="w-3.5 h-3.5 text-gold" />
               <span>{isBengali ? 'সহজ ও বিশ্বস্ত মাধ্যম' : 'Simple & Secure'}</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
               {isBengali ? 'যোগাযোগ ক্রেডিট প্যাকেজ' : 'Contact Credit Packages'}
             </h1>
-            <p className="text-rose-100 text-sm sm:text-base leading-relaxed">
+            <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
               {isBengali
                 ? 'পছন্দের পাত্র বা পাত্রীর অভিভাবকের সাথে সরাসরি ফোনে কথা বলতে ক্রেডিট ব্যবহার করুন। ১টি বায়োডাটার অভিভাবকের ফোন নম্বর দেখতে ১টি ক্রেডিট প্রয়োজন হয়।'
                 : 'Use credits to unlock guardian contact details for prospective grooms or brides. 1 credit is required to view 1 guardian contact.'}
@@ -235,7 +235,7 @@ export const PackagesPage: React.FC = () => {
                   onClick={() => setSelectedPkg(pkg)}
                 >
                   {pkg.popular && (
-                    <div className="absolute -top-3.5 right-6 px-3 py-1 bg-linear-to-r from-brand to-pink-500 text-white text-[11px] font-black rounded-full shadow-sm tracking-wide uppercase">
+                    <div className="absolute -top-3.5 right-6 px-3 py-1 bg-linear-to-r from-brand to-emerald-700 text-white text-[11px] font-black rounded-full shadow-sm tracking-wide uppercase">
                       {isBengali ? 'জনপ্রিয়' : 'Popular'}
                     </div>
                   )}

@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>মধুবন্ধন | Tangail Matrimony</title>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf6f8" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101319" />
-    <meta name="description" content="মধুবন্ধন — টাঙ্গাইল জেলার বিশ্বস্ত বায়োডাটা প্ল্যাটফর্ম।" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8fafc" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0e17" />
+    <meta name="description" content="মধুবন্ধন — টাঙ্গাইল জেলার বিশ্বস্ত ও নিরাপদ বায়োডাটা প্ল্যাটফর্ম।" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="মধুবন্ধন" />
     <style>
@@ -18,28 +18,28 @@
       #preloader {
         position: fixed; inset: 0; z-index: 9999;
         display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
-        background: #faf6f8;
+        background: #f8fafc;
         transition: opacity .35s ease;
       }
-      html[data-theme="dark"] #preloader { background: #101319; }
+      html[data-theme="dark"] #preloader { background: #0a0e17; }
       #preloader .pl-logo {
         width: 56px; height: 56px; border-radius: 18px;
         display: flex; align-items: center; justify-content: center;
-        background: linear-gradient(135deg, #e11d48, #ec4899);
-        box-shadow: 0 12px 30px -10px rgb(225 29 72 / .45);
+        background: linear-gradient(135deg, #059669, #047857);
+        box-shadow: 0 12px 30px -10px rgb(5 150 105 / .45);
         animation: pl-pulse 1.4s ease-in-out infinite;
       }
-      html[data-theme="dark"] #preloader .pl-logo { background: linear-gradient(135deg, #fb5c7e, #ec4899); box-shadow: 0 12px 30px -10px rgb(251 92 126 / .4); }
-      #preloader .pl-name { font-size: 20px; font-weight: 800; color: #2b161f; letter-spacing: .01em; }
-      html[data-theme="dark"] #preloader .pl-name { color: #f2f4f8; }
-      #preloader .pl-tag { font-size: 9px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; color: #836d78; }
-      html[data-theme="dark"] #preloader .pl-tag { color: #8b95a5; }
+      html[data-theme="dark"] #preloader .pl-logo { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 12px 30px -10px rgb(16 185 129 / .4); }
+      #preloader .pl-name { font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: .01em; }
+      html[data-theme="dark"] #preloader .pl-name { color: #f8fafc; }
+      #preloader .pl-tag { font-size: 9px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; color: #64748b; }
+      html[data-theme="dark"] #preloader .pl-tag { color: #94a3b8; }
       #preloader .pl-ring {
         width: 22px; height: 22px; border-radius: 999px;
-        border: 2.5px solid rgb(225 29 72 / .18); border-top-color: #e11d48;
+        border: 2.5px solid rgb(5 150 105 / .18); border-top-color: #059669;
         animation: pl-spin .8s linear infinite;
       }
-      html[data-theme="dark"] #preloader .pl-ring { border-color: rgb(251 92 126 / .2); border-top-color: #fb5c7e; }
+      html[data-theme="dark"] #preloader .pl-ring { border-color: rgb(16 185 129 / .2); border-top-color: #10b981; }
       @keyframes pl-spin { to { transform: rotate(360deg); } }
       @keyframes pl-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
       html.mb-preloader-done #preloader, #preloader.mb-done { opacity: 0; pointer-events: none; }

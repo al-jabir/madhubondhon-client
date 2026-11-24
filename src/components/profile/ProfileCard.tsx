@@ -97,7 +97,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
       <div className="absolute top-3 inset-x-3 z-10 flex items-center justify-between pointer-events-none">
         <div className="flex items-center gap-1.5 pointer-events-auto">
           {profile.biodataId ? (
-            <span className="text-[11px] font-black tracking-wider px-2.5 py-1 rounded-full bg-[#2b161f]/85 backdrop-blur-md text-gold border border-gold/30">
+            <span className="text-[11px] font-black tracking-wider px-2.5 py-1 rounded-full bg-slate-900/85 backdrop-blur-md text-gold border border-gold/40">
               {profile.biodataId}
             </span>
           ) : <span />}
@@ -237,7 +237,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
               }
               onSendInterest(profile);
             }}
-            className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold text-white bg-linear-to-r from-brand to-pink-500 hover:brightness-110 rounded-lg shadow-sm transition-all cursor-pointer"
+            className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold text-white bg-linear-to-r from-brand to-emerald-700 hover:brightness-110 rounded-lg shadow-sm transition-all cursor-pointer"
           >
             <Heart className="w-3.5 h-3.5 fill-current" />
             <span>{isBengali ? 'পছন্দ' : 'Interest'}</span>

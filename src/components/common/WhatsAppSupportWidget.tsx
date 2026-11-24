@@ -147,7 +147,7 @@ export const WhatsAppSupportWidget: React.FC<WhatsAppSupportWidgetProps> = ({
   return (
     <div
       ref={popoverRef}
-      className="fixed bottom-4 right-3.5 sm:bottom-6 sm:right-6 z-50 print:hidden font-sans"
+      className="fixed bottom-16 right-3.5 sm:bottom-6 sm:right-6 z-40 print:hidden font-sans"
     >
       {/* Floating Chat Popover Modal */}
       {isOpen && (

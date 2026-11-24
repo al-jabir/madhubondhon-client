@@ -89,7 +89,7 @@ export const GuidePage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {steps.map(({ icon: Icon, step, title, body }) => (
           <div key={step} className="mb-card mb-card-hover p-5 flex items-start gap-4">
-            <div className="relative shrink-0 w-11 h-11 rounded-2xl bg-linear-to-br from-brand to-pink-500 text-white flex items-center justify-center shadow-md shadow-brand/25">
+            <div className="relative shrink-0 w-11 h-11 rounded-2xl bg-linear-to-br from-brand to-emerald-700 text-white flex items-center justify-center shadow-md shadow-brand/25">
               <Icon className="w-5 h-5" />
               <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-card border border-line text-[10px] font-bold text-gold flex items-center justify-center">
                 {isBengali ? formatNumber(parseInt(step, 10)) : step}

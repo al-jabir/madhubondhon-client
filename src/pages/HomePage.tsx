@@ -18,6 +18,7 @@ import {
   FileCheck2,
   MessagesSquare,
   Handshake,
+  Sparkles,
 } from 'lucide-react';
 import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../constants/locations';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -60,14 +61,14 @@ export const HomePage: React.FC = () => {
       <section className="relative overflow-hidden pt-6 pb-12 sm:pt-10 sm:pb-20 lg:pt-16 lg:pb-28 border-b border-line">
         {/* ─ Light decorations ─ */}
         <div className="absolute inset-0 z-0 pointer-events-none dark:hidden" aria-hidden="true">
-          <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_80%_-10%,theme(colors.pink.100/70%),transparent),radial-gradient(800px_400px_at_5%_20%,var(--mb-brand-soft),transparent)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_80%_-10%,theme(colors.emerald.100/40%),transparent),radial-gradient(800px_400px_at_5%_20%,var(--mb-brand-soft),transparent)]" />
           <div className="absolute -top-20 -left-16 w-96 h-96 text-brand/10">
             <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z" />
               <circle cx="100" cy="140" r="32" />
             </svg>
           </div>
-          <div className="absolute -bottom-24 right-0 w-80 h-80 text-pink-300/25 rotate-12">
+          <div className="absolute -bottom-24 right-0 w-80 h-80 text-emerald-300/20 rotate-12">
             <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z" />
             </svg>
@@ -104,23 +105,21 @@ export const HomePage: React.FC = () => {
               <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-[54px] font-bold leading-tight sm:leading-[1.3] tracking-tight text-ink">
                 {isBengali ? (
                   <>
-                    একই শিকড়ের টানে,<br className="hidden sm:inline" />{' '}
-                    শুরু হোক <span className="text-brand">নতুন গল্প</span>{' '}
-                    <span className="text-pink-500 font-normal align-middle">♡</span>
+                    দ্বীন ও আস্থার বন্ধনে,<br className="hidden sm:inline" />{' '}
+                    খুঁজে নিন আপনার <span className="text-brand">উপযুক্ত জীবনসঙ্গী</span>
                   </>
                 ) : (
                   <>
-                    Bound by Shared Roots,<br className="hidden sm:inline" />{' '}
-                    Begin Your <span className="text-brand">New Chapter</span>{' '}
-                    <span className="text-pink-500 font-normal align-middle">♡</span>
+                    In Faith & Trust,<br className="hidden sm:inline" />{' '}
+                    Find Your <span className="text-brand">Right Life Partner</span>
                   </>
                 )}
               </h1>
 
               <p className="text-ink-2 text-xs sm:text-base leading-relaxed max-w-xl">
                 {isBengali
-                  ? 'টাঙ্গাইলের পাত্র-পাত্রী খুঁজুন। পছন্দ হলে আগ্রহ জানান, তারপর পরিবারের সঙ্গে কথা বলুন।'
-                  : 'Find a bride or groom in Tangail. Express interest, then connect with their family.'}
+                  ? 'টাঙ্গাইল জেলার দ্বীনদার পাত্র-পাত্রী খোঁজার বিশ্বস্ত ও নিরাপদ প্ল্যাটফর্ম। কোনো উন্মুক্ত ছবি ছাড়া শতভাগ শালীনতা ও অভিভাবকের সম্মতিতে যোগাযোগ।'
+                  : 'A trusted, modest matchmaking platform for Tangail. Connect with peace of mind through guardian consent and full privacy without public photos.'}
               </p>
 
               {/* Feature badges */}
@@ -180,11 +179,11 @@ export const HomePage: React.FC = () => {
             {/* Search card */}
             <div className="lg:col-span-5">
               <div className="bg-card/95 backdrop-blur-md rounded-2xl sm:rounded-[1.75rem] p-4 sm:p-7 border border-line shadow-[var(--mb-shadow-pop)] relative">
-                <span className="absolute -top-3 right-8 h-6 w-14 rounded-full bg-linear-to-r from-brand to-pink-500 opacity-90 blur-md" aria-hidden="true" />
+                <span className="absolute -top-3 right-8 h-6 w-14 rounded-full bg-linear-to-r from-brand to-emerald-600 opacity-90 blur-md" aria-hidden="true" />
 
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-soft border border-brand/20 text-brand-ink text-[11px] font-bold mb-3">
-                  <Heart className="w-3.5 h-3.5 text-brand fill-brand" />
-                  <span>{isBengali ? 'শুরু করুন এখান থেকেই' : 'Start here'}</span>
+                  <Sparkles className="w-3.5 h-3.5 text-brand" />
+                  <span>{isBengali ? 'সহজ অনুসন্ধান' : 'Easy Search'}</span>
                 </div>
 
                 <div className="flex items-start justify-between gap-3 mb-4 sm:mb-5">
@@ -218,7 +217,7 @@ export const HomePage: React.FC = () => {
                           onClick={() => setGender(value)}
                           className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2.5 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                             gender === value
-                              ? 'bg-linear-to-r from-brand to-pink-500 text-white border-transparent shadow-md shadow-brand/30'
+                              ? 'bg-linear-to-r from-brand to-emerald-700 text-white border-transparent shadow-md shadow-brand/25'
                               : 'bg-elev text-ink-2 border-line hover:border-strongline hover:text-ink'
                           }`}
                         >
@@ -248,7 +247,7 @@ export const HomePage: React.FC = () => {
                   <div>
                     <label className="mb-label" htmlFor="home-marital-status">{isBengali ? 'বৈবাহিক অবস্থা' : 'Marital Status'}</label>
                     <div className="relative">
-                      <Heart className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <Users className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <select id="home-marital-status" value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="mb-input pl-10 text-xs sm:text-sm">
                         <option value="">{isBengali ? 'সকল অবস্থা' : 'All Statuses'}</option>
                         <option value="never_married">{isBengali ? 'অবিবাহিত' : 'Never Married'}</option>
@@ -412,7 +411,7 @@ export const HomePage: React.FC = () => {
           ].map(({ icon: Icon, n, title, body }) => (
             <article key={n} className="mb-card mb-card-hover p-4 sm:p-6 rounded-2xl space-y-2.5 sm:space-y-3 relative group">
               <div className="flex items-center justify-between">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-linear-to-br from-brand to-pink-500 text-white flex items-center justify-center shadow-md shadow-brand/25 group-hover:scale-105 group-hover:-rotate-3 transition-transform">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-linear-to-br from-brand to-emerald-700 text-white flex items-center justify-center shadow-md shadow-brand/25 group-hover:scale-105 group-hover:-rotate-3 transition-transform">
                   <Icon className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.8]" />
                 </div>
                 <span className="text-2xl sm:text-3xl font-bold text-brand/15 group-hover:text-brand/35 transition-colors select-none">
@@ -463,7 +462,7 @@ export const HomePage: React.FC = () => {
 
       {/* ─ CTA banner ─ */}
       <section className="py-12 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="p-6 sm:p-14 rounded-2xl sm:rounded-[2rem] bg-linear-to-br from-brand via-rose-600 to-pink-600 text-white shadow-xl sm:shadow-2xl shadow-brand/30 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 relative overflow-hidden">
+        <div className="p-6 sm:p-14 rounded-2xl sm:rounded-[2rem] bg-linear-to-br from-brand via-emerald-700 to-teal-800 text-white shadow-xl sm:shadow-2xl shadow-brand/25 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 relative overflow-hidden">
           {/* decorative pattern */}
           <svg className="absolute inset-0 w-full h-full opacity-10" aria-hidden="true">
             <defs>
@@ -476,7 +475,7 @@ export const HomePage: React.FC = () => {
 
           <div className="space-y-2.5 sm:space-y-3 text-center md:text-left z-10">
             <span className="inline-block text-xs font-bold text-white/90 bg-white/15 px-3 py-1 rounded-full border border-white/25 backdrop-blur-xs">
-              {isBengali ? 'আপনার গল্পের অপেক্ষায়' : 'Your Story Awaits'}
+              {isBengali ? 'পবিত্র বৈবাহিক বন্ধন' : 'Sacred Union'}
             </span>
             <h2 className="text-xl sm:text-3xl font-bold text-white">
               {isBengali ? 'সুন্দর শুরুর প্রথম পদক্ষেপ নিন' : 'Take the First Step to a Blessed Union'}

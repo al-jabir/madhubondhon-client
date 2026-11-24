@@ -5,6 +5,7 @@ import { Link, useNavigate, useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   Heart,
+  HeartHandshake,
   Search,
   User as UserIcon,
   Bell,
@@ -108,9 +109,9 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16 gap-2 sm:gap-3">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0 min-w-0">
-            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-linear-to-br from-brand to-pink-500 flex items-center justify-center text-white shadow-md shadow-brand/30 group-hover:scale-105 transition-transform shrink-0">
-              <Heart className="w-4 h-4 sm:w-4.5 sm:h-4.5 fill-current" />
-              <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-card border-2 border-brand/30" />
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-linear-to-br from-brand to-emerald-800 flex items-center justify-center text-white shadow-md shadow-brand/25 group-hover:scale-105 transition-transform shrink-0">
+              <HeartHandshake className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-100" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-gold border-2 border-card" />
             </div>
             <div className="flex flex-col leading-none min-w-0">
               <span className="font-bold text-lg sm:text-xl tracking-tight text-brand truncate">
@@ -189,7 +190,7 @@ export const Navbar: React.FC = () => {
                     aria-expanded={userDropdownOpen}
                     aria-haspopup="true"
                   >
-                    <span className="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-linear-to-br from-brand to-pink-500 text-white flex items-center justify-center font-bold text-xs xl:text-sm shrink-0">
+                    <span className="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-linear-to-br from-brand to-emerald-800 text-white flex items-center justify-center font-bold text-xs xl:text-sm shrink-0">
                       {user?.name ? user.name.trim().charAt(0).toUpperCase() : <UserIcon className="w-4 h-4" />}
                     </span>
                     <span className="hidden xl:flex flex-col text-left max-w-[110px] xl:max-w-[140px] leading-tight">
@@ -352,7 +353,7 @@ export const Navbar: React.FC = () => {
           {isAuthenticated && user && (
             <div className="p-3 mb-2 rounded-2xl bg-elev border border-line flex items-center justify-between gap-2">
               <div className="flex items-center gap-3 min-w-0">
-                <span className="w-9 h-9 rounded-full bg-linear-to-br from-brand to-pink-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                <span className="w-9 h-9 rounded-full bg-linear-to-br from-brand to-emerald-800 text-white flex items-center justify-center font-bold text-sm shrink-0">
                   {user.name ? user.name.trim().charAt(0).toUpperCase() : <UserIcon className="w-4 h-4" />}
                 </span>
                 <div className="flex flex-col min-w-0">

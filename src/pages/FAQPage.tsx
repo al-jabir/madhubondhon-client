@@ -424,7 +424,7 @@ export const FAQPage: React.FC = () => {
       </div>
 
       {/* Still need help callout */}
-      <div className="bg-linear-to-r from-brand via-rose-600 to-pink-600 rounded-3xl p-6 sm:p-8 text-white text-center space-y-4 shadow-xl shadow-brand/20">
+      <div className="bg-linear-to-r from-brand via-emerald-700 to-teal-800 rounded-3xl p-6 sm:p-8 text-white text-center space-y-4 shadow-xl shadow-brand/20">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs font-semibold backdrop-blur-xs">
           <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
           <span>{isBengali ? '২৪/৭ সার্বক্ষণিক টাঙ্গাইল সাপোর্ট' : '24/7 Tangail Support Helpline'}</span>
@@ -432,7 +432,7 @@ export const FAQPage: React.FC = () => {
         <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
           {isBengali ? 'অন্য কোনো জিজ্ঞাসা বা বিশেষ সমস্যা আছে?' : 'Have other questions or need assistance?'}
         </h3>
-        <p className="text-xs sm:text-sm text-rose-100 max-w-lg mx-auto leading-relaxed">
+        <p className="text-xs sm:text-sm text-emerald-100 max-w-lg mx-auto leading-relaxed">
           {isBengali
             ? 'আমাদের টাঙ্গাইল হেল্পলাইন টিম আপনার সেবায় সর্বদা নিয়োজিত। যে কোনো তথ্যের জন্য সরাসরি কথা বলতে পারেন।'
             : 'Our Tangail support team is dedicated to assisting you. Feel free to contact us directly anytime.'}

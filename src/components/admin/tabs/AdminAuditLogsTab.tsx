@@ -372,7 +372,7 @@ export const AdminAuditLogsTab: React.FC = () => {
                         {/* Actor */}
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
-                            <span className="w-7 h-7 rounded-full bg-linear-to-tr from-brand to-pink-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                            <span className="w-7 h-7 rounded-full bg-linear-to-tr from-brand to-emerald-700 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
                               {actorInitial}
                             </span>
                             <div className="min-w-0">
@@ -466,7 +466,7 @@ export const AdminAuditLogsTab: React.FC = () => {
                     {/* Top Row: Actor & Timestamp */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="w-7 h-7 rounded-full bg-linear-to-tr from-brand to-pink-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        <span className="w-7 h-7 rounded-full bg-linear-to-tr from-brand to-emerald-700 text-white flex items-center justify-center font-bold text-xs shrink-0">
                           {actorName?.charAt(0)?.toUpperCase() || 'A'}
                         </span>
                         <div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
-import { Heart, Lock, Mail, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { HeartHandshake, Lock, Mail, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "../api/errors";
 import { useAuth } from "../context/useAuth";
@@ -78,8 +78,8 @@ export const LoginPage: React.FC = () => {
       <div className="max-w-md w-full space-y-6">
         {/* Brand header */}
         <div className="text-center space-y-2.5">
-          <div className="inline-flex w-14 h-14 rounded-2xl bg-linear-to-br from-brand to-pink-500 items-center justify-center text-white shadow-lg shadow-brand/30 mb-1">
-            <Heart className="w-7 h-7 fill-current" />
+          <div className="inline-flex w-14 h-14 rounded-2xl bg-linear-to-br from-brand to-emerald-700 items-center justify-center text-white shadow-lg shadow-brand/25 mb-1">
+            <HeartHandshake className="w-7 h-7 text-emerald-100" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-ink">{t('auth.welcome')}</h2>
           <p className="text-xs sm:text-sm text-ink-2">

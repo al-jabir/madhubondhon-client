@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Heart, Mail, Lock, KeyRound, ArrowLeft, Eye, EyeOff, ShieldAlert } from "lucide-react";
+import { HeartHandshake, Mail, Lock, KeyRound, ArrowLeft, Eye, EyeOff, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { workflowApi, errorMessage } from "../api/workflow.api";
 import { useLanguage } from "../i18n/LanguageContext";
@@ -65,8 +65,8 @@ export default function PasswordRecoveryPage() {
       <div className="max-w-md w-full space-y-6">
         {/* Brand header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex w-12 h-12 rounded-2xl bg-linear-to-tr from-brand to-pink-500 items-center justify-center text-white shadow-lg shadow-brand/20 dark:shadow-none mb-1">
-            <Heart className="w-6 h-6 fill-current" />
+          <div className="inline-flex w-12 h-12 rounded-2xl bg-linear-to-tr from-brand to-emerald-700 items-center justify-center text-white shadow-lg shadow-brand/20 dark:shadow-none mb-1">
+            <HeartHandshake className="w-6 h-6 text-emerald-100" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink">
             {isBengali ? "পাসওয়ার্ড পুনরুদ্ধার" : "Password Recovery"}

@@ -17,6 +17,7 @@ import { LoadingSpinner } from './components/common/LoadingSpinner';
 import WhatsAppSupportWidget from './components/common/WhatsAppSupportWidget';
 import AnnouncementBanner from './components/common/AnnouncementBanner';
 import MaintenanceScreen from './components/common/MaintenanceScreen';
+import MobileBottomNav from './components/common/MobileBottomNav';
 
 // Route-level code splitting — every page is a separate chunk, loaded on demand.
 const AccountSecurityPage = lazy(() => import('./pages/AccountSecurityPage'));
@@ -102,7 +103,7 @@ const AppShell: React.FC = () => {
       {/* Public Navbar & Announcement Banner are hidden on Admin routes */}
       {!isAdminRoute && <Navbar />}
       {!isAdminRoute && <AnnouncementBanner />}
-      <main className="flex-1">
+      <main className="flex-1 pb-16 lg:pb-0">
         <Suspense fallback={<PageFallback />}>
           <Routes>
             {/* Public Routes */}
@@ -217,6 +218,7 @@ const AppShell: React.FC = () => {
       {/* Public Support & Footer are hidden on Admin routes */}
       {!isAdminRoute && <WhatsAppSupportWidget />}
       {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <MobileBottomNav />}
       <Toaster position="top-right" richColors />
     </div>
   );

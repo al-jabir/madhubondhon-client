@@ -127,7 +127,7 @@ export const AboutPage: React.FC = () => {
 
       {/* CTA */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="rounded-3xl bg-linear-to-r from-brand to-pink-500 text-white p-8 sm:p-10 text-center space-y-4 shadow-lg shadow-brand/20">
+        <div className="rounded-3xl bg-linear-to-r from-brand to-emerald-800 text-white p-8 sm:p-10 text-center space-y-4 shadow-lg shadow-brand/20">
           <h3 className="text-xl sm:text-2xl font-black">
             {isBengali ? 'আপনার জীবনসঙ্গীর খোঁজ শুরু হোক মধুবন্ধনে' : 'Find Your Soulmate on MadhuBondhon'}
           </h3>
