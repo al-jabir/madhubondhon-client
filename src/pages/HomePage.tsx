@@ -24,6 +24,7 @@ import { TANGAIL_UPAZILAS, getUpazilaDisplayName } from '../constants/locations'
 import { useLanguage } from '../i18n/LanguageContext';
 import PublicStatistics from '../components/profile/PublicStatistics';
 import { useAuth } from '../context/useAuth';
+import heroMosqueBg from '../assets/hero-mosque-bg.jpg';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -62,42 +63,24 @@ export const HomePage: React.FC = () => {
         {/* ─ Light mode background image with atmospheric depth & soft gradient overlays ─ */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden dark:hidden" aria-hidden="true">
           <img
-            src="/hero-mosque-bg.jpg"
+            src={heroMosqueBg}
             alt=""
-            className="w-full h-full object-cover object-center opacity-15 filter contrast-110 saturate-90"
+            className="w-full h-full object-cover object-right md:object-center opacity-30 filter contrast-110 saturate-90"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--mb-base)] via-[var(--mb-base)]/85 to-[var(--mb-base)]/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--mb-base)] via-transparent to-[var(--mb-base)]/80" />
-          <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_80%_-10%,theme(colors.emerald.100/35%),transparent),radial-gradient(800px_400px_at_5%_20%,var(--mb-brand-soft),transparent)]" />
-          <div className="absolute -top-20 -left-16 w-96 h-96 text-brand/10">
-            <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z" />
-              <circle cx="100" cy="140" r="32" />
-            </svg>
-          </div>
-          <div className="absolute -bottom-24 right-0 w-80 h-80 text-emerald-300/20 rotate-12">
-            <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z" />
-            </svg>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--mb-base)] via-[var(--mb-base)]/85 to-[var(--mb-base)]/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--mb-base)] via-transparent to-[var(--mb-base)]/50" />
         </div>
 
-        {/* ─ Dark: atmospheric mosque photo with emerald-slate depth ─ */}
+        {/* ─ Dark: atmospheric mosque photo with warm gold illumination ─ */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden hidden dark:block" aria-hidden="true">
           <img
-            src="/hero-mosque-bg.jpg"
+            src={heroMosqueBg}
             alt=""
-            className="w-full h-full object-cover object-center opacity-30 filter contrast-125 brightness-95"
+            className="w-full h-full object-cover object-right md:object-center opacity-60 filter brightness-110 contrast-105"
           />
-          <div className="absolute inset-0 bg-radial-[ellipse_at_center] from-[#064e3b]/30 via-[#0a0e17]/85 to-[var(--mb-base)]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--mb-base)] via-[var(--mb-base)]/80 to-[var(--mb-base)]/65" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--mb-base)] via-transparent to-[var(--mb-base)]/75" />
-          <div className="absolute -top-10 -left-10 w-96 h-96 opacity-10 text-brand pointer-events-none">
-            <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z" />
-              <circle cx="100" cy="140" r="32" />
-            </svg>
-          </div>
+          {/* Subtle directional gradient: darkens behind the left text so typography pops, leaves the illuminated mosque visible on the right */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--mb-base)] via-[var(--mb-base)]/75 to-[var(--mb-base)]/25" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--mb-base)] via-transparent to-[var(--mb-base)]/40" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -267,15 +250,18 @@ export const HomePage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Optional age preferences */}
-                  <details className="rounded-xl border border-line px-3 py-2.5">
-                    <summary className="cursor-pointer text-sm font-semibold text-ink-2 focus-visible:outline-2 focus-visible:outline-brand">{isBengali ? 'বয়স বেছে নিন (প্রয়োজনে)' : 'Choose an age range (optional)'}</summary>
-                  <div className="pt-3">
+                  {/* Age Range - directly visible (no click dropdown) */}
+                  <div>
                     <label className="mb-label">{isBengali ? 'বয়স সীমা (ঐচ্ছিক)' : 'Age Range (Optional)'}</label>
                     <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
                       <div className="relative">
                         <Calendar className="w-3.5 h-3.5 text-ink-3 absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <select aria-label={isBengali ? 'সর্বনিম্ন বয়স' : 'Minimum age'} value={minAge} onChange={(e) => setMinAge(e.target.value)} className="mb-input pl-7 sm:pl-8 !py-2 !text-xs">
+                        <select
+                          aria-label={isBengali ? 'সর্বনিম্ন বয়স' : 'Minimum age'}
+                          value={minAge}
+                          onChange={(e) => setMinAge(e.target.value)}
+                          className="mb-input pl-7 sm:pl-8 !py-2 !text-xs"
+                        >
                           <option value="">{isBengali ? 'সর্বনিম্ন বয়স' : 'Min Age'}</option>
                           {[18, 20, 22, 24, 26, 28, 30, 32, 35, 40].map((a) => (
                             <option key={a} value={a}>{formatNumber(a)} {isBengali ? 'বছর' : 'yrs'}</option>
@@ -285,7 +271,12 @@ export const HomePage: React.FC = () => {
                       </div>
                       <div className="relative">
                         <Calendar className="w-3.5 h-3.5 text-ink-3 absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <select aria-label={isBengali ? 'সর্বোচ্চ বয়স' : 'Maximum age'} value={maxAge} onChange={(e) => setMaxAge(e.target.value)} className="mb-input pl-7 sm:pl-8 !py-2 !text-xs">
+                        <select
+                          aria-label={isBengali ? 'সর্বোচ্চ বয়স' : 'Maximum age'}
+                          value={maxAge}
+                          onChange={(e) => setMaxAge(e.target.value)}
+                          className="mb-input pl-7 sm:pl-8 !py-2 !text-xs"
+                        >
                           <option value="">{isBengali ? 'সর্বোচ্চ বয়স' : 'Max Age'}</option>
                           {[22, 25, 28, 30, 32, 35, 38, 40, 45, 50, 60].map((a) => (
                             <option key={a} value={a}>{formatNumber(a)} {isBengali ? 'বছর' : 'yrs'}</option>
@@ -296,8 +287,8 @@ export const HomePage: React.FC = () => {
                     </div>
                   </div>
 
-                  </details>
-                  {searchError && <p role="alert" className="text-sm text-brand-ink">{searchError}</p>}
+                  {searchError && <p role="alert" className="text-xs text-brand font-semibold">{searchError}</p>}
+
                   <button type="submit" className="mb-btn-primary w-full mt-1 py-3 sm:py-3.5">
                     <Search className="w-4 h-4 stroke-[2.5]" />
                     <span>{isBengali ? 'বায়োডাটা খুঁজুন' : 'Search Biodata'}</span>
@@ -370,8 +361,8 @@ export const HomePage: React.FC = () => {
       {/* ─ How it works ─ */}
       <section className="py-12 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-line" id="how-it-works">
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-          <span className="mb-badge inline-flex mb-3 sm:mb-3.5">{isBengali ? 'সহজ চারটি ধাপ' : 'Four Simple Steps'}</span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-section-title mb-3 sm:mb-3.5">
+          <span className="mb-badge inline-flex mb-3.5 sm:mb-4">{isBengali ? 'সহজ চারটি ধাপ' : 'Four Simple Steps'}</span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-section-title tracking-tight leading-[1.3] sm:leading-[1.25] mb-3 sm:mb-3.5">
             {isBengali ? 'পরিচয় থেকে পরিণয়ের পথে' : 'From Introduction to Blessed Union'}
           </h2>
           <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-xl mx-auto">
@@ -435,8 +426,8 @@ export const HomePage: React.FC = () => {
       {/* ─ Upazilas ─ */}
       <section className="py-12 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-line">
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-          <span className="mb-badge inline-flex mb-3 sm:mb-3.5">{isBengali ? 'নিজের এলাকার মানুষ' : 'Tangail Upazilas'}</span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-section-title mb-3 sm:mb-3.5">
+          <span className="mb-badge inline-flex mb-3.5 sm:mb-4">{isBengali ? 'নিজের এলাকার মানুষ' : 'Tangail Upazilas'}</span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-section-title tracking-tight leading-[1.3] sm:leading-[1.25] mb-3 sm:mb-3.5">
             {isBengali ? 'এক জেলা, বারোটি পরিচিত ঠিকানা' : 'One District, 12 Familiar Hometowns'}
           </h2>
           <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-xl mx-auto">

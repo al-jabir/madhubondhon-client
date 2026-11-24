@@ -37,14 +37,14 @@ export default function PublicStatistics() {
 
   return (
     <section className="py-10 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 space-y-2">
-        <span className="mb-badge">
+      <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+        <span className="mb-badge inline-flex mb-3.5 sm:mb-4">
           {isBengali ? 'সংখ্যায় মধুবন্ধন' : 'MadhuBondhon in Numbers'}
         </span>
-        <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold mb-section-title">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-section-title tracking-tight leading-[1.3] sm:leading-[1.25] mb-3 sm:mb-3.5">
           {isBengali ? 'মধুবন্ধন সেবা গ্রহীতার পরিসংখ্যান' : 'Live Platform Statistics'}
         </h2>
-        <p className="text-xs sm:text-sm text-ink-2">
+        <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-xl mx-auto">
           {isBengali
             ? 'প্রকাশিত বায়োডাটা ও অ্যাডমিনের নিশ্চিত করা সফল বিবাহের নিয়মিত হালনাগাদ তথ্য'
             : 'Real-time overview of active matrimonial profiles and admin-verified marriages'}
