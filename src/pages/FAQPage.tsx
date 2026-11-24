@@ -222,7 +222,7 @@ export const FAQPage: React.FC = () => {
               placeholder={isBengali ? 'প্রশ্ন বা কীওয়ার্ড লিখে খুঁজুন...' : 'Search questions or keywords...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="mb-input w-full !text-sm pl-10 pr-10 py-2.5 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className="mb-input w-full text-sm! pl-10 pr-10 py-2.5 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
             {searchQuery && (
               <button

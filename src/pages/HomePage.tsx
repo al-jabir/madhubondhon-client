@@ -59,9 +59,16 @@ export const HomePage: React.FC = () => {
     <div className="min-h-screen bg-base text-ink">
       {/* ─────────────────── HERO ─────────────────── */}
       <section className="relative overflow-hidden pt-6 pb-12 sm:pt-10 sm:pb-20 lg:pt-16 lg:pb-28 border-b border-line">
-        {/* ─ Light decorations ─ */}
-        <div className="absolute inset-0 z-0 pointer-events-none dark:hidden" aria-hidden="true">
-          <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_80%_-10%,theme(colors.emerald.100/40%),transparent),radial-gradient(800px_400px_at_5%_20%,var(--mb-brand-soft),transparent)]" />
+        {/* ─ Light mode background image with atmospheric depth & soft gradient overlays ─ */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden dark:hidden" aria-hidden="true">
+          <img
+            src="/hero-mosque-bg.jpg"
+            alt=""
+            className="w-full h-full object-cover object-center opacity-15 filter contrast-110 saturate-90"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--mb-base)] via-[var(--mb-base)]/85 to-[var(--mb-base)]/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--mb-base)] via-transparent to-[var(--mb-base)]/80" />
+          <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_80%_-10%,theme(colors.emerald.100/35%),transparent),radial-gradient(800px_400px_at_5%_20%,var(--mb-brand-soft),transparent)]" />
           <div className="absolute -top-20 -left-16 w-96 h-96 text-brand/10">
             <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z" />
@@ -75,16 +82,16 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* ─ Dark: atmospheric mosque photo ─ */}
+        {/* ─ Dark: atmospheric mosque photo with emerald-slate depth ─ */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden hidden dark:block" aria-hidden="true">
           <img
             src="/hero-mosque-bg.jpg"
             alt=""
             className="w-full h-full object-cover object-center opacity-30 filter contrast-125 brightness-95"
           />
-          <div className="absolute inset-0 bg-radial-[ellipse_at_center] from-[#1c1022]/40 via-[#110a15]/85 to-[var(--mb-base)]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--mb-base)] via-[var(--mb-base)]/75 to-[var(--mb-base)]/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--mb-base)] via-transparent to-[var(--mb-base)]/70" />
+          <div className="absolute inset-0 bg-radial-[ellipse_at_center] from-[#064e3b]/30 via-[#0a0e17]/85 to-[var(--mb-base)]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--mb-base)] via-[var(--mb-base)]/80 to-[var(--mb-base)]/65" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--mb-base)] via-transparent to-[var(--mb-base)]/75" />
           <div className="absolute -top-10 -left-10 w-96 h-96 opacity-10 text-brand pointer-events-none">
             <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M100 0 C60 40 40 80 40 140 L40 200 L160 200 L160 140 C160 80 140 40 100 0 Z" />
