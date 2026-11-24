@@ -12,7 +12,6 @@ import {
   Gender,
   EducationLevel,
   MaritalStatus,
-  ProfileVisibility,
 } from "../types";
 import {
   TANGAIL_UPAZILAS,
@@ -1105,21 +1104,7 @@ function Wizard({ application }: { application: Application }) {
 
               <fieldset className="space-y-3"><legend className="text-sm font-semibold text-ink mb-2">{isBengali?'সঙ্গীর পছন্দের শিক্ষাগত যোগ্যতা':'Preferred partner education'}</legend><div className="flex flex-wrap gap-3">{Object.values(EducationLevel).map(value=><label key={value} className="flex gap-2 items-center text-sm"><input type="checkbox" checked={data.preferences?.preferredEducation?.includes(value)||false} onChange={e=>update('preferences',{...data.preferences,preferredEducation:e.target.checked?[...(data.preferences?.preferredEducation||[]),value]:(data.preferences?.preferredEducation||[]).filter(v=>v!==value)})}/>{({ssc:['এসএসসি','SSC'],hsc:['এইচএসসি','HSC'],diploma:['ডিপ্লোমা','Diploma'],bachelors:['স্নাতক','Bachelors'],masters:['স্নাতকোত্তর','Masters'],phd:['পিএইচডি','PhD'],islamic_education:['ইসলামিক শিক্ষা','Islamic education'],other:['অন্যান্য','Other']} as Record<string,string[]>)[value][isBengali?0:1]}</label>)}</div></fieldset>
               <fieldset className="space-y-3"><legend className="text-sm font-semibold text-ink mb-2">{isBengali?'সঙ্গীর পছন্দের বৈবাহিক অবস্থা':'Preferred partner marital status'}</legend><div className="flex flex-wrap gap-3">{discoveryOptions.maritalStatus.map(([value,bn,en])=><label key={value} className="flex gap-2 items-center text-sm"><input type="checkbox" checked={data.preferences?.preferredMaritalStatus?.includes(value)||false} onChange={e=>update('preferences',{...data.preferences,preferredMaritalStatus:e.target.checked?[...(data.preferences?.preferredMaritalStatus||[]),value]:(data.preferences?.preferredMaritalStatus||[]).filter(v=>v!==value)})}/>{isBengali?bn:en}</label>)}</div></fieldset>
-              <Field label={isBengali ? "দৃশ্যমানতা" : "Profile Visibility"}>
-                <select
-                  className={inputClass}
-                  value={data.visibility || "public"}
-                  onChange={(e) =>
-                    update("visibility", e.target.value as ProfileVisibility)
-                  }
-                >
-                  <option value="public">{isBengali ? "সবার জন্য (Public)" : "Public"}</option>
-                  <option value="registered_only">
-                    {isBengali ? "নিবন্ধিত সদস্য (Registered Only)" : "Registered Members Only"}
-                  </option>
-                  <option value="private">{isBengali ? "ব্যক্তিগত (Private)" : "Private"}</option>
-                </select>
-              </Field>
+              <p className="text-sm text-ink-2 leading-relaxed">{isBengali?'বায়োডাটার দৃশ্যমানতা ও সাময়িক বিরতি নিয়ন্ত্রণ করুন Account Settings থেকে।':'Manage biodata visibility and pausing in Account Settings.'}</p>
 
               <h2 className="text-lg font-bold text-ink">
                 {data.gender === "female"

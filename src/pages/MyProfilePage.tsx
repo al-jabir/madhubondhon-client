@@ -1,3 +1,4 @@
+import AccountSecurityPage from './AccountSecurityPage';
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -8,9 +9,6 @@ import {
   Shield,
   CheckCircle2,
   AlertCircle,
-  Lock,
-  Trash2,
-  PauseCircle,
   MapPin,
   Sparkles,
   Plus,
@@ -34,11 +32,9 @@ import {
   TrendingUp,
   Send,
 } from 'lucide-react';
-import { toast } from 'sonner';
 import BiodataDashboard from '../components/profile/BiodataDashboard';
 import PrintableBiodataModal from '../components/profile/PrintableBiodataModal';
 import { profilesApi } from '../api/profiles.api';
-import { authApi } from '../api/auth.api';
 import { workflowApi, Application, ReviewStatus } from '../api/workflow.api';
 import { useAuth } from '../context/useAuth';
 import { getUpazilaDisplayName } from '../constants/locations';
@@ -46,7 +42,6 @@ import { Profile } from '../types';
 import ProfileCard from '../components/profile/ProfileCard';
 import GenderAvatar from '../components/common/GenderAvatar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import ConfirmationModal from '../components/common/ConfirmationModal';
 import { useLanguage } from '../i18n/LanguageContext';
 
 type TabKey = 'overview' | 'recommendations' | 'verification' | 'settings';
@@ -1480,269 +1475,7 @@ const RecommendationsTab: React.FC<{ onNavigateTab?: (t: TabKey) => void }> = ({
 };
 
 /* ═══════════════ Settings tab ═══════════════ */
-const SettingsTab: React.FC = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const { isBengali } = useLanguage();
-
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  const [isPwSubmitting, setIsPwSubmitting] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<'deactivate' | 'delete' | null>(null);
-  const [isActionLoading, setIsActionLoading] = useState(false);
-
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPassword !== confirmNewPassword) {
-      toast.error(isBengali ? 'নতুন পাসওয়ার্ড মেলেনি।' : 'New passwords do not match.');
-      return;
-    }
-    try {
-      setIsPwSubmitting(true);
-      await authApi.changePassword({ currentPassword, newPassword, confirmNewPassword });
-      toast.success(
-        isBengali
-          ? 'পাসওয়ার্ড পরিবর্তিত হয়েছে। আবার লগইন করুন।'
-          : 'Password changed successfully. Please log in again.'
-      );
-      await logout();
-      navigate('/login');
-      setIsChangingPassword(false);
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmNewPassword('');
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (isBengali ? 'পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।' : 'Failed to change password.');
-      toast.error(msg);
-    } finally {
-      setIsPwSubmitting(false);
-    }
-  };
-
-  const executeDeactivate = async () => {
-    try {
-      setIsActionLoading(true);
-      await profilesApi.deactivateAccount();
-      toast.info(isBengali ? 'আপনার অ্যাকাউন্ট নিষ্ক্রিয় করা হয়েছে।' : 'Your account has been deactivated.');
-      await logout();
-      navigate('/login');
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (isBengali ? 'নিষ্ক্রিয় করতে সমস্যা হয়েছে।' : 'Failed to deactivate account.');
-      toast.error(msg);
-    } finally {
-      setIsActionLoading(false);
-      setConfirmAction(null);
-    }
-  };
-
-  const executeDelete = async () => {
-    try {
-      setIsActionLoading(true);
-      await profilesApi.deleteAccount();
-      toast.info(isBengali ? 'আপনার অ্যাকাউন্ট মুছে ফেলা হয়েছে।' : 'Your account has been deleted.');
-      await logout();
-      navigate('/login');
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (isBengali ? 'অ্যাকাউন্ট মুছতে সমস্যা হয়েছে।' : 'Failed to delete account.');
-      toast.error(msg);
-    } finally {
-      setIsActionLoading(false);
-      setConfirmAction(null);
-    }
-  };
-
-  return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      {/* — Password — */}
-      <div className="mb-card rounded-[2rem] p-6 sm:p-7 space-y-5">
-        <div className="flex items-center gap-3 pb-1">
-          <div className="w-10 h-10 rounded-xl bg-brand-soft text-brand flex items-center justify-center">
-            <Lock className="w-4.5 h-4.5" />
-          </div>
-          <div>
-            <h3 className="text-base font-black text-ink leading-tight">
-              {isBengali ? 'নিরাপত্তা' : 'Security'}
-            </h3>
-            <p className="text-[11px] text-ink-3">
-              {isBengali ? 'পাসওয়ার্ড পরিবর্তন করুন' : 'Change your account password'}
-            </p>
-          </div>
-        </div>
-
-        {!isChangingPassword ? (
-          <div className="bg-elev rounded-2xl p-4 flex items-center justify-between gap-3 border border-line">
-            <div>
-              <p className="text-xs font-bold text-ink">
-                {isBengali ? 'বর্তমান অ্যাকাউন্ট: ' : 'Account: '}
-                <span className="text-ink-2 font-semibold">{user?.email}</span>
-              </p>
-              <p className="text-[10.5px] text-ink-3 mt-0.5">
-                {isBengali
-                  ? 'মাঝে মাঝে পাসওয়ার্ড পরিবর্তন করলে অ্যাকাউন্ট নিরাপদ থাকে।'
-                  : 'Regularly updating your password keeps your account secure.'}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsChangingPassword(true)}
-              className="mb-btn-primary !text-xs py-2 px-4 rounded-xl cursor-pointer shrink-0 whitespace-nowrap"
-            >
-              <span>{isBengali ? 'পরিবর্তন করুন' : 'Change Password'}</span>
-            </button>
-          </div>
-        ) : (
-          <form
-            onSubmit={handleChangePassword}
-            className="space-y-3.5 bg-elev rounded-2xl p-4 border border-line"
-          >
-            <div>
-              <label className="mb-label !text-[11px]">
-                {isBengali ? 'বর্তমান পাসওয়ার্ড' : 'Current Password'}
-              </label>
-              <input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                required
-                className="mb-input w-full"
-              />
-            </div>
-            <div>
-              <label className="mb-label !text-[11px]">
-                {isBengali ? 'নতুন পাসওয়ার্ড' : 'New Password'}
-              </label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                minLength={8}
-                className="mb-input w-full"
-              />
-            </div>
-            <div>
-              <label className="mb-label !text-[11px]">
-                {isBengali ? 'নতুন পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm New Password'}
-              </label>
-              <input
-                type="password"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                required
-                minLength={8}
-                className="mb-input w-full"
-              />
-            </div>
-            <div className="flex items-center gap-2 pt-1">
-              <button
-                type="submit"
-                disabled={isPwSubmitting}
-                className="mb-btn-primary py-2 px-5 text-xs rounded-xl cursor-pointer"
-              >
-                {isPwSubmitting
-                  ? isBengali
-                    ? 'সংরক্ষণ হচ্ছে...'
-                    : 'Saving...'
-                  : isBengali
-                  ? 'পাসওয়ার্ড আপডেট করুন'
-                  : 'Update Password'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsChangingPassword(false)}
-                className="text-xs font-bold text-ink-3 hover:text-ink transition-colors cursor-pointer px-2"
-              >
-                {isBengali ? 'বাতিল' : 'Cancel'}
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
-
-      {/* — Danger zone — */}
-      <div className="mb-card rounded-[2rem] p-6 sm:p-7 space-y-5">
-        <div className="flex items-center gap-3 pb-1">
-          <div className="w-10 h-10 rounded-xl bg-gold-soft text-gold flex items-center justify-center">
-            <Shield className="w-4.5 h-4.5" />
-          </div>
-          <div>
-            <h3 className="text-base font-black text-ink leading-tight">
-              {isBengali ? 'বিয়ে হয়ে গেছে? অ্যাকাউন্ট নিয়ন্ত্রণ' : 'Got Married? Account Control'}
-            </h3>
-            <p className="text-[11px] text-ink-3">
-              {isBengali ? 'সাময়িক বিরতি অথবা চিরতরে মুছে ফেলা' : 'Temporary pause or permanent deletion'}
-            </p>
-          </div>
-        </div>
-
-        <p className="text-xs text-ink-2 leading-relaxed bg-elev rounded-2xl p-4 border border-line">
-          {isBengali
-            ? 'বিয়ে ঠিক হয়ে গেলে অথবা সাময়িক বিরতির জন্য অ্যাকাউন্ট স্থগিত বা মুছে ফেলতে পারেন। প্রয়োজনে আগে পছন্দের তালিকা ও যোগাযোগ ডেটা দেখে নিন।'
-            : 'If your marriage has been arranged or you wish to take a pause, you can deactivate or delete your account.'}
-        </p>
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => setConfirmAction('deactivate')}
-            className="px-4 py-2.5 text-xs font-bold text-gold bg-gold-soft hover:bg-gold/20 rounded-xl border border-gold/25 cursor-pointer flex items-center gap-1.5 transition-colors"
-          >
-            <PauseCircle className="w-3.5 h-3.5" />
-            <span>{isBengali ? 'সাময়িকভাবে নিষ্ক্রিয় করুন' : 'Deactivate Temporarily'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setConfirmAction('delete')}
-            className="px-4 py-2.5 text-xs font-bold text-brand bg-brand-soft hover:bg-brand/20 rounded-xl border border-brand/40 cursor-pointer flex items-center gap-1.5 transition-colors"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>{isBengali ? 'স্থায়ীভাবে মুছুন' : 'Delete Permanently'}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Deactivate Account Modal */}
-      <ConfirmationModal
-        isOpen={confirmAction === 'deactivate'}
-        onClose={() => setConfirmAction(null)}
-        onConfirm={executeDeactivate}
-        title={isBengali ? 'অ্যাকাউন্ট নিষ্ক্রিয়করণ' : 'Account Deactivation'}
-        message={
-          isBengali
-            ? 'আপনি কি নিশ্চিত যে আপনার অ্যাকাউন্টটি সাময়িকভাবে নিষ্ক্রিয় করতে চান? আপনি পরবর্তীতে যেকোনো সময় পুনরায় লগইন করে এটি আবার সক্রিয় করতে পারবেন।'
-            : 'Are you sure you want to temporarily deactivate your account? You can reactivate it anytime by logging in again.'
-        }
-        confirmText={isBengali ? 'নিষ্ক্রিয় করুন' : 'Deactivate'}
-        variant="warning"
-        isLoading={isActionLoading}
-      />
-
-      {/* Delete Account Modal */}
-      <ConfirmationModal
-        isOpen={confirmAction === 'delete'}
-        onClose={() => setConfirmAction(null)}
-        onConfirm={executeDelete}
-        title={isBengali ? 'স্থায়ীভাবে অ্যাকাউন্ট মুছে ফেলা' : 'Permanent Account Deletion'}
-        message={
-          isBengali
-            ? 'সতর্কতা: অ্যাকাউন্ট মুছে ফেললে আপনার সকল বায়োডাটা, সংরক্ষিত তালিকা এবং যোগাযোগের তথ্য চিরতরে ডাটাবেজ থেকে মুছে ফেলা হবে। এই কাজটি আর ফিরিয়ে আনা সম্ভব নয়। আপনি কি এগিয়ে যেতে চান?'
-            : 'Warning: Deleting your account will permanently remove your biodata, saved lists, and communication history. This action cannot be undone. Do you wish to proceed?'
-        }
-        confirmText={isBengali ? 'স্থায়ীভাবে মুছুন' : 'Delete Permanently'}
-        variant="danger"
-        isLoading={isActionLoading}
-      />
-    </div>
-  );
-};
+const SettingsTab: React.FC = () => <AccountSecurityPage embedded />;
 
 /* ═══════════════ Shared bits ═══════════════ */
 const TabLoader: React.FC = () => {

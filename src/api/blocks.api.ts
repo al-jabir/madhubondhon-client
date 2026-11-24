@@ -23,8 +23,8 @@ export const blocksApi = {
     return res.data;
   },
 
-  async getBlockList() {
-    const res = await apiClient.get<ApiResponse<{ blocks: BlockItem[] }>>('/blocks');
+  async getBlockList(page=1) {
+    const res = await apiClient.get<ApiResponse<{ blocks: BlockItem[] }>>('/blocks',{params:{page}});
     return res.data;
   },
 };

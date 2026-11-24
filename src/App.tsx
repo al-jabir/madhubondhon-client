@@ -125,7 +125,7 @@ const AppShell: React.FC = () => {
             <Route path="/demo" element={<SearchPage demo />} />
             <Route path="/demo/profiles/:userId" element={<ProfileDetailPage demo />} />
 
-            <Route path="/support-tickets" element={<ProtectedRoute><SupportTicketsPage /></ProtectedRoute>} /><Route path="/account-security" element={<ProtectedRoute><AccountSecurityPage /></ProtectedRoute>} /><Route path="/admin/security" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN,UserRole.SUPER_ADMIN,UserRole.MODERATOR]}><AccountSecurityPage /></ProtectedRoute>} />
+            <Route path="/support-tickets" element={<ProtectedRoute><SupportTicketsPage /></ProtectedRoute>} /><Route path="/account-settings" element={<ProtectedRoute><AccountSecurityPage /></ProtectedRoute>} /><Route path="/account-security" element={<ProtectedRoute><AccountSecurityPage /></ProtectedRoute>} /><Route path="/admin/security" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN,UserRole.SUPER_ADMIN,UserRole.MODERATOR]}><AccountSecurityPage /></ProtectedRoute>} />
 {/* Protected User Routes */}
             <Route
               path="/my-profile"

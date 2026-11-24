@@ -57,7 +57,7 @@ export const NotificationsPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-      <Link className="text-brand underline text-sm" to="/account-security">{isBengali?'বিজ্ঞপ্তির পছন্দ':'Notification preferences'}</Link>
+      <Link className="text-brand underline text-sm" to="/account-settings">{isBengali?'বিজ্ঞপ্তির পছন্দ':'Notification preferences'}</Link>
 {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
         <div>

@@ -260,7 +260,7 @@ export const Navbar: React.FC = () => {
                           { to: "/edit-profile", icon: Settings, label: t('nav.editProfile') },
                           { to: "/saved-searches", icon: Search, label: isBengali ? "সংরক্ষিত search" : "Saved searches" },
                           { to: "/support-tickets", icon: Phone, label: isBengali ? "আমার সাপোর্ট" : "My support tickets" },
-{ to: "/account-security", icon: Search, label: isBengali ? "অ্যাকাউন্ট নিরাপত্তা" : "Account security" },
+{ to: "/account-settings", icon: Search, label: isBengali ? "অ্যাকাউন্ট সেটিংস" : "Account settings" },
 { to: "/journey", icon: Phone, label: isBengali ? "যোগাযোগের অগ্রগতি" : "Connection progress" },
                           { to: "/interests", icon: Heart, label: t('nav.interests') },
                           { to: "/contacts", icon: Phone, label: t('nav.contacts') },
@@ -384,7 +384,7 @@ export const Navbar: React.FC = () => {
             {[...menuLinks, ...moreLinks, ...(isAuthenticated ? [
               { to: "/saved-searches", icon: Search, label: isBengali ? "সংরক্ষিত search" : "Saved searches" },
               { to: "/support-tickets", icon: Phone, label: isBengali ? "আমার সাপোর্ট" : "My support tickets" },
-{ to: "/account-security", icon: Search, label: isBengali ? "অ্যাকাউন্ট নিরাপত্তা" : "Account security" },
+{ to: "/account-settings", icon: Search, label: isBengali ? "অ্যাকাউন্ট সেটিংস" : "Account settings" },
 { to: "/journey", icon: Phone, label: isBengali ? "যোগাযোগের অগ্রগতি" : "Connection progress" },
               { to: "/shortlist", icon: Bookmark, label: isBengali ? "পছন্দের তালিকা" : "Shortlist" },
               { to: "/interests", icon: Heart, label: isBengali ? "আগ্রহ তালিকা" : "Interests" },
