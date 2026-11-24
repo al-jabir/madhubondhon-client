@@ -115,12 +115,12 @@ export const InterestsPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Page Title */}
-      <div className="border-b border-line pb-5">
+      <div className="border-b border-line pb-6">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-ink flex items-center gap-2.5">
           <Heart className="w-7 h-7 text-brand fill-brand-soft" />
           <span>{isBengali ? 'আগ্রহ তালিকা ও ম্যাচমেকিং' : 'Interests & Matchmaking'}</span>
         </h1>
-        <p className="text-sm text-ink-3 mt-1">
+        <p className="text-sm text-ink-2 mt-2 sm:mt-2.5 leading-relaxed">
           {isBengali
             ? 'আপনার বায়োডাটায় আসা এবং পাঠানো সকল আগ্রহের স্থিতি পর্যালোচনা করুন'
             : 'Track and manage all received and sent interest requests'}

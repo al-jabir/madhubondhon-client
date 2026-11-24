@@ -64,14 +64,14 @@ export default function PasswordRecoveryPage() {
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6">
         {/* Brand header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex w-12 h-12 rounded-2xl bg-linear-to-tr from-brand to-emerald-700 items-center justify-center text-white shadow-lg shadow-brand/20 dark:shadow-none mb-1">
+        <div className="text-center">
+          <div className="inline-flex w-12 h-12 rounded-2xl bg-linear-to-tr from-brand to-emerald-700 items-center justify-center text-white shadow-lg shadow-brand/20 dark:shadow-none mb-3.5">
             <HeartHandshake className="w-6 h-6 text-emerald-100" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-2 sm:mb-2.5">
             {isBengali ? "পাসওয়ার্ড পুনরুদ্ধার" : "Password Recovery"}
           </h1>
-          <p className="text-xs sm:text-sm text-ink-2">
+          <p className="text-xs sm:text-sm text-ink-2 leading-relaxed max-w-sm mx-auto">
             {isBengali
               ? "আপনার অ্যাকাউন্টের নিবন্ধিত ইমেইলে ভেরিফিকেশন কোড পাঠানো হবে"
               : "A verification security code will be sent to your registered account email"}

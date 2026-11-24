@@ -57,17 +57,17 @@ export const AboutPage: React.FC = () => {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div aria-hidden="true" className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full bg-brand/10 blur-3xl" />
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 pb-10 text-center space-y-4">
-          <span className="mb-badge">{isBengali ? 'আমাদের সম্পর্কে' : 'About Us'}</span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-ink leading-tight">
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 pb-10 text-center">
+          <span className="mb-badge inline-flex mb-3.5 sm:mb-4">{isBengali ? 'আমাদের সম্পর্কে' : 'About Us'}</span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-ink leading-[1.25] tracking-tight mb-3.5 sm:mb-4">
             {isBengali ? 'একই শিকড়ের টানে, মধুবন্ধনের মিশন' : 'Rooted in Tangail, Built for Blessed Unions'}
           </h1>
-          <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-2xl mx-auto mb-6 sm:mb-8">
             {isBengali
               ? 'মধুবন্ধন টাঙ্গাইল জেলা ও প্রবাসে বসবাসরত টাঙ্গাইলবাসীর জন্য একটি বিশ্বস্ত, নিরাপদ ও দ্বীনি পারিবারিক ম্যাট্রিমনি প্ল্যাটফর্ম — যেখানে অভিভাবকের সম্মতি, গোপনীয়তা ও শালীনতা সবসময় প্রাধান্য পায়।'
               : 'MadhuBondhon is a trusted, secure, and faith-centered matrimonial platform for families of Tangail and Tangail diaspora worldwide — where guardian consent, privacy, and modesty always come first.'}
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <Link to="/search" className="mb-btn-primary px-6 py-3 text-xs">
               {isBengali ? 'বায়োডাটা অনুসন্ধান' : 'Search Profiles'}
               <ArrowRight className="w-4 h-4" />
@@ -82,7 +82,7 @@ export const AboutPage: React.FC = () => {
       {/* Story */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-card p-6 sm:p-8 space-y-4 text-sm sm:text-base text-ink-2 leading-relaxed">
-          <h2 className="mb-section-title text-lg sm:text-xl">
+          <h2 className="mb-section-title text-lg sm:text-xl flex items-center gap-2 mb-3 sm:mb-4">
             <ScrollText className="w-5 h-5 text-brand" />
             <span>{isBengali ? 'আমাদের শুরুর গল্প' : 'Our Story'}</span>
           </h2>
@@ -100,12 +100,17 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* Values */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-        <div className="text-center space-y-2">
-          <span className="mb-badge">{isBengali ? 'আমাদের মূল্যবোধ' : 'Core Values'}</span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-ink">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
+          <span className="mb-badge inline-flex mb-3 sm:mb-3.5">{isBengali ? 'আমাদের মূল্যবোধ' : 'Core Values'}</span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-ink tracking-tight mb-3 sm:mb-3.5">
             {isBengali ? 'যে নীতিতে মধুবন্ধন পরিচালিত' : 'The Principles That Guide MadhuBondhon'}
           </h2>
+          <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-xl mx-auto">
+            {isBengali
+              ? 'সুন্নাহর অনুসরণ, পারিবারিক মর্যাদা ও শতভাগ গোপনীয়তা রক্ষায় আমাদের অবিচল অঙ্গীকার।'
+              : 'Our steadfast commitment to following the Sunnah, honoring family dignity, and safeguarding privacy.'}
+          </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {values.map(({ icon: Icon, title, body }) => (

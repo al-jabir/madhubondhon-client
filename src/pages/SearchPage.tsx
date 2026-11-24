@@ -251,14 +251,14 @@ const SearchPageContent: React.FC<{ demo?: boolean }> = ({ demo = false }) => {
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-line">
-        <div className="space-y-1.5">
-          <h1 className="text-2xl sm:text-3xl font-bold text-ink flex items-center gap-3">
-            <span className="w-11 h-11 rounded-2xl bg-brand-soft border border-brand/20 text-brand flex items-center justify-center">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink flex items-center gap-3">
+            <span className="w-11 h-11 rounded-2xl bg-brand-soft border border-brand/20 text-brand flex items-center justify-center shrink-0">
               <Search className="w-5 h-5" />
             </span>
             <span>{isBengali ? 'বায়োডাটা অনুসন্ধান' : 'Find Biodata'}</span>
           </h1>
-          <p className="text-sm text-ink-2 pl-[3.75rem]">
+          <p className="text-sm text-ink-2 mt-2 sm:mt-2.5 sm:ml-14 leading-relaxed">
             {isBengali
               ? 'টাঙ্গাইলের ১২টি উপজেলার দ্বীনি ও উপযুক্ত পাত্র-পাত্রী খুঁজে নিন'
               : 'Explore pious & compatible matrimonial profiles across 12 upazilas of Tangail'}

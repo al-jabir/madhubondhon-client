@@ -236,17 +236,19 @@ function Wizard({ application }: { application: Application }) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 space-y-6">
-      <Link to="/my-profile" className="text-sm text-brand hover:underline font-semibold">
-        {isBengali ? "← আমার বায়োডাটা" : "← My Biodata"}
-      </Link>
-      <h1 className="text-2xl font-bold text-ink">
-        {isBengali ? "ধাপে ধাপে বায়োডাটা তৈরি করুন" : "Create Biodata Step-by-Step"}
-      </h1>
-      <p className="text-sm text-ink-2">
-        {isBengali
-          ? "যতটুকু পূরণ হয়েছে খসড়া হিসেবে সংরক্ষণ করুন। সম্পাদনা করলে বায়োডাটা আবার জমা না দেওয়া পর্যন্ত প্রকাশিত থাকবে না।"
-          : "Save your progress as draft anytime. After editing, your biodata stays hidden until you submit it again."}
-      </p>
+      <div>
+        <Link to="/my-profile" className="inline-flex items-center gap-1.5 text-xs text-brand hover:underline font-semibold mb-3">
+          {isBengali ? "← আমার বায়োডাটা" : "← My Biodata"}
+        </Link>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-2 sm:mb-2.5">
+          {isBengali ? "ধাপে ধাপে বায়োডাটা তৈরি করুন" : "Create Biodata Step-by-Step"}
+        </h1>
+        <p className="text-sm text-ink-2 leading-relaxed">
+          {isBengali
+            ? "যতটুকু পূরণ হয়েছে খসড়া হিসেবে সংরক্ষণ করুন। সম্পাদনা করলে বায়োডাটা আবার জমা না দেওয়া পর্যন্ত প্রকাশিত থাকবে না।"
+            : "Save your progress as draft anytime. After editing, your biodata stays hidden until you submit it again."}
+        </p>
+      </div>
 
       <ol className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {stepNames.map((name, i) => (

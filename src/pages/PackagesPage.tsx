@@ -164,12 +164,12 @@ export const PackagesPage: React.FC = () => {
       {/* Header & Balance Banner */}
       <div className="bg-linear-to-r from-brand to-emerald-800 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-brand/20 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold text-emerald-100">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold text-emerald-100 mb-2.5">
               <Sparkles className="w-3.5 h-3.5 text-gold" />
               <span>{isBengali ? 'সহজ ও বিশ্বস্ত মাধ্যম' : 'Simple & Secure'}</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight mb-2.5 sm:mb-3 text-white">
               {isBengali ? 'যোগাযোগ ক্রেডিট প্যাকেজ' : 'Contact Credit Packages'}
             </h1>
             <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
@@ -183,12 +183,12 @@ export const PackagesPage: React.FC = () => {
             <div className="w-12 h-12 rounded-full bg-gold text-white flex items-center justify-center mb-2 shadow-md">
               <Coins className="w-6 h-6 fill-current" />
             </div>
-            <span className="text-xs text-rose-100 font-medium">
+            <span className="text-xs text-emerald-100 font-medium">
               {isBengali ? 'আপনার অবশিষ্ট ক্রেডিট' : 'Your Available Credits'}
             </span>
             <span className="text-3xl sm:text-4xl font-extrabold mt-1 text-white">
               {isBengali ? formatNumber(user?.contactCredits ?? 0) : user?.contactCredits ?? 0}{' '}
-              <span className="text-base font-normal text-rose-200">
+              <span className="text-base font-normal text-emerald-200">
                 {isBengali ? 'টি' : 'credits'}
               </span>
             </span>
@@ -200,12 +200,12 @@ export const PackagesPage: React.FC = () => {
       </div>
 
       {/* Packages Grid */}
-      <div className="space-y-6">
-        <div className="text-center max-w-xl mx-auto space-y-2">
-          <h2 className="text-2xl font-bold text-ink">
+      <div>
+        <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-2.5 sm:mb-3">
             {isBengali ? 'সাশ্রয়ী মূল্যে ক্রেডিট কিনুন' : 'Purchase Affordable Credit Bundles'}
           </h2>
-          <p className="text-sm text-ink-3">
+          <p className="text-sm sm:text-base text-ink-2 leading-relaxed">
             {isBengali
               ? 'আপনার সুবিধামত প্যাকেজ নির্বাচন করে bKash বা Nagad এ সহজে পেমেন্ট সম্পন্ন করুন।'
               : 'Select your preferred bundle and easily pay via bKash or Nagad.'}

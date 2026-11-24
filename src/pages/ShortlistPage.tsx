@@ -44,13 +44,13 @@ export const ShortlistPage: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink flex items-center gap-2.5">
             <Bookmark className="w-7 h-7 text-brand fill-brand-soft" />
             <span>{isBengali ? 'পছন্দের তালিকা (Shortlist)' : 'My Shortlist'}</span>
           </h1>
-          <p className="text-sm text-ink-3 mt-1">
+          <p className="text-sm text-ink-2 mt-2 sm:mt-2.5 leading-relaxed">
             {isBengali
               ? 'আপনার সংরক্ষিত পছন্দের পাত্র ও পাত্রীর বায়োডাটা সমূহ'
               : 'Your saved favorite profiles of prospective brides and grooms'}

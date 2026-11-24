@@ -54,12 +54,12 @@ export default function ContactsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-6">
         <div>
-          <h1 className="text-2xl font-bold text-ink">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-2 sm:mb-2.5">
             {isBengali ? "যোগাযোগের অনুমতি" : "Contact Permissions"}
           </h1>
-          <p className="text-sm text-ink-2">
+          <p className="text-sm text-ink-2 leading-relaxed">
             {isBengali
               ? "গৃহীত আগ্রহের পর যোগাযোগের অনুরোধ পাঠানো যায়। সংশ্লিষ্ট সদস্য অনুমতি দিলেই যাচাইকৃত অভিভাবকের যোগাযোগ দেখা যাবে।"
               : "Contact requests can be sent after an interest is accepted. Guardian contact details become visible once permission is granted."}

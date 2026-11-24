@@ -67,9 +67,9 @@ export const ContactPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-10">
       {/* Header */}
-      <div className="text-center space-y-3">
-        <span className="mb-badge">{isBengali ? 'যোগাযোগ' : 'Contact Us'}</span>
-        <h1 className="text-3xl sm:text-4xl font-black text-ink">
+      <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
+        <span className="mb-badge inline-flex mb-3 sm:mb-3.5">{isBengali ? 'যোগাযোগ' : 'Contact Us'}</span>
+        <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-ink tracking-tight mb-3 sm:mb-4">
           {isBengali ? 'আমাদের সাথে যোগাযোগ করুন' : 'Get in Touch With Us'}
         </h1>
         <p className="text-sm sm:text-base text-ink-2 max-w-xl mx-auto leading-relaxed">

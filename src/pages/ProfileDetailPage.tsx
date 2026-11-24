@@ -342,7 +342,7 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
         <div className="absolute -top-16 -right-10 w-64 h-64 rounded-full bg-brand-soft/70 blur-3xl -z-0 pointer-events-none max-md:hidden" aria-hidden="true" />
 
         <div className="relative shrink-0 mx-auto md:mx-0">
-          <div className="absolute -inset-1.5 rounded-full bg-linear-to-br from-brand/60 via-pink-500/40 to-transparent opacity-70" aria-hidden="true" />
+          <div className="absolute -inset-1.5 rounded-full bg-linear-to-br from-brand/60 via-brand/20 to-transparent opacity-70" aria-hidden="true" />
           <div className="relative w-32 h-32 rounded-full shadow-lg border-3 border-card">
             <GenderAvatar
               gender={profile.gender}
@@ -354,11 +354,11 @@ export const ProfileDetailPage: React.FC<{ demo?: boolean }> = ({ demo = false }
 
         <div className="flex-1 text-center md:text-left space-y-3 relative">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-bold text-ink">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
               {profile.displayName}
             </h1>
             {profile.biodataId && (
-              <span className="text-xs font-black tracking-wider px-3 py-1 rounded-full bg-[#2b161f] text-gold border border-gold/30">
+              <span className="text-xs font-black tracking-wider px-3 py-1 rounded-full bg-slate-900 text-gold border border-gold/35">
                 {profile.biodataId}
               </span>
             )}

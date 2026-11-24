@@ -73,9 +73,9 @@ export const GuidePage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-12">
       {/* Header */}
-      <div className="text-center space-y-3">
-        <span className="mb-badge">{isBengali ? 'নির্দেশনা' : 'Guidelines'}</span>
-        <h1 className="text-3xl sm:text-4xl font-black text-ink">
+      <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+        <span className="mb-badge inline-flex mb-3 sm:mb-3.5">{isBengali ? 'নির্দেশনা' : 'Guidelines'}</span>
+        <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-ink tracking-tight mb-3 sm:mb-4">
           {isBengali ? 'ধাপে ধাপে ব্যবহার নির্দেশিকা' : 'Step-by-Step User Guide'}
         </h1>
         <p className="text-sm sm:text-base text-ink-2 max-w-xl mx-auto leading-relaxed">

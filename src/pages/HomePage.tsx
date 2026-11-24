@@ -103,13 +103,13 @@ export const HomePage: React.FC = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left column */}
-            <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-brand-soft border border-brand/25 text-brand-ink text-xs font-bold">
+            <div className="lg:col-span-7 text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-brand-soft border border-brand/25 text-brand-ink text-xs font-bold mb-3 sm:mb-4">
                 <MapPin className="w-3.5 h-3.5 text-brand" />
                 <span>{isBengali ? 'টাঙ্গাইল জেলার জন্য বিশেষভাবে' : 'Exclusively for Tangail District'}</span>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-[54px] font-bold leading-tight sm:leading-[1.3] tracking-tight text-ink">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-[52px] font-extrabold leading-[1.28] sm:leading-[1.22] tracking-tight text-ink mb-3 sm:mb-4">
                 {isBengali ? (
                   <>
                     দ্বীন ও আস্থার বন্ধনে,<br className="hidden sm:inline" />{' '}
@@ -123,14 +123,14 @@ export const HomePage: React.FC = () => {
                 )}
               </h1>
 
-              <p className="text-ink-2 text-xs sm:text-base leading-relaxed max-w-xl">
+              <p className="text-ink-2 text-xs sm:text-base leading-relaxed max-w-xl mb-6 sm:mb-8">
                 {isBengali
                   ? 'টাঙ্গাইল জেলার দ্বীনদার পাত্র-পাত্রী খোঁজার বিশ্বস্ত ও নিরাপদ প্ল্যাটফর্ম। কোনো উন্মুক্ত ছবি ছাড়া শতভাগ শালীনতা ও অভিভাবকের সম্মতিতে যোগাযোগ।'
                   : 'A trusted, modest matchmaking platform for Tangail. Connect with peace of mind through guardian consent and full privacy without public photos.'}
               </p>
 
               {/* Feature badges */}
-              <div className="hidden sm:grid grid-cols-3 gap-3 pt-2">
+              <div className="hidden sm:grid grid-cols-3 gap-3">
                 {[
                   {
                     icon: ShieldCheck,
@@ -369,12 +369,12 @@ export const HomePage: React.FC = () => {
 
       {/* ─ How it works ─ */}
       <section className="py-12 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-line" id="how-it-works">
-        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-14 space-y-2">
-          <span className="mb-badge">{isBengali ? 'সহজ চারটি ধাপ' : 'Four Simple Steps'}</span>
-          <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold mb-section-title">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+          <span className="mb-badge inline-flex mb-3 sm:mb-3.5">{isBengali ? 'সহজ চারটি ধাপ' : 'Four Simple Steps'}</span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-section-title mb-3 sm:mb-3.5">
             {isBengali ? 'পরিচয় থেকে পরিণয়ের পথে' : 'From Introduction to Blessed Union'}
           </h2>
-          <p className="text-xs sm:text-sm text-ink-2">
+          <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-xl mx-auto">
             {isBengali
               ? 'নিজের তথ্য দিয়ে শুরু করুন। সময় নিয়ে জানুন, পরিবারের সঙ্গে আলোচনা করে সিদ্ধান্ত নিন।'
               : 'Begin by creating your biodata. Explore respectfully, involve family, and make blessed decisions.'}
@@ -434,12 +434,12 @@ export const HomePage: React.FC = () => {
 
       {/* ─ Upazilas ─ */}
       <section className="py-12 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-line">
-        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 space-y-2">
-          <span className="mb-badge">{isBengali ? 'নিজের এলাকার মানুষ' : 'Tangail Upazilas'}</span>
-          <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold mb-section-title">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+          <span className="mb-badge inline-flex mb-3 sm:mb-3.5">{isBengali ? 'নিজের এলাকার মানুষ' : 'Tangail Upazilas'}</span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-section-title mb-3 sm:mb-3.5">
             {isBengali ? 'এক জেলা, বারোটি পরিচিত ঠিকানা' : 'One District, 12 Familiar Hometowns'}
           </h2>
-          <p className="text-xs sm:text-sm text-ink-2">
+          <p className="text-sm sm:text-base text-ink-2 leading-relaxed max-w-xl mx-auto">
             {isBengali
               ? 'আপনার পছন্দের উপজেলা বেছে নিন এবং সেই এলাকার নির্ভরযোগ্য বায়োডাটা দেখুন।'
               : 'Choose your desired upazila to explore authentic matrimonial profiles from that locality.'}
@@ -480,14 +480,14 @@ export const HomePage: React.FC = () => {
             <rect width="100%" height="100%" fill="url(#mb-arch)" />
           </svg>
 
-          <div className="space-y-2.5 sm:space-y-3 text-center md:text-left z-10">
-            <span className="inline-block text-xs font-bold text-white/90 bg-white/15 px-3 py-1 rounded-full border border-white/25 backdrop-blur-xs">
+          <div className="space-y-3 sm:space-y-3.5 text-center md:text-left z-10">
+            <span className="inline-block text-xs font-bold text-white/95 bg-white/15 px-3 py-1 rounded-full border border-white/25 backdrop-blur-xs mb-1">
               {isBengali ? 'পবিত্র বৈবাহিক বন্ধন' : 'Sacred Union'}
             </span>
-            <h2 className="text-xl sm:text-3xl font-bold text-white">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
               {isBengali ? 'সুন্দর শুরুর প্রথম পদক্ষেপ নিন' : 'Take the First Step to a Blessed Union'}
             </h2>
-            <p className="text-xs sm:text-sm text-white/85 max-w-xl">
+            <p className="text-xs sm:text-sm text-white/90 max-w-xl leading-relaxed">
               {isBengali
                 ? 'আজই বিনামূল্যে আপনার বায়োডাটা তৈরি করুন এবং টাঙ্গাইলের মানুষের সঙ্গে দ্বীনি ও বিশ্বস্ত পরিচয়ের নতুন দরজা খুলুন।'
                 : 'Create your free biodata today and open the door to genuine matrimonial introductions across Tangail.'}

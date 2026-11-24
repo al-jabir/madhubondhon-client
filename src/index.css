@@ -213,7 +213,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; backgr
 :root[data-theme="dark"] [class*="text-pink-7"]{color:#efb1d6}
 :root[data-theme="dark"] [class*="shadow-"]{--tw-shadow-color:transparent}
 :root[data-theme="dark"] :is(input, textarea, select){background-color:#1a202c;color:#f1f5f9;border-color:#374151}
-:root[data-theme="dark"] :is(input, textarea, select):focus{background-color:#202736 !important;border-color:#f43f5e !important;outline:none;box-shadow:0 0 0 2px rgba(244,63,94,.25) !important}
+:root[data-theme="dark"] :is(input, textarea, select):focus{background-color:#202736 !important;border-color:#059669 !important;outline:none;box-shadow:0 0 0 2px rgba(5,150,105,.25) !important}
 :root[data-theme="dark"] input::placeholder,:root[data-theme="dark"] textarea::placeholder{color:#8b95a5 !important}
 :root[data-theme="dark"] select option{background-color:#1a202c;color:#f1f5f9}
 :root[data-theme="dark"] [data-sonner-toast]{background:#222733;color:#edf0f6;border-color:#414555}

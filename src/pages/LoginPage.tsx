@@ -77,12 +77,12 @@ export const LoginPage: React.FC = () => {
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6">
         {/* Brand header */}
-        <div className="text-center space-y-2.5">
-          <div className="inline-flex w-14 h-14 rounded-2xl bg-linear-to-br from-brand to-emerald-700 items-center justify-center text-white shadow-lg shadow-brand/25 mb-1">
+        <div className="text-center">
+          <div className="inline-flex w-14 h-14 rounded-2xl bg-linear-to-br from-brand to-emerald-700 items-center justify-center text-white shadow-lg shadow-brand/25 mb-3.5">
             <HeartHandshake className="w-7 h-7 text-emerald-100" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-ink">{t('auth.welcome')}</h2>
-          <p className="text-xs sm:text-sm text-ink-2">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-2 sm:mb-2.5">{t('auth.welcome')}</h2>
+          <p className="text-xs sm:text-sm text-ink-2 leading-relaxed max-w-sm mx-auto">
             {t('auth.loginSubtitle')}
           </p>
         </div>

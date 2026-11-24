@@ -199,36 +199,36 @@ export const FAQPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       {/* Header */}
-      <div className="text-center space-y-3 max-w-2xl mx-auto">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-soft text-brand rounded-full text-xs font-bold border border-brand/25">
-          <HelpCircle className="w-3.5 h-3.5" />
+      <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-soft text-brand-ink rounded-full text-xs font-bold border border-brand/25 mb-3 sm:mb-3.5">
+          <HelpCircle className="w-3.5 h-3.5 text-brand" />
           <span>{isBengali ? 'সহায়তা ও দিকনির্দেশনা' : 'Help & Guidance'}</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight mb-3 sm:mb-4">
           {isBengali ? 'সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)' : 'Frequently Asked Questions (FAQ)'}
         </h1>
-        <p className="text-sm text-ink-2">
+        <p className="text-sm sm:text-base text-ink-2 leading-relaxed mb-6 sm:mb-8">
           {isBengali
             ? 'মধুবন্ধন টাঙ্গাইল মেট্রিমনি প্ল্যাটফর্মের ব্যবহারবিধি, শরিয়াহ নীতিমালা ও সেবা সংক্রান্ত যাবতীয় উত্তর'
             : 'Answers regarding platform usage, Shariah guidelines, and matrimonial services across Tangail'}
         </p>
 
         {/* Search bar */}
-        <div className="pt-2">
+        <div>
           <div className="relative max-w-md mx-auto">
-            <Search className="w-4 h-4 text-gray-400 dark:text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-ink-3 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder={isBengali ? 'প্রশ্ন বা কীওয়ার্ড লিখে খুঁজুন...' : 'Search questions or keywords...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="mb-input w-full text-sm! pl-10 pr-10 py-2.5 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className="mb-input w-full text-sm! pl-10 pr-10 py-2.5 text-ink placeholder:text-ink-3"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink transition-colors cursor-pointer"
                 aria-label={isBengali ? 'ক্লিয়ার করুন' : 'Clear search'}
               >
                 <X className="w-4 h-4" />

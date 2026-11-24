@@ -185,11 +185,11 @@ export const RegisterPage: React.FC = () => {
 
         {/* Right: form card */}
         <div className="w-full max-w-2xl space-y-5">
-          <div className="text-center lg:text-left space-y-1.5">
-            <h2 className="text-2xl sm:text-3xl font-bold text-ink">
+          <div className="text-center lg:text-left mb-5">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-2 sm:mb-2.5">
               {isBengali ? 'বিনামূল্যে অ্যাকাউন্ট খুলুন' : 'Create a Free Account'}
             </h2>
-            <p className="text-xs sm:text-sm text-ink-2">
+            <p className="text-xs sm:text-sm text-ink-2 leading-relaxed">
               {isBengali
                 ? 'টাঙ্গাইলের দ্বীনি ও বিশ্বস্ত পাত্র-পাত্রীর সন্ধানে যুক্ত হোন'
                 : 'Join to find trusted, pious brides and grooms across Tangail'}

@@ -57,31 +57,39 @@ export const NotificationsPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-      <Link className="text-brand underline text-sm" to="/account-settings">{isBengali?'বিজ্ঞপ্তির পছন্দ':'Notification preferences'}</Link>
-{/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink flex items-center gap-2.5">
             <Bell className="w-7 h-7 text-brand" />
             <span>{isBengali ? 'বিজ্ঞপ্তিসমূহ' : 'Notifications'}</span>
           </h1>
-          <p className="text-sm text-ink-3 mt-1">
+          <p className="text-sm text-ink-2 mt-2 sm:mt-2.5 leading-relaxed">
             {isBengali
               ? 'আপনার অ্যাকাউন্টের সাম্প্রতিক সকল আপডেট ও গুরুত্বপূর্ণ নোটিফিকেশন'
               : 'Recent updates, activity and notices regarding your account'}
           </p>
         </div>
 
-        {unreadCount > 0 && (
-          <button
-            type="button"
-            onClick={() => markAllMutation.mutate()}
-            className="mb-btn-secondary self-start sm:self-auto inline-flex items-center gap-1.5 !px-3.5 !py-2 !text-xs !bg-brand-soft !text-brand-ink !border-brand/25 hover:!bg-brand/15 rounded-xl cursor-pointer"
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <Link
+            to="/account-settings"
+            className="text-xs font-semibold text-brand hover:underline"
           >
-            <CheckCheck className="w-4 h-4" />
-            <span>{isBengali ? 'সব পড়া হয়েছে চিহ্নিত করুন' : 'Mark all as read'}</span>
-          </button>
-        )}
+            {isBengali ? 'বিজ্ঞপ্তির পছন্দ' : 'Notification preferences'}
+          </Link>
+
+          {unreadCount > 0 && (
+            <button
+              type="button"
+              onClick={() => markAllMutation.mutate()}
+              className="mb-btn-secondary inline-flex items-center gap-1.5 !px-3.5 !py-2 !text-xs !bg-brand-soft !text-brand-ink !border-brand/25 hover:!bg-brand/15 rounded-xl cursor-pointer"
+            >
+              <CheckCheck className="w-4 h-4" />
+              <span>{isBengali ? 'সব পড়া হয়েছে চিহ্নিত করুন' : 'Mark all as read'}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {isLoading ? (
